@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MatchCard from '../components/match/MatchCard.astro';
+import MatchEmptyState from '../components/match/EmptyState.astro';
+import { site, owcs, type MatchEntry } from '../data/site';
+import autoMatchesData from '../data/matches.json';
+import manualMatchesData from '../data/matches.manual.json';
+
+const autoMatches = autoMatchesData as MatchEntry[];
+const manualMatches = manualMatchesData as MatchEntry[];
+const byId = new Map<string, MatchEntry>();
+for (const m of autoMatches) byId.set(m.id, m);
+for (const m of manualMatches) byId.set(m.id, m);
+const allMatches = Array.from(byId.values());
+
+const now = Date.now();
+const upcoming = allMatches
+  .filter((m) => new Date(m.date).getTime() >= now)
+  .sort((a, b) => +new Date(a.date) - +new Date(b.date));
+const past = allMatches
+  .filter((m) => new Date(m.date).getTime() < now)
+  .sort((a, b) => +new Date(b.date) - +new Date(a.date));
+
+const jsonLd = upcoming.map((m) => ({
+  '@context': 'https://schema.org',
+  '@type': 'SportsEvent',
+  name: `${site.name} vs ${m.opponent}`,
+  startDate: m.date,
+  sport: 'Esports',
+  eventStatus: 'https://schema.org/EventScheduled',
+  superEvent: { '@type': 'SportsEvent', name: m.tournament },
+  competitor: [
+    { '@type': 'SportsTeam', name: site.name },
+    { '@type': 'SportsTeam', name: m.opponent },
+  ],
+  ...(m.streamUrl ? { url: m.streamUrl } : {}),
+}));
+---
+<BaseLayout
+  title="Matches"
+  description={`Upcoming matches and recent results for ${site.name} in ${owcs.league}.`}
+  jsonLd={jsonLd.length > 0 ? jsonLd : undefined}
+>
+  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12">
+    <p class="text-sm uppercase tracking-wider text-[var(--color-accent-2)]">Schedule</p>
+    <h1 class="font-display text-4xl sm:text-5xl mt-2 tracking-wide">Matches</h1>
+  </section>
+
+  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10">
+    <h2 class="font-display text-2xl tracking-wide mb-4">Upcoming</h2>
+    {upcoming.length > 0 ? (
+      <div class="space-y-3">
+        {upcoming.map((m) => <MatchCard match={m} />)}
+      </div>
+    ) : (
+      <MatchEmptyState variant="upcoming" />
+    )}
+  </section>
+
+  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12">
+    <h2 class="font-display text-2xl tracking-wide mb-4">Past Results</h2>
+    {past.length > 0 ? (
+      <div class="space-y-3">
+        {past.map((m) => <MatchCard match={m} />)}
+      </div>
+    ) : (
+      <MatchEmptyState variant="past" />
+    )}
+  </section>
+
+  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12 text-xs text-[var(--color-text-dim)]">
+    <p>
+      Match data sourced from
+      {' '}
+      <a href="https://liquipedia.net/overwatch/" target="_blank" rel="noopener" class="text-[var(--color-accent-2)] hover:underline">Liquipedia</a>,
+      available under
+      {' '}
+      <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener" class="text-[var(--color-accent-2)] hover:underline">CC BY-SA 3.0</a>.
+    </p>
+  </section>
+</BaseLayout>

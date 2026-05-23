@@ -1,0 +1,66 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../data/site';
+
+const updated = '2026-05-23';
+---
+<BaseLayout
+  title="Terms of Use"
+  description={`Terms of use for the ${site.name} website.`}
+>
+  <section class="mx-auto max-w-3xl px-4 sm:px-6 pt-12 pb-16">
+    <p class="text-sm uppercase tracking-wider text-[var(--color-accent-2)]">Legal</p>
+    <h1 class="font-display text-4xl sm:text-5xl mt-2 tracking-wide">Terms of Use</h1>
+    <p class="text-xs text-[var(--color-text-dim)] mt-2">Last updated: {updated}</p>
+
+    <div class="prose mt-8 text-[var(--color-text)] leading-relaxed space-y-5">
+      <h2 class="font-display text-2xl mt-2 tracking-wide">Use of the site</h2>
+      <p>
+        You may access and read this website for personal, non-commercial use.
+        You may not scrape, mirror, or republish substantial portions of the site
+        without permission. You may link to any page on this site without prior
+        notice.
+      </p>
+
+      <h2 class="font-display text-2xl mt-8 tracking-wide">Match data attribution</h2>
+      <p>
+        Match information displayed on the Matches page is sourced from
+        <a href="https://liquipedia.net/overwatch/" target="_blank" rel="noopener">Liquipedia</a>
+        and is provided under the
+        <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">Creative Commons Attribution-ShareAlike 3.0 license</a>.
+        Any reuse of that data must preserve the same license terms.
+      </p>
+
+      <h2 class="font-display text-2xl mt-8 tracking-wide">Trademarks</h2>
+      <p>
+        Overwatch, the Overwatch Champions Series, and related marks are trademarks
+        of Blizzard Entertainment, Inc. Najdorf Esports is not affiliated with,
+        endorsed by, or sponsored by Blizzard Entertainment.
+      </p>
+
+      <h2 class="font-display text-2xl mt-8 tracking-wide">No commercial transactions yet</h2>
+      <p>
+        This website does not currently sell goods or services. The "Shop"
+        placeholder page is provided as a notice of future availability only.
+        When the store launches, separate terms of sale will apply.
+      </p>
+
+      <h2 class="font-display text-2xl mt-8 tracking-wide">No warranty</h2>
+      <p>
+        This site is provided on an "as is" basis without warranties of any kind.
+        Match schedules, results, and roster information are subject to change.
+      </p>
+
+      <h2 class="font-display text-2xl mt-8 tracking-wide">Contact</h2>
+      <p>
+        Questions about these terms: {site.contactEmail}.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style is:global>
+  .prose p { margin-bottom: 1em; }
+  .prose a { color: var(--color-accent-2); text-decoration: underline; text-underline-offset: 3px; }
+  .prose a:hover { color: var(--color-accent); }
+</style>

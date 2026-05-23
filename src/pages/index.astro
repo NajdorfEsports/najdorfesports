@@ -1,0 +1,131 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import OWCSBadge from '../components/ui/OWCSBadge.astro';
+import NextMatchCountdown from '../components/match/NextMatchCountdown.astro';
+import MatchCard from '../components/match/MatchCard.astro';
+import MatchEmptyState from '../components/match/EmptyState.astro';
+import Button from '../components/ui/Button.astro';
+import { getCollection } from 'astro:content';
+import { site, socials, type MatchEntry } from '../data/site';
+import autoMatchesData from '../data/matches.json';
+import manualMatchesData from '../data/matches.manual.json';
+
+const autoMatches = autoMatchesData as MatchEntry[];
+const manualMatches = manualMatchesData as MatchEntry[];
+const byId = new Map<string, MatchEntry>();
+for (const m of autoMatches) byId.set(m.id, m);
+for (const m of manualMatches) byId.set(m.id, m);
+const allMatches = Array.from(byId.values());
+
+const now = Date.now();
+const upcoming = allMatches
+  .filter((m) => new Date(m.date).getTime() >= now)
+  .sort((a, b) => +new Date(a.date) - +new Date(b.date));
+const past = allMatches
+  .filter((m) => new Date(m.date).getTime() < now)
+  .sort((a, b) => +new Date(b.date) - +new Date(a.date))
+  .slice(0, 3);
+
+const nextMatch = upcoming[0];
+
+const newsPosts = (await getCollection('news', ({ data }) => !data.draft))
+  .sort((a, b) => +b.data.date - +a.data.date)
+  .slice(0, 2);
+
+const visibleSocials = socials.filter((s) => s.url && s.url !== 'TODO').map((s) => s.url);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SportsTeam',
+  name: site.name,
+  url: site.url,
+  sport: 'Esports',
+  description: site.description,
+  foundingDate: String(site.yearFounded),
+  email: site.contactEmail,
+  ...(visibleSocials.length > 0 ? { sameAs: visibleSocials } : {}),
+};
+---
+<BaseLayout
+  title={site.name}
+  description={site.description}
+  jsonLd={jsonLd}
+>
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg)] opacity-80" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-16 sm:pt-24 pb-12">
+      <p class="font-display text-5xl sm:text-7xl md:text-8xl tracking-tight leading-none">
+        <span class="text-[var(--color-accent)]">NAJDORF</span>
+        <span class="text-[var(--color-text)]">ESPORTS</span>
+      </p>
+      <p class="mt-4 font-display text-xl sm:text-2xl text-[var(--color-accent-2)] tracking-[0.3em]">
+        OWCS PACIFIC 2026
+      </p>
+
+      <div class="mt-10 flex flex-wrap gap-3">
+        <Button href="/matches" variant="primary">Match schedule</Button>
+        <Button href="/roster" variant="secondary">Meet the roster</Button>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 -mt-4">
+    <OWCSBadge prominent />
+  </section>
+
+  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12 grid gap-6 lg:grid-cols-3">
+    <div class="lg:col-span-2">
+      <NextMatchCountdown match={nextMatch} />
+    </div>
+
+    <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6">
+      <p class="text-xs uppercase tracking-wider text-[var(--color-accent-2)]">Recent results</p>
+      {past.length > 0 ? (
+        <ul class="mt-4 space-y-3">
+          {past.map((m) => (
+            <li class="flex items-center justify-between text-sm">
+              <span class="truncate">vs {m.opponent}</span>
+              <span class:list={[
+                'font-display text-lg ml-3',
+                m.result === 'win' ? 'text-[var(--color-win)]' : 'text-[var(--color-loss)]',
+              ]}>
+                {m.result === 'win' ? 'W' : 'L'}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="text-sm text-[var(--color-text-dim)] mt-3">
+          No completed matches yet. Stage 2 begins June 4.
+        </p>
+      )}
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16">
+    <div class="flex items-end justify-between mb-6">
+      <h2 class="font-display text-3xl sm:text-4xl tracking-wide">Latest</h2>
+      <a href="/news" class="text-sm uppercase tracking-wider text-[var(--color-accent-2)] hover:underline">
+        All news →
+      </a>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-2">
+      {newsPosts.map((post) => (
+        <a
+          href={`/news/${post.id}`}
+          class="block bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 hover:border-[var(--color-accent-2)] transition-colors"
+        >
+          <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
+            {post.data.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+          </p>
+          <h3 class="font-display text-2xl mt-2 tracking-wide">{post.data.title}</h3>
+          {post.data.description && (
+            <p class="text-sm text-[var(--color-text-dim)] mt-2 line-clamp-3">{post.data.description}</p>
+          )}
+          <p class="text-sm uppercase tracking-wider text-[var(--color-accent-2)] mt-4">Read →</p>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

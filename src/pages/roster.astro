@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PlayerCard from '../components/player/PlayerCard.astro';
+import type { RosterEntry } from '../data/site';
+import rosterData from '../data/roster.json';
+
+const roster = rosterData as RosterEntry[];
+const order = { Tank: 0, DPS: 1, Support: 2, Flex: 3, Coach: 4, Manager: 5 };
+const sorted = [...roster].sort((a, b) => order[a.role] - order[b.role]);
+---
+<BaseLayout
+  title="Roster"
+  description="The Najdorf Esports OWCS Pacific 2026 active roster. Tank, DPS, Support, and Flex."
+>
+  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12">
+    <p class="text-sm uppercase tracking-wider text-[var(--color-accent-2)]">Active roster</p>
+    <h1 class="font-display text-4xl sm:text-5xl mt-2 tracking-wide">OWCS Pacific 2026</h1>
+    <p class="text-[var(--color-text-dim)] mt-3 max-w-2xl">
+      Full player announcements rolling out ahead of Stage 2's first match.
+      Cards below will update as handles, photos, and country flags are confirmed.
+    </p>
+  </section>
+
+  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {sorted.map((p) => <PlayerCard player={p} />)}
+  </section>
+</BaseLayout>
