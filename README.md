@@ -1,16 +1,77 @@
-## Hi there 👋
+# najdorfesports.gg
 
-<!--
-**NajdorfEsports/najdorfesports** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+Source for [najdorfesports.gg](https://najdorfesports.gg), the official site for **Najdorf Esports** — an Overwatch organization competing in OWCS Pacific.
 
-Here are some ideas to get you started:
+## Stack
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+- [Astro](https://astro.build/) 5.x (static output, no SSR adapter)
+- [Tailwind CSS v4](https://tailwindcss.com/) via the official Vite plugin (`@tailwindcss/vite`)
+- TypeScript strict
+- [Cloudflare Pages](https://pages.cloudflare.com/) deployment target
+- Match data sourced from [Liquipedia](https://liquipedia.net/overwatch/) under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)
+
+## Develop
+
+```bash
+npm install
+npm run dev          # serves http://localhost:4321
+```
+
+## Build & preview
+
+```bash
+npm run build        # static output → ./dist
+npm run preview      # serves ./dist on http://localhost:4321
+```
+
+## Scripts
+
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Local dev server with HMR. |
+| `npm run build` | Static build to `./dist`. |
+| `npm run preview` | Serves the built site. |
+| `npm run fetch:matches` | One-off Liquipedia pull (writes `src/data/matches.json`). |
+| `npm run build:og` | Regenerates `public/branding/og-default.png` from inline SVG. |
+
+## Data files
+
+| Path | Purpose |
+| --- | --- |
+| `src/data/site.ts` | Brand constants, contact, socials, shared TypeScript types. |
+| `src/data/roster.json` | Active roster (placeholder handles at launch). |
+| `src/data/matches.json` | Auto-populated by the Liquipedia fetcher. |
+| `src/data/matches.manual.json` | Manual overrides — wins on `id` collision against `matches.json`. |
+| `src/data/sponsors.json` | Sponsor list. Hidden in the UI when empty. |
+| `src/data/products.ts` | Product catalogue. Empty at launch. |
+| `src/content/news/` | News posts as Markdown (Astro content collection). |
+
+## Deployment
+
+The site is hosted on **Cloudflare Pages**, connected to this GitHub repo. Pushes to `main` trigger a production deploy automatically. No manual upload step.
+
+Build command: `npm run build`
+Output directory: `dist`
+
+## Liquipedia automation
+
+`.github/workflows/update-matches.yml` defines a workflow that runs `scripts/fetch-liquipedia.mjs` and commits any changes back to `src/data/matches.json`. The cron schedule is **commented out at launch** — enable it once the manual `workflow_dispatch` run has been verified.
+
+The fetcher complies with Liquipedia's [API terms of use](https://liquipedia.net/api-terms-of-use): descriptive User-Agent, gzip-aware, rate-limit-respecting, and fail-soft. Match data displayed on `/matches` is attributed to Liquipedia under CC BY-SA 3.0.
+
+## Brand
+
+| Token | Value |
+| --- | --- |
+| Primary | `#C8102E` (crimson) |
+| Secondary | `#C9A227` (tarnished gold) |
+| Background | `#0B0B0F` (near-black, never pure black) |
+| Body | `#E9ECF1` |
+| Display font | Anton (Google Fonts) |
+| Body font | Inter (Google Fonts) |
+
+See `src/styles/tokens.css` for the full palette and `src/styles/global.css` for Tailwind theme bindings.
+
+## Contact
+
+[owner@najdorfesports.gg](mailto:owner@najdorfesports.gg)
