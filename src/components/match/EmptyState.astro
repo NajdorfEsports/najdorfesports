@@ -1,0 +1,16 @@
+---
+import { owcs } from '../../data/site';
+
+interface Props {
+  variant?: 'upcoming' | 'past';
+}
+const { variant = 'upcoming' } = Astro.props;
+
+const messages = {
+  upcoming: `No upcoming matches yet — ${owcs.league} ${owcs.stage} main event begins June 4, 2026.`,
+  past: 'No completed matches yet. Stage 2 results will appear here once the main event begins.',
+};
+---
+<div class="border border-dashed border-[var(--color-border)] rounded-md p-8 text-center text-[var(--color-text-dim)]">
+  <p class="text-sm sm:text-base">{messages[variant]}</p>
+</div>

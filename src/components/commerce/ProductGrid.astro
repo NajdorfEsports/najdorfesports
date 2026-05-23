@@ -1,0 +1,16 @@
+---
+import ProductCard from './ProductCard.astro';
+import type { Product } from '../../data/products';
+
+interface Props {
+  products: ReadonlyArray<Product>;
+}
+const { products } = Astro.props;
+---
+{products.length > 0 ? (
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {products.map((p) => <ProductCard product={p} />)}
+  </div>
+) : (
+  <p class="text-[var(--color-text-dim)] text-sm">No products available.</p>
+)}

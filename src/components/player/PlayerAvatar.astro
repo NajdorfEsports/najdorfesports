@@ -1,0 +1,48 @@
+---
+interface Props {
+  handle: string;
+  photo?: string;
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const { handle, photo, size = 'md' } = Astro.props;
+
+const px = { sm: 56, md: 96, lg: 144 }[size];
+
+function hashHue(s: string) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h) % 360;
+}
+
+const hue = hashHue(handle);
+const initials = handle
+  .replace(/[^A-Za-z0-9 ]/g, '')
+  .split(/\s+/)
+  .filter(Boolean)
+  .slice(0, 2)
+  .map((w) => w[0]!.toUpperCase())
+  .join('');
+
+const gradient = `linear-gradient(135deg, hsl(${hue} 50% 22%) 0%, hsl(${(hue + 40) % 360} 60% 12%) 100%)`;
+---
+{photo ? (
+  <img
+    src={photo}
+    alt=""
+    width={px}
+    height={px}
+    loading="lazy"
+    class="rounded-full object-cover border border-[var(--color-border)]"
+    style={`width:${px}px;height:${px}px;`}
+  />
+) : (
+  <div
+    role="img"
+    aria-label={`${handle} avatar placeholder`}
+    class="rounded-full flex items-center justify-center font-display border border-[var(--color-border)] select-none"
+    style={`width:${px}px;height:${px}px;background:${gradient};font-size:${px * 0.42}px;color:#E9ECF1;letter-spacing:0.02em;`}
+  >
+    {initials || '·'}
+  </div>
+)}

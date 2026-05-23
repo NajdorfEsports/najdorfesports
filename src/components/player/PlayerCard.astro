@@ -1,0 +1,40 @@
+---
+import PlayerAvatar from './PlayerAvatar.astro';
+import Badge from '../ui/Badge.astro';
+import type { RosterEntry } from '../../data/site';
+
+interface Props {
+  player: RosterEntry;
+}
+const { player } = Astro.props;
+
+const hasCountry = player.country && player.country !== 'TBD';
+const incomplete =
+  !player.country || player.country === 'TBD' || !player.realName || !player.photo;
+---
+<article class="relative bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5 flex flex-col items-center text-center shadow-[var(--shadow-card)]">
+  {incomplete && (
+    <span class="absolute top-3 right-3">
+      <Badge tone="neutral">TBD</Badge>
+    </span>
+  )}
+
+  <PlayerAvatar handle={player.handle} photo={player.photo} size="lg" />
+
+  <h3 class="font-display text-2xl mt-4 tracking-wide">
+    {player.handle}
+  </h3>
+
+  {player.realName && (
+    <p class="text-sm text-[var(--color-text-dim)] mt-1">{player.realName}</p>
+  )}
+
+  <div class="mt-3 flex items-center gap-2">
+    <Badge tone="gold">{player.role}</Badge>
+    {hasCountry && (
+      <span class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
+        {player.country}
+      </span>
+    )}
+  </div>
+</article>

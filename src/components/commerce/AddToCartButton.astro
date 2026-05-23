@@ -1,0 +1,20 @@
+---
+import Button from '../ui/Button.astro';
+
+interface Props {
+  productId: string;
+  disabled?: boolean;
+}
+const { productId, disabled = true } = Astro.props;
+---
+{disabled ? (
+  <Button variant="ghost" size="md">Coming soon</Button>
+) : (
+  <button
+    type="button"
+    data-product-id={productId}
+    class="inline-flex items-center justify-center font-semibold uppercase tracking-wider rounded-sm bg-[var(--color-accent)] text-white px-5 py-2.5 text-sm hover:bg-[var(--color-accent)]/90"
+  >
+    Add to cart
+  </button>
+)}

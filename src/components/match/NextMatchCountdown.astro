@@ -1,0 +1,83 @@
+---
+import type { MatchEntry } from '../../data/site';
+
+interface Props {
+  match?: MatchEntry;
+}
+const { match } = Astro.props;
+---
+{match ? (
+  <section
+    class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 sm:p-8"
+    aria-label="Next match countdown"
+  >
+    <p class="text-xs uppercase tracking-wider text-[var(--color-accent-2)]">
+      Next match · {match.tournament}
+    </p>
+    <p class="font-display text-3xl sm:text-4xl mt-2 tracking-wide">
+      vs {match.opponent}
+    </p>
+
+    <div
+      class="mt-5 grid grid-cols-4 gap-3 max-w-md"
+      data-countdown
+      data-target={match.date}
+    >
+      {['Days', 'Hours', 'Min', 'Sec'].map((label, i) => (
+        <div class="bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-sm py-3 text-center">
+          <p class="font-display text-2xl sm:text-3xl tabular-nums" data-slot={i}>--</p>
+          <p class="text-[0.6rem] uppercase tracking-widest text-[var(--color-text-dim)] mt-1">{label}</p>
+        </div>
+      ))}
+    </div>
+
+    {match.streamUrl && (
+      <p class="mt-4 text-sm">
+        <a href={match.streamUrl} target="_blank" rel="noopener" class="text-[var(--color-accent-2)] hover:underline uppercase tracking-wider">
+          Watch live →
+        </a>
+      </p>
+    )}
+  </section>
+) : (
+  <section
+    class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 sm:p-8"
+    aria-label="Next match"
+  >
+    <p class="text-xs uppercase tracking-wider text-[var(--color-accent-2)]">Next match</p>
+    <p class="font-display text-2xl sm:text-3xl mt-2 tracking-wide">
+      OWCS Pacific Stage 2 — June 4, 2026
+    </p>
+    <p class="text-[var(--color-text-dim)] text-sm mt-2">
+      Match schedule will be published here as soon as the bracket is finalized.
+    </p>
+  </section>
+)}
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-countdown]');
+    if (!root) return;
+    const target = new Date(root.getAttribute('data-target')).getTime();
+    const slots = root.querySelectorAll('[data-slot]');
+    const pad = (n) => String(Math.max(0, n)).padStart(2, '0');
+
+    const tick = () => {
+      const diff = target - Date.now();
+      if (diff <= 0) {
+        slots.forEach((s) => (s.textContent = '00'));
+        return;
+      }
+      const days = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      slots[0].textContent = String(days);
+      slots[1].textContent = pad(hours);
+      slots[2].textContent = pad(mins);
+      slots[3].textContent = pad(secs);
+    };
+    tick();
+    setInterval(tick, 1000);
+  })();
+</script>
