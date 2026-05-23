@@ -1,0 +1,28 @@
+name: Update matches from Liquipedia
+
+on:
+  workflow_dispatch: {}
+  # schedule:
+  #   - cron: '0 */6 * * *'   # every 6 hours — uncomment when ready
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch matches
+        run: node scripts/fetch-liquipedia.mjs
+
+      - name: Commit updated data (if changed)
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'chore(data): refresh matches from Liquipedia'
+          file_pattern: 'src/data/matches.json'
