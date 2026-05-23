@@ -1,0 +1,8 @@
+[
+  { "handle": "Player 01", "role": "Tank",    "country": "TBD" },
+  { "handle": "Player 02", "role": "DPS",     "country": "TBD" },
+  { "handle": "Player 03", "role": "DPS",     "country": "TBD" },
+  { "handle": "Player 04", "role": "Support", "country": "TBD" },
+  { "handle": "Player 05", "role": "Support", "country": "TBD" },
+  { "handle": "Player 06", "role": "Flex",    "country": "TBD" }
+]
