@@ -1,0 +1,30 @@
+---
+import { owcs } from '../../data/site';
+
+interface Props {
+  prominent?: boolean;
+}
+const { prominent = false } = Astro.props;
+---
+<aside
+  class:list={[
+    'border-l-4 border-[var(--color-accent)] bg-[var(--color-surface)] px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2',
+    prominent ? 'border-l-8 py-6 sm:py-7' : '',
+  ]}
+  aria-label="Tournament status"
+>
+  <div class="flex items-center gap-3">
+    <span class="inline-flex items-center px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider rounded-sm bg-[var(--color-accent)] text-white">
+      Live
+    </span>
+    <p class:list={[
+      'font-display tracking-wide',
+      prominent ? 'text-2xl sm:text-3xl' : 'text-lg sm:text-xl',
+    ]}>
+      {owcs.badgeLine}
+    </p>
+  </div>
+  <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
+    {owcs.league} · {owcs.stage} · {owcs.year}
+  </p>
+</aside>

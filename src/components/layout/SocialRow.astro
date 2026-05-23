@@ -1,0 +1,22 @@
+---
+import { socials } from '../../data/site';
+
+const visible = socials.filter((s) => s.url && s.url !== 'TODO');
+---
+{visible.length > 0 && (
+  <ul class="flex items-center gap-4">
+    {visible.map((s) => (
+      <li>
+        <a
+          href={s.url}
+          rel="me noopener"
+          target="_blank"
+          class="text-[var(--color-text-dim)] hover:text-[var(--color-accent-2)] text-sm font-medium uppercase tracking-wider"
+          aria-label={`Najdorf Esports on ${s.name}`}
+        >
+          {s.name}
+        </a>
+      </li>
+    ))}
+  </ul>
+)}

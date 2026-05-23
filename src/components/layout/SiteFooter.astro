@@ -1,0 +1,47 @@
+---
+import SocialRow from './SocialRow.astro';
+import { site } from '../../data/site';
+---
+<footer class="border-t border-[var(--color-border)] mt-24">
+  <div class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 py-10 grid gap-8 md:grid-cols-3">
+    <div>
+      <p class="font-display text-lg">
+        <span class="text-[var(--color-accent)]">NAJDORF</span>
+        <span class="text-[var(--color-text)]">ESPORTS</span>
+      </p>
+      <p class="text-sm text-[var(--color-text-dim)] mt-2">
+        Founded {site.yearFounded} · {site.region}
+      </p>
+      <p class="text-sm text-[var(--color-text-dim)] mt-1">
+        <a href={`mailto:${site.contactEmail}`} class="hover:text-[var(--color-accent-2)]">
+          {site.contactEmail}
+        </a>
+      </p>
+    </div>
+
+    <nav class="text-sm" aria-label="Footer">
+      <p class="text-[var(--color-text)] font-semibold uppercase tracking-wider text-xs mb-3">Site</p>
+      <ul class="space-y-2 text-[var(--color-text-dim)]">
+        <li><a class="hover:text-[var(--color-text)]" href="/">Home</a></li>
+        <li><a class="hover:text-[var(--color-text)]" href="/roster">Roster</a></li>
+        <li><a class="hover:text-[var(--color-text)]" href="/matches">Matches</a></li>
+        <li><a class="hover:text-[var(--color-text)]" href="/news">News</a></li>
+        <li><a class="hover:text-[var(--color-text)]" href="/about">About</a></li>
+        <li><a class="hover:text-[var(--color-text)]" href="/privacy">Privacy</a></li>
+        <li><a class="hover:text-[var(--color-text)]" href="/terms">Terms</a></li>
+      </ul>
+    </nav>
+
+    <div>
+      <p class="text-[var(--color-text)] font-semibold uppercase tracking-wider text-xs mb-3">Follow</p>
+      <SocialRow />
+    </div>
+  </div>
+
+  <div class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-[var(--color-text-dim)]">
+      <p>© {new Date().getFullYear()} {site.name}. All rights reserved.</p>
+      <p>Overwatch and the Overwatch Champions Series are trademarks of Blizzard Entertainment, Inc.</p>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,102 @@
+---
+const nav = [
+  { href: '/',        label: 'Home'    },
+  { href: '/roster',  label: 'Roster'  },
+  { href: '/matches', label: 'Matches' },
+  { href: '/news',    label: 'News'    },
+  { href: '/about',   label: 'About'   },
+];
+
+const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isActive = (href: string) => {
+  if (href === '/') return pathname === '/';
+  return pathname === href || pathname.startsWith(href + '/');
+};
+---
+<header class="border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur sticky top-0 z-50">
+  <div class="mx-auto max-w-[var(--max-content)] flex items-center justify-between px-4 sm:px-6 h-16">
+    <a href="/" class="flex items-center gap-3" aria-label="Najdorf Esports home">
+      <span class="inline-block text-[var(--color-accent)]" aria-hidden="true">
+        <svg width="28" height="42" viewBox="0 0 64 96" fill="currentColor">
+          <path fill-rule="evenodd" d="M32 6 C 40 18, 44 30, 44 38 C 44 46, 38 50, 32 50 C 26 50, 20 46, 20 38 C 20 30, 24 18, 32 6 Z M28 12 L 38 22 L 36 24 L 26 14 Z"/>
+          <rect x="26" y="46" width="12" height="12"/>
+          <rect x="20" y="56" width="24" height="6" rx="1"/>
+          <path d="M22 60 L 42 60 L 46 78 L 18 78 Z"/>
+          <path d="M14 78 L 50 78 L 52 88 L 12 88 Z"/>
+          <ellipse cx="32" cy="90" rx="22" ry="3.5"/>
+        </svg>
+      </span>
+      <span class="font-display text-xl sm:text-2xl tracking-wide">
+        <span class="text-[var(--color-accent)]">NAJDORF</span>
+        <span class="text-[var(--color-text)]">ESPORTS</span>
+      </span>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-6" aria-label="Primary">
+      {nav.map((item) => (
+        <a
+          href={item.href}
+          class:list={[
+            'text-sm font-medium tracking-wide uppercase transition-colors',
+            isActive(item.href)
+              ? 'text-[var(--color-accent-2)]'
+              : 'text-[var(--color-text-dim)] hover:text-[var(--color-text)]',
+          ]}
+          aria-current={isActive(item.href) ? 'page' : undefined}
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <button
+      type="button"
+      class="md:hidden inline-flex items-center justify-center w-10 h-10 rounded border border-[var(--color-border)] text-[var(--color-text)]"
+      aria-controls="mobile-nav"
+      aria-expanded="false"
+      data-mobile-toggle
+    >
+      <span class="sr-only">Toggle menu</span>
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M3 5h14M3 10h14M3 15h14" stroke-linecap="round" />
+      </svg>
+    </button>
+  </div>
+
+  <nav
+    id="mobile-nav"
+    class="md:hidden hidden border-t border-[var(--color-border)] px-4 sm:px-6 py-3"
+    aria-label="Mobile"
+  >
+    <ul class="flex flex-col gap-2">
+      {nav.map((item) => (
+        <li>
+          <a
+            href={item.href}
+            class:list={[
+              'block py-2 text-sm font-medium uppercase tracking-wide',
+              isActive(item.href)
+                ? 'text-[var(--color-accent-2)]'
+                : 'text-[var(--color-text-dim)] hover:text-[var(--color-text)]',
+            ]}
+            aria-current={isActive(item.href) ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</header>
+
+<script is:inline>
+  (() => {
+    const btn = document.querySelector('[data-mobile-toggle]');
+    const panel = document.getElementById('mobile-nav');
+    if (!btn || !panel) return;
+    btn.addEventListener('click', () => {
+      const open = panel.classList.toggle('hidden') === false;
+      btn.setAttribute('aria-expanded', String(open));
+    });
+  })();
+</script>
