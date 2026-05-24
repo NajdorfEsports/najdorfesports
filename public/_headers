@@ -25,6 +25,16 @@
 /branding/*
   Cache-Control: public, max-age=86400
 
+# Hero portraits — fetched from Liquipedia on a weekly cadence and only
+# replaced when the roster's signatureHeroes list changes. Safe to cache
+# for a week so repeat visitors don't re-fetch each card backdrop.
+/heroes/*
+  Cache-Control: public, max-age=604800
+
+# Player portraits — same cadence as hero icons; updated rarely.
+/roster/*
+  Cache-Control: public, max-age=604800
+
 /favicon.svg
   Cache-Control: public, max-age=86400
 

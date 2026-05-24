@@ -1,12 +1,12 @@
 {
-  "Echo": "/heroes/echo.png",
-  "Emre": "/heroes/emre.png",
-  "Genji": "/heroes/genji.png",
-  "Illari": "/heroes/illari.png",
-  "Kiriko": "/heroes/kiriko.png",
-  "Lucio": "/heroes/lucio.png",
-  "Pharah": "/heroes/pharah.png",
-  "Reaper": "/heroes/reaper.png",
-  "Tracer": "/heroes/tracer.png",
-  "Wrecking Ball": "/heroes/wrecking-ball.png"
+  "Echo": "/heroes/echo.webp",
+  "Emre": "/heroes/emre.webp",
+  "Genji": "/heroes/genji.webp",
+  "Illari": "/heroes/illari.webp",
+  "Kiriko": "/heroes/kiriko.webp",
+  "Lucio": "/heroes/lucio.webp",
+  "Pharah": "/heroes/pharah.webp",
+  "Reaper": "/heroes/reaper.webp",
+  "Tracer": "/heroes/tracer.webp",
+  "Wrecking Ball": "/heroes/wrecking-ball.webp"
 }

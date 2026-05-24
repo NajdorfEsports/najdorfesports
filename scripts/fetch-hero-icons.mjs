@@ -3,10 +3,12 @@
  * fetch-hero-icons.mjs
  *
  * Downloads Overwatch hero portrait images from Liquipedia for every hero
- * that appears in our current roster's `signatureHeroes`. Writes:
+ * that appears in our current roster's `signatureHeroes`, re-encodes them
+ * to WebP via sharp (~70 % smaller than the source PNG at no visible
+ * quality cost at our display sizes), and writes:
  *
- *   public/heroes/<slug>.png   (the 120px cropped portrait)
- *   src/data/heroes.json       (name -> slug -> /heroes/<slug>.png mapping)
+ *   public/heroes/<slug>.webp   (120 px cropped portrait, WebP q=86)
+ *   src/data/heroes.json        (name -> /heroes/<slug>.webp map)
  *
  * Run with `npm run fetch:heroes` after the roster fetcher discovers a new
  * hero name. The output is committed alongside the data, so subsequent
@@ -23,6 +25,7 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import sharp from 'sharp';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const HEROES_DIR = join(__dirname, '..', 'public', 'heroes');
@@ -98,8 +101,12 @@ async function downloadTo(filePath, url) {
   });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   const buf = Buffer.from(await res.arrayBuffer());
-  await writeFile(filePath, buf);
-  return buf.length;
+  // Re-encode whatever Liquipedia gave us (usually PNG) as WebP. Hero
+  // backdrops display ≤250 px wide; WebP q=86 keeps that crisp while
+  // typically cutting the file ~70 %.
+  const webp = await sharp(buf).webp({ quality: 86 }).toBuffer();
+  await writeFile(filePath, webp);
+  return webp.length;
 }
 
 async function collectHeroNames() {
@@ -139,11 +146,11 @@ async function collectHeroNames() {
         continue;
       }
       const slug = slugify(hero);
-      const filePath = join(HEROES_DIR, `${slug}.png`);
+      const filePath = join(HEROES_DIR, `${slug}.webp`);
       await sleep(QUERY_INTERVAL_MS);
       const size = await downloadTo(filePath, iconUrl);
-      map[hero] = `/heroes/${slug}.png`;
-      console.log(`[hero-icons]   ${hero}: ${size} bytes -> /heroes/${slug}.png`);
+      map[hero] = `/heroes/${slug}.webp`;
+      console.log(`[hero-icons]   ${hero}: ${size} bytes -> /heroes/${slug}.webp`);
     } catch (err) {
       console.warn(`[hero-icons]   ${hero}: failed (${err?.message ?? err})`);
     }
