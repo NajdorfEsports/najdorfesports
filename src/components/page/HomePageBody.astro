@@ -1,0 +1,223 @@
+---
+/**
+ * Home page body. Same markup is rendered at `/`, `/zh-TW/`, and `/zh-CN/` —
+ * Astro.currentLocale is resolved per-URL by Astro's i18n router, so this
+ * component picks up the right locale automatically.
+ */
+import OWCSBadge from '../ui/OWCSBadge.astro';
+import NextMatchCountdown from '../match/NextMatchCountdown.astro';
+import MatchTicker from '../match/MatchTicker.astro';
+import RosterPreview from '../team/RosterPreview.astro';
+import AchievementStrip from '../team/AchievementStrip.astro';
+import SponsorsRow from '../team/SponsorsRow.astro';
+import Button from '../ui/Button.astro';
+import { getCollection } from 'astro:content';
+import {
+  mergeByKey,
+  type MatchEntry,
+  type RosterEntry,
+  type Achievement,
+} from '../../data/site';
+import autoMatchesData from '../../data/matches.json';
+import manualMatchesData from '../../data/matches.manual.json';
+import rosterAutoData from '../../data/roster.json';
+import rosterManualData from '../../data/roster.manual.json';
+import achievementsAutoData from '../../data/achievements.json';
+import achievementsManualData from '../../data/achievements.manual.json';
+import sponsorsData from '../../data/sponsors.json';
+import { DEFAULT_LOCALE, pathFor, useT, type Locale } from '../../i18n';
+
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const t = useT(locale);
+
+const allMatches = mergeByKey(
+  autoMatchesData as MatchEntry[],
+  manualMatchesData as MatchEntry[],
+  'id',
+);
+const roster = mergeByKey(
+  rosterAutoData as RosterEntry[],
+  rosterManualData as RosterEntry[],
+  'handle',
+);
+const achievements = mergeByKey(
+  achievementsAutoData as Achievement[],
+  achievementsManualData as Achievement[],
+  'id',
+);
+
+const now = Date.now();
+const upcoming = allMatches
+  .filter((m) => new Date(m.date).getTime() >= now)
+  .sort((a, b) => +new Date(a.date) - +new Date(b.date));
+const past = allMatches
+  .filter((m) => new Date(m.date).getTime() < now)
+  .sort((a, b) => +new Date(b.date) - +new Date(a.date));
+const recent3 = past.slice(0, 3);
+
+const nextMatch = upcoming[0];
+
+// News is English-only per spec, so we don't filter by locale.
+const newsPosts = (await getCollection('news', ({ data }) => !data.draft))
+  .sort((a, b) => +b.data.date - +a.data.date)
+  .slice(0, 2);
+
+// Real-data hero stats
+const players = roster.filter((p) => ['Tank', 'DPS', 'Support', 'Flex'].includes(p.role));
+const countries = new Set(players.map((p) => p.country).filter(Boolean));
+const wins = past.filter((m) => m.result === 'win').length;
+const losses = past.filter((m) => m.result === 'loss').length;
+const recordLine = wins + losses > 0 ? `${wins}W – ${losses}L` : null;
+
+const topAchievement = [...achievements].sort(
+  (a, b) => +new Date(b.date) - +new Date(a.date),
+)[0];
+
+// Localized hrefs for the two CTAs and the "All matches" / "All news" links.
+const matchesHref = '/matches/';
+const rosterHref  = pathFor(locale, '/roster/');
+const newsHref    = '/news/';
+---
+<MatchTicker matches={allMatches} />
+
+<section class="relative overflow-hidden">
+  <div class="absolute inset-0 bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg)] opacity-80" aria-hidden="true"></div>
+  <div class="relative mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12 sm:pt-20 pb-12">
+    <p class="font-display text-5xl sm:text-7xl md:text-8xl tracking-tight leading-none">
+      <span class="text-[var(--color-accent)]">NAJDORF</span>
+      <span class="text-[var(--color-text)]">ESPORTS</span>
+    </p>
+
+    <p class="mt-4 font-display text-xl sm:text-2xl text-[var(--color-accent-2)] tracking-[0.3em]">
+      {t.hero.subhead}
+    </p>
+
+    <p class="mt-6 max-w-xl text-base sm:text-lg text-[var(--color-text-dim)] leading-relaxed">
+      {t.hero.stats(players.length, countries.size)}
+      {topAchievement && (
+        <>
+          {' '}
+          <span class="text-[var(--color-text)]">
+            {t.hero.achievement(topAchievement.placement, topAchievement.event.replace(/^.*?—\s*/, ''))}
+          </span>
+        </>
+      )}
+      {recordLine && (
+        <>
+          {' '}
+          <span class="text-[var(--color-text)]">{t.hero.record(recordLine)}</span>
+        </>
+      )}
+      {' '}{t.hero.tagline}
+    </p>
+
+    <div class="mt-8 flex flex-wrap gap-3">
+      <Button href={matchesHref} variant="primary">{t.hero.matchSchedule}</Button>
+      <Button href={rosterHref} variant="secondary">{t.hero.meetRoster}</Button>
+    </div>
+  </div>
+</section>
+
+<section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 -mt-4">
+  <OWCSBadge prominent />
+</section>
+
+<section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12 grid gap-6 lg:grid-cols-3">
+  <div class="reveal lg:col-span-2">
+    <NextMatchCountdown match={nextMatch} />
+  </div>
+
+  <div class="reveal bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 flex flex-col" data-stagger="1">
+    <p class="text-xs uppercase tracking-wider text-[var(--color-accent-2)]">{t.home.recentResults}</p>
+    {recent3.length > 0 ? (
+      <>
+        <ul class="mt-4 space-y-1 flex-1">
+          {recent3.map((m) => (
+            <li>
+              <a
+                href={m.streamUrl ?? matchesHref}
+                target={m.streamUrl ? '_blank' : undefined}
+                rel={m.streamUrl ? 'noopener' : undefined}
+                class="result-row group flex items-center justify-between gap-3 text-sm py-2.5 px-2 -mx-2 rounded-sm transition-colors hover:bg-[var(--color-surface-2)]"
+              >
+                <span class="truncate min-w-0 group-hover:text-[var(--color-text)] transition-colors">
+                  vs {m.opponent}
+                </span>
+                <span class="flex items-center gap-2 shrink-0">
+                  {m.mapScores && m.mapScores.length > 0 && (
+                    <span class="font-display text-sm text-[var(--color-text-dim)] tabular-nums">
+                      {m.mapScores.reduce((a, x) => a + (x.ourScore > x.theirScore ? 1 : 0), 0)}
+                      –{m.mapScores.reduce((a, x) => a + (x.theirScore > x.ourScore ? 1 : 0), 0)}
+                    </span>
+                  )}
+                  <span class:list={[
+                    'inline-flex items-center justify-center w-6 h-6 rounded-sm border font-display text-sm font-bold transition-transform group-hover:scale-110',
+                    m.result === 'win'
+                      ? 'text-[var(--color-win)] border-[var(--color-win)]'
+                      : 'text-[var(--color-loss)] border-[var(--color-loss)]',
+                  ]}>
+                    {m.result === 'win' ? 'W' : 'L'}
+                  </span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <a
+          href={matchesHref}
+          class="link-arrow has-glyph mt-4 text-xs uppercase tracking-wider text-[var(--color-accent-2)] hover:text-[var(--color-accent)]"
+        >
+          <span>{t.home.allMatches}</span>
+        </a>
+      </>
+    ) : (
+      <p class="text-sm text-[var(--color-text-dim)] mt-3">
+        {t.home.recentEmpty}
+      </p>
+    )}
+  </div>
+</section>
+
+<div class="reveal">
+  <RosterPreview players={roster} />
+</div>
+
+<div class="reveal">
+  <AchievementStrip achievements={achievements} />
+</div>
+
+<div class="reveal">
+  <SponsorsRow sponsors={sponsorsData as any} />
+</div>
+
+<section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16">
+  <div class="flex items-end justify-between mb-6">
+    <h2 class="font-display text-3xl sm:text-4xl tracking-wide">{t.home.latest}</h2>
+    <a href={newsHref} class="link-arrow has-glyph text-sm uppercase tracking-wider text-[var(--color-accent-2)] hover:text-[var(--color-accent)]">
+      <span>{t.home.allNews}</span>
+    </a>
+  </div>
+
+  <div class="grid gap-6 md:grid-cols-2">
+    {newsPosts.map((post, i) => (
+      <a
+        href={`/news/${post.id}`}
+        class="surface-hover reveal block bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 group"
+        data-stagger={i + 1}
+      >
+        <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
+          {post.data.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}
+        </p>
+        <h3 class="font-display text-2xl mt-2 tracking-wide group-hover:text-[var(--color-accent-2)] transition-colors">
+          {post.data.title}
+        </h3>
+        {post.data.description && (
+          <p class="text-sm text-[var(--color-text-dim)] mt-2 line-clamp-3">{post.data.description}</p>
+        )}
+        <p class="link-arrow has-glyph text-sm uppercase tracking-wider text-[var(--color-accent-2)] mt-4">
+          <span>{t.home.read}</span>
+        </p>
+      </a>
+    ))}
+  </div>
+</section>

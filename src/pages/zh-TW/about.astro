@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AboutPageBody from '../../components/page/AboutPageBody.astro';
+import { useT, DEFAULT_LOCALE, type Locale } from '../../i18n';
+import { site } from '../../data/site';
+
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const t = useT(locale);
+---
+<BaseLayout
+  title={t.nav.about}
+  description={`{{TODO_zhTW: About ${site.name}, an Overwatch organization based in the Pacific region.}}`}
+>
+  <AboutPageBody />
+</BaseLayout>

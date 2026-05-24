@@ -1,156 +1,20 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PlayerCard from '../components/player/PlayerCard.astro';
-import AchievementStrip from '../components/team/AchievementStrip.astro';
-import MatchTicker from '../components/match/MatchTicker.astro';
-import {
-  mergeByKey,
-  ROLE_ORDER,
-  site,
-  owcs,
-  type RosterEntry,
-  type MatchEntry,
-  type Achievement,
-  type Role,
-} from '../data/site';
+import RosterPageBody from '../components/page/RosterPageBody.astro';
+import { useT, DEFAULT_LOCALE, type Locale } from '../i18n';
+import { site } from '../data/site';
+import { buildRosterJsonLd, rosterMetaCounts } from '../data/roster-jsonld';
 
-import rosterAutoData from '../data/roster.json';
-import rosterManualData from '../data/roster.manual.json';
-import matchesAutoData from '../data/matches.json';
-import matchesManualData from '../data/matches.manual.json';
-import achievementsAutoData from '../data/achievements.json';
-import achievementsManualData from '../data/achievements.manual.json';
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const t = useT(locale);
 
-const roster = mergeByKey(
-  rosterAutoData as RosterEntry[],
-  rosterManualData as RosterEntry[],
-  'handle',
-);
-const matches = mergeByKey(
-  matchesAutoData as MatchEntry[],
-  matchesManualData as MatchEntry[],
-  'id',
-);
-const achievements = mergeByKey(
-  achievementsAutoData as Achievement[],
-  achievementsManualData as Achievement[],
-  'id',
-);
-
-// Group by role for display.
-const grouped: Partial<Record<Role, RosterEntry[]>> = {};
-for (const p of roster) {
-  (grouped[p.role] ??= []).push(p);
-}
-const sectionOrder: Role[] = ['Tank', 'DPS', 'Support', 'Flex', 'Coach', 'Manager'];
-const sections = sectionOrder
-  .filter((r) => grouped[r] && grouped[r]!.length > 0)
-  .map((r) => ({ role: r, players: grouped[r]!.sort((a, b) => a.handle.localeCompare(b.handle)) }));
-
-const headcount = roster.filter((p) => p.status !== 'inactive').length;
-const countries = Array.from(
-  new Set(roster.map((p) => p.country).filter((c): c is string => !!c && c !== 'TBD')),
-).sort();
-
-// JSON-LD: Person array, one entry per roster member, all referencing the
-// SportsOrganization @id emitted by BaseLayout. Real name is split into
-// givenName/familyName when Liquipedia provides a Latin-romanized name
-// (we only ship the romanized form, not the native script).
-const orgId = `${site.url}/#org`;
-
-function splitName(real?: string): { givenName?: string; familyName?: string } {
-  if (!real) return {};
-  const parts = real.trim().split(/\s+/);
-  if (parts.length < 2) return { givenName: parts[0] };
-  // Most romanizations of Chinese names appear as "Surname Given-name".
-  // Liquipedia uses that order for these players, so first token is family.
-  return { familyName: parts[0], givenName: parts.slice(1).join(' ') };
-}
-
-const personJsonLd = roster.map((p) => {
-  const sameAs = [
-    p.liquipediaUrl,
-    p.twitter,
-    p.twitch,
-  ].filter((u): u is string => typeof u === 'string' && u.length > 0);
-  const names = splitName(p.realName);
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: p.handle,
-    ...(names.givenName ? { givenName: names.givenName } : {}),
-    ...(names.familyName ? { familyName: names.familyName } : {}),
-    ...(p.country ? { nationality: p.country } : {}),
-    jobTitle: p.role,
-    memberOf: { '@id': orgId },
-    ...(sameAs.length > 0 ? { sameAs } : {}),
-  };
-});
+const personJsonLd = buildRosterJsonLd();
+const { headcount, countries } = rosterMetaCounts();
 ---
 <BaseLayout
-  title="Roster"
+  title={t.nav.roster}
   description={`The ${site.name} active OWCS Pacific roster. ${headcount} players across ${countries.join(', ')}.`}
   jsonLd={personJsonLd}
 >
-  <MatchTicker matches={matches} />
-
-  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12">
-    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-      <div>
-        <p class="text-xs uppercase tracking-[0.25em] text-[var(--color-accent-2)]">
-          Active roster · {owcs.league} {owcs.year}
-        </p>
-        <h1 class="font-display text-5xl sm:text-6xl mt-2 tracking-tight leading-none">
-          The Lineup
-        </h1>
-      </div>
-      <dl class="flex items-center gap-8 text-sm">
-        <div>
-          <dt class="text-[var(--color-text-dim)] uppercase tracking-wider text-[0.65rem]">Players</dt>
-          <dd class="font-display text-3xl mt-1 leading-none tabular-nums">{headcount}</dd>
-        </div>
-        <div>
-          <dt class="text-[var(--color-text-dim)] uppercase tracking-wider text-[0.65rem]">Region</dt>
-          <dd class="font-display text-3xl mt-1 leading-none">{site.region}</dd>
-        </div>
-      </dl>
-    </div>
-    <p class="text-[var(--color-text-dim)] mt-4 max-w-2xl">
-      Roster pulled from Liquipedia every six hours. Click a handle to open
-      the player's Liquipedia page.
-    </p>
-  </section>
-
-  <AchievementStrip achievements={achievements} />
-
-  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12 space-y-10">
-    {sections.map((section) => (
-      <div>
-        <div class="flex items-center gap-3 mb-5">
-          <h2 class="font-display text-2xl tracking-wide">{section.role}</h2>
-          <span class="flex-1 h-px bg-[var(--color-border)]"></span>
-          <span class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] tabular-nums">
-            {section.players.length}
-          </span>
-        </div>
-        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {section.players.map((p, i) => (
-            <PlayerCard player={p} index={i} />
-          ))}
-        </div>
-      </div>
-    ))}
-  </section>
-
-  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16 text-xs text-[var(--color-text-dim)]">
-    <p>
-      Player data sourced from
-      {' '}
-      <a href="https://liquipedia.net/overwatch/" target="_blank" rel="noopener" class="text-[var(--color-accent-2)] hover:underline">Liquipedia</a>,
-      available under
-      {' '}
-      <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener" class="text-[var(--color-accent-2)] hover:underline">CC BY-SA 3.0</a>.
-      Roster refreshes every 6 hours.
-    </p>
-  </section>
+  <RosterPageBody />
 </BaseLayout>

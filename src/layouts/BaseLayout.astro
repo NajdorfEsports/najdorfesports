@@ -3,6 +3,13 @@ import '../styles/global.css';
 import SiteHeader from '../components/layout/SiteHeader.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
 import { site } from '../data/site';
+import {
+  DEFAULT_LOCALE,
+  SUPPORTED_LOCALES,
+  pathFor,
+  unlocalizedPath,
+  type Locale,
+} from '../i18n';
 
 interface Props {
   title: string;
@@ -24,6 +31,13 @@ const fullTitle = title === site.name ? title : `${title} · ${site.name}`;
 const canonicalUrl = canonical ?? new URL(Astro.url.pathname, site.url).toString();
 const ogImageUrl = new URL(ogImage, site.url).toString();
 
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const basePath = unlocalizedPath(Astro.url.pathname);
+const alternates = SUPPORTED_LOCALES.map((l) => ({
+  locale: l,
+  href: new URL(pathFor(l, basePath), site.url).toString(),
+}));
+
 // SportsOrganization Schema.org block — emitted on every page so the org
 // identity is discoverable wherever a crawler lands. Stable @id allows
 // Person and SportsEvent blocks elsewhere to reference it.
@@ -41,7 +55,7 @@ const orgJsonLd = {
 };
 ---
 <!doctype html>
-<html lang="en">
+<html lang={locale}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -50,6 +64,14 @@ const orgJsonLd = {
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
+    {alternates.map((alt) => (
+      <link rel="alternate" hreflang={alt.locale} href={alt.href} />
+    ))}
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href={new URL(pathFor('en', basePath), site.url).toString()}
+    />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />

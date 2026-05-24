@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HomePageBody from '../../components/page/HomePageBody.astro';
+import { site } from '../../data/site';
+// SportsOrganization is emitted automatically by BaseLayout.
+// Description left as the English source for now — wrap in TODO_zhCN once
+// translated copy lands so SEO crawlers see locale-appropriate text.
+---
+<BaseLayout
+  title={site.name}
+  description={`{{TODO_zhCN: ${site.description}}}`}
+>
+  <HomePageBody />
+</BaseLayout>

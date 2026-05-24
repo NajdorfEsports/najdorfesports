@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RosterPageBody from '../../components/page/RosterPageBody.astro';
+import { useT, DEFAULT_LOCALE, type Locale } from '../../i18n';
+import { site } from '../../data/site';
+import { buildRosterJsonLd, rosterMetaCounts } from '../../data/roster-jsonld';
+
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const t = useT(locale);
+
+const personJsonLd = buildRosterJsonLd();
+const { headcount, countries } = rosterMetaCounts();
+---
+<BaseLayout
+  title={t.nav.roster}
+  description={`{{TODO_zhTW: The ${site.name} active OWCS Pacific roster. ${headcount} players across ${countries.join(', ')}.}}`}
+  jsonLd={personJsonLd}
+>
+  <RosterPageBody />
+</BaseLayout>

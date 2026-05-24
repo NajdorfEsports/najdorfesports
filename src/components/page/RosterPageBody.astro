@@ -1,0 +1,120 @@
+---
+/**
+ * Roster page body. Rendered at `/roster/`, `/zh-TW/roster/`, `/zh-CN/roster/`.
+ * Per-URL locale comes from Astro.currentLocale; the Person JSON-LD block is
+ * locale-independent and gets passed back to the page for inclusion in <head>.
+ */
+import PlayerCard from '../player/PlayerCard.astro';
+import AchievementStrip from '../team/AchievementStrip.astro';
+import MatchTicker from '../match/MatchTicker.astro';
+import {
+  mergeByKey,
+  site,
+  type RosterEntry,
+  type MatchEntry,
+  type Achievement,
+  type Role,
+} from '../../data/site';
+import { DEFAULT_LOCALE, useT, type Locale } from '../../i18n';
+
+import rosterAutoData from '../../data/roster.json';
+import rosterManualData from '../../data/roster.manual.json';
+import matchesAutoData from '../../data/matches.json';
+import matchesManualData from '../../data/matches.manual.json';
+import achievementsAutoData from '../../data/achievements.json';
+import achievementsManualData from '../../data/achievements.manual.json';
+
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const t = useT(locale);
+
+const roster = mergeByKey(
+  rosterAutoData as RosterEntry[],
+  rosterManualData as RosterEntry[],
+  'handle',
+);
+const matches = mergeByKey(
+  matchesAutoData as MatchEntry[],
+  matchesManualData as MatchEntry[],
+  'id',
+);
+const achievements = mergeByKey(
+  achievementsAutoData as Achievement[],
+  achievementsManualData as Achievement[],
+  'id',
+);
+
+// Group by role for display.
+const grouped: Partial<Record<Role, RosterEntry[]>> = {};
+for (const p of roster) {
+  (grouped[p.role] ??= []).push(p);
+}
+const sectionOrder: Role[] = ['Tank', 'DPS', 'Support', 'Flex', 'Coach', 'Manager'];
+const sections = sectionOrder
+  .filter((r) => grouped[r] && grouped[r]!.length > 0)
+  .map((r) => ({ role: r, players: grouped[r]!.sort((a, b) => a.handle.localeCompare(b.handle)) }));
+
+const headcount = roster.filter((p) => p.status !== 'inactive').length;
+---
+<MatchTicker matches={matches} />
+
+<section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12">
+  <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+    <div>
+      <p class="text-xs uppercase tracking-[0.25em] text-[var(--color-accent-2)]">
+        {t.roster.eyebrow}
+      </p>
+      <h1 class="font-display text-5xl sm:text-6xl mt-2 tracking-tight leading-none">
+        {t.roster.h1}
+      </h1>
+    </div>
+    <dl class="flex items-center gap-8 text-sm">
+      <div>
+        <dt class="text-[var(--color-text-dim)] uppercase tracking-wider text-[0.65rem]">
+          {t.roster.playersLabel}
+        </dt>
+        <dd class="font-display text-3xl mt-1 leading-none tabular-nums">{headcount}</dd>
+      </div>
+      <div>
+        <dt class="text-[var(--color-text-dim)] uppercase tracking-wider text-[0.65rem]">
+          {t.roster.regionLabel}
+        </dt>
+        <dd class="font-display text-3xl mt-1 leading-none">{site.region}</dd>
+      </div>
+    </dl>
+  </div>
+  <p class="text-[var(--color-text-dim)] mt-4 max-w-2xl">
+    {t.roster.intro}
+  </p>
+</section>
+
+<AchievementStrip achievements={achievements} />
+
+<section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12 space-y-10">
+  {sections.map((section) => (
+    <div>
+      <div class="flex items-center gap-3 mb-5">
+        <h2 class="font-display text-2xl tracking-wide">{section.role}</h2>
+        <span class="flex-1 h-px bg-[var(--color-border)]"></span>
+        <span class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] tabular-nums">
+          {section.players.length}
+        </span>
+      </div>
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {section.players.map((p, i) => (
+          <PlayerCard player={p} index={i} />
+        ))}
+      </div>
+    </div>
+  ))}
+</section>
+
+<section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16 text-xs text-[var(--color-text-dim)]">
+  <p>
+    {t.roster.attribution}
+    {' '}
+    <a href="https://liquipedia.net/overwatch/" target="_blank" rel="noopener" class="text-[var(--color-accent-2)] hover:underline">Liquipedia</a>,
+    {' '}{t.roster.attributionLicense}{' '}
+    <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener" class="text-[var(--color-accent-2)] hover:underline">CC BY-SA 3.0</a>.
+    {' '}{t.roster.attributionRefresh}
+  </p>
+</section>

@@ -9,6 +9,12 @@ export default defineConfig({
   site: 'https://najdorfesports.gg',
   integrations: [sitemap()],
 
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en', 'zh-TW', 'zh-CN'],
+    routing: { prefixDefaultLocale: false },
+  },
+
   vite: {
     plugins: [tailwindcss()],
   },
