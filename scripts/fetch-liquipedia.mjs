@@ -340,6 +340,28 @@ function parseMatchDate(raw) {
   return dt.toISOString();
 }
 
+/**
+ * Title-case a team name pulled from Liquipedia wikitext. Editors are
+ * inconsistent ("team secret", "Quasar esports") — normalize so the
+ * rendered match cards look right. Leave all-caps short tokens alone
+ * (so "G2 ESPORTS" doesn't become "G2 Esports"), and don't downcase
+ * letters that are already uppercase past position 0 (so "DRX" /
+ * "TSM" / "FaZe" are preserved).
+ */
+function titleCaseTeamName(raw) {
+  if (!raw) return raw;
+  return raw
+    .split(/(\s+)/)
+    .map((word) => {
+      if (!word || /^\s+$/.test(word)) return word;
+      // Already has uppercase past position 0 — assume editor knew what they meant.
+      if (/[A-Z]/.test(word.slice(1))) return word;
+      // Lowercase or first-letter-upper: capitalize the first letter, keep the rest as-is.
+      return word[0].toUpperCase() + word.slice(1);
+    })
+    .join('');
+}
+
 function extractMatches(wikitext, teamName, defaultTournament, sourcePage) {
   const matches = [];
   if (typeof wikitext !== 'string' || wikitext.length === 0) return matches;
@@ -359,17 +381,19 @@ function extractMatches(wikitext, teamName, defaultTournament, sourcePage) {
     if (!block.toLowerCase().includes(teamLc)) continue;
 
     const params = parseTemplateParams(block);
-    const opp1 = (params.opponent1?.match(/TeamOpponent\|([^|}\n]+)/i)?.[1] ?? '').trim();
-    const opp2 = (params.opponent2?.match(/TeamOpponent\|([^|}\n]+)/i)?.[1] ?? '').trim();
-    if (!opp1 || !opp2) continue;
+    const opp1Raw = (params.opponent1?.match(/TeamOpponent\|([^|}\n]+)/i)?.[1] ?? '').trim();
+    const opp2Raw = (params.opponent2?.match(/TeamOpponent\|([^|}\n]+)/i)?.[1] ?? '').trim();
+    if (!opp1Raw || !opp2Raw) continue;
 
-    // Determine which side is us. Liquipedia uses informal casing; compare case-insensitively.
+    // Determine which side is us. Compare on the raw (Liquipedia) casing
+    // to match the team-alias list exactly; title-case is only applied to
+    // the opponent that gets emitted.
     let ourSide;
-    if (opp1.toLowerCase() === teamLc) ourSide = 1;
-    else if (opp2.toLowerCase() === teamLc) ourSide = 2;
+    if (opp1Raw.toLowerCase() === teamLc) ourSide = 1;
+    else if (opp2Raw.toLowerCase() === teamLc) ourSide = 2;
     else continue;
 
-    const opponent = ourSide === 1 ? opp2 : opp1;
+    const opponent = titleCaseTeamName(ourSide === 1 ? opp2Raw : opp1Raw);
     const date = parseMatchDate(params.date ?? '');
     if (!date) continue;
 
@@ -386,11 +410,31 @@ function extractMatches(wikitext, teamName, defaultTournament, sourcePage) {
       const score2 = Number(mp.score2);
       const winner = parseInt(mp.winner ?? '0', 10);
       if (!mapName || Number.isNaN(score1) || Number.isNaN(score2)) continue;
-      mapScores.push({
-        map: mapName,
-        ourScore: ourSide === 1 ? score1 : score2,
-        theirScore: ourSide === 1 ? score2 : score1,
-      });
+
+      // Liquipedia's `score1`/`score2` on Push and (rarely) tiebroken Control
+      // maps stores raw progress — meters pushed (e.g. 144.86) or seconds of
+      // time-bank remaining. Those aren't round counts and shouldn't end up
+      // in MapScore.ourScore/theirScore (which the UI treats as integer
+      // scoring units). When either value is non-integer, fall back to
+      // winner-based 1-0 round-equivalent so the aggregate stays correct.
+      let ourScore;
+      let theirScore;
+      if (Number.isInteger(score1) && Number.isInteger(score2)) {
+        ourScore = ourSide === 1 ? score1 : score2;
+        theirScore = ourSide === 1 ? score2 : score1;
+      } else if (winner === ourSide) {
+        ourScore = 1;
+        theirScore = 0;
+      } else if (winner && winner !== ourSide) {
+        ourScore = 0;
+        theirScore = 1;
+      } else {
+        // Non-integer scores AND no winner metadata — best to drop this
+        // map entry rather than ship a meaningless float pair.
+        continue;
+      }
+
+      mapScores.push({ map: mapName, ourScore, theirScore });
       if (winner === ourSide) ourMapWins += 1;
       else if (winner && winner !== ourSide) theirMapWins += 1;
     }

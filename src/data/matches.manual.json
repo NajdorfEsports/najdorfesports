@@ -1,1 +1,27 @@
-[]
+[
+  {
+    "id": "liquipedia-owcs-pacific-2026-stage-1-1-202604301235",
+    "opponent": "Team Secret"
+  },
+  {
+    "id": "liquipedia-owcs-pacific-2026-stage-1-2-202604301345",
+    "opponent": "Quasar Esports",
+    "mapScores": [
+      {
+        "map": "Lijiang Tower",
+        "ourScore": 2,
+        "theirScore": 1
+      },
+      {
+        "map": "Numbani",
+        "ourScore": 3,
+        "theirScore": 2
+      },
+      {
+        "map": "Runasapi",
+        "ourScore": 1,
+        "theirScore": 0
+      }
+    ]
+  }
+]
