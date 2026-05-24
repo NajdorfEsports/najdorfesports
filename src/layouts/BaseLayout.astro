@@ -172,5 +172,70 @@ const orgJsonLd = {
         document.addEventListener('astro:page-load', init);
       })();
     </script>
+
+    <script is:inline>
+      // Count-up on intersect. Opt in by adding `data-count-up` and
+      // `data-target="<integer>"` to any element. The element's textContent
+      // is overwritten with values from 0 → target across COUNT_DURATION_MS
+      // using ease-out cubic. Reduced-motion + non-IO browsers + already-
+      // animated elements all snap straight to the final value.
+      (() => {
+        const DURATION_MS = 700;
+        const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+        function animate(el, target) {
+          if (el.dataset.countDone === '1') return;
+          el.dataset.countDone = '1';
+          const start = performance.now();
+          // Preserve any prefix/suffix the author wants kept after the digits
+          // (e.g. "+", "%"). Read once at start so we don't re-parse mid-anim.
+          const prefix = el.dataset.countPrefix || '';
+          const suffix = el.dataset.countSuffix || '';
+
+          function frame(now) {
+            const t = Math.min(1, (now - start) / DURATION_MS);
+            const v = Math.round(easeOutCubic(t) * target);
+            el.textContent = prefix + v + suffix;
+            if (t < 1) requestAnimationFrame(frame);
+          }
+          requestAnimationFrame(frame);
+        }
+
+        function init() {
+          const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          const els = document.querySelectorAll('[data-count-up]:not([data-count-done="1"])');
+          if (els.length === 0) return;
+
+          if (reduced || !('IntersectionObserver' in window)) {
+            // Snap straight to final value, no animation.
+            for (const el of els) {
+              const target = parseInt(el.getAttribute('data-target') || '0', 10);
+              const prefix = el.dataset.countPrefix || '';
+              const suffix = el.dataset.countSuffix || '';
+              el.textContent = prefix + target + suffix;
+              el.dataset.countDone = '1';
+            }
+            return;
+          }
+
+          const io = new IntersectionObserver(
+            (entries) => {
+              for (const e of entries) {
+                if (e.isIntersecting) {
+                  const target = parseInt(e.target.getAttribute('data-target') || '0', 10);
+                  animate(e.target, isNaN(target) ? 0 : target);
+                  io.unobserve(e.target);
+                }
+              }
+            },
+            { threshold: 0.4 },
+          );
+          for (const el of els) io.observe(el);
+        }
+
+        init();
+        document.addEventListener('astro:page-load', init);
+      })();
+    </script>
   </body>
 </html>

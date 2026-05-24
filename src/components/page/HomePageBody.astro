@@ -192,28 +192,50 @@ const newsHref    = '/news/';
     </p>
 
     <p class="hero-fade-in mt-6 max-w-xl text-base sm:text-lg text-[var(--color-text-dim)] leading-relaxed" style="--delay:780ms">
-      {t.hero.stats(players.length, countries.size)}
       {topAchievement && (
-        <>
+        <span class="text-[var(--color-text)]">
+          {t.hero.achievement(translatePlacement(topAchievement.placement, locale), translateTournament(topAchievement.event.replace(/^.*?—\s*/, ''), locale))}
           {' '}
-          <span class="text-[var(--color-text)]">
-            {t.hero.achievement(translatePlacement(topAchievement.placement, locale), translateTournament(topAchievement.event.replace(/^.*?—\s*/, ''), locale))}
-          </span>
-        </>
+        </span>
       )}
-      {recordLine && (
-        <>
-          {' '}
-          <span class="text-[var(--color-text)]">{t.hero.record(recordLine)}</span>
-        </>
-      )}
-      {' '}{t.hero.tagline}
+      {t.hero.tagline}
     </p>
 
     <div class="hero-fade-in mt-8 flex flex-wrap gap-3" style="--delay:880ms">
       <Button href={matchesHref} variant="primary" magnet>{t.hero.matchSchedule}</Button>
       <Button href={rosterHref} variant="secondary" magnet>{t.hero.meetRoster}</Button>
     </div>
+
+    {/*
+      Hero stat strip. Each numeric value carries `data-count-up` +
+      `data-target` so the BaseLayout count-up driver animates it from 0
+      when the strip enters the viewport. tabular-nums keeps the digit
+      cells from jittering during the count. The W–L record renders as
+      two count-up cells separated by a static em-dash, since the count
+      driver only handles single integers.
+    */}
+    <dl class="hero-fade-in mt-10 grid grid-cols-3 max-w-md gap-px bg-[var(--color-border)] border border-[var(--color-border)] rounded-md overflow-hidden" style="--delay:1000ms">
+      <div class="bg-[var(--color-surface)] px-4 py-3 sm:px-5 sm:py-4">
+        <dt class="text-[0.6rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)]">{t.roster.playersLabel}</dt>
+        <dd class="font-display text-3xl sm:text-4xl leading-none tabular-nums mt-1" data-count-up data-target={players.length}>0</dd>
+      </div>
+      <div class="bg-[var(--color-surface)] px-4 py-3 sm:px-5 sm:py-4">
+        <dt class="text-[0.6rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)]">{countries.size === 1 ? 'Country' : 'Countries'}</dt>
+        <dd class="font-display text-3xl sm:text-4xl leading-none tabular-nums mt-1" data-count-up data-target={countries.size}>0</dd>
+      </div>
+      <div class="bg-[var(--color-surface)] px-4 py-3 sm:px-5 sm:py-4">
+        <dt class="text-[0.6rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)]">Record</dt>
+        {wins + losses > 0 ? (
+          <dd class="font-display text-3xl sm:text-4xl leading-none tabular-nums mt-1 flex items-baseline gap-1">
+            <span data-count-up data-target={wins} data-count-suffix={t.match.win}>0{t.match.win}</span>
+            <span class="text-[var(--color-text-dim)] text-2xl">–</span>
+            <span data-count-up data-target={losses} data-count-suffix={t.match.loss}>0{t.match.loss}</span>
+          </dd>
+        ) : (
+          <dd class="font-display text-2xl sm:text-3xl leading-none mt-1 text-[var(--color-text-dim)]">—</dd>
+        )}
+      </div>
+    </dl>
   </div>
 </section>
 
