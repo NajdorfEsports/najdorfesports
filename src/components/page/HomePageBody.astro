@@ -27,7 +27,7 @@ import achievementsAutoData from '../../data/achievements.json';
 import achievementsManualData from '../../data/achievements.manual.json';
 import sponsorsData from '../../data/sponsors.json';
 import { DEFAULT_LOCALE, pathFor, useT, type Locale } from '../../i18n';
-import { formatDate, translateTournament } from '../../i18n/format';
+import { formatDate, translateTournament, translatePlacement } from '../../i18n/format';
 
 const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
 const t = useT(locale);
@@ -116,7 +116,7 @@ const newsHref    = '/news/';
         <>
           {' '}
           <span class="text-[var(--color-text)]">
-            {t.hero.achievement(topAchievement.placement, translateTournament(topAchievement.event.replace(/^.*?—\s*/, ''), locale))}
+            {t.hero.achievement(translatePlacement(topAchievement.placement, locale), translateTournament(topAchievement.event.replace(/^.*?—\s*/, ''), locale))}
           </span>
         </>
       )}
