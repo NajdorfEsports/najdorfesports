@@ -20,6 +20,8 @@ export const en = {
     trademark:
       'Overwatch and the Overwatch Champions Series are trademarks of Blizzard Entertainment, Inc.',
     copyright: (year: number, name: string) => `© ${year} ${name}. All rights reserved.`,
+    /** Minimal data credit required by Liquipedia's CC BY-SA 3.0 license. */
+    dataCredit: 'Data: Liquipedia · CC BY-SA 3.0',
   },
   hero: {
     subhead: 'OWCS PACIFIC 2026',
@@ -47,12 +49,7 @@ export const en = {
     h1: 'The Lineup',
     playersLabel: 'Players',
     regionLabel: 'Region',
-    intro:
-      "Roster pulled from Liquipedia every six hours. Click a handle to open the player's Liquipedia page.",
     fullRoster: 'Full roster',
-    attribution: 'Player data sourced from',
-    attributionLicense: 'available under',
-    attributionRefresh: 'Roster refreshes every 6 hours.',
   },
   about: {
     eyebrow: 'About',

@@ -87,9 +87,6 @@ const regionLabel: string = (t.regions as Record<string, string>)[site.region] ?
       </div>
     </dl>
   </div>
-  <p class="text-[var(--color-text-dim)] mt-4 max-w-2xl">
-    {t.roster.intro}
-  </p>
 </section>
 
 <AchievementStrip achievements={achievements} />
@@ -111,15 +108,4 @@ const regionLabel: string = (t.regions as Record<string, string>)[site.region] ?
       </div>
     </div>
   ))}
-</section>
-
-<section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16 text-xs text-[var(--color-text-dim)]">
-  <p>
-    {t.roster.attribution}
-    {' '}
-    <a href="https://liquipedia.net/overwatch/" target="_blank" rel="noopener" class="text-[var(--color-accent-2)] hover:underline">Liquipedia</a>,
-    {' '}{t.roster.attributionLicense}{' '}
-    <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener" class="text-[var(--color-accent-2)] hover:underline">CC BY-SA 3.0</a>.
-    {' '}{t.roster.attributionRefresh}
-  </p>
 </section>

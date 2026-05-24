@@ -26,6 +26,7 @@ export const zhCN: Strings = {
     trademark:
       'Overwatch 与 Overwatch Champions Series 为 Blizzard Entertainment, Inc. 的商标。',
     copyright: (year, name) => `© ${year} ${name}。版权所有。`,
+    dataCredit: '数据来源：Liquipedia · CC BY-SA 3.0',
   },
   hero: {
     subhead: 'OWCS PACIFIC 2026',
@@ -51,11 +52,7 @@ export const zhCN: Strings = {
     h1:                 '出战阵容',
     playersLabel:       '选手',
     regionLabel:        '赛区',
-    intro:              '名单每 6 小时自 Liquipedia 同步更新。点击选手 ID 可打开其 Liquipedia 页面。',
     fullRoster:         '完整名单',
-    attribution:        '选手资料来源：',
-    attributionLicense: '授权方式：',
-    attributionRefresh: '名单每 6 小时自动更新。',
   },
   about: {
     eyebrow: '关于',

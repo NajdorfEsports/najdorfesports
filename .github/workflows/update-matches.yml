@@ -3,9 +3,11 @@ name: Refresh Liquipedia data
 on:
   workflow_dispatch: {}
   schedule:
-    # Every 6 hours. Two parse calls per run + 30s spacing fits well within
-    # Liquipedia's quota and produces a Pages deploy at most 4×/day.
-    - cron: '7 */6 * * *'
+    # Once a week, Monday 09:07 UTC. Pacific stages typically play on
+    # weekends, so Monday morning UTC catches the freshest results without
+    # burning Actions minutes on hourly polling. Trigger from the Actions
+    # tab if a roster move or mid-week match needs to be picked up sooner.
+    - cron: '7 9 * * 1'
 
 permissions:
   contents: write
