@@ -69,6 +69,8 @@ export const zhTW: Strings = {
     vs:           '對戰',
     watchNow:     '立即觀看',
     openOnTwitch: '在 Twitch 開啟',
+    loadPlayer:     '載入 Twitch 播放器',
+    loadPlayerNote: '載入後 Twitch 將在您的裝置上設置自己的 cookies。',
   },
 
   roles: {

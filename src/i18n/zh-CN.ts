@@ -68,6 +68,8 @@ export const zhCN: Strings = {
     vs:           '对战',
     watchNow:     '立即观看',
     openOnTwitch: '在 Twitch 打开',
+    loadPlayer:     '加载 Twitch 播放器',
+    loadPlayerNote: '加载后 Twitch 将在您的设备上设置自己的 cookies。',
   },
 
   roles: {

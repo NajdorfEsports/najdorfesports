@@ -65,6 +65,10 @@ export const en = {
     vs: 'vs',
     watchNow: 'WATCH NOW',
     openOnTwitch: 'Open on Twitch',
+    /** Facade button: Twitch iframe only loads after a deliberate click,
+     *  so visitors who never click never trigger Twitch's cookies. */
+    loadPlayer: 'Load Twitch player',
+    loadPlayerNote: 'Loading sets Twitch\'s own cookies on your device.',
   },
 
   /** Display names for roles. Kept short — used on player cards and roster strip. */

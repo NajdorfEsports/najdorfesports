@@ -13,6 +13,16 @@ const updated = '2026-05-24';
     <h1 class="font-display text-4xl sm:text-5xl mt-2 tracking-wide">Privacy Policy</h1>
     <p class="text-xs text-[var(--color-text-dim)] mt-2">Last updated: {updated}</p>
 
+    <aside class="mt-6 border-l-4 border-[var(--color-accent)] bg-[var(--color-surface)] px-5 py-4 text-sm">
+      <p class="font-display tracking-wide text-base mb-2">In short</p>
+      <p class="text-[var(--color-text)]">
+        This site sets no cookies of its own, runs no analytics, and embeds
+        no tracking scripts. Cloudflare sets one strictly-necessary security
+        cookie for bot protection. The Twitch player is click-to-load — no
+        request is made to Twitch until you press play.
+      </p>
+    </aside>
+
     <div class="prose mt-8 text-[var(--color-text)] leading-relaxed space-y-5">
       <p>
         This site is operated by Najdorf Esports (the "Organization"). The legal entity
@@ -20,19 +30,31 @@ const updated = '2026-05-24';
         name the operating company once registration is complete.
       </p>
 
-      <h2 class="font-display text-2xl mt-8 tracking-wide">What we collect</h2>
+      <h2 class="font-display text-2xl mt-8 tracking-wide">Cookies and tracking</h2>
       <p>
-        This site does not set analytics cookies, advertising trackers, or
-        first-party tracking pixels. Pages are static HTML, CSS, and a small
-        amount of vanilla JavaScript for the match countdown, mobile navigation,
-        and a client-side hero swap on match day.
+        This site sets <strong>no cookies of its own.</strong> No analytics,
+        no advertising trackers, no fingerprinting scripts, no first-party
+        tracking pixels. Pages are static HTML, CSS, and a small amount of
+        vanilla JavaScript for the match countdown, mobile navigation, and a
+        client-side hero swap on match day. Nothing on the site reads or
+        writes to <code>document.cookie</code>, <code>localStorage</code>,
+        <code>sessionStorage</code>, or <code>IndexedDB</code>.
       </p>
-
       <p>
-        Our hosting provider (Cloudflare Pages) records access logs that include
-        your IP address, user agent, and the URLs you request. Cloudflare retains
-        these logs for security and abuse-prevention purposes. We do not link
-        these logs to any personal identity and do not use them for marketing.
+        Our hosting platform (Cloudflare Pages) sets one strictly-necessary,
+        first-party cookie named <code>__cf_bm</code> on requests to this
+        domain. It is a 30-minute bot-management token used only for
+        infrastructure security — it is not shared with us, is not used for
+        cross-site tracking, and is exempt from cookie-consent requirements
+        under the "strictly necessary" exception in EU ePrivacy guidance.
+        See
+        <a href="https://developers.cloudflare.com/fundamentals/reference/policies-compliances/cloudflare-cookies/" target="_blank" rel="noopener">Cloudflare's cookie reference</a>
+        for details.
+      </p>
+      <p>
+        Cloudflare additionally retains short-term access logs (IP, user
+        agent, URL) for security and abuse-prevention. We do not link these
+        logs to any personal identity and do not use them for marketing.
       </p>
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">Fonts</h2>
@@ -44,19 +66,19 @@ const updated = '2026-05-24';
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">Embedded video player</h2>
       <p>
-        During an active match window (roughly 30 minutes before kickoff through
-        three hours after), the home page may load a Twitch player from
-        <code>player.twitch.tv</code> so visitors can watch the stream inline.
-        Outside that window no iframe is loaded and no request is made to Twitch.
+        During an active match window (roughly 30 minutes before kickoff
+        through three hours after), the home page shows a click-to-load
+        Twitch placeholder. <strong>No request is made to Twitch until you
+        click the play button.</strong> If you never click it, your browser
+        never contacts twitch.tv from this page and Twitch sets no cookies
+        on your device.
       </p>
       <p>
-        When the player is loaded, Twitch sets its own cookies and may collect
-        usage data per its own policies. We do not control these cookies or
-        receive their contents. See
+        Once you click to load the player, Twitch may set its own cookies
+        and collect usage data per its own policies. We do not control
+        those cookies or receive their contents. See
         <a href="https://www.twitch.tv/p/legal/privacy-notice/" target="_blank" rel="noopener">Twitch's Privacy Notice</a>
-        for details. If you do not want the Twitch player to load, leave the home
-        page before the live window or open the stream link directly on Twitch
-        in a separate session.
+        for details.
       </p>
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">Outbound links</h2>

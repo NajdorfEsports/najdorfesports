@@ -60,10 +60,37 @@ const renderable = !!match && !!match.streamUrl;
       <div>
         <div
           data-stream-mount
-          class="aspect-video w-full bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-md overflow-hidden flex items-center justify-center"
+          class="aspect-video w-full bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-md overflow-hidden relative"
         >
-          {/* iframe injected by script when in-window */}
-          <p class="text-sm text-[var(--color-text-dim)]">{t.live.openOnTwitch}</p>
+          {/*
+            Facade pattern: render a click-to-load button, NOT the Twitch
+            iframe. The iframe (which sets Twitch's third-party cookies) is
+            only injected after the visitor deliberately clicks. Visitors
+            who never click never trigger any Twitch network requests.
+          */}
+          <button
+            type="button"
+            data-stream-load
+            class="absolute inset-0 flex flex-col items-center justify-center gap-3 group hover:bg-[var(--color-surface)]/60 transition-colors cursor-pointer"
+            aria-label={t.live.loadPlayer}
+          >
+            <svg
+              width="64"
+              height="64"
+              viewBox="0 0 64 64"
+              aria-hidden="true"
+              class="text-[var(--color-accent)] group-hover:scale-110 transition-transform"
+            >
+              <circle cx="32" cy="32" r="30" fill="currentColor" opacity="0.15" />
+              <polygon points="24,18 50,32 24,46" fill="currentColor" />
+            </svg>
+            <span class="font-display text-lg tracking-wide text-[var(--color-text)]">
+              {t.live.loadPlayer}
+            </span>
+            <span class="text-[0.7rem] text-[var(--color-text-dim)] max-w-xs text-center px-4">
+              {t.live.loadPlayerNote}
+            </span>
+          </button>
         </div>
       </div>
 
@@ -131,8 +158,8 @@ const renderable = !!match && !!match.streamUrl;
       const WINDOW_BEFORE_MS = 30 * 60 * 1000;
       const WINDOW_AFTER_MS  = 3 * 60 * 60 * 1000;
 
+      let active = false;
       let injected = false;
-      let active   = false;
 
       function enterLive() {
         if (active) return;
@@ -141,29 +168,36 @@ const renderable = !!match && !!match.streamUrl;
         def.setAttribute('aria-hidden', 'true');
         live.classList.remove('hidden');
         live.removeAttribute('aria-hidden');
-
-        if (!injected && channel) {
-          const mount = live.querySelector('[data-stream-mount]');
-          if (mount) {
-            mount.innerHTML = '';
-            const parentParams = parentDomains
-              .map(p => 'parent=' + encodeURIComponent(p))
-              .join('&');
-            const src = 'https://player.twitch.tv/?channel=' +
-              encodeURIComponent(channel) + '&' + parentParams + '&muted=true';
-            const iframe = document.createElement('iframe');
-            iframe.src = src;
-            iframe.allowFullscreen = true;
-            iframe.setAttribute('scrolling', 'no');
-            iframe.title = 'Twitch live stream';
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
-            iframe.style.border = '0';
-            mount.appendChild(iframe);
-            injected = true;
-          }
-        }
       }
+
+      // Facade pattern: iframe (and Twitch's cookies) only loads after the
+      // visitor explicitly clicks the play button. Until then we hit zero
+      // twitch.tv endpoints, so no third-party cookies are set on the
+      // visitor's device.
+      function injectIframe() {
+        if (injected || !channel) return;
+        const mount = live.querySelector('[data-stream-mount]');
+        if (!mount) return;
+        mount.innerHTML = '';
+        const parentParams = parentDomains
+          .map(p => 'parent=' + encodeURIComponent(p))
+          .join('&');
+        const src = 'https://player.twitch.tv/?channel=' +
+          encodeURIComponent(channel) + '&' + parentParams + '&muted=true';
+        const iframe = document.createElement('iframe');
+        iframe.src = src;
+        iframe.allowFullscreen = true;
+        iframe.setAttribute('scrolling', 'no');
+        iframe.title = 'Twitch live stream';
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = '0';
+        mount.appendChild(iframe);
+        injected = true;
+      }
+
+      const loadBtn = live.querySelector('[data-stream-load]');
+      if (loadBtn) loadBtn.addEventListener('click', injectIframe);
 
       function exitLive() {
         if (!active) return;
