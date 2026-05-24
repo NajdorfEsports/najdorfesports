@@ -99,20 +99,99 @@ const newsHref    = '/news/';
   hidden-by-default live mode. A small inline script in <LiveHero/> swaps
   them when current time falls in [match - 30m, match + 3h]. Both are
   server-rendered so there is no FOUC and SEO crawlers see the default.
+
+  The default hero composes three layers:
+    - .hero-bishops — five drifting bishop SVGs (decorative, very faint)
+    - the gradient surface→bg wash, dimmer at top
+    - the actual content (wordmark, subhead, body, CTAs)
+
+  Each letter of "NAJDORF ESPORTS" gets a per-character rise on first paint
+  (animation lives in src/styles/global.css). prefers-reduced-motion users
+  see the final state immediately via the sitewide reduce rule.
 */}
-<section data-hero-default class="relative overflow-hidden">
+<section data-hero-default class="relative overflow-hidden isolate">
+  {/* Drifting bishop motif. Five instances at different sizes / positions /
+      durations so they never sync. Pointer-events:none so CTAs underneath
+      stay clickable. aria-hidden because they're purely decorative. */}
+  <div class="hero-bishops absolute inset-0" aria-hidden="true">
+    <span class="bishop-drift" style="top:8%;left:6%;--dur:62s;--dx:24px;--dy:-18px;--rot:5deg;--op:0.07;">
+      <svg width="180" height="270" viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path fill-rule="evenodd" d="M32 6 C 40 18, 44 30, 44 38 C 44 46, 38 50, 32 50 C 26 50, 20 46, 20 38 C 20 30, 24 18, 32 6 Z"/>
+        <path d="M28 12 L 38 22 L 36 24 L 26 14 Z"/>
+        <rect x="26" y="46" width="12" height="12"/>
+        <rect x="20" y="56" width="24" height="6" rx="1"/>
+        <path d="M22 60 L 42 60 L 46 78 L 18 78 Z"/>
+        <path d="M14 78 L 50 78 L 52 88 L 12 88 Z"/>
+        <ellipse cx="32" cy="90" rx="22" ry="3.5"/>
+      </svg>
+    </span>
+    <span class="bishop-drift" style="top:32%;right:4%;--dur:78s;--dx:-32px;--dy:22px;--rot:-7deg;--op:0.05;">
+      <svg width="240" height="360" viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.4">
+        <path fill-rule="evenodd" d="M32 6 C 40 18, 44 30, 44 38 C 44 46, 38 50, 32 50 C 26 50, 20 46, 20 38 C 20 30, 24 18, 32 6 Z"/>
+        <path d="M28 12 L 38 22 L 36 24 L 26 14 Z"/>
+        <rect x="26" y="46" width="12" height="12"/>
+        <rect x="20" y="56" width="24" height="6" rx="1"/>
+        <path d="M22 60 L 42 60 L 46 78 L 18 78 Z"/>
+        <path d="M14 78 L 50 78 L 52 88 L 12 88 Z"/>
+        <ellipse cx="32" cy="90" rx="22" ry="3.5"/>
+      </svg>
+    </span>
+    <span class="bishop-drift hidden md:inline-block" style="bottom:6%;left:28%;--dur:54s;--dx:18px;--dy:-26px;--rot:9deg;--op:0.04;">
+      <svg width="140" height="210" viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path fill-rule="evenodd" d="M32 6 C 40 18, 44 30, 44 38 C 44 46, 38 50, 32 50 C 26 50, 20 46, 20 38 C 20 30, 24 18, 32 6 Z"/>
+        <path d="M28 12 L 38 22 L 36 24 L 26 14 Z"/>
+        <rect x="26" y="46" width="12" height="12"/>
+        <rect x="20" y="56" width="24" height="6" rx="1"/>
+        <path d="M22 60 L 42 60 L 46 78 L 18 78 Z"/>
+        <path d="M14 78 L 50 78 L 52 88 L 12 88 Z"/>
+        <ellipse cx="32" cy="90" rx="22" ry="3.5"/>
+      </svg>
+    </span>
+    <span class="bishop-drift hidden lg:inline-block" style="top:52%;left:62%;--dur:70s;--dx:-20px;--dy:30px;--rot:-5deg;--op:0.06; color:var(--color-accent-2);">
+      <svg width="160" height="240" viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path fill-rule="evenodd" d="M32 6 C 40 18, 44 30, 44 38 C 44 46, 38 50, 32 50 C 26 50, 20 46, 20 38 C 20 30, 24 18, 32 6 Z"/>
+        <path d="M28 12 L 38 22 L 36 24 L 26 14 Z"/>
+        <rect x="26" y="46" width="12" height="12"/>
+        <rect x="20" y="56" width="24" height="6" rx="1"/>
+        <path d="M22 60 L 42 60 L 46 78 L 18 78 Z"/>
+        <path d="M14 78 L 50 78 L 52 88 L 12 88 Z"/>
+        <ellipse cx="32" cy="90" rx="22" ry="3.5"/>
+      </svg>
+    </span>
+    <span class="bishop-drift hidden xl:inline-block" style="top:18%;right:36%;--dur:84s;--dx:30px;--dy:-14px;--rot:4deg;--op:0.04;">
+      <svg width="100" height="150" viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path fill-rule="evenodd" d="M32 6 C 40 18, 44 30, 44 38 C 44 46, 38 50, 32 50 C 26 50, 20 46, 20 38 C 20 30, 24 18, 32 6 Z"/>
+        <path d="M28 12 L 38 22 L 36 24 L 26 14 Z"/>
+        <rect x="26" y="46" width="12" height="12"/>
+        <rect x="20" y="56" width="24" height="6" rx="1"/>
+        <path d="M22 60 L 42 60 L 46 78 L 18 78 Z"/>
+        <path d="M14 78 L 50 78 L 52 88 L 12 88 Z"/>
+        <ellipse cx="32" cy="90" rx="22" ry="3.5"/>
+      </svg>
+    </span>
+  </div>
+
   <div class="absolute inset-0 bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg)] opacity-80" aria-hidden="true"></div>
   <div class="relative mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12 sm:pt-20 pb-12">
-    <p class="font-display text-5xl sm:text-7xl md:text-8xl tracking-tight leading-none">
-      <span class="text-[var(--color-accent)]">NAJDORF</span>
-      <span class="text-[var(--color-text)]">ESPORTS</span>
+    {/* Wordmark with per-letter rise. aria-label gives assistive tech the
+        unbroken word so the per-letter spans don't fragment the readout. */}
+    <p
+      class="font-display text-5xl sm:text-7xl md:text-8xl tracking-tight leading-none"
+      aria-label="Najdorf Esports"
+    >
+      <span class="text-[var(--color-accent)]" aria-hidden="true">
+        <span class="hero-letter" style="--n:0">N</span><span class="hero-letter" style="--n:1">A</span><span class="hero-letter" style="--n:2">J</span><span class="hero-letter" style="--n:3">D</span><span class="hero-letter" style="--n:4">O</span><span class="hero-letter" style="--n:5">R</span><span class="hero-letter" style="--n:6">F</span>
+      </span>
+      <span class="text-[var(--color-text)]" aria-hidden="true">
+        <span class="hero-letter" style="--n:7">&nbsp;</span><span class="hero-letter" style="--n:8">E</span><span class="hero-letter" style="--n:9">S</span><span class="hero-letter" style="--n:10">P</span><span class="hero-letter" style="--n:11">O</span><span class="hero-letter" style="--n:12">R</span><span class="hero-letter" style="--n:13">T</span><span class="hero-letter" style="--n:14">S</span>
+      </span>
     </p>
 
-    <p class="mt-4 font-display text-xl sm:text-2xl text-[var(--color-accent-2)] tracking-[0.3em]">
+    <p class="hero-fade-in mt-4 font-display text-xl sm:text-2xl text-[var(--color-accent-2)] tracking-[0.3em]" style="--delay:680ms">
       {t.hero.subhead}
     </p>
 
-    <p class="mt-6 max-w-xl text-base sm:text-lg text-[var(--color-text-dim)] leading-relaxed">
+    <p class="hero-fade-in mt-6 max-w-xl text-base sm:text-lg text-[var(--color-text-dim)] leading-relaxed" style="--delay:780ms">
       {t.hero.stats(players.length, countries.size)}
       {topAchievement && (
         <>
@@ -131,12 +210,76 @@ const newsHref    = '/news/';
       {' '}{t.hero.tagline}
     </p>
 
-    <div class="mt-8 flex flex-wrap gap-3">
-      <Button href={matchesHref} variant="primary">{t.hero.matchSchedule}</Button>
-      <Button href={rosterHref} variant="secondary">{t.hero.meetRoster}</Button>
+    <div class="hero-fade-in mt-8 flex flex-wrap gap-3" style="--delay:880ms">
+      <Button href={matchesHref} variant="primary" magnet>{t.hero.matchSchedule}</Button>
+      <Button href={rosterHref} variant="secondary" magnet>{t.hero.meetRoster}</Button>
     </div>
   </div>
 </section>
+
+{/*
+  Magnetic CTA driver. Pointer-only — touch + coarse-pointer + reduced-motion
+  users get the static :hover state instead. Re-attaches on every
+  ClientRouter navigation so navigating back to home still works.
+*/}
+<script is:inline>
+  (() => {
+    const RADIUS = 96; // px — pointer distance at which pull begins
+    const STRENGTH = 0.28; // 0–1 — fraction of distance the button moves
+    let bound = null; // null when no current pointer-target
+
+    function attach() {
+      if (typeof window === 'undefined') return;
+      if (!window.matchMedia('(pointer: fine)').matches) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      const targets = document.querySelectorAll('[data-magnet]');
+      if (targets.length === 0) return;
+
+      const onMove = (e) => {
+        for (const el of targets) {
+          const r = el.getBoundingClientRect();
+          const cx = r.left + r.width / 2;
+          const cy = r.top + r.height / 2;
+          const dx = e.clientX - cx;
+          const dy = e.clientY - cy;
+          const dist = Math.hypot(dx, dy);
+          if (dist < RADIUS + Math.max(r.width, r.height) / 2) {
+            el.style.setProperty('--mx', (dx * STRENGTH).toFixed(2) + 'px');
+            el.style.setProperty('--my', (dy * STRENGTH).toFixed(2) + 'px');
+          } else {
+            el.style.setProperty('--mx', '0px');
+            el.style.setProperty('--my', '0px');
+          }
+        }
+      };
+      const onLeave = () => {
+        for (const el of targets) {
+          el.style.setProperty('--mx', '0px');
+          el.style.setProperty('--my', '0px');
+        }
+      };
+
+      window.addEventListener('pointermove', onMove, { passive: true });
+      window.addEventListener('pointerleave', onLeave, { passive: true });
+      bound = { onMove, onLeave };
+    }
+
+    function detach() {
+      if (!bound) return;
+      window.removeEventListener('pointermove', bound.onMove);
+      window.removeEventListener('pointerleave', bound.onLeave);
+      bound = null;
+    }
+
+    attach();
+    document.addEventListener('astro:page-load', () => {
+      detach();
+      attach();
+    });
+    document.addEventListener('astro:before-swap', detach);
+  })();
+</script>
 
 <LiveHero match={liveCandidate} />
 
