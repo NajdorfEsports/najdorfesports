@@ -1,0 +1,132 @@
+---
+import PlayerAvatar from '../player/PlayerAvatar.astro';
+import CountryFlag from '../player/CountryFlag.astro';
+import type { RosterEntry } from '../../data/site';
+
+interface Props {
+  players: ReadonlyArray<RosterEntry>;
+  /** Hide entries with these roles from the preview (e.g., coaches/managers). */
+  excludeRoles?: ReadonlyArray<string>;
+  href?: string;
+}
+const { players, excludeRoles = ['Coach', 'Manager'], href = '/roster/' } = Astro.props;
+
+const visible = players.filter((p) => !excludeRoles.includes(p.role));
+const countries = new Set(visible.map((p) => p.country).filter(Boolean));
+const coaches = players.filter((p) => p.role === 'Coach');
+---
+<section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16" aria-label="Roster preview">
+  <div class="flex items-end justify-between mb-5">
+    <div>
+      <p class="text-xs uppercase tracking-[0.25em] text-[var(--color-accent-2)]">Active roster</p>
+      <h2 class="font-display text-3xl sm:text-4xl mt-1 tracking-wide">
+        {visible.length} players
+        <span class="text-[var(--color-text-dim)] font-display text-2xl sm:text-3xl">
+          · {countries.size} {countries.size === 1 ? 'country' : 'countries'}
+          {coaches.length > 0 && (
+            <>
+              {' · '}
+              {coaches.length} coach{coaches.length === 1 ? '' : 'es'}
+            </>
+          )}
+        </span>
+      </h2>
+    </div>
+    <a
+      href={href}
+      class="hidden sm:inline-flex text-sm uppercase tracking-wider text-[var(--color-accent-2)] hover:text-[var(--color-accent)] underline underline-offset-4"
+    >
+      Full roster →
+    </a>
+  </div>
+
+  <div class="roster-strip">
+    <ul class="roster-strip__track">
+      {visible.map((p, i) => (
+        <li
+          class="roster-strip__item"
+          style={`--stagger:${i};`}
+        >
+          <a
+            href={p.liquipediaUrl ?? href}
+            target={p.liquipediaUrl ? '_blank' : undefined}
+            rel={p.liquipediaUrl ? 'noopener' : undefined}
+            class="flex flex-col items-center gap-2"
+          >
+            <PlayerAvatar handle={p.handle} photo={p.photo} size="md" />
+            <span class="font-display text-base tracking-wide leading-none">{p.handle}</span>
+            <span class="flex items-center gap-1.5 text-[0.65rem] uppercase tracking-wider text-[var(--color-text-dim)]">
+              {p.role}
+              {p.countryCode && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <CountryFlag code={p.countryCode} name={p.country} size="sm" />
+                </>
+              )}
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <p class="sm:hidden text-right mt-3">
+    <a href={href} class="text-sm uppercase tracking-wider text-[var(--color-accent-2)] hover:underline">
+      Full roster →
+    </a>
+  </p>
+</section>
+
+<style>
+  .roster-strip {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.25rem;
+    /* hide horizontal overflow caused by hover lift */
+    margin-inline: -1rem;
+    padding-inline: 1rem;
+  }
+
+  .roster-strip__track {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 0;
+    min-width: max-content;
+  }
+
+  .roster-strip__item {
+    flex: 0 0 auto;
+    animation: strip-fade 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--stagger, 0) * 60ms);
+    transition: transform 0.2s ease-out;
+  }
+
+  .roster-strip__item:hover {
+    transform: translateY(-3px);
+  }
+
+  @keyframes strip-fade {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .roster-strip__item {
+      animation: none;
+    }
+    .roster-strip__item:hover {
+      transform: none;
+    }
+  }
+</style>

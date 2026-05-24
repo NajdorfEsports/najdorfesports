@@ -2,20 +2,41 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import OWCSBadge from '../components/ui/OWCSBadge.astro';
 import NextMatchCountdown from '../components/match/NextMatchCountdown.astro';
-import MatchCard from '../components/match/MatchCard.astro';
-import MatchEmptyState from '../components/match/EmptyState.astro';
+import MatchTicker from '../components/match/MatchTicker.astro';
+import RosterPreview from '../components/team/RosterPreview.astro';
+import AchievementStrip from '../components/team/AchievementStrip.astro';
 import Button from '../components/ui/Button.astro';
 import { getCollection } from 'astro:content';
-import { site, socials, type MatchEntry } from '../data/site';
+import {
+  mergeByKey,
+  site,
+  socials,
+  type MatchEntry,
+  type RosterEntry,
+  type Achievement,
+} from '../data/site';
 import autoMatchesData from '../data/matches.json';
 import manualMatchesData from '../data/matches.manual.json';
+import rosterAutoData from '../data/roster.json';
+import rosterManualData from '../data/roster.manual.json';
+import achievementsAutoData from '../data/achievements.json';
+import achievementsManualData from '../data/achievements.manual.json';
 
-const autoMatches = autoMatchesData as MatchEntry[];
-const manualMatches = manualMatchesData as MatchEntry[];
-const byId = new Map<string, MatchEntry>();
-for (const m of autoMatches) byId.set(m.id, m);
-for (const m of manualMatches) byId.set(m.id, m);
-const allMatches = Array.from(byId.values());
+const allMatches = mergeByKey(
+  autoMatchesData as MatchEntry[],
+  manualMatchesData as MatchEntry[],
+  'id',
+);
+const roster = mergeByKey(
+  rosterAutoData as RosterEntry[],
+  rosterManualData as RosterEntry[],
+  'handle',
+);
+const achievements = mergeByKey(
+  achievementsAutoData as Achievement[],
+  achievementsManualData as Achievement[],
+  'id',
+);
 
 const now = Date.now();
 const upcoming = allMatches
@@ -23,14 +44,26 @@ const upcoming = allMatches
   .sort((a, b) => +new Date(a.date) - +new Date(b.date));
 const past = allMatches
   .filter((m) => new Date(m.date).getTime() < now)
-  .sort((a, b) => +new Date(b.date) - +new Date(a.date))
-  .slice(0, 3);
+  .sort((a, b) => +new Date(b.date) - +new Date(a.date));
+const recent3 = past.slice(0, 3);
 
 const nextMatch = upcoming[0];
 
 const newsPosts = (await getCollection('news', ({ data }) => !data.draft))
   .sort((a, b) => +b.data.date - +a.data.date)
   .slice(0, 2);
+
+// Real-data hero stats
+const players = roster.filter((p) => ['Tank', 'DPS', 'Support', 'Flex'].includes(p.role));
+const countries = new Set(players.map((p) => p.country).filter(Boolean));
+const wins = past.filter((m) => m.result === 'win').length;
+const losses = past.filter((m) => m.result === 'loss').length;
+const recordLine =
+  wins + losses > 0 ? `${wins}W – ${losses}L Stage 1` : null;
+
+const topAchievement = [...achievements].sort(
+  (a, b) => +new Date(b.date) - +new Date(a.date),
+)[0];
 
 const visibleSocials = socials.filter((s) => s.url && s.url !== 'TODO').map((s) => s.url);
 
@@ -51,18 +84,40 @@ const jsonLd = {
   description={site.description}
   jsonLd={jsonLd}
 >
+  <MatchTicker matches={allMatches} />
+
   <section class="relative overflow-hidden">
     <div class="absolute inset-0 bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg)] opacity-80" aria-hidden="true"></div>
-    <div class="relative mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-16 sm:pt-24 pb-12">
+    <div class="relative mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12 sm:pt-20 pb-12">
       <p class="font-display text-5xl sm:text-7xl md:text-8xl tracking-tight leading-none">
         <span class="text-[var(--color-accent)]">NAJDORF</span>
         <span class="text-[var(--color-text)]">ESPORTS</span>
       </p>
+
       <p class="mt-4 font-display text-xl sm:text-2xl text-[var(--color-accent-2)] tracking-[0.3em]">
         OWCS PACIFIC 2026
       </p>
 
-      <div class="mt-10 flex flex-wrap gap-3">
+      <p class="mt-6 max-w-xl text-base sm:text-lg text-[var(--color-text-dim)] leading-relaxed">
+        {players.length} {players.length === 1 ? 'player' : 'players'} from {countries.size} {countries.size === 1 ? 'country' : 'countries'}.
+        {topAchievement && (
+          <>
+            {' '}
+            <span class="text-[var(--color-text)]">
+              {topAchievement.placement} at {topAchievement.event.replace(/^.*?—\s*/, '')}.
+            </span>
+          </>
+        )}
+        {recordLine && (
+          <>
+            {' '}
+            <span class="text-[var(--color-text)]">{recordLine}.</span>
+          </>
+        )}
+        {' '}Patient, prepared, and aggressive at the right moment.
+      </p>
+
+      <div class="mt-8 flex flex-wrap gap-3">
         <Button href="/matches" variant="primary">Match schedule</Button>
         <Button href="/roster" variant="secondary">Meet the roster</Button>
       </div>
@@ -78,22 +133,40 @@ const jsonLd = {
       <NextMatchCountdown match={nextMatch} />
     </div>
 
-    <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6">
+    <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 flex flex-col">
       <p class="text-xs uppercase tracking-wider text-[var(--color-accent-2)]">Recent results</p>
-      {past.length > 0 ? (
-        <ul class="mt-4 space-y-3">
-          {past.map((m) => (
-            <li class="flex items-center justify-between text-sm">
-              <span class="truncate">vs {m.opponent}</span>
-              <span class:list={[
-                'font-display text-lg ml-3',
-                m.result === 'win' ? 'text-[var(--color-win)]' : 'text-[var(--color-loss)]',
-              ]}>
-                {m.result === 'win' ? 'W' : 'L'}
-              </span>
-            </li>
-          ))}
-        </ul>
+      {recent3.length > 0 ? (
+        <>
+          <ul class="mt-4 space-y-3 flex-1">
+            {recent3.map((m) => (
+              <li class="flex items-center justify-between gap-3 text-sm border-b border-[var(--color-border)] last:border-0 pb-3 last:pb-0">
+                <span class="truncate min-w-0">vs {m.opponent}</span>
+                <span class="flex items-center gap-2 shrink-0">
+                  {m.mapScores && m.mapScores.length > 0 && (
+                    <span class="font-display text-sm text-[var(--color-text-dim)] tabular-nums">
+                      {m.mapScores.reduce((a, x) => a + (x.ourScore > x.theirScore ? 1 : 0), 0)}
+                      –{m.mapScores.reduce((a, x) => a + (x.theirScore > x.ourScore ? 1 : 0), 0)}
+                    </span>
+                  )}
+                  <span class:list={[
+                    'inline-flex items-center justify-center w-6 h-6 rounded-sm border font-display text-sm font-bold',
+                    m.result === 'win'
+                      ? 'text-[var(--color-win)] border-[var(--color-win)]'
+                      : 'text-[var(--color-loss)] border-[var(--color-loss)]',
+                  ]}>
+                    {m.result === 'win' ? 'W' : 'L'}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <a
+            href="/matches"
+            class="mt-4 text-xs uppercase tracking-wider text-[var(--color-accent-2)] hover:text-[var(--color-accent)]"
+          >
+            All matches →
+          </a>
+        </>
       ) : (
         <p class="text-sm text-[var(--color-text-dim)] mt-3">
           No completed matches yet. Stage 2 begins June 4.
@@ -101,6 +174,10 @@ const jsonLd = {
       )}
     </div>
   </section>
+
+  <RosterPreview players={roster} />
+
+  <AchievementStrip achievements={achievements} />
 
   <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16">
     <div class="flex items-end justify-between mb-6">
