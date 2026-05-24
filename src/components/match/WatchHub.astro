@@ -1,0 +1,99 @@
+---
+/**
+ * "Where to watch" band — surfaced on the home page below the OWCS badge.
+ * Pulls from `watchChannels` in src/data/site.ts; any channel with
+ * url: 'TODO' is filtered out so partial info never ships. The whole
+ * section hides itself when no channels are confirmed yet.
+ *
+ * Click-only — no auto-embed. Matches the LiveHero facade stance and
+ * keeps the zero-cookie posture (no Twitch / YouTube requests fire
+ * unless the visitor clicks).
+ */
+import { watchChannels, type WatchChannel } from '../../data/site';
+
+const visible = watchChannels.filter(
+  (c): c is WatchChannel => Boolean(c.url) && c.url !== 'TODO',
+);
+
+const platformLabel: Record<WatchChannel['platform'], string> = {
+  twitch: 'Twitch',
+  youtube: 'YouTube',
+  other: 'Watch',
+};
+---
+{visible.length > 0 && (
+  <section class="watch-hub mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10" aria-label="Where to watch">
+    <div class="flex items-end justify-between mb-4 gap-4">
+      <div>
+        <p class="text-[0.65rem] uppercase tracking-[0.25em] text-[var(--color-accent-2)]">Where to watch</p>
+        <h2 class="font-display text-2xl sm:text-3xl mt-1 tracking-wide">Official OWCS Pacific broadcasts</h2>
+      </div>
+    </div>
+
+    <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {visible.map((c) => (
+        <li>
+          <a
+            href={c.url}
+            target="_blank"
+            rel="noopener"
+            class="watch-card group flex items-center justify-between gap-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md px-4 py-3 transition-colors"
+            aria-label={`${c.name} — ${c.language} broadcast on ${platformLabel[c.platform]}`}
+          >
+            <div class="min-w-0">
+              <p class="font-display text-base tracking-wide truncate">{c.name}</p>
+              <p class="text-[0.65rem] uppercase tracking-wider text-[var(--color-text-dim)] mt-0.5">
+                {platformLabel[c.platform]} · {c.language}
+              </p>
+            </div>
+            {/* Tiny play-glyph chip, role-coloured per platform. */}
+            <span
+              class:list={[
+                'watch-card__chip inline-flex items-center justify-center w-9 h-9 rounded-full shrink-0',
+                c.platform === 'twitch'  ? 'bg-[#9146FF]/15 text-[#B689FF]' : '',
+                c.platform === 'youtube' ? 'bg-[#FF0033]/15 text-[#FF6E84]' : '',
+                c.platform === 'other'   ? 'bg-[var(--color-surface-2)] text-[var(--color-text-dim)]' : '',
+              ]}
+              aria-hidden="true"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                <polygon points="3,2 12,7 3,12" />
+              </svg>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<style>
+  .watch-card {
+    transition:
+      border-color 0.2s ease-out,
+      transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .watch-card:hover {
+    border-color: var(--color-accent-2);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px -16px color-mix(in oklab, var(--color-accent-2) 60%, transparent);
+  }
+  .watch-card:hover .watch-card__chip {
+    transform: scale(1.08);
+  }
+  .watch-card__chip {
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .watch-card,
+    .watch-card__chip {
+      transition: none;
+    }
+    .watch-card:hover,
+    .watch-card:hover .watch-card__chip {
+      transform: none;
+    }
+  }
+</style>

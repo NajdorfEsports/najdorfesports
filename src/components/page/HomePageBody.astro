@@ -8,6 +8,7 @@ import OWCSBadge from '../ui/OWCSBadge.astro';
 import NextMatchCountdown from '../match/NextMatchCountdown.astro';
 import MatchTicker from '../match/MatchTicker.astro';
 import LiveHero from '../match/LiveHero.astro';
+import WatchHub from '../match/WatchHub.astro';
 import RosterPreview from '../team/RosterPreview.astro';
 import AchievementStrip from '../team/AchievementStrip.astro';
 import SponsorsRow from '../team/SponsorsRow.astro';
@@ -371,6 +372,10 @@ const newsHref    = '/news/';
 <section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 -mt-4">
   <OWCSBadge prominent />
 </section>
+
+<div class="reveal">
+  <WatchHub />
+</div>
 
 <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12 grid gap-6 lg:grid-cols-3">
   <div class="reveal lg:col-span-2">

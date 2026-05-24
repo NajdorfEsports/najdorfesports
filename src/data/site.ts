@@ -28,6 +28,30 @@ export const socials: ReadonlyArray<{ name: string; url: string; handle?: string
   { name: 'Discord',   url: 'TODO' },
 ];
 
+/**
+ * Official OWCS Pacific broadcast channels. Pulls into the <WatchHub />
+ * on the home page so visitors landing outside the live-hero window
+ * still see "where to watch." Same TODO-filter convention as socials —
+ * unconfirmed channels stay TODO and don't render. The Thai broadcast
+ * is sourced from match streamUrl entries already in matches.json.
+ */
+export interface WatchChannel {
+  name: string;
+  /** Set to 'TODO' to keep the entry out of the rendered hub. */
+  url: string;
+  /** Language label rendered as small chrome under the name. */
+  language: string;
+  /** Platform — drives icon / styling. */
+  platform: 'twitch' | 'youtube' | 'other';
+}
+
+export const watchChannels: ReadonlyArray<WatchChannel> = [
+  { name: 'OWCS Pacific (TH)', url: 'https://twitch.tv/ow_esports_th', language: 'Thai',     platform: 'twitch'  },
+  { name: 'OWCS Pacific',      url: 'TODO',                            language: 'English',  platform: 'twitch'  },
+  { name: 'OWCS Pacific',      url: 'TODO',                            language: 'Japanese', platform: 'twitch'  },
+  { name: 'Overwatch Esports', url: 'TODO',                            language: 'VOD',      platform: 'youtube' },
+];
+
 export type Role = 'Tank' | 'DPS' | 'Support' | 'Flex' | 'Coach' | 'Manager';
 
 export type RosterStatus = 'active' | 'dnp' | 'inactive';
