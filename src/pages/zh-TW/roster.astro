@@ -13,7 +13,7 @@ const { headcount, countries } = rosterMetaCounts();
 ---
 <BaseLayout
   title={t.nav.roster}
-  description={`{{TODO_zhTW: The ${site.name} active OWCS Pacific roster. ${headcount} players across ${countries.join(', ')}.}}`}
+  description={`${site.name} 現役 OWCS Pacific 名單，共 ${headcount} 名選手，來自 ${countries.join('、')}。`}
   jsonLd={personJsonLd}
 >
   <RosterPageBody />

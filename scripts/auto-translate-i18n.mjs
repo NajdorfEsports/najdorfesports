@@ -2,11 +2,20 @@
 /**
  * Auto-translate the i18n dictionary via MyMemory's free public API.
  *
- * Run once, commit the output, hand-edit for quality afterward.
- * Brand terms and interpolation placeholders are tokenized before the call
- * and restored after, so `${year}`, "OWCS", "Najdorf Esports", etc. don't
- * get mangled by the translator.
+ * !!! STALE BY DESIGN !!!
+ * This script was used for the launch scaffold of zh-TW.ts and zh-CN.ts.
+ * The shape of src/i18n/en.ts has since grown (added `roles`, `regions`,
+ * `owcsBadge`, `rosterStrip`, `achievement`, `nextMatch`, `match`, `ticker`,
+ * `player`, plus `footer.dataCredit`, `home.newsEnglishOnly`, `live.loadPlayer`,
+ * `live.loadPlayerNote`). The PLAIN/TEMPLATES tables and the emit() template
+ * below have NOT been updated — running this script today produces zh-*.ts
+ * files that don't satisfy the `Strings` type. Both zh-TW.ts and zh-CN.ts
+ * are hand-maintained from here on.
  *
+ * To re-enable this script: extend PLAIN/TEMPLATES with the missing keys and
+ * sync the emit() output shape to mirror src/i18n/en.ts exactly.
+ *
+ * Run with:
  *   node scripts/auto-translate-i18n.mjs
  *
  * Writes src/i18n/zh-TW.ts and src/i18n/zh-CN.ts.
@@ -51,11 +60,7 @@ const PLAIN = {
   'roster.h1':                 'The Lineup',
   'roster.playersLabel':       'Players',
   'roster.regionLabel':        'Region',
-  'roster.intro':              "Roster pulled from Liquipedia every six hours. Click a handle to open the player's Liquipedia page.",
   'roster.fullRoster':         'Full roster',
-  'roster.attribution':        'Player data sourced from',
-  'roster.attributionLicense': 'available under',
-  'roster.attributionRefresh': 'Roster refreshes every 6 hours.',
 
   'about.eyebrow':        'About',
   'about.previously':     'Previously competing as Rankers in OWCS Pacific.',
@@ -247,11 +252,7 @@ export const ${label}: Strings = {
     h1:                 ${p('roster.h1')},
     playersLabel:       ${p('roster.playersLabel')},
     regionLabel:        ${p('roster.regionLabel')},
-    intro:              ${p('roster.intro')},
     fullRoster:         ${p('roster.fullRoster')},
-    attribution:        ${p('roster.attribution')},
-    attributionLicense: ${p('roster.attributionLicense')},
-    attributionRefresh: ${p('roster.attributionRefresh')},
   },
   about: {
     eyebrow:        ${p('about.eyebrow')},
