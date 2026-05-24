@@ -69,29 +69,50 @@ const tournament = match ? translateTournament(match.tournament, locale) : '';
 )}
 
 <script is:inline>
+  // Runs on initial load AND on every ClientRouter navigation. Each call
+  // tears down the previous interval (if any) before starting a new one,
+  // so navigating away from / and back doesn't double-tick.
   (() => {
-    const root = document.querySelector('[data-countdown]');
-    if (!root) return;
-    const target = new Date(root.getAttribute('data-target')).getTime();
-    const slots = root.querySelectorAll('[data-slot]');
-    const pad = (n) => String(Math.max(0, n)).padStart(2, '0');
+    let intervalId = null;
 
-    const tick = () => {
-      const diff = target - Date.now();
-      if (diff <= 0) {
-        slots.forEach((s) => (s.textContent = '00'));
-        return;
+    function init() {
+      if (intervalId !== null) {
+        clearInterval(intervalId);
+        intervalId = null;
       }
-      const days = Math.floor(diff / 86400000);
-      const hours = Math.floor((diff % 86400000) / 3600000);
-      const mins = Math.floor((diff % 3600000) / 60000);
-      const secs = Math.floor((diff % 60000) / 1000);
-      slots[0].textContent = String(days);
-      slots[1].textContent = pad(hours);
-      slots[2].textContent = pad(mins);
-      slots[3].textContent = pad(secs);
-    };
-    tick();
-    setInterval(tick, 1000);
+      const root = document.querySelector('[data-countdown]');
+      if (!root) return;
+      const target = new Date(root.getAttribute('data-target')).getTime();
+      const slots = root.querySelectorAll('[data-slot]');
+      const pad = (n) => String(Math.max(0, n)).padStart(2, '0');
+
+      const tick = () => {
+        const diff = target - Date.now();
+        if (diff <= 0) {
+          slots.forEach((s) => (s.textContent = '00'));
+          return;
+        }
+        const days = Math.floor(diff / 86400000);
+        const hours = Math.floor((diff % 86400000) / 3600000);
+        const mins = Math.floor((diff % 3600000) / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+        slots[0].textContent = String(days);
+        slots[1].textContent = pad(hours);
+        slots[2].textContent = pad(mins);
+        slots[3].textContent = pad(secs);
+      };
+      tick();
+      intervalId = setInterval(tick, 1000);
+    }
+
+    init();
+    document.addEventListener('astro:page-load', init);
+    // Stop the timer when navigating away so it doesn't leak.
+    document.addEventListener('astro:before-swap', () => {
+      if (intervalId !== null) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    });
   })();
 </script>
