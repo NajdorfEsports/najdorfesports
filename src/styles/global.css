@@ -310,6 +310,15 @@
   .magnet:active {
     transition-duration: 0.05s;
   }
+
+  /* Hero parallax: the inline script in HomePageBody updates
+   * --parallax-y and --parallax-fade in response to window.scrollY.
+   * Pure transform + opacity so the GPU does all the work. */
+  .hero-content {
+    transform: translate3d(0, var(--parallax-y, 0px), 0);
+    opacity: var(--parallax-fade, 1);
+    will-change: transform, opacity;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

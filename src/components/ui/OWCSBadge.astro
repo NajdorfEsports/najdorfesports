@@ -15,16 +15,23 @@ const t = useT(locale);
 // zh → "6月4日" / "2026年7月9日".
 const startMonthDay = formatDate(owcs.mainEventStart, locale, { month: 'long', day: 'numeric' });
 const endMonthDayYear = formatDate(owcs.mainEventEnd, locale, { year: 'numeric', month: 'long', day: 'numeric' });
+
+// Pass event boundaries to the client so the inline script below can
+// decide whether to enter the pulsing "in-event" state without a rebuild.
+const eventStartIso = `${owcs.mainEventStart}T00:00:00Z`;
+const eventEndIso   = `${owcs.mainEventEnd}T23:59:59Z`;
 ---
 <aside
   class:list={[
-    'border-l-4 border-[var(--color-accent)] bg-[var(--color-surface)] px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2',
+    'owcs-badge border-l-4 border-[var(--color-accent)] bg-[var(--color-surface)] px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2',
     prominent ? 'border-l-8 py-6 sm:py-7' : '',
   ]}
   aria-label="Tournament status"
+  data-event-start={eventStartIso}
+  data-event-end={eventEndIso}
 >
   <div class="flex items-center gap-3">
-    <span class="inline-flex items-center px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider rounded-sm bg-[var(--color-accent)] text-white">
+    <span class="owcs-badge__pill inline-flex items-center px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider rounded-sm bg-[var(--color-accent)] text-white">
       {t.owcsBadge.liveLabel}
     </span>
     <p class:list={[
@@ -38,3 +45,60 @@ const endMonthDayYear = formatDate(owcs.mainEventEnd, locale, { year: 'numeric',
     {t.owcsBadge.descriptor}
   </p>
 </aside>
+
+<style>
+  /*
+   * In-event styling. Applied at runtime by the inline script when the
+   * current time falls between data-event-start and data-event-end.
+   * Pulses the LIVE pill, gives the left rail a soft accent glow, and
+   * subtly intensifies the surface so the badge feels "on air".
+   */
+  .owcs-badge[data-in-event="1"] {
+    box-shadow: 0 0 0 1px var(--color-accent) inset, -8px 0 28px -16px var(--color-accent);
+    border-left-color: var(--color-accent);
+  }
+  .owcs-badge[data-in-event="1"] .owcs-badge__pill {
+    animation: owcs-pill-pulse 1.8s ease-in-out infinite;
+    box-shadow: 0 0 0 0 var(--color-accent);
+  }
+
+  @keyframes owcs-pill-pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-accent) 60%, transparent);
+    }
+    50% {
+      box-shadow: 0 0 0 6px transparent;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .owcs-badge[data-in-event="1"] .owcs-badge__pill {
+      animation: none;
+    }
+  }
+</style>
+
+<script is:inline>
+  // Toggle the in-event state on the OWCS badge based on the current
+  // client-side time vs the data-event-start / data-event-end attrs.
+  // Runs on initial paint AND on every ClientRouter navigation so the
+  // badge stays in sync without a server rebuild when the window opens.
+  (() => {
+    function check() {
+      const els = document.querySelectorAll('.owcs-badge[data-event-start][data-event-end]');
+      if (els.length === 0) return;
+      const now = Date.now();
+      for (const el of els) {
+        const start = Date.parse(el.getAttribute('data-event-start') || '');
+        const end   = Date.parse(el.getAttribute('data-event-end')   || '');
+        if (Number.isNaN(start) || Number.isNaN(end)) continue;
+        const inEvent = now >= start && now <= end;
+        if (inEvent) el.setAttribute('data-in-event', '1');
+        else el.removeAttribute('data-in-event');
+      }
+    }
+
+    check();
+    document.addEventListener('astro:page-load', check);
+  })();
+</script>
