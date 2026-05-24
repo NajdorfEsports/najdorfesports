@@ -20,55 +20,59 @@ const sorted = [...achievements].sort(
   (a, b) => +new Date(b.date) - +new Date(a.date),
 );
 
-function placementTone(placement: string): string {
-  if (/^1(st)?\b/i.test(placement)) return 'var(--color-accent-2)'; // gold
-  if (/^2(nd)?\b/i.test(placement)) return '#C0C0C8'; // silver
-  if (/^3(rd)?\b/i.test(placement)) return '#CD7F32'; // bronze
-  return 'var(--color-text-dim)';
+/** Map a placement string to its medal tier — drives the trophy-plate
+ *  gradient and ring color. Falls back to a neutral tier for non-podium. */
+function placementTier(placement: string): 'gold' | 'silver' | 'bronze' | 'neutral' {
+  if (/^1(st)?\b/i.test(placement)) return 'gold';
+  if (/^2(nd)?\b/i.test(placement)) return 'silver';
+  if (/^3(rd)?\b/i.test(placement)) return 'bronze';
+  return 'neutral';
 }
 ---
 {sorted.length > 0 && (
   <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10" aria-label="Achievements">
     <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] mb-3">{t.achievement.recentResults}</p>
     <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {sorted.map((a) => (
-        <li class="achievement bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-4 flex items-center gap-4">
-          <span
-            class="font-display text-3xl leading-none shrink-0 tabular-nums"
-            style={`color:${placementTone(a.placement)};`}
-            aria-label={`Placement: ${a.placement}`}
-          >
-            {translatePlacement(a.placement, locale)}
-          </span>
-          <div class="min-w-0 flex-1">
-            <p class="font-display text-base sm:text-lg tracking-wide truncate">
-              {a.url ? (
-                <a
-                  href={a.url}
-                  target="_blank"
-                  rel="noopener"
-                  class="hover:text-[var(--color-accent-2)] hover:underline underline-offset-4"
-                >
-                  {translateTournament(a.event, locale)}
-                </a>
-              ) : (
-                translateTournament(a.event, locale)
-              )}
-            </p>
-            <p class="text-xs text-[var(--color-text-dim)] mt-0.5">
-              {formatDate(a.date, locale, { month: 'long', year: 'numeric' })}
-              {typeof a.prizeUsd === 'number' && a.prizeUsd > 0 && (
-                <>
-                  {' · '}
-                  <span class="text-[var(--color-accent-2)]">
-                    {formatCurrencyUSD(a.prizeUsd, locale)}
-                  </span>
-                </>
-              )}
-            </p>
-          </div>
-        </li>
-      ))}
+      {sorted.map((a) => {
+        const tier = placementTier(a.placement);
+        return (
+          <li class:list={['achievement', `achievement--${tier}`, 'bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-4 flex items-center gap-4']}>
+            <span
+              class:list={['placement-plate', `placement-plate--${tier}`]}
+              aria-label={`Placement: ${a.placement}`}
+            >
+              <span class="placement-plate__value">{translatePlacement(a.placement, locale)}</span>
+            </span>
+            <div class="min-w-0 flex-1">
+              <p class="font-display text-base sm:text-lg tracking-wide truncate">
+                {a.url ? (
+                  <a
+                    href={a.url}
+                    target="_blank"
+                    rel="noopener"
+                    class="hover:text-[var(--color-accent-2)] hover:underline underline-offset-4"
+                  >
+                    {translateTournament(a.event, locale)}
+                  </a>
+                ) : (
+                  translateTournament(a.event, locale)
+                )}
+              </p>
+              <p class="text-xs text-[var(--color-text-dim)] mt-0.5">
+                {formatDate(a.date, locale, { month: 'long', year: 'numeric' })}
+                {typeof a.prizeUsd === 'number' && a.prizeUsd > 0 && (
+                  <>
+                    {' · '}
+                    <span class="text-[var(--color-accent-2)]">
+                      {formatCurrencyUSD(a.prizeUsd, locale)}
+                    </span>
+                  </>
+                )}
+              </p>
+            </div>
+          </li>
+        );
+      })}
     </ul>
   </section>
 )}
@@ -81,8 +85,90 @@ function placementTone(placement: string): string {
     border-color: var(--color-accent-2);
     transform: translateY(-2px);
   }
+
+  /* Trophy plate — a beveled medallion in front of each row. Gradient
+   * lives behind a thin inner-shadow ring so it reads as embossed metal
+   * rather than a flat-color number. Three tiers (gold/silver/bronze)
+   * pull from real medal hex; the neutral tier is the existing text-dim
+   * so non-podium placements (Top 8 etc.) stay subordinate.
+   */
+  .placement-plate {
+    --plate-from: var(--color-surface-2);
+    --plate-to:   var(--color-surface);
+    --plate-edge: var(--color-border);
+    --plate-text: var(--color-text-dim);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 9999px;
+    background:
+      radial-gradient(circle at 30% 25%, var(--plate-from) 0%, var(--plate-to) 70%);
+    box-shadow:
+      inset 0 1.5px 0 0 rgba(255, 255, 255, 0.18),
+      inset 0 -2px 4px 0 rgba(0, 0, 0, 0.4),
+      0 0 0 1.5px var(--plate-edge),
+      0 6px 14px -8px rgba(0, 0, 0, 0.6);
+    flex-shrink: 0;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease-out;
+  }
+  .placement-plate__value {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    color: var(--plate-text);
+    /* Embossed numeral: dark shadow below, bright highlight above. */
+    text-shadow:
+      0 -1px 0 rgba(0, 0, 0, 0.45),
+      0 1px 0 rgba(255, 255, 255, 0.12);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .placement-plate--gold {
+    --plate-from: #F0D67A;
+    --plate-to:   #8C6B1F;
+    --plate-edge: color-mix(in oklab, #C9A227 75%, transparent);
+    --plate-text: #1A1206;
+  }
+  .placement-plate--silver {
+    --plate-from: #E6E8EC;
+    --plate-to:   #7B7F88;
+    --plate-edge: color-mix(in oklab, #C0C0C8 70%, transparent);
+    --plate-text: #15171A;
+  }
+  .placement-plate--bronze {
+    --plate-from: #E29A66;
+    --plate-to:   #6B3618;
+    --plate-edge: color-mix(in oklab, #CD7F32 75%, transparent);
+    --plate-text: #1A0E04;
+  }
+
+  /* Hover: the plate sits up a touch and gains an outer halo in its tier color. */
+  .achievement:hover .placement-plate--gold {
+    box-shadow:
+      inset 0 1.5px 0 0 rgba(255, 255, 255, 0.25),
+      inset 0 -2px 4px 0 rgba(0, 0, 0, 0.4),
+      0 0 0 1.5px var(--color-accent-2),
+      0 0 18px -2px color-mix(in oklab, var(--color-accent-2) 70%, transparent);
+    transform: translateY(-1px) scale(1.03);
+  }
+  .achievement:hover .placement-plate--silver,
+  .achievement:hover .placement-plate--bronze {
+    transform: translateY(-1px) scale(1.03);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .achievement:hover {
+      transform: none;
+    }
+    .placement-plate,
+    .achievement:hover .placement-plate--gold,
+    .achievement:hover .placement-plate--silver,
+    .achievement:hover .placement-plate--bronze {
+      transition: none;
       transform: none;
     }
   }

@@ -45,12 +45,51 @@ const src = portraitPath(handle);
     style={`width:${px}px;height:${px}px;`}
   />
 ) : (
+  /*
+   * Monogram fallback. A faint outlined bishop SVG sits behind the
+   * letters so the avatar reads as branded rather than a flat color
+   * chip. Bishop opacity is intentionally low (0.16 stroke vs the page's
+   * 0.05–0.08 hero-bg drift) — visible at size=96 on roster cards, still
+   * present but subliminal at size=48 on the home roster strip.
+   */
   <div
     role="img"
     aria-label={`${handle} avatar placeholder`}
-    class="rounded-full flex items-center justify-center font-display border border-[var(--color-border)] select-none"
-    style={`width:${px}px;height:${px}px;background:${gradient};font-size:${px * 0.42}px;color:#E9ECF1;letter-spacing:0.02em;`}
+    class="player-avatar-mono relative isolate flex items-center justify-center font-display border border-[var(--color-border)] select-none overflow-hidden"
+    style={`width:${px}px;height:${px}px;background:${gradient};border-radius:9999px;color:#E9ECF1;letter-spacing:0.02em;`}
   >
-    {initials || '·'}
+    <svg
+      class="player-avatar-mono__bishop"
+      viewBox="0 0 64 96"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      aria-hidden="true"
+    >
+      <path fill-rule="evenodd" d="M32 6 C 40 18, 44 30, 44 38 C 44 46, 38 50, 32 50 C 26 50, 20 46, 20 38 C 20 30, 24 18, 32 6 Z"/>
+      <path d="M28 12 L 38 22 L 36 24 L 26 14 Z"/>
+      <rect x="26" y="46" width="12" height="12"/>
+      <rect x="20" y="56" width="24" height="6" rx="1"/>
+      <path d="M22 60 L 42 60 L 46 78 L 18 78 Z"/>
+      <path d="M14 78 L 50 78 L 52 88 L 12 88 Z"/>
+      <ellipse cx="32" cy="90" rx="22" ry="3.5"/>
+    </svg>
+    <span class="player-avatar-mono__initials relative" style={`font-size:${px * 0.42}px;`}>{initials || '·'}</span>
   </div>
 )}
+
+<style>
+  .player-avatar-mono__bishop {
+    position: absolute;
+    inset: 12% 22%;
+    width: auto;
+    height: 76%;
+    color: var(--color-text);
+    opacity: 0.16;
+    pointer-events: none;
+  }
+  .player-avatar-mono__initials {
+    z-index: 1;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+  }
+</style>

@@ -77,13 +77,17 @@ const regionLabel: string = (t.regions as Record<string, string>)[site.region] ?
         <dt class="text-[var(--color-text-dim)] uppercase tracking-wider text-[0.65rem]">
           {t.roster.playersLabel}
         </dt>
-        <dd class="font-display text-3xl mt-1 leading-none tabular-nums">{headcount}</dd>
+        <dd
+          class="font-display text-3xl mt-1 leading-none tabular-nums text-[var(--color-accent-2)]"
+          data-count-up
+          data-target={headcount}
+        >0</dd>
       </div>
       <div>
         <dt class="text-[var(--color-text-dim)] uppercase tracking-wider text-[0.65rem]">
           {t.roster.regionLabel}
         </dt>
-        <dd class="font-display text-3xl mt-1 leading-none">{regionLabel}</dd>
+        <dd class="font-display text-3xl mt-1 leading-none text-[var(--color-accent-2)]">{regionLabel}</dd>
       </div>
     </dl>
   </div>
@@ -96,8 +100,13 @@ const regionLabel: string = (t.regions as Record<string, string>)[site.region] ?
     <div>
       <div class="flex items-center gap-3 mb-5">
         <h2 class="font-display text-2xl tracking-wide">{t.roles[section.role] ?? section.role}</h2>
-        <span class="flex-1 h-px bg-[var(--color-border)]"></span>
-        <span class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] tabular-nums">
+        {/* Gold-leading divider — first 4rem gold accent then fades into the
+            standard border colour. Pulls the eye across the role label. */}
+        <span
+          class="flex-1 h-px"
+          style="background: linear-gradient(to right, var(--color-accent-2) 0, var(--color-accent-2) 4rem, var(--color-border) 12rem);"
+        ></span>
+        <span class="text-xs uppercase tracking-wider text-[var(--color-accent-2)] tabular-nums">
           {section.players.length}
         </span>
       </div>
