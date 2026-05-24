@@ -340,9 +340,13 @@ function parseMatchDate(raw) {
   return dt.toISOString();
 }
 
-function extractMatches(wikitext, teamName, defaultTournament) {
+function extractMatches(wikitext, teamName, defaultTournament, sourcePage) {
   const matches = [];
   if (typeof wikitext !== 'string' || wikitext.length === 0) return matches;
+
+  const sourceUrl = sourcePage
+    ? `https://liquipedia.net/overwatch/${sourcePage}`
+    : undefined;
 
   const matchOpener = /\{\{Match\b/g;
   const teamLc = teamName.toLowerCase();
@@ -422,6 +426,7 @@ function extractMatches(wikitext, teamName, defaultTournament) {
       tournament: defaultTournament,
       format: params.bestof ? `BO${params.bestof.trim()}` : 'BO5',
       ...(stream ? { streamUrl: stream } : {}),
+      ...(sourceUrl ? { liquipediaUrl: sourceUrl } : {}),
       result,
       ...(mapScores.length > 0 ? { mapScores } : {}),
     });
@@ -542,7 +547,7 @@ function labelFromPage(pageSlug) {
       const matchHit = withFirstMatchingName(
         wikitext,
         TEAM_LIQUIPEDIA_NAMES,
-        (wt, n) => extractMatches(wt, n, label),
+        (wt, n) => extractMatches(wt, n, label, page),
       );
 
       if (matchHit) {

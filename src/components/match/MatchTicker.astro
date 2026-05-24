@@ -24,30 +24,36 @@ for (const m of matches) {
     month: 'short',
     day: 'numeric',
   });
+  // Every ticker item links to the Liquipedia tournament page when known.
+  // Stream URL stays available on the matches page itself via "Watch →".
+  const href = m.liquipediaUrl;
   if (!isPast) {
     items.push({
       key: `up-${m.id}`,
       label: `${dateStr} · vs ${m.opponent} · ${m.tournament}`,
       variant: 'upcoming',
-      href: m.streamUrl,
+      href,
     });
   } else if (m.result === 'win') {
     items.push({
       key: `w-${m.id}`,
       label: `W vs ${m.opponent} · ${m.tournament}`,
       variant: 'win',
+      href,
     });
   } else if (m.result === 'loss') {
     items.push({
       key: `l-${m.id}`,
       label: `L vs ${m.opponent} · ${m.tournament}`,
       variant: 'loss',
+      href,
     });
   } else {
     items.push({
       key: `tbd-${m.id}`,
       label: `vs ${m.opponent} · ${m.tournament}`,
       variant: 'tbd',
+      href,
     });
   }
 }

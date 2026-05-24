@@ -93,6 +93,8 @@ export interface MatchEntry {
   tournament: string;
   format: string;
   streamUrl?: string;
+  /** Liquipedia tournament/bracket page that lists this match. */
+  liquipediaUrl?: string;
   result: MatchResult;
   mapScores?: MapScore[];
   notes?: string;
