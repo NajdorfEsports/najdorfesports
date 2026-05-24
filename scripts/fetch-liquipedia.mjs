@@ -42,13 +42,21 @@ const ACHIEVEMENTS_PATH = join(DATA, 'achievements.json');
 const USER_AGENT =
   'NajdorfEsportsSite/1.0 (https://najdorfesports.gg; owner@najdorfesports.gg)';
 
-// Flip this once Liquipedia's team page is updated from "Rankers" to the new name.
-const TEAM_LIQUIPEDIA_NAME = 'Rankers';
+// Liquipedia identifiers used to find OUR team inside the tournament pages.
+// When the team page on Liquipedia is renamed from "Rankers" to "Najdorf
+// Esports", BOTH names get tried — whichever appears in the wikitext wins.
+// Add new aliases here (most-current first) and the pipeline keeps working
+// with zero downtime through the rename window.
+const TEAM_LIQUIPEDIA_NAMES = ['Najdorf Esports', 'Rankers'];
 
-// Source pages. Liquipedia doesn't have a standalone team page for Rankers yet,
-// so the roster comes from the most recent tournament's participant list.
-const ROSTER_SOURCE_PAGE = 'Overwatch_Champions_Series/2026/Asia/Stage_1/Pacific';
-const MATCHES_SOURCE_PAGE = 'Overwatch_Champions_Series/2026/Asia/Stage_2/Pacific';
+// Source tournament pages, in priority order. The fetcher walks the list and
+// keeps results from every page where our team is present, so adding a new
+// stage just means prepending it here. Each page costs one parse call +
+// 30s rate-limit sleep, so keep the list short (≤4 pages per run).
+const TOURNAMENT_PAGES = [
+  'Overwatch_Champions_Series/2026/Asia/Stage_2/Pacific',
+  'Overwatch_Champions_Series/2026/Asia/Stage_1/Pacific',
+];
 const API = 'https://liquipedia.net/overwatch/api.php';
 const PARSE_INTERVAL_MS = 30_000; // Liquipedia: parse rate-limited to 1 per 30 s.
 
@@ -432,55 +440,112 @@ async function safeWrite(path, label, data) {
   console.log(`[liquipedia] ${label}: wrote ${data.length} entries to ${path}.`);
 }
 
+// ----- Helpers --------------------------------------------------------------
+
+/**
+ * Try every team alias against a wikitext blob and return the first non-empty
+ * extraction result, along with the alias that matched. Returns null if no
+ * alias finds anything.
+ */
+function withFirstMatchingName(wikitext, names, extractor) {
+  for (const name of names) {
+    const out = extractor(wikitext, name);
+    if (out && out.length > 0) return { name, result: out };
+  }
+  return null;
+}
+
+/**
+ * Derive a human-friendly tournament label from a page slug.
+ * e.g. "Overwatch_Champions_Series/2026/Asia/Stage_2/Pacific"
+ *   -> "OWCS Pacific 2026 — Stage 2"
+ */
+function labelFromPage(pageSlug) {
+  const m = pageSlug.match(/(\d{4})\/(?:[^/]+\/)?Stage_(\d+)\/(\w+)/i);
+  if (m) return `OWCS ${m[3]} ${m[1]} · Stage ${m[2]}`;
+  return pageSlug.replace(/_/g, ' ');
+}
+
 // ----- Main -----------------------------------------------------------------
 
 (async () => {
   const allMatches = [];
+  /** First page to actually contain our team — used as the roster source.
+   *  Defaults to the highest-priority page so the most recent stage wins. */
+  let primaryWikitext = null;
+  let primaryPage = null;
+  let primaryName = null;
 
-  // Pass 1: Stage 2 page (upcoming matches once published).
-  try {
-    const json = await fetchParse(MATCHES_SOURCE_PAGE);
-    const wikitext = json?.parse?.wikitext?.['*'];
-    const matches = extractMatches(
-      wikitext,
-      TEAM_LIQUIPEDIA_NAME,
-      'OWCS Pacific 2026 — Stage 2',
-    );
-    console.log(`[liquipedia] stage 2: extracted ${matches.length} matches.`);
-    allMatches.push(...matches);
-  } catch (err) {
-    console.warn(`[liquipedia] stage 2 fetch failed: ${err?.message ?? err}`);
+  for (let i = 0; i < TOURNAMENT_PAGES.length; i += 1) {
+    const page = TOURNAMENT_PAGES[i];
+    const label = labelFromPage(page);
+    if (i > 0) {
+      console.log(`[liquipedia] sleeping ${PARSE_INTERVAL_MS / 1000}s (rate limit).`);
+      await sleep(PARSE_INTERVAL_MS);
+    }
+
+    try {
+      const json = await fetchParse(page);
+      const wikitext = json?.parse?.wikitext?.['*'];
+      if (typeof wikitext !== 'string' || wikitext.length === 0) {
+        console.warn(`[liquipedia] ${label}: empty wikitext, skipping.`);
+        continue;
+      }
+
+      // Find which team alias is present on this page.
+      const matchHit = withFirstMatchingName(
+        wikitext,
+        TEAM_LIQUIPEDIA_NAMES,
+        (wt, n) => extractMatches(wt, n, label),
+      );
+
+      if (matchHit) {
+        console.log(`[liquipedia] ${label}: found ${matchHit.result.length} matches (team alias: "${matchHit.name}").`);
+        allMatches.push(...matchHit.result);
+      } else {
+        console.log(`[liquipedia] ${label}: no matches found for any team alias.`);
+      }
+
+      // First page that has us becomes the roster source. Walking the list in
+      // priority order means Stage 2 wins when it exists, Stage 1 fills in
+      // until then.
+      if (!primaryWikitext) {
+        const rosterHit = withFirstMatchingName(
+          wikitext,
+          TEAM_LIQUIPEDIA_NAMES,
+          (wt, n) => extractRoster(wt, n),
+        );
+        if (rosterHit) {
+          primaryWikitext = wikitext;
+          primaryPage = label;
+          primaryName = rosterHit.name;
+          console.log(`[liquipedia] ${label}: primary source for roster (alias: "${primaryName}", ${rosterHit.result.length} players).`);
+        }
+      }
+    } catch (err) {
+      console.warn(`[liquipedia] ${label}: fetch failed (${err?.message ?? err}).`);
+    }
   }
 
-  console.log(`[liquipedia] sleeping ${PARSE_INTERVAL_MS / 1000}s before next parse call.`);
-  await sleep(PARSE_INTERVAL_MS);
-
-  // Pass 2: Stage 1 page (roster, achievements, historical match results).
-  try {
-    const json = await fetchParse(ROSTER_SOURCE_PAGE);
-    const wikitext = json?.parse?.wikitext?.['*'];
-
-    const roster = extractRoster(wikitext, TEAM_LIQUIPEDIA_NAME);
+  // Roster comes from the highest-priority page that mentioned us.
+  if (primaryWikitext) {
+    const roster = extractRoster(primaryWikitext, primaryName);
     await safeWrite(ROSTER_PATH, 'roster', roster);
 
-    const stage1Matches = extractMatches(
-      wikitext,
-      TEAM_LIQUIPEDIA_NAME,
-      'OWCS Pacific 2026 — Stage 1',
-    );
-    console.log(`[liquipedia] stage 1: extracted ${stage1Matches.length} matches.`);
-    allMatches.push(...stage1Matches);
-
-    const achievements = extractAchievements(wikitext);
+    const achievements = extractAchievements(primaryWikitext);
     achievements.sort((a, b) => +new Date(b.date) - +new Date(a.date));
     await safeWrite(ACHIEVEMENTS_PATH, 'achievements', achievements);
-  } catch (err) {
-    console.warn(`[liquipedia] stage 1 fetch failed: ${err?.message ?? err}`);
+  } else {
+    console.warn('[liquipedia] no roster source page found — preserving existing roster.json.');
   }
 
-  // Sort all matches by date ascending and write.
-  allMatches.sort((a, b) => +new Date(a.date) - +new Date(b.date));
-  await safeWrite(MATCHES_PATH, 'matches', allMatches);
+  // Dedup matches across pages on id, sort soonest-first, write.
+  const byId = new Map();
+  for (const m of allMatches) byId.set(m.id, m);
+  const merged = Array.from(byId.values()).sort(
+    (a, b) => +new Date(a.date) - +new Date(b.date),
+  );
+  await safeWrite(MATCHES_PATH, 'matches', merged);
 
   process.exit(0);
 })();
