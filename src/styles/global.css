@@ -299,18 +299,6 @@
     }
   }
 
-  /* Magnetic button — opt-in via .magnet on a button/anchor. The page-level
-   * inline script sets `--mx` / `--my` based on pointer distance; CSS does
-   * the rest. Touch / coarse-pointer users get only the static :hover. */
-  .magnet {
-    transform: translate3d(var(--mx, 0px), var(--my, 0px), 0);
-    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: transform;
-  }
-  .magnet:active {
-    transition-duration: 0.05s;
-  }
-
   /* Hero parallax: the inline script in HomePageBody updates
    * --parallax-y and --parallax-fade in response to window.scrollY.
    * Pure transform + opacity so the GPU does all the work. */
@@ -348,10 +336,6 @@
   .bishop-drift {
     animation: none !important;
     transform: none !important;
-  }
-  .magnet {
-    transform: none !important;
-    transition: none !important;
   }
 }
 

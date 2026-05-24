@@ -206,8 +206,8 @@ const newsHref    = '/news/';
     </p>
 
     <div class="hero-fade-in mt-8 flex flex-wrap gap-3" style="--delay:880ms">
-      <Button href={matchesHref} variant="primary" magnet>{t.hero.matchSchedule}</Button>
-      <Button href={rosterHref} variant="secondary" magnet>{t.hero.meetRoster}</Button>
+      <Button href={matchesHref} variant="primary">{t.hero.matchSchedule}</Button>
+      <Button href={rosterHref} variant="secondary">{t.hero.meetRoster}</Button>
     </div>
 
     {/*
@@ -303,69 +303,6 @@ const newsHref    = '/news/';
   })();
 </script>
 
-{/*
-  Magnetic CTA driver. Pointer-only — touch + coarse-pointer + reduced-motion
-  users get the static :hover state instead. Re-attaches on every
-  ClientRouter navigation so navigating back to home still works.
-*/}
-<script is:inline>
-  (() => {
-    const RADIUS = 96; // px — pointer distance at which pull begins
-    const STRENGTH = 0.28; // 0–1 — fraction of distance the button moves
-    let bound = null; // null when no current pointer-target
-
-    function attach() {
-      if (typeof window === 'undefined') return;
-      if (!window.matchMedia('(pointer: fine)').matches) return;
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-      const targets = document.querySelectorAll('[data-magnet]');
-      if (targets.length === 0) return;
-
-      const onMove = (e) => {
-        for (const el of targets) {
-          const r = el.getBoundingClientRect();
-          const cx = r.left + r.width / 2;
-          const cy = r.top + r.height / 2;
-          const dx = e.clientX - cx;
-          const dy = e.clientY - cy;
-          const dist = Math.hypot(dx, dy);
-          if (dist < RADIUS + Math.max(r.width, r.height) / 2) {
-            el.style.setProperty('--mx', (dx * STRENGTH).toFixed(2) + 'px');
-            el.style.setProperty('--my', (dy * STRENGTH).toFixed(2) + 'px');
-          } else {
-            el.style.setProperty('--mx', '0px');
-            el.style.setProperty('--my', '0px');
-          }
-        }
-      };
-      const onLeave = () => {
-        for (const el of targets) {
-          el.style.setProperty('--mx', '0px');
-          el.style.setProperty('--my', '0px');
-        }
-      };
-
-      window.addEventListener('pointermove', onMove, { passive: true });
-      window.addEventListener('pointerleave', onLeave, { passive: true });
-      bound = { onMove, onLeave };
-    }
-
-    function detach() {
-      if (!bound) return;
-      window.removeEventListener('pointermove', bound.onMove);
-      window.removeEventListener('pointerleave', bound.onLeave);
-      bound = null;
-    }
-
-    attach();
-    document.addEventListener('astro:page-load', () => {
-      detach();
-      attach();
-    });
-    document.addEventListener('astro:before-swap', detach);
-  })();
-</script>
 
 <LiveHero match={liveCandidate} />
 
