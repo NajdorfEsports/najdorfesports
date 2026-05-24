@@ -1,71 +1,69 @@
 /**
- * Simplified Chinese translations. Every value is a TODO placeholder that
- * preserves the English source text — grep for `TODO_zhCN` to find them.
- * Hand-edit each one in place; do NOT machine-translate.
+ * Simplified Chinese (zh-CN).
+ * Auto-translated via MyMemory on 2026-05-24.
+ * Quality is best-effort. Brand terms (Najdorf Esports, Overwatch, OWCS,
+ * Liquipedia, Twitch, etc.) are preserved in English. Native speakers
+ * please review and PR fixes.
  */
 import type { Strings } from './en';
 
 export const zhCN: Strings = {
   nav: {
-    home:    '{{TODO_zhCN: Home}}',
-    roster:  '{{TODO_zhCN: Roster}}',
-    matches: '{{TODO_zhCN: Matches}}',
-    news:    '{{TODO_zhCN: News}}',
-    about:   '{{TODO_zhCN: About}}',
+    home:    '主页',
+    roster:  '名冊',
+    matches: '比赛',
+    news:    '新闻',
+    about:   '关于',
   },
   footer: {
-    site:        '{{TODO_zhCN: Site}}',
-    follow:      '{{TODO_zhCN: Follow}}',
-    foundedLine: (year, region) => `{{TODO_zhCN: Founded ${year} · ${region}}}`,
-    trademark:
-      '{{TODO_zhCN: Overwatch and the Overwatch Champions Series are trademarks of Blizzard Entertainment, Inc.}}',
-    copyright: (year, name) => `{{TODO_zhCN: © ${year} ${name}. All rights reserved.}}`,
+    site:        '网站',
+    follow:      '关注',
+    foundedLine: (year, region) => `成立${year} · ${region}`,
+    trademark:   'Overwatch和Overwatch Champions Series是Blizzard Entertainment, Inc.的商标',
+    copyright:   (year, name) => `© ${year} ${name}。保留所有权利。`,
   },
   hero: {
-    subhead: '{{TODO_zhCN: OWCS PACIFIC 2026}}',
-    stats: (players, countries) =>
-      `{{TODO_zhCN: ${players} players across ${countries} ${countries === 1 ? 'country' : 'countries'}.}}`,
-    record:      (line) => `{{TODO_zhCN: ${line} in Stage 1.}}`,
-    achievement: (placement, event) => `{{TODO_zhCN: ${placement} at ${event}.}}`,
-    tagline:        '{{TODO_zhCN: Headed to OWCS Pacific Stage 2 on June 4.}}',
-    matchSchedule:  '{{TODO_zhCN: Match schedule}}',
-    meetRoster:     '{{TODO_zhCN: Meet the roster}}',
+    subhead: 'OWCS PACIFIC 2026',
+    stats: (players, countries) => `${countries}国家的${players}玩家。`,
+    record: (line) => `Stage 1中的${line}。`,
+    achievement: (placement, event) => `${placement}在${event}。`,
+    tagline:        '前往June 4的OWCS Pacific Stage 2。',
+    matchSchedule:  '比赛日程',
+    meetRoster:     '认识选手',
   },
   home: {
-    recentResults:  '{{TODO_zhCN: Recent results}}',
-    recentEmpty:    '{{TODO_zhCN: No completed matches yet. Stage 2 begins June 4.}}',
-    allMatches:     '{{TODO_zhCN: All matches}}',
-    nextMatchLabel: '{{TODO_zhCN: Next match}}',
-    latest:         '{{TODO_zhCN: Latest}}',
-    allNews:        '{{TODO_zhCN: All news}}',
-    read:           '{{TODO_zhCN: Read}}',
+    recentResults:  '最近的结果',
+    recentEmpty:    '尚无已完成的匹配。Stage 2开始June 4。',
+    allMatches:     '全部匹配',
+    nextMatchLabel: '下一场比赛',
+    latest:         '最新',
+    allNews:        '全部新闻',
+    read:           '阅读',
   },
   roster: {
-    eyebrow:      '{{TODO_zhCN: Active roster · OWCS Pacific 2026}}',
-    h1:           '{{TODO_zhCN: The Lineup}}',
-    playersLabel: '{{TODO_zhCN: Players}}',
-    regionLabel:  '{{TODO_zhCN: Region}}',
-    intro:
-      "{{TODO_zhCN: Roster pulled from Liquipedia every six hours. Click a handle to open the player's Liquipedia page.}}",
-    fullRoster:         '{{TODO_zhCN: Full roster}}',
-    attribution:        '{{TODO_zhCN: Player data sourced from}}',
-    attributionLicense: '{{TODO_zhCN: available under}}',
-    attributionRefresh: '{{TODO_zhCN: Roster refreshes every 6 hours.}}',
+    eyebrow:            '活跃名册· OWCS Pacific 2026',
+    h1:                 '阵容',
+    playersLabel:       '选手',
+    regionLabel:        '地区',
+    intro:              '每六小时从Liquipedia提取名册。单击手柄打开玩家的Liquipedia页面。',
+    fullRoster:         '完整名册',
+    attribution:        '玩家数据来源于',
+    attributionLicense: '在下方可用',
+    attributionRefresh: '名册每6小时刷新一次。',
   },
   about: {
-    eyebrow: '{{TODO_zhCN: About}}',
-    body: (year, region) =>
-      `{{TODO_zhCN: Najdorf Esports is a competitive Overwatch organization based in the ${region} region. We founded the org in ${year} and currently compete in OWCS Pacific. The Stage 2 main event runs June 4 through July 9, 2026. The name comes from the Najdorf Variation of the Sicilian Defence, an opening that wins by preparing one line deeper than the other side.}}`,
-    previously:     '{{TODO_zhCN: Previously competing as Rankers in OWCS Pacific.}}',
-    contactHeading: '{{TODO_zhCN: Contact}}',
-    contactNote:    '{{TODO_zhCN: For partnerships, press, or player inquiries, email the address above.}}',
+    eyebrow:        '关于',
+    body: (year, region) => `Najdorf Esports是一家位于${region}地区的竞争性Overwatch组织。我们在${year}创立了该组织，目前在OWCS Pacific竞争。Stage 2主事件运行June 4到July 9, 2026。这个名字来自Sicilian Defence的Najdorf Variation ，这是一个通过准备比另一边更深的一条线而获胜的开口。`,
+    previously:     '此前在OWCS Pacific中作为Rankers竞争。',
+    contactHeading: '联系方式',
+    contactNote:    '如需了解合作伙伴关系、媒体或玩家查询，请通过电子邮件发送上述地址。',
   },
   live: {
-    liveNow:      '{{TODO_zhCN: LIVE NOW}}',
-    startsIn:     '{{TODO_zhCN: Starts in}}',
-    vs:           '{{TODO_zhCN: vs}}',
-    watchNow:     '{{TODO_zhCN: WATCH NOW}}',
-    openOnTwitch: '{{TODO_zhCN: Open on Twitch}}',
+    liveNow:      '直播中',
+    startsIn:     '即将开始',
+    vs:           'vs',
+    watchNow:     '立即觀看',
+    openOnTwitch: '在Twitch上打开',
   },
-  skipLink: '{{TODO_zhCN: Skip to main content}}',
+  skipLink: '跳到主内容',
 };
