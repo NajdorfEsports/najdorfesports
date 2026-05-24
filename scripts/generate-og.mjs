@@ -1,14 +1,14 @@
-// One-shot script: renders the default Open Graph card to a 1200x630 PNG.
-// Re-run after editing the inline SVG below: `npm run build:og`.
-import { writeFile, mkdir } from 'node:fs/promises';
+// One-shot script: renders the OG card and the icon set used by site.webmanifest
+// and apple-touch-icon. Re-run after editing any of the inline SVGs: `npm run build:og`.
+import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const out = `${__dirname}/../public/branding/og-default.png`;
+const PUBLIC = `${__dirname}/../public`;
 
-const svg = `<?xml version="1.0" encoding="UTF-8"?>
+const ogSvg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
@@ -42,6 +42,32 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
   </text>
 </svg>`;
 
-await mkdir(dirname(out), { recursive: true });
-await sharp(Buffer.from(svg)).png().toFile(out);
-console.log(`Wrote ${out}`);
+// Icon: dark square with the bishop centered. The bishop sits inside the maskable
+// safe zone (80% center diameter) so it survives Android adaptive masking.
+const iconSvg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#0B0B0F"/>
+  <g transform="translate(176 96) scale(2.5)" fill="#C8102E">
+    <path fill-rule="evenodd" d="M32 6 C 40 18, 44 30, 44 38 C 44 46, 38 50, 32 50 C 26 50, 20 46, 20 38 C 20 30, 24 18, 32 6 Z M28 12 L 38 22 L 36 24 L 26 14 Z"/>
+    <rect x="26" y="46" width="12" height="12"/>
+    <rect x="20" y="56" width="24" height="6" rx="1"/>
+    <path d="M22 60 L 42 60 L 46 78 L 18 78 Z"/>
+    <path d="M14 78 L 50 78 L 52 88 L 12 88 Z"/>
+    <ellipse cx="32" cy="90" rx="22" ry="3.5"/>
+  </g>
+</svg>`;
+
+const tasks = [
+  { svg: ogSvg, out: `${PUBLIC}/branding/og-default.png` },
+  { svg: iconSvg, out: `${PUBLIC}/apple-touch-icon.png`, resize: 180 },
+  { svg: iconSvg, out: `${PUBLIC}/icon-192.png`, resize: 192 },
+  { svg: iconSvg, out: `${PUBLIC}/icon-512.png`, resize: 512 },
+];
+
+for (const { svg, out, resize } of tasks) {
+  await mkdir(dirname(out), { recursive: true });
+  let pipeline = sharp(Buffer.from(svg));
+  if (resize) pipeline = pipeline.resize(resize, resize);
+  await pipeline.png().toFile(out);
+  console.log(`Wrote ${out}`);
+}

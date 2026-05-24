@@ -36,6 +36,14 @@ const ogImageUrl = new URL(ogImage, site.url).toString();
     <link rel="canonical" href={canonicalUrl} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${site.name} — News`}
+      href="/feed.xml"
+    />
     <meta name="theme-color" content="#0B0B0F" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -68,8 +76,9 @@ const ogImageUrl = new URL(ogImage, site.url).toString();
     )}
   </head>
   <body>
+    <a href="#main" class="skip-link">Skip to main content</a>
     <SiteHeader />
-    <main>
+    <main id="main" tabindex="-1">
       <slot />
     </main>
     <SiteFooter />

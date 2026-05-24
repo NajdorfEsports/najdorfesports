@@ -1,0 +1,10 @@
+# Cloudflare Pages — redirects
+# Format: <from> <to> <status>
+# https://developers.cloudflare.com/pages/configuration/redirects/
+
+# www → apex (activates when www.najdorfesports.gg is added as a Pages custom domain
+# or routed through this project via a Cloudflare zone record).
+https://www.najdorfesports.gg/*  https://najdorfesports.gg/:splat  301!
+
+# Forward bare pages.dev hits to the canonical domain (preserve any path).
+https://najdorfesports.pages.dev/*  https://najdorfesports.gg/:splat  301!
