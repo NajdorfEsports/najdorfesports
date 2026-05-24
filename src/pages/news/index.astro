@@ -9,6 +9,7 @@ const posts = (await getCollection('news', ({ data }) => !data.draft))
 <BaseLayout
   title="News"
   description="Announcements, brand updates, and match reports from Najdorf Esports."
+  ogImage="/branding/og/news.png"
 >
   <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12">
     <p class="text-sm uppercase tracking-wider text-[var(--color-accent-2)]">News</p>

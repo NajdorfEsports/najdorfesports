@@ -72,6 +72,7 @@ const jsonLd = allMatches.map((m) => {
 <BaseLayout
   title="Matches"
   description={`Upcoming matches and recent results for ${site.name} in ${owcs.league}.`}
+  ogImage="/branding/og/matches.png"
   jsonLd={jsonLd.length > 0 ? jsonLd : undefined}
 >
   <MatchTicker matches={allMatches} />

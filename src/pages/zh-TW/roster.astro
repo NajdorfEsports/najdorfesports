@@ -14,6 +14,7 @@ const { headcount, countries } = rosterMetaCounts();
 <BaseLayout
   title={t.nav.roster}
   description={`${site.name} 現役 OWCS Pacific 名單，共 ${headcount} 名選手，來自 ${countries.join('、')}。`}
+  ogImage="/branding/og/roster.png"
   jsonLd={personJsonLd}
 >
   <RosterPageBody />
