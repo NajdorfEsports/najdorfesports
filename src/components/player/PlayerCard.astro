@@ -1,40 +1,147 @@
 ---
 import PlayerAvatar from './PlayerAvatar.astro';
+import CountryFlag from './CountryFlag.astro';
 import Badge from '../ui/Badge.astro';
 import type { RosterEntry } from '../../data/site';
 
 interface Props {
   player: RosterEntry;
+  /** 0-based index used to stagger the fade-in animation. */
+  index?: number;
 }
-const { player } = Astro.props;
+const { player, index = 0 } = Astro.props;
 
-const hasCountry = player.country && player.country !== 'TBD';
-const incomplete =
-  !player.country || player.country === 'TBD' || !player.realName || !player.photo;
+const isDnp = player.status === 'dnp';
+const isInactive = player.status === 'inactive';
+const hasCountry = !!(player.country && player.country !== 'TBD');
+
+const roleAccent: Record<string, string> = {
+  Tank: 'var(--color-accent)',
+  DPS: 'var(--color-accent-2)',
+  Support: '#4ADE80',
+  Flex: '#A78BFA',
+  Coach: '#60A5FA',
+  Manager: '#60A5FA',
+};
+const accent = roleAccent[player.role] ?? 'var(--color-accent-2)';
+const cardLink = player.liquipediaUrl;
 ---
-<article class="relative bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5 flex flex-col items-center text-center shadow-[var(--shadow-card)]">
-  {incomplete && (
-    <span class="absolute top-3 right-3">
-      <Badge tone="neutral">TBD</Badge>
+<article
+  class:list={[
+    'player-card relative bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5 flex flex-col items-center text-center shadow-[var(--shadow-card)]',
+    isDnp || isInactive ? 'player-card--muted' : '',
+  ]}
+  style={`--accent:${accent};--stagger:${index};`}
+>
+  <span class="player-card__rail" aria-hidden="true"></span>
+
+  {(isDnp || isInactive) && (
+    <span class="absolute top-3 right-3 max-w-[60%] text-right">
+      <Badge tone="neutral">{player.statusNote ?? (isDnp ? 'DNP' : 'Inactive')}</Badge>
     </span>
   )}
 
   <PlayerAvatar handle={player.handle} photo={player.photo} size="lg" />
 
-  <h3 class="font-display text-2xl mt-4 tracking-wide">
-    {player.handle}
+  <h3 class="font-display text-2xl sm:text-3xl mt-4 tracking-wide leading-none">
+    {cardLink ? (
+      <a
+        href={cardLink}
+        target="_blank"
+        rel="noopener"
+        class="player-card__handle hover:underline underline-offset-4 decoration-[var(--accent)]"
+      >
+        {player.handle}
+      </a>
+    ) : (
+      player.handle
+    )}
   </h3>
 
   {player.realName && (
-    <p class="text-sm text-[var(--color-text-dim)] mt-1">{player.realName}</p>
+    <p class="text-sm text-[var(--color-text-dim)] mt-1.5">{player.realName}</p>
   )}
 
-  <div class="mt-3 flex items-center gap-2">
-    <Badge tone="gold">{player.role}</Badge>
+  <div class="mt-3 flex items-center gap-3 text-xs uppercase tracking-wider">
+    <span
+      class="px-2 py-0.5 rounded-sm border font-semibold"
+      style="color: var(--accent); border-color: var(--accent);"
+    >
+      {player.role}
+    </span>
     {hasCountry && (
-      <span class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
-        {player.country}
+      <span class="flex items-center gap-1.5 text-[var(--color-text-dim)]">
+        <CountryFlag code={player.countryCode} name={player.country} size="md" />
+        <span class="text-[0.7rem]">{player.country}</span>
       </span>
     )}
   </div>
 </article>
+
+<style>
+  .player-card {
+    transition: transform 0.2s ease-out, border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+    animation: card-rise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--stagger, 0) * 70ms);
+    overflow: hidden;
+  }
+
+  .player-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow:
+      0 1px 0 0 var(--accent),
+      0 12px 40px -12px color-mix(in oklab, var(--accent) 50%, transparent);
+  }
+
+  .player-card__rail {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+  }
+
+  .player-card:hover .player-card__rail {
+    opacity: 1;
+  }
+
+  .player-card__handle {
+    color: inherit;
+    transition: color 0.15s ease-out;
+  }
+
+  .player-card:hover .player-card__handle {
+    color: var(--accent);
+  }
+
+  .player-card--muted {
+    opacity: 0.7;
+  }
+
+  .player-card--muted:hover {
+    opacity: 1;
+  }
+
+  @keyframes card-rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .player-card {
+      animation: none;
+      transition: border-color 0.2s ease-out;
+    }
+    .player-card:hover {
+      transform: none;
+    }
+  }
+</style>

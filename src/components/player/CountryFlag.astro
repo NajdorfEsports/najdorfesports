@@ -1,0 +1,34 @@
+---
+interface Props {
+  /** ISO 3166-1 alpha-2 country code. Case-insensitive. */
+  code?: string;
+  /** Country name as fallback label and for aria-label. */
+  name?: string;
+  size?: 'sm' | 'md' | 'lg';
+  showCode?: boolean;
+}
+
+const { code, name, size = 'md', showCode = false } = Astro.props;
+
+const codeUpper = code?.toUpperCase();
+const isValid = codeUpper && /^[A-Z]{2}$/.test(codeUpper);
+
+// Convert two-letter ISO code to a flag emoji via regional indicator symbols.
+// 'A' (0x41) maps to 🇦 (0x1F1E6); the offset is constant for the whole alphabet.
+const flag = isValid
+  ? codeUpper.split('').map((c) => String.fromCodePoint(0x1f1e6 + c.charCodeAt(0) - 0x41)).join('')
+  : null;
+
+const sizeClass = { sm: 'text-base', md: 'text-xl', lg: 'text-2xl' }[size];
+const ariaLabel = name ? `${name} flag` : (codeUpper ? `${codeUpper} flag` : 'Unknown country');
+---
+{flag ? (
+  <span class={`inline-flex items-center gap-1.5 leading-none ${sizeClass}`} role="img" aria-label={ariaLabel}>
+    <span class="select-none">{flag}</span>
+    {showCode && codeUpper && (
+      <span class="text-[0.7em] font-semibold tracking-wider text-[var(--color-text-dim)]">{codeUpper}</span>
+    )}
+  </span>
+) : (name || codeUpper) ? (
+  <span class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">{name ?? codeUpper}</span>
+) : null}

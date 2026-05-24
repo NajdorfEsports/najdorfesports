@@ -1,0 +1,82 @@
+---
+import type { Achievement } from '../../data/site';
+
+interface Props {
+  achievements: ReadonlyArray<Achievement>;
+}
+const { achievements } = Astro.props;
+
+const sorted = [...achievements].sort(
+  (a, b) => +new Date(b.date) - +new Date(a.date),
+);
+
+function placementTone(placement: string): string {
+  if (/^1(st)?\b/i.test(placement)) return 'var(--color-accent-2)'; // gold
+  if (/^2(nd)?\b/i.test(placement)) return '#C0C0C8'; // silver
+  if (/^3(rd)?\b/i.test(placement)) return '#CD7F32'; // bronze
+  return 'var(--color-text-dim)';
+}
+---
+{sorted.length > 0 && (
+  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10" aria-label="Achievements">
+    <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] mb-3">Recent results</p>
+    <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {sorted.map((a) => (
+        <li class="achievement bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-4 flex items-center gap-4">
+          <span
+            class="font-display text-3xl leading-none shrink-0 tabular-nums"
+            style={`color:${placementTone(a.placement)};`}
+            aria-label={`Placement: ${a.placement}`}
+          >
+            {a.placement}
+          </span>
+          <div class="min-w-0 flex-1">
+            <p class="font-display text-base sm:text-lg tracking-wide truncate">
+              {a.url ? (
+                <a
+                  href={a.url}
+                  target="_blank"
+                  rel="noopener"
+                  class="hover:text-[var(--color-accent-2)] hover:underline underline-offset-4"
+                >
+                  {a.event}
+                </a>
+              ) : (
+                a.event
+              )}
+            </p>
+            <p class="text-xs text-[var(--color-text-dim)] mt-0.5">
+              {new Date(a.date).toLocaleDateString('en-US', {
+                month: 'long',
+                year: 'numeric',
+              })}
+              {typeof a.prizeUsd === 'number' && a.prizeUsd > 0 && (
+                <>
+                  {' · '}
+                  <span class="text-[var(--color-accent-2)]">
+                    ${a.prizeUsd.toLocaleString('en-US')}
+                  </span>
+                </>
+              )}
+            </p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<style>
+  .achievement {
+    transition: border-color 0.2s ease-out, transform 0.2s ease-out;
+  }
+  .achievement:hover {
+    border-color: var(--color-accent-2);
+    transform: translateY(-2px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .achievement:hover {
+      transform: none;
+    }
+  }
+</style>

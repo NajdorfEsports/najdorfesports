@@ -1,0 +1,51 @@
+[
+  {
+    "handle": "Despair",
+    "role": "Tank",
+    "country": "Hong Kong",
+    "countryCode": "hk",
+    "status": "active",
+    "liquipediaUrl": "https://liquipedia.net/overwatch/Despair"
+  },
+  {
+    "handle": "brysonbtw",
+    "role": "DPS",
+    "country": "Hong Kong",
+    "countryCode": "hk",
+    "status": "active",
+    "liquipediaUrl": "https://liquipedia.net/overwatch/Brysonbtw"
+  },
+  {
+    "handle": "Zephyr",
+    "role": "DPS",
+    "country": "Taiwan",
+    "countryCode": "tw",
+    "status": "active",
+    "liquipediaUrl": "https://liquipedia.net/overwatch/Zephyr"
+  },
+  {
+    "handle": "OH1YO",
+    "role": "DPS",
+    "country": "Taiwan",
+    "countryCode": "tw",
+    "status": "dnp",
+    "statusNote": "DNP — Stage 1 Open Qualifier",
+    "liquipediaUrl": "https://liquipedia.net/overwatch/OH1YO"
+  },
+  {
+    "handle": "FEI",
+    "role": "Support",
+    "country": "Taiwan",
+    "countryCode": "tw",
+    "status": "active",
+    "liquipediaUrl": "https://liquipedia.net/overwatch/FEI"
+  },
+  {
+    "handle": "Amamiyaren",
+    "role": "Support",
+    "country": "China",
+    "countryCode": "cn",
+    "status": "active",
+    "liquipediaUrl": "https://liquipedia.net/overwatch/Amamiyaren"
+  }
+]

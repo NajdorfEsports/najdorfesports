@@ -1,0 +1,193 @@
+---
+import type { MatchEntry } from '../../data/site';
+
+interface Props {
+  matches: ReadonlyArray<MatchEntry>;
+  fallback?: string;
+}
+const { matches, fallback = 'OWCS Pacific Stage 2 — main event begins June 4, 2026.' } = Astro.props;
+
+const now = Date.now();
+
+interface TickerItem {
+  key: string;
+  label: string;
+  variant: 'live' | 'upcoming' | 'win' | 'loss' | 'tbd' | 'neutral';
+  href?: string;
+}
+
+const items: TickerItem[] = [];
+for (const m of matches) {
+  const ts = +new Date(m.date);
+  const isPast = ts < now;
+  const dateStr = new Date(m.date).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+  });
+  if (!isPast) {
+    items.push({
+      key: `up-${m.id}`,
+      label: `${dateStr} — vs ${m.opponent} · ${m.tournament}`,
+      variant: 'upcoming',
+      href: m.streamUrl,
+    });
+  } else if (m.result === 'win') {
+    items.push({
+      key: `w-${m.id}`,
+      label: `W vs ${m.opponent} · ${m.tournament}`,
+      variant: 'win',
+    });
+  } else if (m.result === 'loss') {
+    items.push({
+      key: `l-${m.id}`,
+      label: `L vs ${m.opponent} · ${m.tournament}`,
+      variant: 'loss',
+    });
+  } else {
+    items.push({
+      key: `tbd-${m.id}`,
+      label: `vs ${m.opponent} · ${m.tournament}`,
+      variant: 'tbd',
+    });
+  }
+}
+
+if (items.length === 0) {
+  items.push({ key: 'fallback', label: fallback, variant: 'neutral' });
+}
+
+// Duplicate the item list so the CSS marquee can translate -50% for a seamless loop.
+const duplicated = [...items, ...items];
+---
+<div class="ticker" aria-label="Match ticker" role="region">
+  <div class="ticker__edge ticker__edge--left" aria-hidden="true"></div>
+  <ul class="ticker__track" aria-hidden={items.length > 1 ? 'true' : undefined}>
+    {duplicated.map((item, i) => (
+      <li class:list={['ticker__item', `ticker__item--${item.variant}`]} data-half={i < items.length ? 'a' : 'b'}>
+        {item.href ? (
+          <a href={item.href} target="_blank" rel="noopener" class="ticker__link">
+            {item.label}
+          </a>
+        ) : (
+          <span>{item.label}</span>
+        )}
+      </li>
+    ))}
+  </ul>
+  {items.length === 1 && (
+    <ul class="sr-only">
+      <li>{items[0]!.label}</li>
+    </ul>
+  )}
+  <div class="ticker__edge ticker__edge--right" aria-hidden="true"></div>
+</div>
+
+<style>
+  .ticker {
+    position: relative;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    overflow: hidden;
+    --ticker-duration: 60s;
+  }
+
+  .ticker__track {
+    display: inline-flex;
+    align-items: center;
+    gap: 2.5rem;
+    white-space: nowrap;
+    padding: 0.75rem 0;
+    animation: ticker-marquee var(--ticker-duration) linear infinite;
+    will-change: transform;
+  }
+
+  .ticker:hover .ticker__track,
+  .ticker:focus-within .ticker__track {
+    animation-play-state: paused;
+  }
+
+  .ticker__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-text-dim);
+  }
+
+  .ticker__item::before {
+    content: '';
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 999px;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  .ticker__item--live { color: var(--color-accent); }
+  .ticker__item--live::before {
+    background: var(--color-accent);
+    box-shadow: 0 0 0 0 var(--color-accent);
+    animation: live-pulse 1.6s ease-in-out infinite;
+  }
+  .ticker__item--upcoming { color: var(--color-accent-2); }
+  .ticker__item--win { color: var(--color-win); }
+  .ticker__item--loss { color: var(--color-loss); }
+  .ticker__item--tbd,
+  .ticker__item--neutral { color: var(--color-text-dim); }
+
+  .ticker__link {
+    color: inherit;
+    text-decoration: none;
+  }
+  .ticker__link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Fade edges so the scroll doesn't pop at the borders. */
+  .ticker__edge {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 64px;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .ticker__edge--left {
+    left: 0;
+    background: linear-gradient(to right, var(--color-surface), transparent);
+  }
+  .ticker__edge--right {
+    right: 0;
+    background: linear-gradient(to left, var(--color-surface), transparent);
+  }
+
+  @keyframes ticker-marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @keyframes live-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-accent) 60%, transparent); }
+    50%      { box-shadow: 0 0 0 6px transparent; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ticker__track {
+      animation: none;
+      transform: none;
+      flex-wrap: wrap;
+      white-space: normal;
+    }
+    .ticker__item--live::before {
+      animation: none;
+    }
+    .ticker__edge {
+      display: none;
+    }
+  }
+</style>

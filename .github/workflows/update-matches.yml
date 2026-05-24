@@ -1,16 +1,23 @@
-name: Update matches from Liquipedia
+name: Refresh Liquipedia data
 
 on:
   workflow_dispatch: {}
-  # schedule:
-  #   - cron: '0 */6 * * *'   # every 6 hours — uncomment when ready
+  schedule:
+    # Every 6 hours. Two parse calls per run + 30s spacing fits well within
+    # Liquipedia's quota and produces a Pages deploy at most 4×/day.
+    - cron: '7 */6 * * *'
 
 permissions:
   contents: write
 
+concurrency:
+  group: liquipedia-refresh
+  cancel-in-progress: false
+
 jobs:
   fetch:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
 
@@ -18,11 +25,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Fetch matches
+      - name: Fetch roster, matches, achievements from Liquipedia
         run: node scripts/fetch-liquipedia.mjs
 
       - name: Commit updated data (if changed)
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: 'chore(data): refresh matches from Liquipedia'
-          file_pattern: 'src/data/matches.json'
+          commit_message: 'chore(data): refresh from Liquipedia'
+          file_pattern: |
+            src/data/matches.json
+            src/data/roster.json
+            src/data/achievements.json

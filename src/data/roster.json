@@ -1,8 +1,50 @@
 [
-  { "handle": "Player 01", "role": "Tank",    "country": "TBD" },
-  { "handle": "Player 02", "role": "DPS",     "country": "TBD" },
-  { "handle": "Player 03", "role": "DPS",     "country": "TBD" },
-  { "handle": "Player 04", "role": "Support", "country": "TBD" },
-  { "handle": "Player 05", "role": "Support", "country": "TBD" },
-  { "handle": "Player 06", "role": "Flex",    "country": "TBD" }
+  {
+    "handle": "brysonbtw",
+    "role": "DPS",
+    "countryCode": "hk",
+    "country": "Hong Kong",
+    "status": "active"
+  },
+  {
+    "handle": "Zephyr",
+    "role": "DPS",
+    "countryCode": "tw",
+    "country": "Taiwan",
+    "status": "active"
+  },
+  {
+    "handle": "OH1YO",
+    "role": "DPS",
+    "countryCode": "tw",
+    "country": "Taiwan",
+    "status": "dnp",
+    "statusNote": "DNP — Stage 1"
+  },
+  {
+    "handle": "Despair",
+    "role": "Tank",
+    "status": "active"
+  },
+  {
+    "handle": "FEI",
+    "role": "Support",
+    "countryCode": "tw",
+    "country": "Taiwan",
+    "status": "active"
+  },
+  {
+    "handle": "Amamiyaren",
+    "role": "Support",
+    "countryCode": "cn",
+    "country": "China",
+    "status": "active"
+  },
+  {
+    "handle": "Detai1",
+    "role": "Coach",
+    "countryCode": "tw",
+    "country": "Taiwan",
+    "status": "active"
+  }
 ]
