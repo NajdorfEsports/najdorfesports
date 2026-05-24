@@ -1,10 +1,20 @@
 ---
 import { owcs } from '../../data/site';
+import { DEFAULT_LOCALE, useT, type Locale } from '../../i18n';
+import { formatDate } from '../../i18n/format';
 
 interface Props {
   prominent?: boolean;
 }
 const { prominent = false } = Astro.props;
+
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const t = useT(locale);
+
+// Date range, rendered in the active locale. en → "June 4" / "July 9, 2026";
+// zh → "6月4日" / "2026年7月9日".
+const startMonthDay = formatDate(owcs.mainEventStart, locale, { month: 'long', day: 'numeric' });
+const endMonthDayYear = formatDate(owcs.mainEventEnd, locale, { year: 'numeric', month: 'long', day: 'numeric' });
 ---
 <aside
   class:list={[
@@ -15,16 +25,16 @@ const { prominent = false } = Astro.props;
 >
   <div class="flex items-center gap-3">
     <span class="inline-flex items-center px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider rounded-sm bg-[var(--color-accent)] text-white">
-      Live
+      {t.owcsBadge.liveLabel}
     </span>
     <p class:list={[
       'font-display tracking-wide',
       prominent ? 'text-2xl sm:text-3xl' : 'text-lg sm:text-xl',
     ]}>
-      {owcs.badgeLine}
+      {t.owcsBadge.badgeLine(startMonthDay, endMonthDayYear)}
     </p>
   </div>
   <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
-    {owcs.league} · {owcs.stage} · {owcs.year}
+    {t.owcsBadge.descriptor}
   </p>
 </aside>

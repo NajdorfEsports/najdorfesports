@@ -1,7 +1,9 @@
 ---
 import PlayerAvatar from '../player/PlayerAvatar.astro';
 import CountryFlag from '../player/CountryFlag.astro';
-import type { RosterEntry } from '../../data/site';
+import type { RosterEntry, Role } from '../../data/site';
+import { DEFAULT_LOCALE, pathFor, useT, type Locale } from '../../i18n';
+import { displayCountry } from '../../i18n/format';
 
 interface Props {
   players: ReadonlyArray<RosterEntry>;
@@ -9,7 +11,14 @@ interface Props {
   excludeRoles?: ReadonlyArray<string>;
   href?: string;
 }
-const { players, excludeRoles = ['Coach', 'Manager'], href = '/roster/' } = Astro.props;
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const t = useT(locale);
+
+const {
+  players,
+  excludeRoles = ['Coach', 'Manager'],
+  href = pathFor(locale, '/roster/'),
+} = Astro.props;
 
 const visible = players.filter((p) => !excludeRoles.includes(p.role));
 const countries = new Set(visible.map((p) => p.country).filter(Boolean));
@@ -18,25 +27,18 @@ const coaches = players.filter((p) => p.role === 'Coach');
 <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16" aria-label="Roster preview">
   <div class="flex items-end justify-between mb-5">
     <div>
-      <p class="text-xs uppercase tracking-[0.25em] text-[var(--color-accent-2)]">Active roster</p>
+      <p class="text-xs uppercase tracking-[0.25em] text-[var(--color-accent-2)]">
+        {t.rosterStrip.activeRoster}
+      </p>
       <h2 class="font-display text-3xl sm:text-4xl mt-1 tracking-wide">
-        {visible.length} players
-        <span class="text-[var(--color-text-dim)] font-display text-2xl sm:text-3xl">
-          · {countries.size} {countries.size === 1 ? 'country' : 'countries'}
-          {coaches.length > 0 && (
-            <>
-              {' · '}
-              {coaches.length} coach{coaches.length === 1 ? '' : 'es'}
-            </>
-          )}
-        </span>
+        {t.rosterStrip.countLine(visible.length, countries.size, coaches.length)}
       </h2>
     </div>
     <a
       href={href}
-      class="hidden sm:inline-flex text-sm uppercase tracking-wider text-[var(--color-accent-2)] hover:text-[var(--color-accent)] underline underline-offset-4"
+      class="hidden sm:inline-flex link-arrow has-glyph text-sm uppercase tracking-wider text-[var(--color-accent-2)] hover:text-[var(--color-accent)]"
     >
-      Full roster →
+      <span>{t.rosterStrip.fullRoster}</span>
     </a>
   </div>
 
@@ -56,11 +58,11 @@ const coaches = players.filter((p) => p.role === 'Coach');
             <PlayerAvatar handle={p.handle} size={48} />
             <span class="font-display text-base tracking-wide leading-none">{p.handle}</span>
             <span class="flex items-center gap-1.5 text-[0.65rem] uppercase tracking-wider text-[var(--color-text-dim)]">
-              {p.role}
+              {t.roles[p.role as Role] ?? p.role}
               {p.countryCode && (
                 <>
                   <span aria-hidden="true">·</span>
-                  <CountryFlag code={p.countryCode} name={p.country} size="sm" />
+                  <CountryFlag code={p.countryCode} name={displayCountry(p.countryCode, p.country, locale)} size="sm" />
                 </>
               )}
             </span>
@@ -71,8 +73,8 @@ const coaches = players.filter((p) => p.role === 'Coach');
   </div>
 
   <p class="sm:hidden text-right mt-3">
-    <a href={href} class="text-sm uppercase tracking-wider text-[var(--color-accent-2)] hover:underline">
-      Full roster →
+    <a href={href} class="link-arrow has-glyph text-sm uppercase tracking-wider text-[var(--color-accent-2)] hover:text-[var(--color-accent)]">
+      <span>{t.rosterStrip.fullRoster}</span>
     </a>
   </p>
 </section>

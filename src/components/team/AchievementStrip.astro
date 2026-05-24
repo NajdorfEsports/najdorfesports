@@ -1,10 +1,20 @@
 ---
 import type { Achievement } from '../../data/site';
+import { DEFAULT_LOCALE, useT, type Locale } from '../../i18n';
+import {
+  formatDate,
+  formatCurrencyUSD,
+  translateTournament,
+  translatePlacement,
+} from '../../i18n/format';
 
 interface Props {
   achievements: ReadonlyArray<Achievement>;
 }
 const { achievements } = Astro.props;
+
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const t = useT(locale);
 
 const sorted = [...achievements].sort(
   (a, b) => +new Date(b.date) - +new Date(a.date),
@@ -19,7 +29,7 @@ function placementTone(placement: string): string {
 ---
 {sorted.length > 0 && (
   <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10" aria-label="Achievements">
-    <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] mb-3">Recent results</p>
+    <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] mb-3">{t.achievement.recentResults}</p>
     <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {sorted.map((a) => (
         <li class="achievement bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-4 flex items-center gap-4">
@@ -28,7 +38,7 @@ function placementTone(placement: string): string {
             style={`color:${placementTone(a.placement)};`}
             aria-label={`Placement: ${a.placement}`}
           >
-            {a.placement}
+            {translatePlacement(a.placement, locale)}
           </span>
           <div class="min-w-0 flex-1">
             <p class="font-display text-base sm:text-lg tracking-wide truncate">
@@ -39,22 +49,19 @@ function placementTone(placement: string): string {
                   rel="noopener"
                   class="hover:text-[var(--color-accent-2)] hover:underline underline-offset-4"
                 >
-                  {a.event}
+                  {translateTournament(a.event, locale)}
                 </a>
               ) : (
-                a.event
+                translateTournament(a.event, locale)
               )}
             </p>
             <p class="text-xs text-[var(--color-text-dim)] mt-0.5">
-              {new Date(a.date).toLocaleDateString('en-US', {
-                month: 'long',
-                year: 'numeric',
-              })}
+              {formatDate(a.date, locale, { month: 'long', year: 'numeric' })}
               {typeof a.prizeUsd === 'number' && a.prizeUsd > 0 && (
                 <>
                   {' · '}
                   <span class="text-[var(--color-accent-2)]">
-                    ${a.prizeUsd.toLocaleString('en-US')}
+                    {formatCurrencyUSD(a.prizeUsd, locale)}
                   </span>
                 </>
               )}

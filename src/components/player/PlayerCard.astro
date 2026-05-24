@@ -3,7 +3,9 @@ import PlayerAvatar from './PlayerAvatar.astro';
 import CountryFlag from './CountryFlag.astro';
 import Badge from '../ui/Badge.astro';
 import heroIcons from '../../data/heroes.json';
-import type { RosterEntry } from '../../data/site';
+import type { RosterEntry, Role } from '../../data/site';
+import { DEFAULT_LOCALE, useT, type Locale } from '../../i18n';
+import { displayCountry } from '../../i18n/format';
 
 interface Props {
   player: RosterEntry;
@@ -11,6 +13,10 @@ interface Props {
   index?: number;
 }
 const { player, index = 0 } = Astro.props;
+
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const t = useT(locale);
+const countryName = displayCountry(player.countryCode, player.country, locale);
 
 const isDnp = player.status === 'dnp';
 const isInactive = player.status === 'inactive';
@@ -81,7 +87,7 @@ const hasBackdrop = backdropHeroes.length > 0;
 
   {(isDnp || isInactive) && (
     <span class="absolute top-3 right-3 max-w-[60%] text-right z-10">
-      <Badge tone="neutral">{player.statusNote ?? (isDnp ? 'DNP' : 'Inactive')}</Badge>
+      <Badge tone="neutral">{player.statusNote ?? (isDnp ? t.player.dnp : t.player.inactive)}</Badge>
     </span>
   )}
 
@@ -121,14 +127,14 @@ const hasBackdrop = backdropHeroes.length > 0;
             class="px-2 py-0.5 rounded-sm border font-semibold bg-[var(--color-bg)]/60 backdrop-blur-sm"
             style={`color: ${a}; border-color: ${a};`}
           >
-            {r}
+            {t.roles[r as Role] ?? r}
           </span>
         );
       })}
       {hasCountry && (
         <span class="flex items-center gap-1.5 text-[var(--color-text-dim)] ml-1">
-          <CountryFlag code={player.countryCode} name={player.country} size="md" />
-          <span class="text-[0.7rem]">{player.country}</span>
+          <CountryFlag code={player.countryCode} name={countryName} size="md" />
+          <span class="text-[0.7rem]">{countryName}</span>
         </span>
       )}
     </div>
@@ -148,7 +154,7 @@ const hasBackdrop = backdropHeroes.length > 0;
             rel="noopener"
             class="hover:text-[var(--color-accent-2)] transition-colors"
           >
-            Twitter
+            {t.player.twitter}
           </a>
         )}
         {player.twitch && (
@@ -158,7 +164,7 @@ const hasBackdrop = backdropHeroes.length > 0;
             rel="noopener"
             class="hover:text-[var(--color-accent-2)] transition-colors"
           >
-            Twitch
+            {t.player.twitch}
           </a>
         )}
       </div>

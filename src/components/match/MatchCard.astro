@@ -1,26 +1,27 @@
 ---
 import Badge from '../ui/Badge.astro';
 import type { MatchEntry } from '../../data/site';
+import { DEFAULT_LOCALE, useT, type Locale } from '../../i18n';
+import { formatDate, translateTournament } from '../../i18n/format';
 
 interface Props {
   match: MatchEntry;
 }
 const { match } = Astro.props;
 
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const t = useT(locale);
+
 const date = new Date(match.date);
-const datePretty = date.toLocaleDateString('en-US', {
-  weekday: 'short',
-  month: 'short',
-  day: 'numeric',
-  year: 'numeric',
-});
-const timePretty = date.toLocaleTimeString('en-US', {
+const weekday = formatDate(date, locale, { weekday: 'short' });
+const dayNum = formatDate(date, locale, { day: 'numeric' });
+const monthShort = formatDate(date, locale, { month: 'short' });
+const timePretty = new Intl.DateTimeFormat(locale, {
   hour: 'numeric',
   minute: '2-digit',
-  hour12: true,
-});
+}).format(date);
 
-const resultLabel = match.result === 'win' ? 'W' : match.result === 'loss' ? 'L' : '·';
+const resultLabel = match.result === 'win' ? t.match.win : match.result === 'loss' ? t.match.loss : '·';
 const aggregate = match.mapScores?.reduce(
   (acc, m) => {
     if (m.ourScore > m.theirScore) acc.ours += 1;
@@ -33,20 +34,20 @@ const aggregate = match.mapScores?.reduce(
 <article class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-4 sm:p-5 grid grid-cols-[auto_1fr_auto] gap-4 items-center">
   <div class="text-center w-16">
     <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
-      {datePretty.split(',')[0]}
+      {weekday}
     </p>
-    <p class="font-display text-2xl leading-none mt-1">{date.getDate()}</p>
+    <p class="font-display text-2xl leading-none mt-1">{dayNum}</p>
     <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] mt-1">
-      {date.toLocaleString('en-US', { month: 'short' })}
+      {monthShort}
     </p>
   </div>
 
   <div class="min-w-0">
     <p class="text-xs uppercase tracking-wider text-[var(--color-accent-2)]">
-      {match.tournament}
+      {translateTournament(match.tournament, locale)}
     </p>
     <p class="font-display text-xl truncate mt-0.5">
-      vs {match.opponent}
+      {t.match.vs(match.opponent)}
     </p>
     <p class="text-xs text-[var(--color-text-dim)] mt-1">
       {timePretty} · {match.format}
@@ -59,7 +60,7 @@ const aggregate = match.mapScores?.reduce(
             rel="noopener"
             class="link-arrow has-glyph text-[var(--color-accent-2)] hover:text-[var(--color-accent)]"
           >
-            <span>Watch</span>
+            <span>{t.match.watch}</span>
           </a>
         </>
       )}
@@ -68,7 +69,7 @@ const aggregate = match.mapScores?.reduce(
 
   <div class="text-right">
     {match.result === 'tbd' ? (
-      <Badge tone="neutral">TBD</Badge>
+      <Badge tone="neutral">{t.match.tbd}</Badge>
     ) : (
       <div class="flex flex-col items-end gap-1">
         <Badge tone={match.result === 'win' ? 'win' : 'loss'}>

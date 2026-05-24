@@ -1,8 +1,10 @@
 /**
  * English baseline. Other locale files mirror this shape so the type checker
  * keeps every translation in sync. Add a key here first, then add the same
- * key to zh-TW.ts and zh-CN.ts (with the TODO_zh* placeholder format).
+ * key to zh-TW.ts and zh-CN.ts.
  */
+import type { Role } from '../data/site';
+
 export const en = {
   nav: {
     home: 'Home',
@@ -37,6 +39,8 @@ export const en = {
     latest: 'Latest',
     allNews: 'All news',
     read: 'Read',
+    /** Shown above the news section on non-English pages to set expectations. */
+    newsEnglishOnly: 'News articles are currently published in English only.',
   },
   roster: {
     eyebrow: 'Active roster · OWCS Pacific 2026',
@@ -65,6 +69,92 @@ export const en = {
     watchNow: 'WATCH NOW',
     openOnTwitch: 'Open on Twitch',
   },
+
+  /** Display names for roles. Kept short — used on player cards and roster strip. */
+  roles: {
+    Tank: 'Tank',
+    DPS: 'DPS',
+    Support: 'Support',
+    Flex: 'Flex',
+    Coach: 'Coach',
+    Manager: 'Manager',
+  } as Record<Role, string>,
+
+  /** Region label, separate from `roster.regionLabel` because this is the value
+   *  rather than the label. e.g. site.region = 'Pacific'. */
+  regions: {
+    Pacific: 'Pacific',
+  } as Record<string, string>,
+
+  /** OWCS tournament status badge that sits at the top of every page hero. */
+  owcsBadge: {
+    liveLabel: 'Live',
+    badgeLine: (startMonthDay: string, endMonthDayYear: string) =>
+      `OWCS Pacific Stage 2 main event runs ${startMonthDay} to ${endMonthDayYear}`,
+    descriptor: 'OWCS Pacific · Stage 2 · 2026',
+  },
+
+  /** Roster strip on the home page (the horizontal player row). */
+  rosterStrip: {
+    activeRoster: 'Active roster',
+    countLine: (players: number, countries: number, coaches: number) => {
+      const parts = [
+        `${players} ${players === 1 ? 'player' : 'players'}`,
+        `${countries} ${countries === 1 ? 'country' : 'countries'}`,
+      ];
+      if (coaches > 0) parts.push(`${coaches} ${coaches === 1 ? 'coach' : 'coaches'}`);
+      return parts.join(' · ');
+    },
+    fullRoster: 'Full roster',
+  },
+
+  /** Achievement strip below the hero. */
+  achievement: {
+    recentResults: 'Recent results',
+  },
+
+  /** Next match countdown card. */
+  nextMatch: {
+    eyebrow: (tournament: string) => `Next match · ${tournament}`,
+    vs: (opponent: string) => `vs ${opponent}`,
+    eyebrowEmpty: 'Next match',
+    placeholderHeadline: 'OWCS Pacific Stage 2 · June 4, 2026',
+    placeholderBody:
+      'Match schedule will be published here as soon as the bracket is finalized.',
+    watchLive: 'Watch live',
+    days: 'Days',
+    hours: 'Hours',
+    min: 'Min',
+    sec: 'Sec',
+  },
+
+  /** Per-match card on /matches and recent-results items. */
+  match: {
+    vs: (opponent: string) => `vs ${opponent}`,
+    watch: 'Watch',
+    tbd: 'TBD',
+    win: 'W',
+    loss: 'L',
+  },
+
+  /** Top-of-page marquee. */
+  ticker: {
+    upcoming: (date: string, opponent: string, tournament: string) =>
+      `${date} · vs ${opponent} · ${tournament}`,
+    win: (opponent: string, tournament: string) => `W vs ${opponent} · ${tournament}`,
+    loss: (opponent: string, tournament: string) => `L vs ${opponent} · ${tournament}`,
+    tbd: (opponent: string, tournament: string) => `vs ${opponent} · ${tournament}`,
+    fallback: 'OWCS Pacific Stage 2 main event begins June 4, 2026.',
+  },
+
+  /** Player card details. */
+  player: {
+    twitter: 'Twitter',
+    twitch: 'Twitch',
+    dnp: 'DNP',
+    inactive: 'Inactive',
+  },
+
   skipLink: 'Skip to main content',
 } as const;
 

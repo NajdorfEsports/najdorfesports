@@ -1,9 +1,14 @@
 /**
  * Traditional Chinese (zh-TW).
- * Auto-translated via MyMemory on 2026-05-24.
- * Quality is best-effort. Brand terms (Najdorf Esports, Overwatch, OWCS,
- * Liquipedia, Twitch, etc.) are preserved in English. Native speakers
- * please review and PR fixes.
+ *
+ * Hand-written using established Overwatch / OWCS community terminology
+ * (鬥陣特攻 / 鬥陣特攻冠軍系列賽 in some communities; the OWCS Pacific
+ * broadcast itself uses English branding, so we keep "OWCS Pacific" and
+ * proper-noun stage names in Latin script). Brand names, team names,
+ * player handles, and ${var} interpolations stay as-is.
+ *
+ * Native speakers — please PR fixes. The dict shape is enforced by
+ * `Strings` from ./en, so the type checker will catch missing keys.
  */
 import type { Strings } from './en';
 
@@ -11,59 +16,133 @@ export const zhTW: Strings = {
   nav: {
     home:    '首頁',
     roster:  '名單',
-    matches: '比賽',
+    matches: '賽程',
     news:    '新聞',
     about:   '關於',
   },
   footer: {
     site:        '網站',
-    follow:      '關注',
-    foundedLine: (year, region) => `成立${year} · ${region}`,
-    trademark:   'Overwatch和Overwatch Champions Series是Blizzard Entertainment, Inc.的商標',
-    copyright:   (year, name) => `© ${year} ${name}。保留所有權利。`,
+    follow:      '追蹤',
+    foundedLine: (year, region) => `${year} 年成立 · ${region}`,
+    trademark:
+      'Overwatch 與 Overwatch Champions Series 為 Blizzard Entertainment, Inc. 之商標。',
+    copyright: (year, name) => `© ${year} ${name}。版權所有。`,
   },
   hero: {
     subhead: 'OWCS PACIFIC 2026',
-    stats: (players, countries) => `${countries}國家的${players}玩家。`,
-    record: (line) => `Stage 1中的${line}。`,
-    achievement: (placement, event) => `${placement}在${event}。`,
-    tagline:        '前往June 4的OWCS Pacific Stage 2。',
-    matchSchedule:  '比賽時間表',
+    stats: (players, countries) => `${players} 名選手・來自 ${countries} 個國家。`,
+    record: (line) => `第一階段戰績 ${line}。`,
+    achievement: (placement, event) => `${event} ${placement}。`,
+    tagline:        '備戰 6 月 4 日開打的 OWCS Pacific 第二階段。',
+    matchSchedule:  '查看賽程',
     meetRoster:     '認識選手',
   },
   home: {
-    recentResults:  '最近的結果',
-    recentEmpty:    '尚無已完成的匹配。Stage 2開始June 4。',
-    allMatches:     '所有比賽',
-    nextMatchLabel: '下一場比賽',
-    latest:         '最新',
-    allNews:        '檢視所有最新資訊',
-    read:           '閱讀',
+    recentResults:   '近期戰績',
+    recentEmpty:     '尚無比賽結果。第二階段 6 月 4 日開打。',
+    allMatches:      '所有比賽',
+    nextMatchLabel:  '下一場比賽',
+    latest:          '最新消息',
+    allNews:         '所有新聞',
+    read:            '閱讀',
+    newsEnglishOnly: '目前新聞文章僅提供英文版本。',
   },
   roster: {
-    eyebrow:            '活躍名冊· OWCS Pacific 2026',
-    h1:                 '陣容',
+    eyebrow:            '現役名單 · OWCS Pacific 2026',
+    h1:                 '出戰陣容',
     playersLabel:       '選手',
-    regionLabel:        '地區',
-    intro:              '每六小時從Liquipedia中提取名冊。點擊手柄以打開玩家的Liquipedia頁面。',
-    fullRoster:         '完整名冊',
-    attribution:        '玩家數據來源於',
-    attributionLicense: '根據以下條款提供：',
-    attributionRefresh: '名冊每6小時刷新一次。',
+    regionLabel:        '賽區',
+    intro:              '名單每 6 小時自 Liquipedia 同步更新。點擊選手 ID 可開啟其 Liquipedia 頁面。',
+    fullRoster:         '完整名單',
+    attribution:        '選手資料來源：',
+    attributionLicense: '授權方式：',
+    attributionRefresh: '名單每 6 小時自動更新。',
   },
   about: {
-    eyebrow:        '關於',
-    body: (year, region) => `Najdorf Esports是一家位於${region}地區的競爭型Overwatch組織。我們在${year}創立了該組織，目前在OWCS Pacific競爭。Stage 2主事件運行June 4到July 9, 2026。這個名字來自Sicilian Defence的Najdorf Variation ，一個通過準備比另一邊更深的一條線而獲勝的開口。`,
-    previously:     '此前曾在OWCS Pacific中以Rankers的身份參賽。',
-    contactHeading: '聯絡',
-    contactNote:    '如需合作夥伴、媒體或玩家查詢，請傳送電子郵件至上方地址。',
+    eyebrow: '關於',
+    body: (year, region) =>
+      `Najdorf Esports 是一支以${region}賽區為據點的競技型《鬥陣特攻》戰隊。隊伍於 ${year} 年成立，目前征戰 OWCS Pacific。第二階段主賽事將於 2026 年 6 月 4 日至 7 月 9 日進行。隊名取自西西里防禦的 Najdorf 變例 — 一個比對手多算一步而勝出的開局。`,
+    previously:     '前身為 OWCS Pacific 賽事中的 Rankers。',
+    contactHeading: '聯絡我們',
+    contactNote:    '合作、媒體與選手相關洽詢，請寄送至上方信箱。',
   },
   live: {
     liveNow:      '直播中',
     startsIn:     '即將開始',
-    vs:           'vs',
-    watchNow:     '馬上觀看',
-    openOnTwitch: '在Twitch上打開',
+    vs:           '對戰',
+    watchNow:     '立即觀看',
+    openOnTwitch: '在 Twitch 開啟',
   },
+
+  roles: {
+    Tank:    '坦克',
+    DPS:     '輸出',
+    Support: '輔助',
+    Flex:    '自由人',
+    Coach:   '教練',
+    Manager: '經理',
+  },
+
+  regions: {
+    Pacific: '太平洋',
+  },
+
+  owcsBadge: {
+    liveLabel: '進行中',
+    badgeLine: (startMonthDay, endMonthDayYear) =>
+      `OWCS Pacific 第二階段主賽事：${startMonthDay} ~ ${endMonthDayYear}`,
+    descriptor: 'OWCS Pacific · 第二階段 · 2026',
+  },
+
+  rosterStrip: {
+    activeRoster: '現役名單',
+    countLine: (players, countries, coaches) => {
+      const parts = [`${players} 名選手`, `${countries} 個國家`];
+      if (coaches > 0) parts.push(`${coaches} 名教練`);
+      return parts.join(' · ');
+    },
+    fullRoster: '完整名單',
+  },
+
+  achievement: {
+    recentResults: '近期戰績',
+  },
+
+  nextMatch: {
+    eyebrow: (tournament) => `下一場比賽 · ${tournament}`,
+    vs: (opponent) => `對戰 ${opponent}`,
+    eyebrowEmpty:        '下一場比賽',
+    placeholderHeadline: 'OWCS Pacific 第二階段 · 2026 年 6 月 4 日',
+    placeholderBody:     '對戰表確定後，賽程將公告於此。',
+    watchLive:           '觀看直播',
+    days:                '天',
+    hours:               '時',
+    min:                 '分',
+    sec:                 '秒',
+  },
+
+  match: {
+    vs: (opponent) => `對戰 ${opponent}`,
+    watch: '觀看',
+    tbd:   '待定',
+    win:   '勝',
+    loss:  '負',
+  },
+
+  ticker: {
+    upcoming: (date, opponent, tournament) => `${date} · 對戰 ${opponent} · ${tournament}`,
+    win:  (opponent, tournament) => `勝 對戰 ${opponent} · ${tournament}`,
+    loss: (opponent, tournament) => `負 對戰 ${opponent} · ${tournament}`,
+    tbd:  (opponent, tournament) => `對戰 ${opponent} · ${tournament}`,
+    fallback: 'OWCS Pacific 第二階段主賽事將於 2026 年 6 月 4 日開打。',
+  },
+
+  player: {
+    twitter:  'Twitter',
+    twitch:   'Twitch',
+    dnp:      '未出賽',
+    inactive: '非現役',
+  },
+
   skipLink: '跳至主要內容',
 };

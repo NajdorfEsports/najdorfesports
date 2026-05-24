@@ -1,69 +1,147 @@
 /**
  * Simplified Chinese (zh-CN).
- * Auto-translated via MyMemory on 2026-05-24.
- * Quality is best-effort. Brand terms (Najdorf Esports, Overwatch, OWCS,
- * Liquipedia, Twitch, etc.) are preserved in English. Native speakers
- * please review and PR fixes.
+ *
+ * Hand-written using established Overwatch / OWCS community terminology.
+ * The OWCS Pacific broadcast itself uses English branding, so we keep
+ * "OWCS Pacific" and proper-noun stage names in Latin script. Brand names,
+ * team names, player handles, and ${var} interpolations stay as-is.
+ *
+ * Native speakers — please PR fixes. The dict shape is enforced by
+ * `Strings` from ./en, so the type checker will catch missing keys.
  */
 import type { Strings } from './en';
 
 export const zhCN: Strings = {
   nav: {
-    home:    '主页',
-    roster:  '名冊',
-    matches: '比赛',
+    home:    '首页',
+    roster:  '名单',
+    matches: '赛程',
     news:    '新闻',
     about:   '关于',
   },
   footer: {
     site:        '网站',
     follow:      '关注',
-    foundedLine: (year, region) => `成立${year} · ${region}`,
-    trademark:   'Overwatch和Overwatch Champions Series是Blizzard Entertainment, Inc.的商标',
-    copyright:   (year, name) => `© ${year} ${name}。保留所有权利。`,
+    foundedLine: (year, region) => `${year} 年成立 · ${region}`,
+    trademark:
+      'Overwatch 与 Overwatch Champions Series 为 Blizzard Entertainment, Inc. 的商标。',
+    copyright: (year, name) => `© ${year} ${name}。版权所有。`,
   },
   hero: {
     subhead: 'OWCS PACIFIC 2026',
-    stats: (players, countries) => `${countries}国家的${players}玩家。`,
-    record: (line) => `Stage 1中的${line}。`,
-    achievement: (placement, event) => `${placement}在${event}。`,
-    tagline:        '前往June 4的OWCS Pacific Stage 2。',
-    matchSchedule:  '比赛日程',
+    stats: (players, countries) => `${players} 名选手・来自 ${countries} 个国家。`,
+    record: (line) => `第一阶段战绩 ${line}。`,
+    achievement: (placement, event) => `${event} ${placement}。`,
+    tagline:        '备战 6 月 4 日开打的 OWCS Pacific 第二阶段。',
+    matchSchedule:  '查看赛程',
     meetRoster:     '认识选手',
   },
   home: {
-    recentResults:  '最近的结果',
-    recentEmpty:    '尚无已完成的匹配。Stage 2开始June 4。',
-    allMatches:     '全部匹配',
-    nextMatchLabel: '下一场比赛',
-    latest:         '最新',
-    allNews:        '全部新闻',
-    read:           '阅读',
+    recentResults:   '近期战绩',
+    recentEmpty:     '暂无比赛结果。第二阶段 6 月 4 日开打。',
+    allMatches:      '所有比赛',
+    nextMatchLabel:  '下一场比赛',
+    latest:          '最新消息',
+    allNews:         '所有新闻',
+    read:            '阅读',
+    newsEnglishOnly: '目前新闻文章仅提供英文版本。',
   },
   roster: {
-    eyebrow:            '活跃名册· OWCS Pacific 2026',
-    h1:                 '阵容',
+    eyebrow:            '现役名单 · OWCS Pacific 2026',
+    h1:                 '出战阵容',
     playersLabel:       '选手',
-    regionLabel:        '地区',
-    intro:              '每六小时从Liquipedia提取名册。单击手柄打开玩家的Liquipedia页面。',
-    fullRoster:         '完整名册',
-    attribution:        '玩家数据来源于',
-    attributionLicense: '在下方可用',
-    attributionRefresh: '名册每6小时刷新一次。',
+    regionLabel:        '赛区',
+    intro:              '名单每 6 小时自 Liquipedia 同步更新。点击选手 ID 可打开其 Liquipedia 页面。',
+    fullRoster:         '完整名单',
+    attribution:        '选手资料来源：',
+    attributionLicense: '授权方式：',
+    attributionRefresh: '名单每 6 小时自动更新。',
   },
   about: {
-    eyebrow:        '关于',
-    body: (year, region) => `Najdorf Esports是一家位于${region}地区的竞争性Overwatch组织。我们在${year}创立了该组织，目前在OWCS Pacific竞争。Stage 2主事件运行June 4到July 9, 2026。这个名字来自Sicilian Defence的Najdorf Variation ，这是一个通过准备比另一边更深的一条线而获胜的开口。`,
-    previously:     '此前在OWCS Pacific中作为Rankers竞争。',
-    contactHeading: '联系方式',
-    contactNote:    '如需了解合作伙伴关系、媒体或玩家查询，请通过电子邮件发送上述地址。',
+    eyebrow: '关于',
+    body: (year, region) =>
+      `Najdorf Esports 是一支以${region}赛区为据点的竞技型《守望先锋》战队。战队于 ${year} 年成立，目前征战 OWCS Pacific。第二阶段主赛事将于 2026 年 6 月 4 日至 7 月 9 日进行。队名取自西西里防御的 Najdorf 变例 — 一个比对手多算一步而胜出的开局。`,
+    previously:     '前身为 OWCS Pacific 赛事中的 Rankers。',
+    contactHeading: '联系我们',
+    contactNote:    '合作、媒体与选手相关咨询，请发送至上方邮箱。',
   },
   live: {
     liveNow:      '直播中',
     startsIn:     '即将开始',
-    vs:           'vs',
-    watchNow:     '立即觀看',
-    openOnTwitch: '在Twitch上打开',
+    vs:           '对战',
+    watchNow:     '立即观看',
+    openOnTwitch: '在 Twitch 打开',
   },
-  skipLink: '跳到主内容',
+
+  roles: {
+    Tank:    '坦克',
+    DPS:     '输出',
+    Support: '辅助',
+    Flex:    '自由人',
+    Coach:   '教练',
+    Manager: '经理',
+  },
+
+  regions: {
+    Pacific: '太平洋',
+  },
+
+  owcsBadge: {
+    liveLabel: '进行中',
+    badgeLine: (startMonthDay, endMonthDayYear) =>
+      `OWCS Pacific 第二阶段主赛事：${startMonthDay} ~ ${endMonthDayYear}`,
+    descriptor: 'OWCS Pacific · 第二阶段 · 2026',
+  },
+
+  rosterStrip: {
+    activeRoster: '现役名单',
+    countLine: (players, countries, coaches) => {
+      const parts = [`${players} 名选手`, `${countries} 个国家`];
+      if (coaches > 0) parts.push(`${coaches} 名教练`);
+      return parts.join(' · ');
+    },
+    fullRoster: '完整名单',
+  },
+
+  achievement: {
+    recentResults: '近期战绩',
+  },
+
+  nextMatch: {
+    eyebrow: (tournament) => `下一场比赛 · ${tournament}`,
+    vs: (opponent) => `对战 ${opponent}`,
+    eyebrowEmpty:        '下一场比赛',
+    placeholderHeadline: 'OWCS Pacific 第二阶段 · 2026 年 6 月 4 日',
+    placeholderBody:     '对阵表确定后，赛程将公告于此。',
+    watchLive:           '观看直播',
+    days:                '天',
+    hours:               '时',
+    min:                 '分',
+    sec:                 '秒',
+  },
+
+  match: {
+    vs: (opponent) => `对战 ${opponent}`,
+    watch: '观看',
+    tbd:   '待定',
+    win:   '胜',
+    loss:  '负',
+  },
+
+  ticker: {
+    upcoming: (date, opponent, tournament) => `${date} · 对战 ${opponent} · ${tournament}`,
+    win:  (opponent, tournament) => `胜 对战 ${opponent} · ${tournament}`,
+    loss: (opponent, tournament) => `负 对战 ${opponent} · ${tournament}`,
+    tbd:  (opponent, tournament) => `对战 ${opponent} · ${tournament}`,
+    fallback: 'OWCS Pacific 第二阶段主赛事将于 2026 年 6 月 4 日开打。',
+  },
+
+  player: {
+    twitter:  'Twitter',
+    twitch:   'Twitch',
+    dnp:      '未出战',
+    inactive: '非现役',
+  },
+
+  skipLink: '跳至主内容',
 };

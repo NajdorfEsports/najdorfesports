@@ -1,11 +1,16 @@
 ---
 import type { MatchEntry } from '../../data/site';
+import { DEFAULT_LOCALE, useT, type Locale } from '../../i18n';
+import { formatDate, translateTournament } from '../../i18n/format';
 
 interface Props {
   matches: ReadonlyArray<MatchEntry>;
   fallback?: string;
 }
-const { matches, fallback = 'OWCS Pacific Stage 2 main event begins June 4, 2026.' } = Astro.props;
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const t = useT(locale);
+
+const { matches, fallback = t.ticker.fallback } = Astro.props;
 
 const now = Date.now();
 
@@ -20,38 +25,34 @@ const items: TickerItem[] = [];
 for (const m of matches) {
   const ts = +new Date(m.date);
   const isPast = ts < now;
-  const dateStr = new Date(m.date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  });
-  // Every ticker item links to the Liquipedia tournament page when known.
-  // Stream URL stays available on the matches page itself via "Watch →".
+  const dateStr = formatDate(m.date, locale, { month: 'short', day: 'numeric' });
+  const tournament = translateTournament(m.tournament, locale);
   const href = m.liquipediaUrl;
   if (!isPast) {
     items.push({
       key: `up-${m.id}`,
-      label: `${dateStr} · vs ${m.opponent} · ${m.tournament}`,
+      label: t.ticker.upcoming(dateStr, m.opponent, tournament),
       variant: 'upcoming',
       href,
     });
   } else if (m.result === 'win') {
     items.push({
       key: `w-${m.id}`,
-      label: `W vs ${m.opponent} · ${m.tournament}`,
+      label: t.ticker.win(m.opponent, tournament),
       variant: 'win',
       href,
     });
   } else if (m.result === 'loss') {
     items.push({
       key: `l-${m.id}`,
-      label: `L vs ${m.opponent} · ${m.tournament}`,
+      label: t.ticker.loss(m.opponent, tournament),
       variant: 'loss',
       href,
     });
   } else {
     items.push({
       key: `tbd-${m.id}`,
-      label: `vs ${m.opponent} · ${m.tournament}`,
+      label: t.ticker.tbd(m.opponent, tournament),
       variant: 'tbd',
       href,
     });

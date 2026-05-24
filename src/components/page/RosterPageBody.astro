@@ -16,6 +16,7 @@ import {
   type Role,
 } from '../../data/site';
 import { DEFAULT_LOCALE, useT, type Locale } from '../../i18n';
+import { displayCountry } from '../../i18n/format';
 
 import rosterAutoData from '../../data/roster.json';
 import rosterManualData from '../../data/roster.manual.json';
@@ -54,6 +55,10 @@ const sections = sectionOrder
   .map((r) => ({ role: r, players: grouped[r]!.sort((a, b) => a.handle.localeCompare(b.handle)) }));
 
 const headcount = roster.filter((p) => p.status !== 'inactive').length;
+
+// Hoist the cast out of the JSX — `<string, string>` in inline TS would
+// confuse Astro's parser into seeing an HTML tag.
+const regionLabel: string = (t.regions as Record<string, string>)[site.region] ?? site.region;
 ---
 <MatchTicker matches={matches} />
 
@@ -78,7 +83,7 @@ const headcount = roster.filter((p) => p.status !== 'inactive').length;
         <dt class="text-[var(--color-text-dim)] uppercase tracking-wider text-[0.65rem]">
           {t.roster.regionLabel}
         </dt>
-        <dd class="font-display text-3xl mt-1 leading-none">{site.region}</dd>
+        <dd class="font-display text-3xl mt-1 leading-none">{regionLabel}</dd>
       </div>
     </dl>
   </div>
@@ -93,7 +98,7 @@ const headcount = roster.filter((p) => p.status !== 'inactive').length;
   {sections.map((section) => (
     <div>
       <div class="flex items-center gap-3 mb-5">
-        <h2 class="font-display text-2xl tracking-wide">{section.role}</h2>
+        <h2 class="font-display text-2xl tracking-wide">{t.roles[section.role] ?? section.role}</h2>
         <span class="flex-1 h-px bg-[var(--color-border)]"></span>
         <span class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] tabular-nums">
           {section.players.length}
