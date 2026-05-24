@@ -31,17 +31,22 @@ npm run preview      # serves ./dist on http://localhost:4321
 | `npm run dev` | Local dev server with HMR. |
 | `npm run build` | Static build to `./dist`. |
 | `npm run preview` | Serves the built site. |
-| `npm run fetch:matches` | One-off Liquipedia pull (writes `src/data/matches.json`). |
+| `npm run fetch:matches` | One-off Liquipedia pull (writes `src/data/{roster,matches,achievements}.json`). |
+| `npm run fetch:heroes` | Refreshes hero icons in `public/heroes/`. |
 | `npm run build:og` | Regenerates `public/branding/og-default.png` from inline SVG. |
+| `npm run deploy` | Build and deploy directly via `wrangler deploy` (bypasses the Pages git integration). |
 
 ## Data files
 
 | Path | Purpose |
 | --- | --- |
-| `src/data/site.ts` | Brand constants, contact, socials, shared TypeScript types. |
-| `src/data/roster.json` | Active roster (placeholder handles at launch). |
+| `src/data/site.ts` | Brand constants, OWCS season metadata, socials, shared TypeScript types, `mergeByKey` helper. |
+| `src/data/roster.json` | Active roster — auto-populated by the Liquipedia fetcher. |
+| `src/data/roster.manual.json` | Manual roster overrides — wins on `handle` collision against `roster.json`. |
 | `src/data/matches.json` | Auto-populated by the Liquipedia fetcher. |
-| `src/data/matches.manual.json` | Manual overrides — wins on `id` collision against `matches.json`. |
+| `src/data/matches.manual.json` | Manual match overrides — wins on `id` collision. |
+| `src/data/achievements.json` | Auto-populated by the Liquipedia fetcher. |
+| `src/data/achievements.manual.json` | Manual achievement overrides — wins on `id` collision. |
 | `src/data/sponsors.json` | Sponsor list. Hidden in the UI when empty. |
 | `src/data/products.ts` | Product catalogue. Empty at launch. |
 | `src/content/news/` | News posts as Markdown (Astro content collection). |
@@ -55,9 +60,11 @@ Output directory: `dist`
 
 ## Liquipedia automation
 
-`.github/workflows/update-matches.yml` defines a workflow that runs `scripts/fetch-liquipedia.mjs` and commits any changes back to `src/data/matches.json`. The cron schedule is **commented out at launch** — enable it once the manual `workflow_dispatch` run has been verified.
+`.github/workflows/update-matches.yml` defines a workflow that runs `scripts/fetch-liquipedia.mjs` and commits any changes back to `src/data/{roster,matches,achievements}.json`. It runs weekly on **Monday 09:07 UTC**, plus on-demand via `workflow_dispatch`.
 
-The fetcher complies with Liquipedia's [API terms of use](https://liquipedia.net/api-terms-of-use): descriptive User-Agent, gzip-aware, rate-limit-respecting, and fail-soft. Match data displayed on `/matches` is attributed to Liquipedia under CC BY-SA 3.0.
+The fetcher complies with Liquipedia's [API terms of use](https://liquipedia.net/api-terms-of-use): descriptive User-Agent, gzip-aware, rate-limit-respecting (one parse per 30s), and fail-soft (leaves the JSON file untouched on any error). Data displayed on the site is attributed to Liquipedia under CC BY-SA 3.0 in the footer and on `/matches` and `/roster`.
+
+Manual corrections live in sibling `*.manual.json` files and win on collision — the auto file is rewritten by the action, so always edit the manual file.
 
 ## Brand
 
@@ -67,8 +74,8 @@ The fetcher complies with Liquipedia's [API terms of use](https://liquipedia.net
 | Secondary | `#C9A227` (tarnished gold) |
 | Background | `#0B0B0F` (near-black, never pure black) |
 | Body | `#E9ECF1` |
-| Display font | Anton (Google Fonts) |
-| Body font | Inter (Google Fonts) |
+| Display font | Anton (self-hosted from `/fonts/`, SIL OFL 1.1) |
+| Body font | Inter (self-hosted from `/fonts/`, SIL OFL 1.1) |
 
 See `src/styles/tokens.css` for the full palette and `src/styles/global.css` for Tailwind theme bindings.
 
