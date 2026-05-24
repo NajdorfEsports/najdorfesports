@@ -2,6 +2,7 @@
 import PlayerAvatar from './PlayerAvatar.astro';
 import CountryFlag from './CountryFlag.astro';
 import Badge from '../ui/Badge.astro';
+import heroIcons from '../../data/heroes.json';
 import type { RosterEntry } from '../../data/site';
 
 interface Props {
@@ -43,98 +44,126 @@ const age = ageFromBirth(player.birthDate);
 const allRoles = [player.role, ...(player.altRoles ?? [])].filter(
   (r, i, a) => a.indexOf(r) === i,
 );
+
+// Resolve signature heroes to icon URLs. Heroes we don't have an icon for
+// are silently dropped — no fallback letter cluttering the backdrop.
+const heroMap = heroIcons as Record<string, string>;
+const backdropHeroes = (player.signatureHeroes ?? [])
+  .map((name) => ({ name, iconUrl: heroMap[name] }))
+  .filter((h): h is { name: string; iconUrl: string } => !!h.iconUrl)
+  .slice(0, 4);
+const hasBackdrop = backdropHeroes.length > 0;
 ---
 <article
   class:list={[
-    'player-card relative bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5 flex flex-col items-center text-center shadow-[var(--shadow-card)]',
+    'player-card relative bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5 flex flex-col items-center text-center shadow-[var(--shadow-card)] isolate overflow-hidden',
     isDnp || isInactive ? 'player-card--muted' : '',
+    hasBackdrop ? 'player-card--has-backdrop' : '',
   ]}
   style={`--accent:${accent};--stagger:${index};`}
 >
+  {hasBackdrop && (
+    <>
+      <div class="player-card__backdrop" aria-hidden="true">
+        {backdropHeroes.map((h) => (
+          <span
+            class="player-card__hero"
+            style={`background-image: url('${h.iconUrl}');`}
+            data-hero={h.name}
+          ></span>
+        ))}
+      </div>
+      <div class="player-card__overlay" aria-hidden="true"></div>
+    </>
+  )}
+
   <span class="player-card__rail" aria-hidden="true"></span>
 
   {(isDnp || isInactive) && (
-    <span class="absolute top-3 right-3 max-w-[60%] text-right">
+    <span class="absolute top-3 right-3 max-w-[60%] text-right z-10">
       <Badge tone="neutral">{player.statusNote ?? (isDnp ? 'DNP' : 'Inactive')}</Badge>
     </span>
   )}
 
-  <PlayerAvatar
-    handle={player.handle}
-    photo={player.photo}
-    heroes={player.signatureHeroes}
-    size="lg"
-  />
+  <div class="player-card__content relative z-10 flex flex-col items-center w-full">
+    <PlayerAvatar handle={player.handle} photo={player.photo} size="lg" />
 
-  <h3 class="font-display text-2xl sm:text-3xl mt-4 tracking-wide leading-none">
-    {cardLink ? (
-      <a
-        href={cardLink}
-        target="_blank"
-        rel="noopener"
-        class="player-card__handle hover:underline underline-offset-4 decoration-[var(--accent)]"
-      >
-        {player.handle}
-      </a>
-    ) : (
-      player.handle
-    )}
-  </h3>
-
-  {(player.realName || age !== null) && (
-    <p class="text-sm text-[var(--color-text-dim)] mt-1.5">
-      {player.realName}
-      {player.realName && age !== null && ' · '}
-      {age !== null && (
-        <span class="tabular-nums">{age}</span>
-      )}
-    </p>
-  )}
-
-  <div class="mt-3 flex items-center gap-2 text-xs uppercase tracking-wider flex-wrap justify-center">
-    {allRoles.map((r) => {
-      const a = roleAccent[r] ?? accent;
-      return (
-        <span
-          class="px-2 py-0.5 rounded-sm border font-semibold"
-          style={`color: ${a}; border-color: ${a};`}
+    <h3 class="font-display text-2xl sm:text-3xl mt-4 tracking-wide leading-none">
+      {cardLink ? (
+        <a
+          href={cardLink}
+          target="_blank"
+          rel="noopener"
+          class="player-card__handle hover:underline underline-offset-4 decoration-[var(--accent)]"
         >
-          {r}
+          {player.handle}
+        </a>
+      ) : (
+        player.handle
+      )}
+    </h3>
+
+    {(player.realName || age !== null) && (
+      <p class="text-sm text-[var(--color-text-dim)] mt-1.5">
+        {player.realName}
+        {player.realName && age !== null && ' · '}
+        {age !== null && (
+          <span class="tabular-nums">{age}</span>
+        )}
+      </p>
+    )}
+
+    <div class="mt-3 flex items-center gap-2 text-xs uppercase tracking-wider flex-wrap justify-center">
+      {allRoles.map((r) => {
+        const a = roleAccent[r] ?? accent;
+        return (
+          <span
+            class="px-2 py-0.5 rounded-sm border font-semibold bg-[var(--color-bg)]/60 backdrop-blur-sm"
+            style={`color: ${a}; border-color: ${a};`}
+          >
+            {r}
+          </span>
+        );
+      })}
+      {hasCountry && (
+        <span class="flex items-center gap-1.5 text-[var(--color-text-dim)] ml-1">
+          <CountryFlag code={player.countryCode} name={player.country} size="md" />
+          <span class="text-[0.7rem]">{player.country}</span>
         </span>
-      );
-    })}
-    {hasCountry && (
-      <span class="flex items-center gap-1.5 text-[var(--color-text-dim)] ml-1">
-        <CountryFlag code={player.countryCode} name={player.country} size="md" />
-        <span class="text-[0.7rem]">{player.country}</span>
-      </span>
-    )}
-  </div>
-
-  {(player.twitter || player.twitch) && (
-    <div class="mt-3 flex items-center gap-3 text-[0.7rem] uppercase tracking-wider text-[var(--color-text-dim)]">
-      {player.twitter && (
-        <a
-          href={player.twitter}
-          target="_blank"
-          rel="noopener"
-          class="hover:text-[var(--color-accent-2)] transition-colors"
-        >
-          Twitter
-        </a>
-      )}
-      {player.twitch && (
-        <a
-          href={player.twitch}
-          target="_blank"
-          rel="noopener"
-          class="hover:text-[var(--color-accent-2)] transition-colors"
-        >
-          Twitch
-        </a>
       )}
     </div>
-  )}
+
+    {hasBackdrop && (
+      <p class="mt-3 text-[0.6rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)]">
+        {backdropHeroes.map((h) => h.name).join(' · ')}
+      </p>
+    )}
+
+    {(player.twitter || player.twitch) && (
+      <div class="mt-3 flex items-center gap-3 text-[0.7rem] uppercase tracking-wider text-[var(--color-text-dim)]">
+        {player.twitter && (
+          <a
+            href={player.twitter}
+            target="_blank"
+            rel="noopener"
+            class="hover:text-[var(--color-accent-2)] transition-colors"
+          >
+            Twitter
+          </a>
+        )}
+        {player.twitch && (
+          <a
+            href={player.twitch}
+            target="_blank"
+            rel="noopener"
+            class="hover:text-[var(--color-accent-2)] transition-colors"
+          >
+            Twitch
+          </a>
+        )}
+      </div>
+    )}
+  </div>
 </article>
 
 <style>
@@ -142,7 +171,7 @@ const allRoles = [player.role, ...(player.altRoles ?? [])].filter(
     transition: transform 0.2s ease-out, border-color 0.2s ease-out, box-shadow 0.2s ease-out;
     animation: card-rise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
     animation-delay: calc(var(--stagger, 0) * 70ms);
-    overflow: hidden;
+    min-height: 320px;
   }
 
   .player-card:hover {
@@ -153,6 +182,70 @@ const allRoles = [player.role, ...(player.altRoles ?? [])].filter(
       0 12px 40px -12px color-mix(in oklab, var(--accent) 50%, transparent);
   }
 
+  /* Hero backdrop — vertical strips with soft edge masks for a poster blend.
+     Lives behind the content via z-index. */
+  .player-card__backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: flex;
+    border-radius: inherit;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .player-card__hero {
+    flex: 1;
+    background-size: cover;
+    background-position: 50% 18%;
+    background-repeat: no-repeat;
+    /* Feather the inner edges so adjacent heroes blend rather than collide */
+    mask-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      black 12%,
+      black 88%,
+      transparent 100%
+    );
+  }
+  /* Outer edges of the strip stay solid against the card edge */
+  .player-card__hero:first-child {
+    mask-image: linear-gradient(90deg, black 0%, black 88%, transparent 100%);
+  }
+  .player-card__hero:last-child {
+    mask-image: linear-gradient(90deg, transparent 0%, black 12%, black 100%);
+  }
+  .player-card__hero:only-child {
+    mask-image: none;
+  }
+
+  /* Dark gradient overlay: lighter at top so faces show, darker at bottom for text */
+  .player-card__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    background:
+      radial-gradient(
+        ellipse 80% 50% at 50% 28%,
+        rgba(11, 11, 15, 0.35) 0%,
+        rgba(11, 11, 15, 0.78) 60%,
+        rgba(11, 11, 15, 0.95) 100%
+      );
+    pointer-events: none;
+  }
+
+  /* Subtle hover tweak: ease the overlay so heroes brighten a touch */
+  .player-card--has-backdrop:hover .player-card__overlay {
+    background:
+      radial-gradient(
+        ellipse 80% 50% at 50% 28%,
+        rgba(11, 11, 15, 0.25) 0%,
+        rgba(11, 11, 15, 0.72) 60%,
+        rgba(11, 11, 15, 0.95) 100%
+      );
+  }
+
   .player-card__rail {
     position: absolute;
     inset: 0 auto 0 0;
@@ -160,6 +253,7 @@ const allRoles = [player.role, ...(player.altRoles ?? [])].filter(
     background: var(--accent);
     opacity: 0;
     transition: opacity 0.2s ease-out;
+    z-index: 2;
   }
 
   .player-card:hover .player-card__rail {
@@ -201,6 +295,15 @@ const allRoles = [player.role, ...(player.altRoles ?? [])].filter(
     }
     .player-card:hover {
       transform: none;
+    }
+    .player-card--has-backdrop:hover .player-card__overlay {
+      background:
+        radial-gradient(
+          ellipse 80% 50% at 50% 28%,
+          rgba(11, 11, 15, 0.35) 0%,
+          rgba(11, 11, 15, 0.78) 60%,
+          rgba(11, 11, 15, 0.95) 100%
+        );
     }
   }
 </style>

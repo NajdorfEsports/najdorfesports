@@ -47,13 +47,21 @@ function slugify(heroName) {
     .replace(/[^a-z0-9-]/g, '');
 }
 
-/** Liquipedia stores hero concept art under File:<HeroName>_concept.png. */
-function fileTitle(heroName) {
-  return `File:${heroName.replace(/ /g, '_')}_concept.png`;
+/**
+ * Liquipedia uses two naming conventions: older heroes have
+ * <HeroName>_concept.png, newer heroes use <HeroName>_full_portrait.png.
+ * We try both in priority order — first hit wins.
+ */
+function fileTitleCandidates(heroName) {
+  const base = heroName.replace(/ /g, '_');
+  return [
+    `File:${base}_concept.png`,
+    `File:${base}_full_portrait.png`,
+  ];
 }
 
-async function fetchHeroIconUrl(heroName) {
-  const url = `${API}?action=query&titles=${encodeURIComponent(fileTitle(heroName))}&prop=imageinfo&iiprop=url&iiurlwidth=${ICON_WIDTH}&format=json`;
+async function fetchOneImageInfo(title) {
+  const url = `${API}?action=query&titles=${encodeURIComponent(title)}&prop=imageinfo&iiprop=url&iiurlwidth=${ICON_WIDTH}&format=json`;
   const res = await fetch(url, {
     headers: {
       'User-Agent': USER_AGENT,
@@ -69,6 +77,16 @@ async function fetchHeroIconUrl(heroName) {
   // commons repo. We trust imageinfo presence as the real signal.
   const info = page?.imageinfo?.[0];
   return info?.thumburl ?? info?.url ?? null;
+}
+
+async function fetchHeroIconUrl(heroName) {
+  const candidates = fileTitleCandidates(heroName);
+  for (let i = 0; i < candidates.length; i += 1) {
+    if (i > 0) await sleep(QUERY_INTERVAL_MS);
+    const url = await fetchOneImageInfo(candidates[i]);
+    if (url) return url;
+  }
+  return null;
 }
 
 async function downloadTo(filePath, url) {
