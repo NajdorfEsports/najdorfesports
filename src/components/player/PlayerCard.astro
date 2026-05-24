@@ -207,6 +207,24 @@ const hasBackdrop = backdropHeroes.length > 0;
       black 88%,
       transparent 100%
     );
+    /* Cinematic zoom on hover. Each strip gets a slightly different
+       transform-origin via :nth-child below so the heroes don't all
+       move in lockstep — it reads like a poster gently breathing. */
+    transform-origin: 50% 30%;
+    transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+  }
+  .player-card__hero:nth-child(1) { transform-origin: 30% 35%; }
+  .player-card__hero:nth-child(2) { transform-origin: 50% 30%; }
+  .player-card__hero:nth-child(3) { transform-origin: 70% 35%; }
+  .player-card__hero:nth-child(4) { transform-origin: 85% 30%; }
+
+  .player-card:hover .player-card__hero {
+    transform: scale(1.08);
+  }
+  .player-card:hover .player-card__hero:nth-child(2) {
+    /* Middle hero leads with a hair more zoom + a touch of vertical drift */
+    transform: scale(1.1) translateY(-2px);
   }
   /* Outer edges of the strip stay solid against the card edge */
   .player-card__hero:first-child {
@@ -233,17 +251,42 @@ const hasBackdrop = backdropHeroes.length > 0;
         rgba(11, 11, 15, 0.95) 100%
       );
     pointer-events: none;
+    /* Smooth dimming via opacity rather than the un-animatable bg property */
+    transition: opacity 450ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* Subtle hover tweak: ease the overlay so heroes brighten a touch */
+  /* On hover the overlay dims slightly so the hero backdrop "breathes" */
   .player-card--has-backdrop:hover .player-card__overlay {
-    background:
-      radial-gradient(
-        ellipse 80% 50% at 50% 28%,
-        rgba(11, 11, 15, 0.25) 0%,
-        rgba(11, 11, 15, 0.72) 60%,
-        rgba(11, 11, 15, 0.95) 100%
-      );
+    opacity: 0.82;
+  }
+
+  /* Diagonal shine sweep — one-shot streak from upper-left to lower-right
+     when the cursor enters. Inspired by Apple product card hovers. */
+  .player-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: inherit;
+    background: linear-gradient(
+      115deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.06) 48%,
+      rgba(255, 255, 255, 0.12) 50%,
+      rgba(255, 255, 255, 0.06) 52%,
+      transparent 70%
+    );
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(-110%);
+    transition: transform 0s linear, opacity 0s linear;
+  }
+  .player-card:hover::before {
+    opacity: 1;
+    transform: translateX(110%);
+    transition:
+      transform 1.4s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.3s ease-out;
   }
 
   .player-card__rail {
@@ -262,11 +305,17 @@ const hasBackdrop = backdropHeroes.length > 0;
 
   .player-card__handle {
     color: inherit;
-    transition: color 0.15s ease-out;
+    transition:
+      color 0.15s ease-out,
+      text-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .player-card:hover .player-card__handle {
     color: var(--accent);
+    /* Soft accent halo — picks up the role color set on the card */
+    text-shadow:
+      0 0 18px color-mix(in oklab, var(--accent) 55%, transparent),
+      0 0 36px color-mix(in oklab, var(--accent) 25%, transparent);
   }
 
   .player-card--muted {
@@ -289,21 +338,30 @@ const hasBackdrop = backdropHeroes.length > 0;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .player-card {
-      animation: none;
-      transition: border-color 0.2s ease-out;
+    .player-card,
+    .player-card__hero,
+    .player-card__overlay,
+    .player-card__handle,
+    .player-card::before {
+      animation: none !important;
+      transition: border-color 0.2s ease-out !important;
     }
     .player-card:hover {
       transform: none;
     }
+    .player-card:hover .player-card__hero,
+    .player-card:hover .player-card__hero:nth-child(2) {
+      transform: none;
+    }
+    .player-card:hover::before {
+      opacity: 0;
+      transform: translateX(-110%);
+    }
+    .player-card:hover .player-card__handle {
+      text-shadow: none;
+    }
     .player-card--has-backdrop:hover .player-card__overlay {
-      background:
-        radial-gradient(
-          ellipse 80% 50% at 50% 28%,
-          rgba(11, 11, 15, 0.35) 0%,
-          rgba(11, 11, 15, 0.78) 60%,
-          rgba(11, 11, 15, 0.95) 100%
-        );
+      opacity: 1;
     }
   }
 </style>
