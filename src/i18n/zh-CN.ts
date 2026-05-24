@@ -60,5 +60,12 @@ export const zhCN: Strings = {
     contactHeading: '{{TODO_zhCN: Contact}}',
     contactNote:    '{{TODO_zhCN: For partnerships, press, or player inquiries, email the address above.}}',
   },
+  live: {
+    liveNow:      '{{TODO_zhCN: LIVE NOW}}',
+    startsIn:     '{{TODO_zhCN: Starts in}}',
+    vs:           '{{TODO_zhCN: vs}}',
+    watchNow:     '{{TODO_zhCN: WATCH NOW}}',
+    openOnTwitch: '{{TODO_zhCN: Open on Twitch}}',
+  },
   skipLink: '{{TODO_zhCN: Skip to main content}}',
 };

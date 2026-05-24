@@ -7,6 +7,7 @@
 import OWCSBadge from '../ui/OWCSBadge.astro';
 import NextMatchCountdown from '../match/NextMatchCountdown.astro';
 import MatchTicker from '../match/MatchTicker.astro';
+import LiveHero from '../match/LiveHero.astro';
 import RosterPreview from '../team/RosterPreview.astro';
 import AchievementStrip from '../team/AchievementStrip.astro';
 import SponsorsRow from '../team/SponsorsRow.astro';
@@ -57,6 +58,16 @@ const recent3 = past.slice(0, 3);
 
 const nextMatch = upcoming[0];
 
+// Live hero candidate: the most recent match still within the +3h post-window,
+// otherwise the next upcoming match. The script ultimately decides whether
+// to enter live mode; the server just hands it the best candidate it has at
+// build time. Pages are short-cached on the edge so this stays fresh enough.
+const LIVE_POST_MS = 3 * 60 * 60 * 1000;
+const inProgress = past.find(
+  (m) => new Date(m.date).getTime() > now - LIVE_POST_MS,
+);
+const liveCandidate = inProgress ?? nextMatch;
+
 // News is English-only per spec, so we don't filter by locale.
 const newsPosts = (await getCollection('news', ({ data }) => !data.draft))
   .sort((a, b) => +b.data.date - +a.data.date)
@@ -80,7 +91,13 @@ const newsHref    = '/news/';
 ---
 <MatchTicker matches={allMatches} />
 
-<section class="relative overflow-hidden">
+{/*
+  Two heroes share this slot: the always-rendered default and the
+  hidden-by-default live mode. A small inline script in <LiveHero/> swaps
+  them when current time falls in [match - 30m, match + 3h]. Both are
+  server-rendered so there is no FOUC and SEO crawlers see the default.
+*/}
+<section data-hero-default class="relative overflow-hidden">
   <div class="absolute inset-0 bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg)] opacity-80" aria-hidden="true"></div>
   <div class="relative mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12 sm:pt-20 pb-12">
     <p class="font-display text-5xl sm:text-7xl md:text-8xl tracking-tight leading-none">
@@ -117,6 +134,8 @@ const newsHref    = '/news/';
     </div>
   </div>
 </section>
+
+<LiveHero match={liveCandidate} />
 
 <section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 -mt-4">
   <OWCSBadge prominent />

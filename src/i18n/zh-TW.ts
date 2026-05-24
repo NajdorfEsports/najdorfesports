@@ -60,5 +60,12 @@ export const zhTW: Strings = {
     contactHeading: '{{TODO_zhTW: Contact}}',
     contactNote:    '{{TODO_zhTW: For partnerships, press, or player inquiries, email the address above.}}',
   },
+  live: {
+    liveNow:      '{{TODO_zhTW: LIVE NOW}}',
+    startsIn:     '{{TODO_zhTW: Starts in}}',
+    vs:           '{{TODO_zhTW: vs}}',
+    watchNow:     '{{TODO_zhTW: WATCH NOW}}',
+    openOnTwitch: '{{TODO_zhTW: Open on Twitch}}',
+  },
   skipLink: '{{TODO_zhTW: Skip to main content}}',
 };

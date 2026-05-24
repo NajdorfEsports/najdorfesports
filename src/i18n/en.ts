@@ -58,6 +58,13 @@ export const en = {
     contactHeading: 'Contact',
     contactNote: 'For partnerships, press, or player inquiries, email the address above.',
   },
+  live: {
+    liveNow: 'LIVE NOW',
+    startsIn: 'Starts in',
+    vs: 'vs',
+    watchNow: 'WATCH NOW',
+    openOnTwitch: 'Open on Twitch',
+  },
   skipLink: 'Skip to main content',
 } as const;
 
