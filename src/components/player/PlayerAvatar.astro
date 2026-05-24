@@ -1,13 +1,16 @@
 ---
+import { hasPortrait, portraitPath } from '../../data/roster-portraits';
+
 interface Props {
   handle: string;
-  photo?: string;
-  size?: 'sm' | 'md' | 'lg';
+  /** Pixel size for the 1x render. Component emits a 2x srcset variant. */
+  size?: number;
 }
 
-const { handle, photo, size = 'md' } = Astro.props;
+const { handle, size = 96 } = Astro.props;
 
-const px = { sm: 56, md: 96, lg: 144 }[size];
+const px = size;
+const px2x = size * 2;
 
 function hashHue(s: string) {
   let h = 0;
@@ -25,14 +28,19 @@ const initials = handle
   .join('');
 
 const gradient = `linear-gradient(135deg, hsl(${hue} 50% 22%) 0%, hsl(${(hue + 40) % 360} 60% 12%) 100%)`;
+
+const showPortrait = hasPortrait(handle);
+const src = portraitPath(handle);
 ---
-{photo ? (
+{showPortrait ? (
   <img
-    src={photo}
-    alt=""
+    src={src}
+    srcset={`${src} 2x`}
+    alt={handle}
     width={px}
     height={px}
     loading="lazy"
+    decoding="async"
     class="rounded-full object-cover border border-[var(--color-border)]"
     style={`width:${px}px;height:${px}px;`}
   />
