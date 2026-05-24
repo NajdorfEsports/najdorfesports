@@ -20,7 +20,7 @@ const {
   canonical,
 } = Astro.props;
 
-const fullTitle = title === site.name ? title : `${title} — ${site.name}`;
+const fullTitle = title === site.name ? title : `${title} · ${site.name}`;
 const canonicalUrl = canonical ?? new URL(Astro.url.pathname, site.url).toString();
 const ogImageUrl = new URL(ogImage, site.url).toString();
 ---
@@ -41,7 +41,7 @@ const ogImageUrl = new URL(ogImage, site.url).toString();
     <link
       rel="alternate"
       type="application/rss+xml"
-      title={`${site.name} — News`}
+      title={`${site.name} · News`}
       href="/feed.xml"
     />
     <meta name="theme-color" content="#0B0B0F" />

@@ -6,7 +6,7 @@ export const site = {
   yearFounded: 2026,
   region: 'Pacific',
   description:
-    'Najdorf Esports is a competitive Overwatch organization headquartered in the Pacific region, competing in OWCS Pacific.',
+    'Najdorf Esports is an Overwatch organization based in the Pacific region. Competing in OWCS Pacific.',
 } as const;
 
 export const owcs = {
@@ -15,7 +15,7 @@ export const owcs = {
   year: 2026,
   mainEventStart: '2026-06-04',
   mainEventEnd: '2026-07-09',
-  badgeLine: 'Competing in OWCS Pacific Stage 2 — June 4 – July 9, 2026',
+  badgeLine: 'OWCS Pacific Stage 2 main event runs June 4 to July 9, 2026',
 } as const;
 
 // Fill these in as accounts are confirmed. Any URL left as 'TODO' will be

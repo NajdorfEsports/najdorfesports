@@ -5,7 +5,7 @@ interface Props {
   matches: ReadonlyArray<MatchEntry>;
   fallback?: string;
 }
-const { matches, fallback = 'OWCS Pacific Stage 2 — main event begins June 4, 2026.' } = Astro.props;
+const { matches, fallback = 'OWCS Pacific Stage 2 main event begins June 4, 2026.' } = Astro.props;
 
 const now = Date.now();
 
@@ -27,7 +27,7 @@ for (const m of matches) {
   if (!isPast) {
     items.push({
       key: `up-${m.id}`,
-      label: `${dateStr} — vs ${m.opponent} · ${m.tournament}`,
+      label: `${dateStr} · vs ${m.opponent} · ${m.tournament}`,
       variant: 'upcoming',
       href: m.streamUrl,
     });

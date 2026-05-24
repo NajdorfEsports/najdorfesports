@@ -72,7 +72,7 @@ const jsonLd = {
 ---
 <BaseLayout
   title="Roster"
-  description={`The ${site.name} active OWCS Pacific roster. ${headcount} players from ${countries.join(', ')}.`}
+  description={`The ${site.name} active OWCS Pacific roster. ${headcount} players across ${countries.join(', ')}.`}
   jsonLd={jsonLd}
 >
   <MatchTicker matches={matches} />
@@ -99,8 +99,8 @@ const jsonLd = {
       </dl>
     </div>
     <p class="text-[var(--color-text-dim)] mt-4 max-w-2xl">
-      Roster data flows in automatically from Liquipedia and is reconciled against
-      our own records. Tap a handle to read the player's full profile.
+      Roster pulled from Liquipedia every six hours. Click a handle to open
+      the player's Liquipedia page.
     </p>
   </section>
 
