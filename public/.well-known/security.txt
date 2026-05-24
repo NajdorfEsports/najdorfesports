@@ -1,0 +1,7 @@
+Contact: mailto:owner@najdorfesports.gg
+Expires: 2027-05-23T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://najdorfesports.gg/.well-known/security.txt
+# Najdorf Esports — security disclosures
+# Please email coordinated vulnerability reports to the contact above.
+# We are a small org and will reply within five business days.
