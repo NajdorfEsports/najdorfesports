@@ -1,0 +1,88 @@
+---
+import type { Sponsor } from '../../data/site';
+
+interface Props {
+  sponsors: ReadonlyArray<Sponsor>;
+  heading?: string;
+}
+const { sponsors, heading = 'Partners' } = Astro.props;
+
+if (sponsors.length === 0) {
+  // Conditional render: stay invisible until a sponsor signs.
+  // The plan explicitly calls for this empty-state behavior.
+}
+
+const tiers = ['primary', 'partner', 'community'] as const;
+const grouped: Partial<Record<typeof tiers[number] | 'unranked', Sponsor[]>> = {};
+for (const s of sponsors) {
+  const t = (s.tier ?? 'unranked') as 'primary' | 'partner' | 'community' | 'unranked';
+  (grouped[t] ??= []).push(s);
+}
+
+const sizeByTier: Record<string, string> = {
+  primary: 'h-16 sm:h-20 grayscale hover:grayscale-0',
+  partner: 'h-10 sm:h-12 grayscale hover:grayscale-0',
+  community: 'h-8 grayscale hover:grayscale-0',
+  unranked: 'h-12 grayscale hover:grayscale-0',
+};
+---
+{sponsors.length > 0 && (
+  <section
+    class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16"
+    aria-label="Sponsors"
+  >
+    <p class="text-xs uppercase tracking-[0.25em] text-[var(--color-text-dim)] mb-6 text-center">
+      {heading}
+    </p>
+    <div class="space-y-8">
+      {tiers.map((tier) => {
+        const list = grouped[tier];
+        if (!list || list.length === 0) return null;
+        return (
+          <ul class={`flex flex-wrap items-center justify-center gap-x-${tier === 'primary' ? '12' : '8'} gap-y-6`}>
+            {list.map((s) => (
+              <li>
+                <a
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener sponsored"
+                  aria-label={s.name}
+                  class="block opacity-80 hover:opacity-100 transition-opacity"
+                >
+                  <img
+                    src={s.logo}
+                    alt={s.name}
+                    loading="lazy"
+                    class={`w-auto ${sizeByTier[tier]} transition-[filter] duration-200`}
+                  />
+                </a>
+              </li>
+            ))}
+          </ul>
+        );
+      })}
+      {grouped.unranked && (
+        <ul class="flex flex-wrap items-center justify-center gap-x-8 gap-y-6">
+          {grouped.unranked.map((s) => (
+            <li>
+              <a
+                href={s.url}
+                target="_blank"
+                rel="noopener sponsored"
+                aria-label={s.name}
+                class="block opacity-80 hover:opacity-100 transition-opacity"
+              >
+                <img
+                  src={s.logo}
+                  alt={s.name}
+                  loading="lazy"
+                  class={`w-auto ${sizeByTier.unranked} transition-[filter] duration-200`}
+                />
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </section>
+)}

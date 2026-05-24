@@ -2,16 +2,16 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import MatchCard from '../components/match/MatchCard.astro';
 import MatchEmptyState from '../components/match/EmptyState.astro';
-import { site, owcs, type MatchEntry } from '../data/site';
+import MatchTicker from '../components/match/MatchTicker.astro';
+import { mergeByKey, site, owcs, type MatchEntry } from '../data/site';
 import autoMatchesData from '../data/matches.json';
 import manualMatchesData from '../data/matches.manual.json';
 
-const autoMatches = autoMatchesData as MatchEntry[];
-const manualMatches = manualMatchesData as MatchEntry[];
-const byId = new Map<string, MatchEntry>();
-for (const m of autoMatches) byId.set(m.id, m);
-for (const m of manualMatches) byId.set(m.id, m);
-const allMatches = Array.from(byId.values());
+const allMatches = mergeByKey(
+  autoMatchesData as MatchEntry[],
+  manualMatchesData as MatchEntry[],
+  'id',
+);
 
 const now = Date.now();
 const upcoming = allMatches
@@ -20,6 +20,18 @@ const upcoming = allMatches
 const past = allMatches
   .filter((m) => new Date(m.date).getTime() < now)
   .sort((a, b) => +new Date(b.date) - +new Date(a.date));
+
+// Group past matches by tournament so each stage has its own section.
+const pastByTournament = new Map<string, MatchEntry[]>();
+for (const m of past) {
+  const arr = pastByTournament.get(m.tournament) ?? [];
+  arr.push(m);
+  pastByTournament.set(m.tournament, arr);
+}
+
+const wins = past.filter((m) => m.result === 'win').length;
+const losses = past.filter((m) => m.result === 'loss').length;
+const recordLine = wins + losses > 0 ? `${wins}W – ${losses}L` : null;
 
 const jsonLd = upcoming.map((m) => ({
   '@context': 'https://schema.org',
@@ -41,13 +53,45 @@ const jsonLd = upcoming.map((m) => ({
   description={`Upcoming matches and recent results for ${site.name} in ${owcs.league}.`}
   jsonLd={jsonLd.length > 0 ? jsonLd : undefined}
 >
+  <MatchTicker matches={allMatches} />
+
   <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12">
-    <p class="text-sm uppercase tracking-wider text-[var(--color-accent-2)]">Schedule</p>
-    <h1 class="font-display text-4xl sm:text-5xl mt-2 tracking-wide">Matches</h1>
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+      <div>
+        <p class="text-xs uppercase tracking-[0.25em] text-[var(--color-accent-2)]">
+          Schedule · {owcs.league} {owcs.year}
+        </p>
+        <h1 class="font-display text-5xl sm:text-6xl mt-2 tracking-tight leading-none">
+          Matches
+        </h1>
+      </div>
+      {(recordLine || upcoming.length > 0) && (
+        <dl class="flex items-center gap-8 text-sm">
+          {upcoming.length > 0 && (
+            <div>
+              <dt class="text-[var(--color-text-dim)] uppercase tracking-wider text-[0.65rem]">Upcoming</dt>
+              <dd class="font-display text-3xl mt-1 leading-none tabular-nums">{upcoming.length}</dd>
+            </div>
+          )}
+          {recordLine && (
+            <div>
+              <dt class="text-[var(--color-text-dim)] uppercase tracking-wider text-[0.65rem]">Record</dt>
+              <dd class="font-display text-3xl mt-1 leading-none tabular-nums">{recordLine}</dd>
+            </div>
+          )}
+        </dl>
+      )}
+    </div>
   </section>
 
-  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10">
-    <h2 class="font-display text-2xl tracking-wide mb-4">Upcoming</h2>
+  <section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10">
+    <div class="flex items-center gap-3 mb-5">
+      <h2 class="font-display text-2xl tracking-wide">Upcoming</h2>
+      <span class="flex-1 h-px bg-[var(--color-border)]"></span>
+      <span class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] tabular-nums">
+        {upcoming.length}
+      </span>
+    </div>
     {upcoming.length > 0 ? (
       <div class="space-y-3">
         {upcoming.map((m) => <MatchCard match={m} />)}
@@ -57,25 +101,40 @@ const jsonLd = upcoming.map((m) => ({
     )}
   </section>
 
-  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12">
-    <h2 class="font-display text-2xl tracking-wide mb-4">Past Results</h2>
-    {past.length > 0 ? (
-      <div class="space-y-3">
-        {past.map((m) => <MatchCard match={m} />)}
+  {past.length > 0 ? (
+    Array.from(pastByTournament.entries()).map(([tournament, matches]) => (
+      <section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12">
+        <div class="flex items-center gap-3 mb-5">
+          <h2 class="font-display text-2xl tracking-wide">{tournament}</h2>
+          <span class="flex-1 h-px bg-[var(--color-border)]"></span>
+          <span class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] tabular-nums">
+            {matches.filter((x) => x.result === 'win').length}W – {matches.filter((x) => x.result === 'loss').length}L
+          </span>
+        </div>
+        <div class="space-y-3">
+          {matches.map((m) => <MatchCard match={m} />)}
+        </div>
+      </section>
+    ))
+  ) : (
+    <section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12">
+      <div class="flex items-center gap-3 mb-5">
+        <h2 class="font-display text-2xl tracking-wide">Past Results</h2>
+        <span class="flex-1 h-px bg-[var(--color-border)]"></span>
       </div>
-    ) : (
       <MatchEmptyState variant="past" />
-    )}
-  </section>
+    </section>
+  )}
 
-  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12 text-xs text-[var(--color-text-dim)]">
+  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16 text-xs text-[var(--color-text-dim)]">
     <p>
       Match data sourced from
       {' '}
-      <a href="https://liquipedia.net/overwatch/" target="_blank" rel="noopener" class="text-[var(--color-accent-2)] hover:underline">Liquipedia</a>,
+      <a href="https://liquipedia.net/overwatch/" target="_blank" rel="noopener" class="link-slide text-[var(--color-accent-2)]">Liquipedia</a>,
       available under
       {' '}
-      <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener" class="text-[var(--color-accent-2)] hover:underline">CC BY-SA 3.0</a>.
+      <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener" class="link-slide text-[var(--color-accent-2)]">CC BY-SA 3.0</a>.
+      Schedule refreshes every 6 hours.
     </p>
   </section>
 </BaseLayout>

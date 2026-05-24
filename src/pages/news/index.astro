@@ -21,7 +21,7 @@ const posts = (await getCollection('news', ({ data }) => !data.draft))
         class="block bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 hover:border-[var(--color-accent-2)] transition-colors"
       >
         <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
-          {post.data.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+          {post.data.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}
         </p>
         <h2 class="font-display text-2xl sm:text-3xl mt-2 tracking-wide">{post.data.title}</h2>
         {post.data.description && (

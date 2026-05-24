@@ -5,6 +5,7 @@ import NextMatchCountdown from '../components/match/NextMatchCountdown.astro';
 import MatchTicker from '../components/match/MatchTicker.astro';
 import RosterPreview from '../components/team/RosterPreview.astro';
 import AchievementStrip from '../components/team/AchievementStrip.astro';
+import SponsorsRow from '../components/team/SponsorsRow.astro';
 import Button from '../components/ui/Button.astro';
 import { getCollection } from 'astro:content';
 import {
@@ -21,6 +22,7 @@ import rosterAutoData from '../data/roster.json';
 import rosterManualData from '../data/roster.manual.json';
 import achievementsAutoData from '../data/achievements.json';
 import achievementsManualData from '../data/achievements.manual.json';
+import sponsorsData from '../data/sponsors.json';
 
 const allMatches = mergeByKey(
   autoMatchesData as MatchEntry[],
@@ -192,6 +194,10 @@ const jsonLd = {
     <AchievementStrip achievements={achievements} />
   </div>
 
+  <div class="reveal">
+    <SponsorsRow sponsors={sponsorsData as any} />
+  </div>
+
   <section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16">
     <div class="flex items-end justify-between mb-6">
       <h2 class="font-display text-3xl sm:text-4xl tracking-wide">Latest</h2>
@@ -208,7 +214,7 @@ const jsonLd = {
           data-stagger={i + 1}
         >
           <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
-            {post.data.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            {post.data.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}
           </p>
           <h3 class="font-display text-2xl mt-2 tracking-wide group-hover:text-[var(--color-accent-2)] transition-colors">
             {post.data.title}

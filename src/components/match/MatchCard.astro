@@ -53,8 +53,13 @@ const aggregate = match.mapScores?.reduce(
       {match.streamUrl && (
         <>
           {' · '}
-          <a href={match.streamUrl} target="_blank" rel="noopener" class="text-[var(--color-accent-2)] hover:underline">
-            Watch
+          <a
+            href={match.streamUrl}
+            target="_blank"
+            rel="noopener"
+            class="link-arrow has-glyph text-[var(--color-accent-2)] hover:text-[var(--color-accent)]"
+          >
+            <span>Watch</span>
           </a>
         </>
       )}
