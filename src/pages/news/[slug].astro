@@ -1,8 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import NewsCover from '../../components/news/NewsCover.astro';
 import { getCollection, render } from 'astro:content';
-import { formatDate } from '../../i18n/format';
-import { DEFAULT_LOCALE } from '../../i18n';
 
 export async function getStaticPaths() {
   const posts = await getCollection('news', ({ data }) => !data.draft);
@@ -29,12 +28,13 @@ const jsonLd = {
   jsonLd={jsonLd}
 >
   <article class="mx-auto max-w-3xl px-4 sm:px-6 pt-12 pb-16">
-    <p class="text-xs uppercase tracking-wider text-[var(--color-accent-2)]">
-      {formatDate(post.data.date, DEFAULT_LOCALE, { month: 'long', day: 'numeric', year: 'numeric' })}
-    </p>
-    <h1 class="font-display text-3xl sm:text-5xl mt-3 tracking-wide leading-tight">
-      {post.data.title}
-    </h1>
+    <NewsCover
+      title={post.data.title}
+      date={post.data.date}
+      eyebrow={post.data.eyebrow}
+      tone={post.data.tone}
+      variant="hero"
+    />
 
     <div class="prose mt-8">
       <Content />

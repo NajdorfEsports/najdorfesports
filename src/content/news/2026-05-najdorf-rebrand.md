@@ -2,6 +2,8 @@
 title: 'Najdorf Esports: A New Name, A Familiar Aggression'
 date: 2026-05-23
 description: "We're rebranding from Rankers to Najdorf Esports ahead of OWCS Pacific Stage 2. The five who played Stage 1 are still the five going into Stage 2."
+eyebrow: 'Brand'
+tone: 'crimson'
 ---
 
 We're rebranding. The org that competed as Rankers in OWCS Pacific Stage 1 is now **Najdorf Esports**.
