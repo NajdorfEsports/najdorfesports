@@ -1,0 +1,212 @@
+---
+/**
+ * Client-side hero swap for match-day. Server-renders the live shell hidden;
+ * an inline script swaps to it when the user loads the page within
+ * [matchTime - 30min, matchTime + 3h]. Twitch iframe is injected only when
+ * the swap triggers, so non-match-day visitors pay no third-party cost.
+ *
+ * Locale-aware copy comes from the i18n dict; the script reads localized
+ * strings off data-* attributes so the script itself stays string-free.
+ *
+ * Design note (vs the original brief): the brief mentioned `client:idle`,
+ * which requires a UI framework integration (Preact/Svelte/etc.). The
+ * project deliberately ships no UI framework, and the four-task spec
+ * forbids new runtime deps. A vanilla inline script wrapped in
+ * `requestIdleCallback` preserves the intent (don't block first paint)
+ * without pulling in a framework. Flagged in the PR description.
+ */
+import { DEFAULT_LOCALE, useT, type Locale } from '../../i18n';
+import type { MatchEntry } from '../../data/site';
+
+interface Props {
+  match?: MatchEntry;
+}
+const { match } = Astro.props;
+
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const t = useT(locale);
+
+/** Pull the channel slug out of a Twitch stream URL. Returns undefined for
+ *  non-Twitch URLs (YouTube, owl.gg, etc.) — those still get the WATCH NOW
+ *  CTA but no embed. */
+function twitchChannel(url?: string): string | undefined {
+  if (!url) return;
+  const m = url.match(/twitch\.tv\/([^\/?#]+)/i);
+  return m?.[1];
+}
+
+const channel = twitchChannel(match?.streamUrl);
+const parentDomains = ['najdorfesports.gg', 'najdorfesports.pages.dev'];
+
+// If there's no candidate match or no stream URL, render nothing — there
+// is no live mode to enter on this page load. The default hero stays.
+const renderable = !!match && !!match.streamUrl;
+---
+{renderable && (
+  <div
+    data-hero-live
+    data-match-iso={match!.date}
+    data-stream-url={match!.streamUrl}
+    data-twitch-channel={channel ?? ''}
+    data-parent-domains={parentDomains.join(',')}
+    data-label-live={t.live.liveNow}
+    data-label-starts={t.live.startsIn}
+    class="live-hero hidden relative overflow-hidden"
+    aria-hidden="true"
+  >
+    <div class="absolute inset-0 bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg)] opacity-80" aria-hidden="true"></div>
+
+    <div class="relative mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12 sm:pt-16 pb-12 grid gap-8 lg:grid-cols-[1fr_22rem]">
+      <div>
+        <div
+          data-stream-mount
+          class="aspect-video w-full bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-md overflow-hidden flex items-center justify-center"
+        >
+          {/* iframe injected by script when in-window */}
+          <p class="text-sm text-[var(--color-text-dim)]">{t.live.openOnTwitch}</p>
+        </div>
+      </div>
+
+      <div class="flex flex-col justify-center gap-4">
+        <p
+          data-live-label
+          class="text-xs font-display tracking-[0.3em] uppercase text-[var(--color-accent)]"
+        >
+          {t.live.startsIn}
+        </p>
+        <p
+          data-live-countdown
+          class="font-display text-5xl sm:text-6xl tracking-tight leading-none tabular-nums text-[var(--color-text)]"
+          aria-live="polite"
+        >
+          --:--
+        </p>
+
+        <p class="font-display text-2xl tracking-wide text-[var(--color-text)]">
+          {t.live.vs} <span class="text-[var(--color-accent-2)]">{match!.opponent}</span>
+        </p>
+        {match!.tournament && (
+          <p class="text-sm text-[var(--color-text-dim)]">{match!.tournament}</p>
+        )}
+
+        <a
+          href={match!.streamUrl}
+          target="_blank"
+          rel="noopener"
+          class="watch-now inline-flex items-center justify-center px-6 py-3 rounded-md font-display text-base tracking-[0.2em] uppercase bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-2)] hover:text-white transition-colors w-fit"
+        >
+          {t.live.watchNow}
+        </a>
+      </div>
+    </div>
+  </div>
+)}
+
+<style>
+  /* The `hidden` utility from Tailwind sets display:none, which is what we
+     want at SSR time. The script removes `hidden` and we get back to flow. */
+  .live-hero[hidden],
+  .live-hero.hidden { display: none !important; }
+</style>
+
+{renderable && (
+  <script is:inline>
+    (() => {
+      const live = document.querySelector('[data-hero-live]');
+      const def  = document.querySelector('[data-hero-default]');
+      if (!live || !def) return;
+
+      const matchIso     = live.getAttribute('data-match-iso');
+      const channel      = live.getAttribute('data-twitch-channel');
+      const parentDomains = (live.getAttribute('data-parent-domains') || '')
+        .split(',').map(s => s.trim()).filter(Boolean);
+      const labelLive    = live.getAttribute('data-label-live')   || 'LIVE NOW';
+      const labelStarts  = live.getAttribute('data-label-starts') || 'Starts in';
+
+      if (!matchIso) return;
+      const matchTime = new Date(matchIso).getTime();
+      if (isNaN(matchTime)) return;
+
+      // -30 min before kickoff through +3 hours after = live window
+      const WINDOW_BEFORE_MS = 30 * 60 * 1000;
+      const WINDOW_AFTER_MS  = 3 * 60 * 60 * 1000;
+
+      let injected = false;
+      let active   = false;
+
+      function enterLive() {
+        if (active) return;
+        active = true;
+        def.classList.add('hidden');
+        def.setAttribute('aria-hidden', 'true');
+        live.classList.remove('hidden');
+        live.removeAttribute('aria-hidden');
+
+        if (!injected && channel) {
+          const mount = live.querySelector('[data-stream-mount]');
+          if (mount) {
+            mount.innerHTML = '';
+            const parentParams = parentDomains
+              .map(p => 'parent=' + encodeURIComponent(p))
+              .join('&');
+            const src = 'https://player.twitch.tv/?channel=' +
+              encodeURIComponent(channel) + '&' + parentParams + '&muted=true';
+            const iframe = document.createElement('iframe');
+            iframe.src = src;
+            iframe.allowFullscreen = true;
+            iframe.setAttribute('scrolling', 'no');
+            iframe.title = 'Twitch live stream';
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = '0';
+            mount.appendChild(iframe);
+            injected = true;
+          }
+        }
+      }
+
+      function exitLive() {
+        if (!active) return;
+        active = false;
+        live.classList.add('hidden');
+        live.setAttribute('aria-hidden', 'true');
+        def.classList.remove('hidden');
+        def.removeAttribute('aria-hidden');
+      }
+
+      function tick() {
+        const now = Date.now();
+        const delta = matchTime - now;
+        const inWindow = delta <= WINDOW_BEFORE_MS && delta >= -WINDOW_AFTER_MS;
+
+        if (!inWindow) { exitLive(); return; }
+        enterLive();
+
+        const labelEl = live.querySelector('[data-live-label]');
+        const cdEl    = live.querySelector('[data-live-countdown]');
+
+        if (delta > 0) {
+          // pre-match countdown
+          if (labelEl) labelEl.textContent = labelStarts;
+          if (cdEl) {
+            const totalSec = Math.floor(delta / 1000);
+            const min = Math.floor(totalSec / 60);
+            const sec = totalSec % 60;
+            cdEl.textContent = String(min).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+          }
+        } else {
+          // match underway
+          if (labelEl) labelEl.textContent = labelLive;
+          if (cdEl) cdEl.textContent = '';
+        }
+      }
+
+      // Defer first check to idle so we don't compete with hero paint.
+      const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 100));
+      idle(() => {
+        tick();
+        setInterval(tick, 1000);
+      });
+    })();
+  </script>
+)}

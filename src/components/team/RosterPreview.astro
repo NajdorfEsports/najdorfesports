@@ -53,7 +53,7 @@ const coaches = players.filter((p) => p.role === 'Coach');
             rel={p.liquipediaUrl ? 'noopener' : undefined}
             class="flex flex-col items-center gap-2"
           >
-            <PlayerAvatar handle={p.handle} photo={p.photo} size="md" />
+            <PlayerAvatar handle={p.handle} size={48} />
             <span class="font-display text-base tracking-wide leading-none">{p.handle}</span>
             <span class="flex items-center gap-1.5 text-[0.65rem] uppercase tracking-wider text-[var(--color-text-dim)]">
               {p.role}

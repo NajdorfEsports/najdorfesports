@@ -33,20 +33,41 @@ const wins = past.filter((m) => m.result === 'win').length;
 const losses = past.filter((m) => m.result === 'loss').length;
 const recordLine = wins + losses > 0 ? `${wins}W – ${losses}L` : null;
 
-const jsonLd = upcoming.map((m) => ({
-  '@context': 'https://schema.org',
-  '@type': 'SportsEvent',
-  name: `${site.name} vs ${m.opponent}`,
-  startDate: m.date,
-  sport: 'Esports',
-  eventStatus: 'https://schema.org/EventScheduled',
-  superEvent: { '@type': 'SportsEvent', name: m.tournament },
-  competitor: [
-    { '@type': 'SportsTeam', name: site.name },
-    { '@type': 'SportsTeam', name: m.opponent },
-  ],
-  ...(m.streamUrl ? { url: m.streamUrl } : {}),
-}));
+// SportsEvent per match — both upcoming and past. Past matches get
+// EventCompleted status; upcoming get EventScheduled. Location is a
+// VirtualLocation pointing at the Twitch stream URL when available.
+const orgId = `${site.url}/#org`;
+const jsonLd = allMatches.map((m) => {
+  const isPast = +new Date(m.date) < Date.now();
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SportsEvent',
+    name: `${site.name} vs ${m.opponent}`,
+    startDate: new Date(m.date).toISOString(),
+    sport: 'Overwatch',
+    eventStatus: isPast
+      ? 'https://schema.org/EventCompleted'
+      : 'https://schema.org/EventScheduled',
+    ...(m.streamUrl
+      ? {
+          location: {
+            '@type': 'VirtualLocation',
+            url: m.streamUrl,
+          },
+        }
+      : {}),
+    competitor: [
+      { '@type': 'SportsTeam', '@id': orgId, name: site.name },
+      { '@type': 'SportsTeam', name: m.opponent },
+    ],
+    superEvent: {
+      '@type': 'SportsEvent',
+      name: m.tournament,
+      ...(m.liquipediaUrl ? { url: m.liquipediaUrl } : {}),
+    },
+    ...(m.streamUrl ? { url: m.streamUrl } : {}),
+  };
+});
 ---
 <BaseLayout
   title="Matches"
