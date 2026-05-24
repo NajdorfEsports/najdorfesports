@@ -79,7 +79,9 @@ const players = roster.filter((p) => ['Tank', 'DPS', 'Support', 'Flex'].includes
 const countries = new Set(players.map((p) => p.country).filter(Boolean));
 const wins = past.filter((m) => m.result === 'win').length;
 const losses = past.filter((m) => m.result === 'loss').length;
-const recordLine = wins + losses > 0 ? `${wins}W – ${losses}L` : null;
+const recordLine = wins + losses > 0
+  ? `${wins}${t.match.win} – ${losses}${t.match.loss}`
+  : null;
 
 const topAchievement = [...achievements].sort(
   (a, b) => +new Date(b.date) - +new Date(a.date),
