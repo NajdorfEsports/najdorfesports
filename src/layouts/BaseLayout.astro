@@ -23,6 +23,22 @@ const {
 const fullTitle = title === site.name ? title : `${title} · ${site.name}`;
 const canonicalUrl = canonical ?? new URL(Astro.url.pathname, site.url).toString();
 const ogImageUrl = new URL(ogImage, site.url).toString();
+
+// SportsOrganization Schema.org block — emitted on every page so the org
+// identity is discoverable wherever a crawler lands. Stable @id allows
+// Person and SportsEvent blocks elsewhere to reference it.
+const orgJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SportsOrganization',
+  '@id': `${site.url}/#org`,
+  name: site.name,
+  alternateName: site.shortName,
+  url: `${site.url}/`,
+  logo: `${site.url}/branding/og-default.png`,
+  foundingDate: String(site.yearFounded),
+  sport: 'Overwatch',
+  areaServed: { '@type': 'Place', name: site.region },
+};
 ---
 <!doctype html>
 <html lang="en">
@@ -67,6 +83,11 @@ const ogImageUrl = new URL(ogImage, site.url).toString();
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
 
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify(orgJsonLd)}
+    />
     {jsonLd && (
       <script
         is:inline

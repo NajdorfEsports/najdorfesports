@@ -52,28 +52,45 @@ const countries = Array.from(
   new Set(roster.map((p) => p.country).filter((c): c is string => !!c && c !== 'TBD')),
 ).sort();
 
-// JSON-LD: SportsTeam with Person athletes.
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'SportsTeam',
-  name: site.name,
-  url: `${site.url}/roster/`,
-  sport: 'Esports',
-  athlete: roster
-    .filter((p) => ['Tank', 'DPS', 'Support', 'Flex'].includes(p.role))
-    .map((p) => ({
-      '@type': 'Person',
-      name: p.realName ?? p.handle,
-      alternateName: p.handle,
-      ...(p.country ? { nationality: p.country } : {}),
-      ...(p.liquipediaUrl ? { sameAs: p.liquipediaUrl } : {}),
-    })),
-};
+// JSON-LD: Person array, one entry per roster member, all referencing the
+// SportsOrganization @id emitted by BaseLayout. Real name is split into
+// givenName/familyName when Liquipedia provides a Latin-romanized name
+// (we only ship the romanized form, not the native script).
+const orgId = `${site.url}/#org`;
+
+function splitName(real?: string): { givenName?: string; familyName?: string } {
+  if (!real) return {};
+  const parts = real.trim().split(/\s+/);
+  if (parts.length < 2) return { givenName: parts[0] };
+  // Most romanizations of Chinese names appear as "Surname Given-name".
+  // Liquipedia uses that order for these players, so first token is family.
+  return { familyName: parts[0], givenName: parts.slice(1).join(' ') };
+}
+
+const personJsonLd = roster.map((p) => {
+  const sameAs = [
+    p.liquipediaUrl,
+    p.twitter,
+    p.twitch,
+  ].filter((u): u is string => typeof u === 'string' && u.length > 0);
+  const names = splitName(p.realName);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: p.handle,
+    ...(names.givenName ? { givenName: names.givenName } : {}),
+    ...(names.familyName ? { familyName: names.familyName } : {}),
+    ...(p.country ? { nationality: p.country } : {}),
+    jobTitle: p.role,
+    memberOf: { '@id': orgId },
+    ...(sameAs.length > 0 ? { sameAs } : {}),
+  };
+});
 ---
 <BaseLayout
   title="Roster"
   description={`The ${site.name} active OWCS Pacific roster. ${headcount} players across ${countries.join(', ')}.`}
-  jsonLd={jsonLd}
+  jsonLd={personJsonLd}
 >
   <MatchTicker matches={matches} />
 
