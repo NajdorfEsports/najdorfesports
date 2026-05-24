@@ -1,9 +1,9 @@
 [
   {
-    "id": "liquipedia-owcs-pacific-2026---stage-1-1-202604301235",
+    "id": "liquipedia-owcs-pacific-2026-stage-1-1-202604301235",
     "date": "2026-04-30T12:35:00.000Z",
     "opponent": "team secret",
-    "tournament": "OWCS Pacific 2026 — Stage 1",
+    "tournament": "OWCS Pacific 2026 · Stage 1",
     "format": "BO5",
     "streamUrl": "https://twitch.tv/ow_esports_th",
     "result": "loss",
@@ -26,10 +26,10 @@
     ]
   },
   {
-    "id": "liquipedia-owcs-pacific-2026---stage-1-2-202604301345",
+    "id": "liquipedia-owcs-pacific-2026-stage-1-2-202604301345",
     "date": "2026-04-30T13:45:00.000Z",
     "opponent": "Quasar esports",
-    "tournament": "OWCS Pacific 2026 — Stage 1",
+    "tournament": "OWCS Pacific 2026 · Stage 1",
     "format": "BO5",
     "streamUrl": "https://twitch.tv/ow_esports_th",
     "result": "win",

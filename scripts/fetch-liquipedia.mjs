@@ -187,7 +187,7 @@ function extractRoster(wikitext, teamName) {
     let statusNote;
     if (playedFalse) {
       status = 'dnp';
-      statusNote = 'DNP — Stage 1';
+      statusNote = 'DNP · Stage 1';
     }
 
     out.set(handle.toLowerCase(), {
