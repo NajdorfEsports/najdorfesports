@@ -124,47 +124,56 @@ const jsonLd = {
     </div>
   </section>
 
-  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 -mt-4">
+  <section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 -mt-4">
     <OWCSBadge prominent />
   </section>
 
   <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12 grid gap-6 lg:grid-cols-3">
-    <div class="lg:col-span-2">
+    <div class="reveal lg:col-span-2">
       <NextMatchCountdown match={nextMatch} />
     </div>
 
-    <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 flex flex-col">
+    <div class="reveal bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 flex flex-col" data-stagger="1">
       <p class="text-xs uppercase tracking-wider text-[var(--color-accent-2)]">Recent results</p>
       {recent3.length > 0 ? (
         <>
-          <ul class="mt-4 space-y-3 flex-1">
+          <ul class="mt-4 space-y-1 flex-1">
             {recent3.map((m) => (
-              <li class="flex items-center justify-between gap-3 text-sm border-b border-[var(--color-border)] last:border-0 pb-3 last:pb-0">
-                <span class="truncate min-w-0">vs {m.opponent}</span>
-                <span class="flex items-center gap-2 shrink-0">
-                  {m.mapScores && m.mapScores.length > 0 && (
-                    <span class="font-display text-sm text-[var(--color-text-dim)] tabular-nums">
-                      {m.mapScores.reduce((a, x) => a + (x.ourScore > x.theirScore ? 1 : 0), 0)}
-                      –{m.mapScores.reduce((a, x) => a + (x.theirScore > x.ourScore ? 1 : 0), 0)}
-                    </span>
-                  )}
-                  <span class:list={[
-                    'inline-flex items-center justify-center w-6 h-6 rounded-sm border font-display text-sm font-bold',
-                    m.result === 'win'
-                      ? 'text-[var(--color-win)] border-[var(--color-win)]'
-                      : 'text-[var(--color-loss)] border-[var(--color-loss)]',
-                  ]}>
-                    {m.result === 'win' ? 'W' : 'L'}
+              <li>
+                <a
+                  href={m.streamUrl ?? '/matches/'}
+                  target={m.streamUrl ? '_blank' : undefined}
+                  rel={m.streamUrl ? 'noopener' : undefined}
+                  class="result-row group flex items-center justify-between gap-3 text-sm py-2.5 px-2 -mx-2 rounded-sm transition-colors hover:bg-[var(--color-surface-2)]"
+                >
+                  <span class="truncate min-w-0 group-hover:text-[var(--color-text)] transition-colors">
+                    vs {m.opponent}
                   </span>
-                </span>
+                  <span class="flex items-center gap-2 shrink-0">
+                    {m.mapScores && m.mapScores.length > 0 && (
+                      <span class="font-display text-sm text-[var(--color-text-dim)] tabular-nums">
+                        {m.mapScores.reduce((a, x) => a + (x.ourScore > x.theirScore ? 1 : 0), 0)}
+                        –{m.mapScores.reduce((a, x) => a + (x.theirScore > x.ourScore ? 1 : 0), 0)}
+                      </span>
+                    )}
+                    <span class:list={[
+                      'inline-flex items-center justify-center w-6 h-6 rounded-sm border font-display text-sm font-bold transition-transform group-hover:scale-110',
+                      m.result === 'win'
+                        ? 'text-[var(--color-win)] border-[var(--color-win)]'
+                        : 'text-[var(--color-loss)] border-[var(--color-loss)]',
+                    ]}>
+                      {m.result === 'win' ? 'W' : 'L'}
+                    </span>
+                  </span>
+                </a>
               </li>
             ))}
           </ul>
           <a
             href="/matches"
-            class="mt-4 text-xs uppercase tracking-wider text-[var(--color-accent-2)] hover:text-[var(--color-accent)]"
+            class="link-arrow has-glyph mt-4 text-xs uppercase tracking-wider text-[var(--color-accent-2)] hover:text-[var(--color-accent)]"
           >
-            All matches →
+            <span>All matches</span>
           </a>
         </>
       ) : (
@@ -175,32 +184,41 @@ const jsonLd = {
     </div>
   </section>
 
-  <RosterPreview players={roster} />
+  <div class="reveal">
+    <RosterPreview players={roster} />
+  </div>
 
-  <AchievementStrip achievements={achievements} />
+  <div class="reveal">
+    <AchievementStrip achievements={achievements} />
+  </div>
 
-  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16">
+  <section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16">
     <div class="flex items-end justify-between mb-6">
       <h2 class="font-display text-3xl sm:text-4xl tracking-wide">Latest</h2>
-      <a href="/news" class="text-sm uppercase tracking-wider text-[var(--color-accent-2)] hover:underline">
-        All news →
+      <a href="/news" class="link-arrow has-glyph text-sm uppercase tracking-wider text-[var(--color-accent-2)] hover:text-[var(--color-accent)]">
+        <span>All news</span>
       </a>
     </div>
 
     <div class="grid gap-6 md:grid-cols-2">
-      {newsPosts.map((post) => (
+      {newsPosts.map((post, i) => (
         <a
           href={`/news/${post.id}`}
-          class="block bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 hover:border-[var(--color-accent-2)] transition-colors"
+          class="surface-hover reveal block bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 group"
+          data-stagger={i + 1}
         >
           <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
             {post.data.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
           </p>
-          <h3 class="font-display text-2xl mt-2 tracking-wide">{post.data.title}</h3>
+          <h3 class="font-display text-2xl mt-2 tracking-wide group-hover:text-[var(--color-accent-2)] transition-colors">
+            {post.data.title}
+          </h3>
           {post.data.description && (
             <p class="text-sm text-[var(--color-text-dim)] mt-2 line-clamp-3">{post.data.description}</p>
           )}
-          <p class="text-sm uppercase tracking-wider text-[var(--color-accent-2)] mt-4">Read →</p>
+          <p class="link-arrow has-glyph text-sm uppercase tracking-wider text-[var(--color-accent-2)] mt-4">
+            <span>Read</span>
+          </p>
         </a>
       ))}
     </div>

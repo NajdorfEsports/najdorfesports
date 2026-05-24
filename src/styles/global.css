@@ -81,6 +81,130 @@
     font-family: var(--font-display);
     letter-spacing: -0.01em;
   }
+
+  /* Reveal-on-scroll: applied by a tiny IntersectionObserver in BaseLayout.
+     Optional data-stagger="N" steps the entrance by N * 80ms. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: 0ms;
+    will-change: opacity, transform;
+  }
+  .reveal[data-stagger="1"] { transition-delay: 80ms; }
+  .reveal[data-stagger="2"] { transition-delay: 160ms; }
+  .reveal[data-stagger="3"] { transition-delay: 240ms; }
+  .reveal[data-stagger="4"] { transition-delay: 320ms; }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Sliding underline used on nav + footer link sets.
+     The pseudo-element sits below the text and animates origin → 100%. */
+  .link-slide {
+    position: relative;
+    display: inline-block;
+  }
+  .link-slide::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    height: 1.5px;
+    width: 100%;
+    background: var(--color-accent-2);
+    transform-origin: right;
+    transform: scaleX(0);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .link-slide:hover::after,
+  .link-slide:focus-visible::after,
+  .link-slide[aria-current="page"]::after {
+    transform-origin: left;
+    transform: scaleX(1);
+  }
+
+  /* Arrow link: "Read →", "All news →". Arrow shifts right on hover. */
+  .link-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+  }
+  .link-arrow::after {
+    content: '→';
+    display: inline-block;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .link-arrow:hover::after,
+  .link-arrow:focus-visible::after {
+    transform: translateX(4px);
+  }
+  /* Strip the auto arrow if the markup already includes one (compat with
+     existing copy that says "All news →" verbatim). */
+  .link-arrow.has-glyph::after {
+    content: '';
+    margin-left: -0.35em;
+  }
+
+  /* Subtle card hover used by news cards and similar surfaces. */
+  .surface-hover {
+    transition:
+      border-color 0.2s ease-out,
+      transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .surface-hover:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-accent-2);
+    box-shadow: 0 14px 38px -18px color-mix(in oklab, var(--color-accent-2) 60%, transparent);
+  }
+
+  /* Button hover lift (additive — applied via class so existing variants stay). */
+  .btn-lift {
+    transition:
+      transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 0.2s ease-out;
+  }
+  .btn-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -12px color-mix(in oklab, var(--color-accent) 70%, transparent);
+  }
+  .btn-lift:active {
+    transform: translateY(0);
+    transition-duration: 0.05s;
+  }
+
+  /* Wordmark hover glow in the header. */
+  .wordmark-hover {
+    transition: filter 0.25s ease-out, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .wordmark-hover:hover {
+    filter: drop-shadow(0 0 12px color-mix(in oklab, var(--color-accent) 40%, transparent));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .link-slide::after,
+  .link-arrow::after,
+  .surface-hover,
+  .btn-lift,
+  .wordmark-hover {
+    transition: none !important;
+  }
+  .surface-hover:hover,
+  .btn-lift:hover,
+  .link-arrow:hover::after {
+    transform: none !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
