@@ -1,68 +1,84 @@
 ---
-import SocialRow from './SocialRow.astro';
 import { site } from '../../data/site';
 import { DEFAULT_LOCALE, pathFor, useT, type Locale } from '../../i18n';
 
 const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
 const t = useT(locale);
 
-// Site links: localized routes for pages that have translations, fixed paths
-// for English-only routes (Matches, News, Privacy, Terms).
-const siteLinks = [
+// Primary nav (top row of the footer). Localized routes for pages that have
+// translations; fixed paths for English-only routes (Matches, News).
+const primaryLinks = [
   { href: pathFor(locale, '/'),         label: t.nav.home    },
   { href: pathFor(locale, '/roster/'),  label: t.nav.roster  },
   { href: '/matches/',                  label: t.nav.matches },
   { href: '/news/',                     label: t.nav.news    },
   { href: pathFor(locale, '/about/'),   label: t.nav.about   },
-  { href: '/privacy/',                  label: 'Privacy'     },
-  { href: '/terms/',                    label: 'Terms'       },
 ];
+
+// Legal links demoted to the meta row — they don't need primary-nav weight.
+const legalLinks = [
+  { href: '/privacy/', label: 'Privacy' },
+  { href: '/terms/',   label: 'Terms'   },
+];
+
+const year = new Date().getFullYear();
 ---
 <footer class="border-t border-[var(--color-border)] mt-24">
-  <div class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 py-10 grid gap-8 md:grid-cols-3">
-    <div>
-      <p class="font-display text-2xl">
-        <span class="text-[var(--color-accent)]">NAJDORF</span>
-        <span class="text-[var(--color-text)]">ESPORTS</span>
-      </p>
-      <p class="text-sm text-[var(--color-text-dim)] mt-2">
-        {t.footer.foundedLine(site.yearFounded, site.region)}
-      </p>
-      <p class="text-sm text-[var(--color-text-dim)] mt-1">
-        <a href={`mailto:${site.contactEmail}`} class="hover:text-[var(--color-accent-2)]">
-          {site.contactEmail}
-        </a>
-      </p>
+  <div class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 py-7">
+    {/* Row 1 — brand + horizontal nav, single row on desktop, stacked on mobile. */}
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-5">
+      <div>
+        <p class="font-display text-xl tracking-wide">
+          <span class="text-[var(--color-accent)]">NAJDORF</span>
+          <span class="text-[var(--color-text)]">ESPORTS</span>
+        </p>
+        <p class="text-xs text-[var(--color-text-dim)] mt-1.5">
+          {t.footer.foundedLine(site.yearFounded, site.region)}
+          {' · '}
+          <a
+            href={`mailto:${site.contactEmail}`}
+            class="hover:text-[var(--color-accent-2)] transition-colors"
+          >
+            {site.contactEmail}
+          </a>
+        </p>
+      </div>
+
+      <nav aria-label="Footer">
+        <ul class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[var(--color-text-dim)]">
+          {primaryLinks.map((l) => (
+            <li>
+              <a
+                href={l.href}
+                class="link-slide hover:text-[var(--color-text)] transition-colors"
+              >
+                {l.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </div>
 
-    <nav class="text-sm" aria-label="Footer">
-      <p class="text-[var(--color-text)] font-semibold uppercase tracking-wider text-xs mb-3">
-        {t.footer.site}
-      </p>
-      <ul class="space-y-2 text-[var(--color-text-dim)]">
-        {siteLinks.map((l) => (
-          <li>
-            <a class="link-slide hover:text-[var(--color-text)]" href={l.href}>{l.label}</a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-
-    <div>
-      <p class="text-[var(--color-text)] font-semibold uppercase tracking-wider text-xs mb-3">
-        {t.footer.follow}
-      </p>
-      <SocialRow />
-    </div>
-  </div>
-
-  <div class="border-t border-[var(--color-border)]">
-    <div class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-[var(--color-text-dim)]">
-      <p>{t.footer.copyright(new Date().getFullYear(), site.name)}</p>
-      <p>{t.footer.trademark}</p>
-    </div>
-    <div class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pb-3 text-[0.65rem] text-[var(--color-text-dim)]/70">
-      <p>{t.footer.dataCredit}</p>
+    {/* Row 2 — one wrapping legal line; everything that used to be three
+        separate rows now sits inline with · separators. Smaller font + a
+        thin top border keeps it visually subordinate. */}
+    <div
+      class="mt-5 pt-4 border-t border-[var(--color-border)]/60 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.7rem] text-[var(--color-text-dim)]"
+    >
+      <span>{t.footer.copyright(year, site.name)}</span>
+      {legalLinks.map((l) => (
+        <>
+          <span aria-hidden="true" class="opacity-50">·</span>
+          <a href={l.href} class="hover:text-[var(--color-text)] transition-colors">
+            {l.label}
+          </a>
+        </>
+      ))}
+      <span aria-hidden="true" class="opacity-50">·</span>
+      <span class="opacity-90">{t.footer.trademark}</span>
+      <span aria-hidden="true" class="opacity-50">·</span>
+      <span class="opacity-90">{t.footer.dataCredit}</span>
     </div>
   </div>
 </footer>
