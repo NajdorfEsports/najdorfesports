@@ -2,7 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { site } from '../data/site';
 
-const updated = '2026-05-23';
+const updated = '2026-05-24';
 ---
 <BaseLayout
   title="Privacy Policy"
@@ -22,24 +22,48 @@ const updated = '2026-05-23';
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">What we collect</h2>
       <p>
-        We do not set any analytics cookies, advertising trackers, or third-party
-        tracking pixels on this website. Pages here are static and served as plain
-        HTML, CSS, and a small amount of JavaScript for the match countdown and
-        mobile navigation.
+        This site does not set analytics cookies, advertising trackers, or
+        first-party tracking pixels. Pages are static HTML, CSS, and a small
+        amount of vanilla JavaScript for the match countdown, mobile navigation,
+        and a client-side hero swap on match day.
       </p>
 
       <p>
-        Our hosting provider (Cloudflare) records access logs that include your IP
-        address, user agent, and the URLs you request. Cloudflare retains these logs
-        for security and abuse-prevention purposes. We do not link these logs to any
-        personal identity and do not use them for marketing.
+        Our hosting provider (Cloudflare Pages) records access logs that include
+        your IP address, user agent, and the URLs you request. Cloudflare retains
+        these logs for security and abuse-prevention purposes. We do not link
+        these logs to any personal identity and do not use them for marketing.
       </p>
 
+      <h2 class="font-display text-2xl mt-8 tracking-wide">Fonts</h2>
       <p>
-        Web fonts on this site are loaded from Google Fonts. Google's font servers
-        may log standard request data when your browser fetches the fonts. See
-        <a href="https://developers.google.com/fonts/faq/privacy" target="_blank" rel="noopener">Google Fonts' privacy notice</a>
-        for details.
+        Display and body fonts (Anton, Inter) are served directly from this
+        domain. No font requests are sent to Google, Adobe, or other third-party
+        font CDNs.
+      </p>
+
+      <h2 class="font-display text-2xl mt-8 tracking-wide">Embedded video player</h2>
+      <p>
+        During an active match window (roughly 30 minutes before kickoff through
+        three hours after), the home page may load a Twitch player from
+        <code>player.twitch.tv</code> so visitors can watch the stream inline.
+        Outside that window no iframe is loaded and no request is made to Twitch.
+      </p>
+      <p>
+        When the player is loaded, Twitch sets its own cookies and may collect
+        usage data per its own policies. We do not control these cookies or
+        receive their contents. See
+        <a href="https://www.twitch.tv/p/legal/privacy-notice/" target="_blank" rel="noopener">Twitch's Privacy Notice</a>
+        for details. If you do not want the Twitch player to load, leave the home
+        page before the live window or open the stream link directly on Twitch
+        in a separate session.
+      </p>
+
+      <h2 class="font-display text-2xl mt-8 tracking-wide">Outbound links</h2>
+      <p>
+        Player profiles link to third-party sites (Twitter / X, Twitch,
+        Liquipedia) when those handles are available. Clicking an outbound link
+        takes you to that site, whose own privacy practices apply once you arrive.
       </p>
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">Email contact</h2>

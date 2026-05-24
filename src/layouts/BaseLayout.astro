@@ -84,12 +84,15 @@ const orgJsonLd = {
     />
     <meta name="theme-color" content="#0B0B0F" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;600;700&display=swap"
-    />
+    {/*
+      Fonts self-hosted (see global.css @font-face) instead of loaded from
+      fonts.googleapis.com / fonts.gstatic.com — hot-linking those sends
+      visitor IPs to Google and has been ruled a GDPR violation in some
+      EU jurisdictions (Landgericht München, 2022). Preloading the two
+      latin woff2 files keeps first-paint snappy.
+    */}
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/anton-latin.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-latin.woff2" crossorigin />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.name} />
