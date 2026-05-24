@@ -4,14 +4,30 @@
     "role": "DPS",
     "countryCode": "hk",
     "country": "Hong Kong",
-    "status": "active"
+    "status": "active",
+    "realName": "Ho Tsz-kit",
+    "birthDate": "2007-09-10",
+    "signatureHeroes": [
+      "Reaper",
+      "Echo"
+    ],
+    "twitter": "https://twitter.com/Brysonbtw0910",
+    "twitch": "https://twitch.tv/brysonbtw0910"
   },
   {
     "handle": "Zephyr",
     "role": "DPS",
     "countryCode": "tw",
     "country": "Taiwan",
-    "status": "active"
+    "status": "active",
+    "realName": "Lai Yu-li",
+    "birthDate": "2005-08-03",
+    "signatureHeroes": [
+      "Genji",
+      "Pharah",
+      "Emre"
+    ],
+    "twitch": "https://twitch.tv/laiy055555"
   },
   {
     "handle": "OH1YO",
@@ -24,14 +40,32 @@
   {
     "handle": "Despair",
     "role": "Tank",
-    "status": "active"
+    "status": "active",
+    "realName": "Choy Yu-ting",
+    "birthDate": "2003-06-12",
+    "signatureHeroes": [
+      "Pharah",
+      "Echo",
+      "Tracer"
+    ],
+    "altRoles": [
+      "DPS"
+    ]
   },
   {
     "handle": "FEI",
     "role": "Support",
     "countryCode": "tw",
     "country": "Taiwan",
-    "status": "active"
+    "status": "active",
+    "realName": "Sung Hsia-fei",
+    "birthDate": "2004-08-24",
+    "signatureHeroes": [
+      "Kiriko",
+      "Illari",
+      "Lucio"
+    ],
+    "twitch": "https://twitch.tv/summr0824"
   },
   {
     "handle": "Amamiyaren",
@@ -45,6 +79,15 @@
     "role": "Coach",
     "countryCode": "tw",
     "country": "Taiwan",
-    "status": "active"
+    "status": "active",
+    "realName": "Liu Jin-lin",
+    "birthDate": "2001-12-29",
+    "signatureHeroes": [
+      "Wrecking Ball"
+    ],
+    "twitch": "https://twitch.tv/detai111",
+    "altRoles": [
+      "Tank"
+    ]
   }
 ]

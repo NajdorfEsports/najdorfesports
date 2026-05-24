@@ -17,7 +17,10 @@ concurrency:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # Per-player enrichment adds ~30s sleep per active roster member to
+    # honor Liquipedia's 1-parse-per-30s rate limit. 15 min gives plenty of
+    # headroom for a 10-player roster + 4 tournament pages.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 

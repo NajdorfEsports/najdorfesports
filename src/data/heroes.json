@@ -1,0 +1,11 @@
+{
+  "Echo": "/heroes/echo.png",
+  "Genji": "/heroes/genji.png",
+  "Illari": "/heroes/illari.png",
+  "Kiriko": "/heroes/kiriko.png",
+  "Lucio": "/heroes/lucio.png",
+  "Pharah": "/heroes/pharah.png",
+  "Reaper": "/heroes/reaper.png",
+  "Tracer": "/heroes/tracer.png",
+  "Wrecking Ball": "/heroes/wrecking-ball.png"
+}

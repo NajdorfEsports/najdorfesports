@@ -1,11 +1,15 @@
 ---
+import heroIcons from '../../data/heroes.json';
+
 interface Props {
   handle: string;
   photo?: string;
+  /** Signature heroes (up to 4 render in the collage). */
+  heroes?: ReadonlyArray<string>;
   size?: 'sm' | 'md' | 'lg';
 }
 
-const { handle, photo, size = 'md' } = Astro.props;
+const { handle, photo, heroes, size = 'md' } = Astro.props;
 
 const px = { sm: 56, md: 96, lg: 144 }[size];
 
@@ -25,6 +29,22 @@ const initials = handle
   .join('');
 
 const gradient = `linear-gradient(135deg, hsl(${hue} 50% 22%) 0%, hsl(${(hue + 40) % 360} 60% 12%) 100%)`;
+
+// Resolve hero names to icon URLs. Skip heroes we don't have an icon for —
+// they get displayed as a text initial as a graceful fallback.
+const map = heroIcons as Record<string, string>;
+const heroEntries = (heroes ?? [])
+  .slice(0, 4)
+  .map((name) => ({ name, iconUrl: map[name] ?? null }));
+const hasHeroes = heroEntries.length > 0;
+const heroGridClass =
+  heroEntries.length === 1
+    ? 'hero-grid hero-grid--1'
+    : heroEntries.length === 2
+    ? 'hero-grid hero-grid--2'
+    : heroEntries.length === 3
+    ? 'hero-grid hero-grid--3'
+    : 'hero-grid hero-grid--4';
 ---
 {photo ? (
   <img
@@ -36,6 +56,31 @@ const gradient = `linear-gradient(135deg, hsl(${hue} 50% 22%) 0%, hsl(${(hue + 4
     class="rounded-full object-cover border border-[var(--color-border)]"
     style={`width:${px}px;height:${px}px;`}
   />
+) : hasHeroes ? (
+  <div
+    role="img"
+    aria-label={`${handle} signature heroes: ${heroEntries.map((h) => h.name).join(', ')}`}
+    class={`${heroGridClass} rounded-full border border-[var(--color-border)] overflow-hidden`}
+    style={`width:${px}px;height:${px}px;background:${gradient};`}
+  >
+    {heroEntries.map((h) => (
+      h.iconUrl ? (
+        <img
+          src={h.iconUrl}
+          alt=""
+          loading="lazy"
+          class="hero-grid__cell"
+        />
+      ) : (
+        <span
+          class="hero-grid__cell hero-grid__cell--fallback"
+          aria-hidden="true"
+        >
+          {h.name.charAt(0).toUpperCase()}
+        </span>
+      )
+    ))}
+  </div>
 ) : (
   <div
     role="img"
@@ -46,3 +91,38 @@ const gradient = `linear-gradient(135deg, hsl(${hue} 50% 22%) 0%, hsl(${(hue + 4
     {initials || '·'}
   </div>
 )}
+
+<style>
+  .hero-grid {
+    display: grid;
+    position: relative;
+    isolation: isolate;
+    grid-auto-rows: 1fr;
+  }
+  /* Hero portraits are tall (120w × 157h). Vertical strips preserve more of
+     each character — heads stay visible — and the dividers feel intentional. */
+  .hero-grid--1 { grid-template-columns: 1fr; }
+  .hero-grid--2 { grid-template-columns: 1fr 1fr; }
+  .hero-grid--3 { grid-template-columns: 1fr 1fr 1fr; }
+  .hero-grid--4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+  .hero-grid__cell {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    object-fit: cover;
+    object-position: 50% 22%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    color: #e9ecf1;
+    background: rgba(0, 0, 0, 0.35);
+    font-size: 1.5rem;
+  }
+
+  .hero-grid__cell--fallback {
+    background: rgba(0, 0, 0, 0.5);
+  }
+</style>

@@ -440,6 +440,52 @@ async function safeWrite(path, label, data) {
   console.log(`[liquipedia] ${label}: wrote ${data.length} entries to ${path}.`);
 }
 
+// ----- Per-player enrichment ------------------------------------------------
+
+/**
+ * Pull bio + signature heroes from a player's individual Liquipedia page.
+ * Returns null when the page doesn't exist (404 / missingtitle). Liquipedia
+ * has stub pages for some players; we extract whatever's there.
+ */
+async function fetchPlayerBio(handle) {
+  let json;
+  try {
+    json = await fetchParse(handle);
+  } catch (err) {
+    console.warn(`[liquipedia]   ${handle}: page fetch failed (${err?.message ?? err})`);
+    return null;
+  }
+  const wt = json?.parse?.wikitext?.['*'];
+  if (typeof wt !== 'string' || wt.length < 50) return null;
+
+  // Locate the Infobox player block.
+  const ix = wt.indexOf('{{Infobox player');
+  if (ix < 0) return null;
+  const body = readBalancedBraces(wt, ix + '{{Infobox player'.length);
+  if (!body) return null;
+  const p = parseTemplateParams(body);
+
+  const heroes = [];
+  for (let i = 1; i <= 6; i += 1) {
+    const key = i === 1 ? 'hero' : `hero${i}`;
+    const v = p[key];
+    if (v && v.trim() && !heroes.includes(v.trim())) heroes.push(v.trim());
+  }
+
+  // Roles can be comma-separated ("Coach, Tank").
+  const rolesRaw = (p.roles ?? '').split(',').map((r) => normalizeRole(r.trim())).filter(Boolean);
+
+  const out = {};
+  if (p.romanized_name) out.realName = p.romanized_name.trim();
+  else if (p.name && !/[一-鿿]/.test(p.name)) out.realName = p.name.trim();
+  if (p.birth_date) out.birthDate = normalizeDate(p.birth_date.trim());
+  if (heroes.length > 0) out.signatureHeroes = heroes;
+  if (p.twitter && p.twitter.trim()) out.twitter = `https://twitter.com/${p.twitter.trim()}`;
+  if (p.twitch && p.twitch.trim()) out.twitch = `https://twitch.tv/${p.twitch.trim()}`;
+  if (rolesRaw.length > 1) out.altRoles = rolesRaw.slice(1);
+  return Object.keys(out).length > 0 ? out : null;
+}
+
 // ----- Helpers --------------------------------------------------------------
 
 /**
@@ -530,6 +576,34 @@ function labelFromPage(pageSlug) {
   // Roster comes from the highest-priority page that mentioned us.
   if (primaryWikitext) {
     const roster = extractRoster(primaryWikitext, primaryName);
+
+    // Enrich every roster entry with bio + signature heroes from the player's
+    // individual Liquipedia page. Rate-limited at one parse call per 30s.
+    // Players without a page (404) silently keep the tournament-page data only.
+    if (roster.length > 0) {
+      console.log(`[liquipedia] enriching ${roster.length} roster entries from individual pages...`);
+      for (let i = 0; i < roster.length; i += 1) {
+        const entry = roster[i];
+        console.log(`[liquipedia] sleeping ${PARSE_INTERVAL_MS / 1000}s (rate limit) before ${entry.handle}.`);
+        await sleep(PARSE_INTERVAL_MS);
+        const bio = await fetchPlayerBio(entry.handle);
+        if (bio) {
+          // Fetcher fields fill in, but never overwrite what the tournament
+          // page already supplied (role, country code, status).
+          for (const [k, v] of Object.entries(bio)) {
+            if (entry[k] === undefined) entry[k] = v;
+          }
+          const summary = [
+            bio.realName ? `name=${bio.realName}` : null,
+            bio.signatureHeroes ? `heroes=${bio.signatureHeroes.join('/')}` : null,
+          ].filter(Boolean).join(' ');
+          console.log(`[liquipedia]   ${entry.handle}: ${summary || '(no extra fields)'}`);
+        } else {
+          console.log(`[liquipedia]   ${entry.handle}: no individual page`);
+        }
+      }
+    }
+
     await safeWrite(ROSTER_PATH, 'roster', roster);
 
     const achievements = extractAchievements(primaryWikitext);

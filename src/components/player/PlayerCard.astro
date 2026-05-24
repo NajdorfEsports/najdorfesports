@@ -25,6 +25,24 @@ const roleAccent: Record<string, string> = {
 };
 const accent = roleAccent[player.role] ?? 'var(--color-accent-2)';
 const cardLink = player.liquipediaUrl;
+
+function ageFromBirth(iso?: string): number | null {
+  if (!iso) return null;
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return null;
+  const [, y, mo, d] = m;
+  const now = new Date();
+  let age = now.getUTCFullYear() - Number(y);
+  const todayMD = now.getUTCMonth() * 100 + now.getUTCDate();
+  const birthMD = (Number(mo) - 1) * 100 + Number(d);
+  if (todayMD < birthMD) age -= 1;
+  return age >= 0 && age < 100 ? age : null;
+}
+const age = ageFromBirth(player.birthDate);
+
+const allRoles = [player.role, ...(player.altRoles ?? [])].filter(
+  (r, i, a) => a.indexOf(r) === i,
+);
 ---
 <article
   class:list={[
@@ -41,7 +59,12 @@ const cardLink = player.liquipediaUrl;
     </span>
   )}
 
-  <PlayerAvatar handle={player.handle} photo={player.photo} size="lg" />
+  <PlayerAvatar
+    handle={player.handle}
+    photo={player.photo}
+    heroes={player.signatureHeroes}
+    size="lg"
+  />
 
   <h3 class="font-display text-2xl sm:text-3xl mt-4 tracking-wide leading-none">
     {cardLink ? (
@@ -58,24 +81,60 @@ const cardLink = player.liquipediaUrl;
     )}
   </h3>
 
-  {player.realName && (
-    <p class="text-sm text-[var(--color-text-dim)] mt-1.5">{player.realName}</p>
+  {(player.realName || age !== null) && (
+    <p class="text-sm text-[var(--color-text-dim)] mt-1.5">
+      {player.realName}
+      {player.realName && age !== null && ' · '}
+      {age !== null && (
+        <span class="tabular-nums">{age}</span>
+      )}
+    </p>
   )}
 
-  <div class="mt-3 flex items-center gap-3 text-xs uppercase tracking-wider">
-    <span
-      class="px-2 py-0.5 rounded-sm border font-semibold"
-      style="color: var(--accent); border-color: var(--accent);"
-    >
-      {player.role}
-    </span>
+  <div class="mt-3 flex items-center gap-2 text-xs uppercase tracking-wider flex-wrap justify-center">
+    {allRoles.map((r) => {
+      const a = roleAccent[r] ?? accent;
+      return (
+        <span
+          class="px-2 py-0.5 rounded-sm border font-semibold"
+          style={`color: ${a}; border-color: ${a};`}
+        >
+          {r}
+        </span>
+      );
+    })}
     {hasCountry && (
-      <span class="flex items-center gap-1.5 text-[var(--color-text-dim)]">
+      <span class="flex items-center gap-1.5 text-[var(--color-text-dim)] ml-1">
         <CountryFlag code={player.countryCode} name={player.country} size="md" />
         <span class="text-[0.7rem]">{player.country}</span>
       </span>
     )}
   </div>
+
+  {(player.twitter || player.twitch) && (
+    <div class="mt-3 flex items-center gap-3 text-[0.7rem] uppercase tracking-wider text-[var(--color-text-dim)]">
+      {player.twitter && (
+        <a
+          href={player.twitter}
+          target="_blank"
+          rel="noopener"
+          class="hover:text-[var(--color-accent-2)] transition-colors"
+        >
+          Twitter
+        </a>
+      )}
+      {player.twitch && (
+        <a
+          href={player.twitch}
+          target="_blank"
+          rel="noopener"
+          class="hover:text-[var(--color-accent-2)] transition-colors"
+        >
+          Twitch
+        </a>
+      )}
+    </div>
+  )}
 </article>
 
 <style>

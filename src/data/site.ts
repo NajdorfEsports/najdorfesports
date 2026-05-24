@@ -35,17 +35,29 @@ export type RosterStatus = 'active' | 'dnp' | 'inactive';
 export interface RosterEntry {
   handle: string;
   role: Role;
+  /** Additional roles for flex players (e.g., Tank + DPS). */
+  altRoles?: Role[];
   /** Human-readable country name (e.g., "Hong Kong"). */
   country: string;
   /** ISO 3166-1 alpha-2 (lowercase). Drives the flag rendering. */
   countryCode?: string;
+  /** Display name. Prefer the romanized Latin form over native script. */
   realName?: string;
+  /** ISO date "YYYY-MM-DD". Drives the age display. */
+  birthDate?: string;
+  /** Local path under /roster/ or an absolute URL. Wins over hero collage. */
   photo?: string;
+  /**
+   * Signature heroes in priority order. When `photo` is absent, the avatar
+   * renders a collage of these hero icons. Hero names use the canonical
+   * Liquipedia spelling (e.g., "Soldier: 76", "Wrecking Ball").
+   */
+  signatureHeroes?: string[];
   twitter?: string;
   twitch?: string;
   liquipediaUrl?: string;
   status?: RosterStatus;
-  /** Free-form note shown as a small badge ("DNP — Stage 1", "Sub", etc.). */
+  /** Free-form note shown as a small badge ("DNP · Stage 1", "Sub", etc.). */
   statusNote?: string;
   /** ISO date string. */
   joinedDate?: string;
