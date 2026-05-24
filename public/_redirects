@@ -8,3 +8,11 @@ https://www.najdorfesports.gg/*  https://najdorfesports.gg/:splat  301!
 
 # Forward bare pages.dev hits to the canonical domain (preserve any path).
 https://najdorfesports.pages.dev/*  https://najdorfesports.gg/:splat  301!
+
+# Locale prefixes are case-sensitive on disk (Astro builds /zh-TW/ and
+# /zh-CN/), but URL-bar autocomplete and hand-typed URLs love to lowercase
+# the path. Forward the lowercase variants so they don't 404.
+/zh-tw/*  /zh-TW/:splat  301
+/zh-tw    /zh-TW/        301
+/zh-cn/*  /zh-CN/:splat  301
+/zh-cn    /zh-CN/        301
