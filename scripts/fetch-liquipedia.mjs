@@ -299,45 +299,123 @@ function extractAchievements(wikitext) {
   return out;
 }
 
-// ----- Matches extraction (kept from v1, slightly hardened) ----------------
+// ----- Matches extraction ---------------------------------------------------
 
-function extractMatches(wikitext, teamName) {
+// Liquipedia timezone abbreviation → UTC offset in hours.
+const TZ_OFFSETS = {
+  ICT: 7, WIB: 7, BKK: 7,
+  CST: 8, CT: 8, MYT: 8, SGT: 8, PHT: 8, AWST: 8, HKT: 8,
+  KST: 9, JST: 9,
+  AEDT: 11, AEST: 10,
+  NZST: 12, NZDT: 13,
+  PST: -8, PDT: -7, MST: -7, MDT: -6, EST: -5, EDT: -4,
+  GMT: 0, UTC: 0, BST: 1, CET: 1, CEST: 2, EET: 2,
+};
+
+function parseMatchDate(raw) {
+  if (!raw) return null;
+  // Strip Liquipedia "Abbr" template wrappers, normalize whitespace.
+  const cleaned = raw
+    .replace(/\{\{Abbr\/(\w+)\|?.*?\}\}/g, '$1')
+    .replace(/\{\{Abbr\|(\w+)\|?.*?\}\}/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // Pattern: "YYYY-MM-DD[ - ]HH:MM[ TZ]"
+  const m = cleaned.match(/^(\d{4})-(\d{2})-(\d{2})(?:\s*[-T]\s*(\d{1,2}):(\d{2}))?(?:\s*([A-Z]{2,5}))?/);
+  if (!m) return null;
+  const [, y, mo, d, h, mi, tz] = m;
+  if (!h) return `${y}-${mo}-${d}T00:00:00Z`;
+  const offset = tz && tz in TZ_OFFSETS ? TZ_OFFSETS[tz] : 0;
+  const utcHour = parseInt(h, 10) - offset;
+  const dt = new Date(Date.UTC(+y, +mo - 1, +d, utcHour, +mi));
+  return dt.toISOString();
+}
+
+function extractMatches(wikitext, teamName, defaultTournament) {
   const matches = [];
   if (typeof wikitext !== 'string' || wikitext.length === 0) return matches;
 
-  const matchBlockRe = /\{\{Match\b([\s\S]*?)\}\}/gi;
+  const matchOpener = /\{\{Match\b/g;
+  const teamLc = teamName.toLowerCase();
   let m;
   let counter = 0;
-  while ((m = matchBlockRe.exec(wikitext)) !== null) {
-    const block = m[1];
-    if (!block.toLowerCase().includes(teamName.toLowerCase())) continue;
 
-    const dateMatch = block.match(
-      /date\s*=\s*([0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ T][0-9]{2}:[0-9]{2}(?::[0-9]{2})?)?)/i,
-    );
-    const opponentMatches = [...block.matchAll(/TeamOpponent\|([^|}\n]+)/gi)].map((x) =>
-      x[1].trim(),
-    );
-    const tournamentMatch = block.match(/tournament\s*=\s*([^|\n}]+)/i);
-    const formatMatch = block.match(/bestof\s*=\s*(\d+)/i);
-    const streamMatch = block.match(/stream\s*=\s*([^|\n}]+)/i);
+  while ((m = matchOpener.exec(wikitext)) !== null) {
+    const block = readBalancedBraces(wikitext, m.index + m[0].length);
+    if (!block) continue;
+    if (!block.toLowerCase().includes(teamLc)) continue;
 
-    const opponent = opponentMatches.find(
-      (o) => o.toLowerCase() !== teamName.toLowerCase(),
-    );
-    if (!opponent || !dateMatch) continue;
+    const params = parseTemplateParams(block);
+    const opp1 = (params.opponent1?.match(/TeamOpponent\|([^|}\n]+)/i)?.[1] ?? '').trim();
+    const opp2 = (params.opponent2?.match(/TeamOpponent\|([^|}\n]+)/i)?.[1] ?? '').trim();
+    if (!opp1 || !opp2) continue;
+
+    // Determine which side is us. Liquipedia uses informal casing; compare case-insensitively.
+    let ourSide;
+    if (opp1.toLowerCase() === teamLc) ourSide = 1;
+    else if (opp2.toLowerCase() === teamLc) ourSide = 2;
+    else continue;
+
+    const opponent = ourSide === 1 ? opp2 : opp1;
+    const date = parseMatchDate(params.date ?? '');
+    if (!date) continue;
+
+    // Maps & scores
+    const mapScores = [];
+    let ourMapWins = 0;
+    let theirMapWins = 0;
+    for (let i = 1; i <= 9; i++) {
+      const mapRaw = params[`map${i}`];
+      if (!mapRaw) continue;
+      const mp = parseTemplateParams('|' + mapRaw.replace(/^\{\{Map\|?/, '').replace(/\}\}$/, ''));
+      const mapName = mp.map ?? '';
+      const score1 = Number(mp.score1);
+      const score2 = Number(mp.score2);
+      const winner = parseInt(mp.winner ?? '0', 10);
+      if (!mapName || Number.isNaN(score1) || Number.isNaN(score2)) continue;
+      mapScores.push({
+        map: mapName,
+        ourScore: ourSide === 1 ? score1 : score2,
+        theirScore: ourSide === 1 ? score2 : score1,
+      });
+      if (winner === ourSide) ourMapWins += 1;
+      else if (winner && winner !== ourSide) theirMapWins += 1;
+    }
+
+    // Result inference.
+    const now = Date.now();
+    const past = +new Date(date) < now;
+    let result = 'tbd';
+    if (mapScores.length > 0 && (ourMapWins > 0 || theirMapWins > 0)) {
+      result = ourMapWins > theirMapWins ? 'win' : 'loss';
+    } else if (!past) {
+      result = 'tbd';
+    }
+
+    const stream = params.twitch
+      ? `https://twitch.tv/${params.twitch.trim()}`
+      : params.stream
+      ? params.stream.trim().startsWith('http')
+        ? params.stream.trim()
+        : `https://${params.stream.trim()}`
+      : undefined;
 
     counter += 1;
+    const slug = defaultTournament
+      .replace(/[^a-z0-9]+/gi, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .toLowerCase();
     matches.push({
-      id: `liquipedia-${counter}-${dateMatch[1].replace(/[^0-9]/g, '')}`,
-      date: dateMatch[1].includes('T')
-        ? `${dateMatch[1]}Z`
-        : `${dateMatch[1].replace(' ', 'T')}:00Z`,
+      id: `liquipedia-${slug}-${counter}-${date.replace(/[^0-9]/g, '').slice(0, 12)}`,
+      date,
       opponent,
-      tournament: tournamentMatch ? tournamentMatch[1].trim() : 'OWCS Pacific Stage 2',
-      format: formatMatch ? `BO${formatMatch[1]}` : 'BO5',
-      ...(streamMatch ? { streamUrl: `https://${streamMatch[1].trim()}` } : {}),
-      result: 'tbd',
+      tournament: defaultTournament,
+      format: params.bestof ? `BO${params.bestof.trim()}` : 'BO5',
+      ...(stream ? { streamUrl: stream } : {}),
+      result,
+      ...(mapScores.length > 0 ? { mapScores } : {}),
     });
   }
   return matches;
@@ -357,22 +435,27 @@ async function safeWrite(path, label, data) {
 // ----- Main -----------------------------------------------------------------
 
 (async () => {
-  // Fetch the matches source (Stage 2 main event) for upcoming/recent matches.
+  const allMatches = [];
+
+  // Pass 1: Stage 2 page (upcoming matches once published).
   try {
     const json = await fetchParse(MATCHES_SOURCE_PAGE);
     const wikitext = json?.parse?.wikitext?.['*'];
-    const matches = extractMatches(wikitext, TEAM_LIQUIPEDIA_NAME);
-    matches.sort((a, b) => +new Date(a.date) - +new Date(b.date));
-    await safeWrite(MATCHES_PATH, 'matches', matches);
+    const matches = extractMatches(
+      wikitext,
+      TEAM_LIQUIPEDIA_NAME,
+      'OWCS Pacific 2026 — Stage 2',
+    );
+    console.log(`[liquipedia] stage 2: extracted ${matches.length} matches.`);
+    allMatches.push(...matches);
   } catch (err) {
-    console.warn(`[liquipedia] matches fetch failed: ${err?.message ?? err}`);
+    console.warn(`[liquipedia] stage 2 fetch failed: ${err?.message ?? err}`);
   }
 
-  // Respect parse rate limit before the second call.
-  console.log(`[liquipedia] sleeping ${PARSE_INTERVAL_MS / 1000}s before roster page fetch.`);
+  console.log(`[liquipedia] sleeping ${PARSE_INTERVAL_MS / 1000}s before next parse call.`);
   await sleep(PARSE_INTERVAL_MS);
 
-  // Fetch the roster source (Stage 1 tournament participant list).
+  // Pass 2: Stage 1 page (roster, achievements, historical match results).
   try {
     const json = await fetchParse(ROSTER_SOURCE_PAGE);
     const wikitext = json?.parse?.wikitext?.['*'];
@@ -380,15 +463,24 @@ async function safeWrite(path, label, data) {
     const roster = extractRoster(wikitext, TEAM_LIQUIPEDIA_NAME);
     await safeWrite(ROSTER_PATH, 'roster', roster);
 
-    // Achievements: Stage 1 tournament page doesn't carry placements directly,
-    // and there's no standalone team page. Keep this best-effort; manual
-    // achievements live in achievements.manual.json regardless.
+    const stage1Matches = extractMatches(
+      wikitext,
+      TEAM_LIQUIPEDIA_NAME,
+      'OWCS Pacific 2026 — Stage 1',
+    );
+    console.log(`[liquipedia] stage 1: extracted ${stage1Matches.length} matches.`);
+    allMatches.push(...stage1Matches);
+
     const achievements = extractAchievements(wikitext);
     achievements.sort((a, b) => +new Date(b.date) - +new Date(a.date));
     await safeWrite(ACHIEVEMENTS_PATH, 'achievements', achievements);
   } catch (err) {
-    console.warn(`[liquipedia] roster page fetch failed: ${err?.message ?? err}`);
+    console.warn(`[liquipedia] stage 1 fetch failed: ${err?.message ?? err}`);
   }
+
+  // Sort all matches by date ascending and write.
+  allMatches.sort((a, b) => +new Date(a.date) - +new Date(b.date));
+  await safeWrite(MATCHES_PATH, 'matches', allMatches);
 
   process.exit(0);
 })();

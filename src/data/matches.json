@@ -1,1 +1,54 @@
-[]
+[
+  {
+    "id": "liquipedia-owcs-pacific-2026---stage-1-1-202604301235",
+    "date": "2026-04-30T12:35:00.000Z",
+    "opponent": "team secret",
+    "tournament": "OWCS Pacific 2026 — Stage 1",
+    "format": "BO5",
+    "streamUrl": "https://twitch.tv/ow_esports_th",
+    "result": "loss",
+    "mapScores": [
+      {
+        "map": "Lijiang Tower",
+        "ourScore": 0,
+        "theirScore": 2
+      },
+      {
+        "map": "Rialto",
+        "ourScore": 1,
+        "theirScore": 3
+      },
+      {
+        "map": "Aatlis",
+        "ourScore": 0,
+        "theirScore": 3
+      }
+    ]
+  },
+  {
+    "id": "liquipedia-owcs-pacific-2026---stage-1-2-202604301345",
+    "date": "2026-04-30T13:45:00.000Z",
+    "opponent": "Quasar esports",
+    "tournament": "OWCS Pacific 2026 — Stage 1",
+    "format": "BO5",
+    "streamUrl": "https://twitch.tv/ow_esports_th",
+    "result": "win",
+    "mapScores": [
+      {
+        "map": "Lijiang Tower",
+        "ourScore": 2,
+        "theirScore": 1
+      },
+      {
+        "map": "Numbani",
+        "ourScore": 3,
+        "theirScore": 2
+      },
+      {
+        "map": "Runasapi",
+        "ourScore": 144.86,
+        "theirScore": 36.71
+      }
+    ]
+  }
+]
