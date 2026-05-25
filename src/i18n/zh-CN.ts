@@ -58,7 +58,7 @@ export const zhCN: Strings = {
     eyebrow: '关于',
     body: (year, region) =>
       `Najdorf Esports 是一支以${region}赛区为据点的竞技型《守望先锋》战队。战队于 ${year} 年成立，目前征战 OWCS Pacific。第二阶段主赛事将于 2026 年 6 月 4 日至 7 月 9 日进行。队名取自西西里防御的 Najdorf 变例，一个比对手多算一步而胜出的开局。`,
-    previously:     '前身为 OWCS Pacific 赛事中的 Rankers。',
+    previously:     '我们第二阶段阵容中部分选手，曾于 OWCS Pacific 第一阶段代表 Rankers 出战。',
     contactHeading: '联系我们',
     contactNote:    '合作、媒体与选手相关咨询，请发送至上方邮箱。',
     followHeading:  '关注我们',

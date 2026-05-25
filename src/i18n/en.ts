@@ -55,7 +55,7 @@ export const en = {
     eyebrow: 'About',
     body: (year: number, region: string) =>
       `Najdorf Esports is a competitive Overwatch organization based in the ${region} region. We founded the org in ${year} and currently compete in OWCS Pacific. The Stage 2 main event runs June 4 through July 9, 2026. The name comes from the Najdorf Variation of the Sicilian Defence, an opening that wins by preparing one line deeper than the other side.`,
-    previously: 'Previously competing as Rankers in OWCS Pacific.',
+    previously: 'Several of our Stage 2 players competed for Rankers in OWCS Pacific Stage 1.',
     contactHeading: 'Contact',
     contactNote: 'For partnerships, press, or player inquiries, email the address above.',
     followHeading: 'Follow along',
