@@ -58,6 +58,14 @@ export const en = {
     previously: 'Previously competing as Rankers in OWCS Pacific.',
     contactHeading: 'Contact',
     contactNote: 'For partnerships, press, or player inquiries, email the address above.',
+    followHeading: 'Follow along',
+  },
+  community: {
+    eyebrow: 'Join the community',
+    headline: 'Travel with the team.',
+    body: 'Two channels, no algorithm games. The Discord is where the squad hangs out between matches. X is where you catch the announcements first.',
+    discordCta: 'Join the Discord',
+    xCta: 'Follow on X',
   },
   live: {
     liveNow: 'LIVE NOW',

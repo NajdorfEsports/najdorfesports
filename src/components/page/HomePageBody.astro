@@ -12,6 +12,7 @@ import WatchHub from '../match/WatchHub.astro';
 import RosterPreview from '../team/RosterPreview.astro';
 import AchievementStrip from '../team/AchievementStrip.astro';
 import SponsorsRow from '../team/SponsorsRow.astro';
+import CommunityCTA from '../team/CommunityCTA.astro';
 import Button from '../ui/Button.astro';
 import { getCollection } from 'astro:content';
 import {
@@ -419,3 +420,7 @@ const newsHref    = '/news/';
     ))}
   </div>
 </section>
+
+<div class="reveal">
+  <CommunityCTA />
+</div>

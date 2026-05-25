@@ -19,13 +19,29 @@ export const owcs = {
 } as const;
 
 // Fill these in as accounts are confirmed. Any URL left as 'TODO' will be
-// filtered out by <SocialRow> so nothing broken ships.
-export const socials: ReadonlyArray<{ name: string; url: string; handle?: string }> = [
-  { name: 'X',         url: 'TODO', handle: '@najdorfesports' },
+// filtered out by <SocialRow> and <CommunityCTA> so nothing broken ships.
+// `blurb` is the optional one-line CTA copy used by <CommunityCTA>.
+export const socials: ReadonlyArray<{
+  name: 'Discord' | 'X' | 'Instagram' | 'Twitch' | 'YouTube';
+  url: string;
+  handle?: string;
+  blurb?: string;
+}> = [
+  {
+    name: 'Discord',
+    url: 'https://discord.gg/7X2QbvUW3z',
+    handle: 'discord.gg/najdorf',
+    blurb: 'Hang with the squad — match chat, watch parties, and roster updates first.',
+  },
+  {
+    name: 'X',
+    url: 'https://x.com/najdorfesports',
+    handle: '@najdorfesports',
+    blurb: 'Roster moves, match results, and OWCS Pacific posts — straight from the org.',
+  },
   { name: 'Instagram', url: 'TODO', handle: '@najdorfesports' },
-  { name: 'Twitch',    url: 'TODO', handle: 'najdorfesports' },
+  { name: 'Twitch',    url: 'TODO', handle: 'najdorfesports'  },
   { name: 'YouTube',   url: 'TODO', handle: '@najdorfesports' },
-  { name: 'Discord',   url: 'TODO' },
 ];
 
 /**

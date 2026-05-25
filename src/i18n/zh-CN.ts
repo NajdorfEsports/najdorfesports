@@ -61,6 +61,14 @@ export const zhCN: Strings = {
     previously:     '前身为 OWCS Pacific 赛事中的 Rankers。',
     contactHeading: '联系我们',
     contactNote:    '合作、媒体与选手相关咨询，请发送至上方邮箱。',
+    followHeading:  '关注我们',
+  },
+  community: {
+    eyebrow:    '加入社群',
+    headline:   '与战队同行。',
+    body:       '两个官方频道，没有算法干扰。Discord 是赛间与队伍同乐的地方，X 则是抢先看到公告的渠道。',
+    discordCta: '加入 Discord',
+    xCta:       '在 X 上关注',
   },
   live: {
     liveNow:      '直播中',

@@ -3,7 +3,7 @@ import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
 import SiteHeader from '../components/layout/SiteHeader.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
-import { site } from '../data/site';
+import { site, socials } from '../data/site';
 import {
   DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
@@ -41,7 +41,14 @@ const alternates = SUPPORTED_LOCALES.map((l) => ({
 
 // SportsOrganization Schema.org block — emitted on every page so the org
 // identity is discoverable wherever a crawler lands. Stable @id allows
-// Person and SportsEvent blocks elsewhere to reference it.
+// Person and SportsEvent blocks elsewhere to reference it. `sameAs`
+// pulls confirmed social URLs from src/data/site.ts so search engines
+// link the org's identity to its profiles (Discord URLs are accepted
+// here per Google's guidelines).
+const socialSameAs = socials
+  .filter((s) => s.url && s.url !== 'TODO')
+  .map((s) => s.url);
+
 const orgJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'SportsOrganization',
@@ -53,6 +60,7 @@ const orgJsonLd = {
   foundingDate: String(site.yearFounded),
   sport: 'Overwatch',
   areaServed: { '@type': 'Place', name: site.region },
+  ...(socialSameAs.length > 0 ? { sameAs: socialSameAs } : {}),
 };
 ---
 <!doctype html>
@@ -105,6 +113,7 @@ const orgJsonLd = {
     <meta property="og:image:height" content="630" />
 
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@najdorfesports" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
