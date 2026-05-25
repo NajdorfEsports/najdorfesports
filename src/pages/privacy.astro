@@ -2,7 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { site } from '../data/site';
 
-const updated = '2026-05-24';
+const updated = '2026-05-25';
 ---
 <BaseLayout
   title="Privacy Policy"
@@ -17,10 +17,14 @@ const updated = '2026-05-24';
     <aside class="mt-6 border-l-4 border-[var(--color-accent)] bg-[var(--color-surface)] px-5 py-4 text-sm">
       <p class="font-display tracking-wide text-base mb-2">In short</p>
       <p class="text-[var(--color-text)]">
-        This site sets no cookies of its own, runs no analytics, and embeds
-        no tracking scripts. Cloudflare sets one strictly-necessary security
-        cookie for bot protection. The Twitch player is click-to-load. No
-        request is made to Twitch until you press play.
+        <strong>We store zero visitor data.</strong> No cookies of our own,
+        no analytics, no tracking scripts, no first-party logs. If you
+        only browse, we hold nothing about you. The only personal data
+        we ever keep is correspondence you choose to send to
+        <Fragment set:html={'<!--email_off-->'} />owner@najdorfesports.gg<Fragment set:html={'<!--/email_off-->'} />.
+        Cloudflare sets one strictly-necessary security cookie for bot
+        protection; the Twitch player is click-to-load and never contacts
+        twitch.tv until you press play.
       </p>
     </aside>
 
@@ -98,9 +102,26 @@ const updated = '2026-05-24';
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">Your rights</h2>
       <p>
-        Depending on where you live, you may have the right to request a copy of any
-        personal data we hold about you, request that we delete it, or ask us to
-        correct it. Reach us at <Fragment set:html={'<!--email_off-->'} />{site.contactEmail}<Fragment set:html={'<!--/email_off-->'} />.
+        <strong>If you only browse this site, we hold no personal data
+        about you.</strong> The site itself collects nothing: no analytics,
+        no profiles, no logs of who visited which page. There is literally
+        nothing for us to look up, delete, or correct.
+      </p>
+      <p>
+        The single exception is correspondence. If you email
+        <Fragment set:html={'<!--email_off-->'} />{site.contactEmail}<Fragment set:html={'<!--/email_off-->'} />,
+        we keep your message and email address for as long as it takes to
+        reply and to maintain a reasonable record. You can ask us to
+        delete that thread at any time by writing to the same address.
+      </p>
+      <p>
+        Depending on where you live (GDPR in the EU/UK, CCPA in California,
+        PIPL in mainland China, APPI in Japan, PDPA in Singapore and Taiwan,
+        etc.) you may have additional statutory rights over any
+        correspondence we hold. Reach us at
+        <Fragment set:html={'<!--email_off-->'} />{site.contactEmail}<Fragment set:html={'<!--/email_off-->'} />
+        for any data request and we will respond within the timeframe your
+        local law requires.
       </p>
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">Changes</h2>
