@@ -13,10 +13,11 @@ const news = defineCollection({
      * Optional editorial controls for the typographic cover rendered on
      * the article hero + news-index cards. `eyebrow` is the small
      * uppercase label above the title ("Brand", "Match Report", etc.);
-     * `tone` flips the cover accent — crimson (default), gold, or split.
+     * `tone` flips the cover accent — primary (default), secondary, or
+     * split (gradient between both).
      */
     eyebrow: z.string().optional(),
-    tone: z.enum(['crimson', 'gold', 'split']).default('crimson'),
+    tone: z.enum(['primary', 'secondary', 'split']).default('primary'),
   }),
 });
 

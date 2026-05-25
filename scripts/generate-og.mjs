@@ -28,12 +28,12 @@ const NEWS_DIR = join(ROOT, 'src', 'content', 'news');
 /** Renders the OG card SVG. Tone toggles which accent leads on the bottom
  *  rail and the eyebrow color — primary blue by default, soft blue as the
  *  secondary, split for posts that span both. */
-function ogSvg({ eyebrow, title, tone = 'crimson' }) {
+function ogSvg({ eyebrow, title, tone = 'primary' }) {
   const accentTop = '#215BFF';
   const accentBot = '#6B8DFF';
-  const eyebrowColor = tone === 'gold' ? accentBot : accentTop;
-  const railTop = tone === 'gold' ? accentBot : accentTop;
-  const railBottom = tone === 'gold' ? accentTop : accentBot;
+  const eyebrowColor = tone === 'secondary' ? accentBot : accentTop;
+  const railTop = tone === 'secondary' ? accentBot : accentTop;
+  const railBottom = tone === 'secondary' ? accentTop : accentBot;
   // Hard-wrap long titles. Sized for a safe fit under the wide sans
   // fallback that librsvg/sharp uses when Anton isn't in the font cache.
   // Caps at 3 lines (ellipsis-truncated past that). Top-aligned at a
@@ -221,15 +221,15 @@ async function deriveBishopAssets() {
 const STATIC_ROUTES = [
   // The default ships at the top-level branding folder so existing
   // BaseLayout fallback paths keep working without changes.
-  { slug: '__default',  out: 'branding/og-default.png',  eyebrow: 'OWCS PACIFIC 2026', title: 'NAJDORF ESPORTS', tone: 'crimson' },
-  { slug: 'home',       out: 'branding/og/home.png',     eyebrow: 'OWCS PACIFIC 2026', title: 'Najdorf Esports', tone: 'crimson' },
-  { slug: 'roster',     out: 'branding/og/roster.png',   eyebrow: 'Active roster',     title: 'The Lineup',      tone: 'gold'    },
-  { slug: 'matches',    out: 'branding/og/matches.png',  eyebrow: 'OWCS Pacific 2026', title: 'Matches',         tone: 'crimson' },
-  { slug: 'news',       out: 'branding/og/news.png',     eyebrow: 'News',              title: 'From the team',   tone: 'split'   },
-  { slug: 'about',      out: 'branding/og/about.png',    eyebrow: 'About',             title: 'Najdorf Esports', tone: 'gold'    },
-  { slug: 'shop',       out: 'branding/og/shop.png',     eyebrow: 'Shop',              title: 'Opening soon',    tone: 'gold'    },
-  { slug: 'privacy',    out: 'branding/og/privacy.png',  eyebrow: 'Legal',             title: 'Privacy Policy',  tone: 'crimson' },
-  { slug: 'terms',      out: 'branding/og/terms.png',    eyebrow: 'Legal',             title: 'Terms of Use',    tone: 'crimson' },
+  { slug: '__default',  out: 'branding/og-default.png',  eyebrow: 'OWCS PACIFIC 2026', title: 'NAJDORF ESPORTS', tone: 'primary'   },
+  { slug: 'home',       out: 'branding/og/home.png',     eyebrow: 'OWCS PACIFIC 2026', title: 'Najdorf Esports', tone: 'primary'   },
+  { slug: 'roster',     out: 'branding/og/roster.png',   eyebrow: 'Active roster',     title: 'The Lineup',      tone: 'secondary' },
+  { slug: 'matches',    out: 'branding/og/matches.png',  eyebrow: 'OWCS Pacific 2026', title: 'Matches',         tone: 'primary'   },
+  { slug: 'news',       out: 'branding/og/news.png',     eyebrow: 'News',              title: 'From the team',   tone: 'split'     },
+  { slug: 'about',      out: 'branding/og/about.png',    eyebrow: 'About',             title: 'Najdorf Esports', tone: 'secondary' },
+  { slug: 'shop',       out: 'branding/og/shop.png',     eyebrow: 'Shop',              title: 'Drops with the LAN', tone: 'secondary' },
+  { slug: 'privacy',    out: 'branding/og/privacy.png',  eyebrow: 'Legal',             title: 'Privacy Policy',  tone: 'primary'   },
+  { slug: 'terms',      out: 'branding/og/terms.png',    eyebrow: 'Legal',             title: 'Terms of Use',    tone: 'primary'   },
 ];
 
 /** Parse the YAML-ish frontmatter of a markdown post just well enough to
@@ -269,7 +269,7 @@ async function newsRoutes() {
       out: `branding/og/news-${slug}.png`,
       eyebrow: fm.eyebrow || 'News',
       title: fm.title,
-      tone: (fm.tone === 'gold' || fm.tone === 'split') ? fm.tone : 'crimson',
+      tone: (fm.tone === 'secondary' || fm.tone === 'split') ? fm.tone : 'primary',
     });
   }
   return out;

@@ -6,7 +6,7 @@
  *
  * The "image" is rendered from the post metadata + a bishop motif rather
  * than from a static asset, so adding a new post doesn't require running
- * a generator script or committing a binary. Tone (crimson / gold /
+ * a generator script or committing a binary. Tone (primary / secondary /
  * split) drives the gradient + accent color; eyebrow is the small
  * uppercase chip above the title.
  */
@@ -17,7 +17,7 @@ interface Props {
   title: string;
   date: Date;
   eyebrow?: string;
-  tone?: 'crimson' | 'gold' | 'split';
+  tone?: 'primary' | 'secondary' | 'split';
   variant?: 'hero' | 'card';
 }
 
@@ -25,7 +25,7 @@ const {
   title,
   date,
   eyebrow,
-  tone = 'crimson',
+  tone = 'primary',
   variant = 'hero',
 } = Astro.props;
 
@@ -37,6 +37,13 @@ const dateLabel = formatDate(date, DEFAULT_LOCALE, {
 });
 ---
 <div class:list={['news-cover', `news-cover--${tone}`, `news-cover--${variant}`]} aria-hidden="false">
+  {/* Top accent rule — gives the cover a defined "card top" edge so the
+      cover never reads as empty space, even when the bishop watermark
+      sits low in the frame. */}
+  <span class="news-cover__rule" aria-hidden="true"></span>
+
+  {/* Bishop motif — larger + more opaque than the previous pass so the
+      cover always carries clear visual weight, even at card sizes. */}
   <span class="news-cover__bishop" aria-hidden="true">
     <svg viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.4">
       <path fill-rule="evenodd" d="M32 6 C 40 18, 44 30, 44 38 C 44 46, 38 50, 32 50 C 26 50, 20 46, 20 38 C 20 30, 24 18, 32 6 Z"/>
@@ -46,6 +53,22 @@ const dateLabel = formatDate(date, DEFAULT_LOCALE, {
       <path d="M22 60 L 42 60 L 46 78 L 18 78 Z"/>
       <path d="M14 78 L 50 78 L 52 88 L 12 88 Z"/>
       <ellipse cx="32" cy="90" rx="22" ry="3.5"/>
+    </svg>
+  </span>
+
+  {/* X chess cross watermark in the lower-left — echoes the org mark so
+      the cover reads as branded, not as an empty placeholder. */}
+  <span class="news-cover__cross" aria-hidden="true">
+    <svg viewBox="0 0 120 120" fill="currentColor">
+      <polygon points="22,38 33,49 22,60 11,49"/>
+      <polygon points="22,60 33,71 22,82 11,71"/>
+      <polygon points="87,49 98,60 87,71 76,60"/>
+      <polygon points="109,49 120,60 109,71 98,60"/>
+      <polygon points="11,89 22,100 11,111 0,100"/>
+      <polygon points="33,89 44,100 33,111 22,100"/>
+      <polygon points="98,78 109,89 98,100 87,89"/>
+      <polygon points="98,100 109,111 98,122 87,111"/>
+      <polygon points="60,68 68,76 60,84 52,76"/>
     </svg>
   </span>
 
@@ -67,58 +90,89 @@ const dateLabel = formatDate(date, DEFAULT_LOCALE, {
     isolation: isolate;
     border-radius: 0.375rem;
     background:
-      linear-gradient(180deg,
-        color-mix(in oklab, var(--cover-accent, var(--color-accent)) 12%, var(--color-surface)) 0%,
-        var(--color-surface) 70%);
+      linear-gradient(165deg,
+        color-mix(in oklab, var(--cover-accent, var(--color-accent)) 18%, var(--color-surface)) 0%,
+        var(--color-surface) 60%,
+        color-mix(in oklab, var(--color-bg) 60%, var(--color-surface)) 100%);
     border: 1px solid var(--color-border);
   }
 
-  .news-cover--crimson { --cover-accent: var(--color-accent); }
-  .news-cover--gold    { --cover-accent: var(--color-accent-2); }
+  .news-cover--primary   { --cover-accent: var(--color-accent); }
+  .news-cover--secondary { --cover-accent: var(--color-accent-2); }
   .news-cover--split {
     --cover-accent: var(--color-accent);
     background:
       linear-gradient(135deg,
-        color-mix(in oklab, var(--color-accent) 18%, var(--color-surface)) 0%,
+        color-mix(in oklab, var(--color-accent) 22%, var(--color-surface)) 0%,
         var(--color-surface) 45%,
-        color-mix(in oklab, var(--color-accent-2) 16%, var(--color-surface)) 100%);
+        color-mix(in oklab, var(--color-accent-2) 20%, var(--color-surface)) 100%);
   }
 
-  /* Variant-specific sizing. Hero is the full article header band; card
-   * is the smaller thumbnail above the news-index summary text. */
+  /* Variant-specific sizing. Tightened from the previous 16:7 / 24:9 so
+   * the middle band stops reading as empty space. */
   .news-cover--hero {
-    aspect-ratio: 24 / 9;
-    padding: 2rem 1.75rem;
+    aspect-ratio: 21 / 9;
+    padding: 2.25rem 2rem;
   }
   .news-cover--card {
-    aspect-ratio: 16 / 7;
-    padding: 1.25rem 1.25rem;
+    aspect-ratio: 16 / 9;
+    padding: 1.5rem 1.5rem;
   }
 
-  /* Bishop motif sits behind the content. Larger + brighter on hero;
-   * subtler on card. Uses currentColor so the tone modifier above
-   * tints the watermark. */
+  /* Top accent rule. 2px tinted line anchors the cover. */
+  .news-cover__rule {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+      var(--cover-accent, var(--color-accent)) 0%,
+      color-mix(in oklab, var(--cover-accent, var(--color-accent)) 40%, transparent) 60%,
+      transparent 100%);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* Bishop watermark — larger + more opaque than the previous pass. */
   .news-cover__bishop {
     position: absolute;
-    right: -2.5%;
-    bottom: -18%;
+    right: -3%;
+    bottom: -22%;
     color: var(--cover-accent, var(--color-accent));
-    opacity: 0.18;
+    opacity: 0.32;
     pointer-events: none;
   }
   .news-cover__bishop svg {
     display: block;
     width: auto;
   }
-  .news-cover--hero .news-cover__bishop svg { height: 200%; }
-  .news-cover--card .news-cover__bishop svg { height: 180%; }
+  .news-cover--hero .news-cover__bishop svg { height: 220%; }
+  .news-cover--card .news-cover__bishop svg { height: 200%; }
   .news-cover--card .news-cover__bishop {
-    right: -10%;
-    bottom: -30%;
+    right: -8%;
+    bottom: -28%;
   }
 
-  /* Faint diagonal hatch — subliminal "draft / chess notation" feel.
-   * Tinted by the cover accent so it carries the tone. */
+  /* X chess cross watermark in the lower-left — echoes the org mark. */
+  .news-cover__cross {
+    position: absolute;
+    left: 1.25rem;
+    bottom: 1rem;
+    width: 64px;
+    color: var(--cover-accent, var(--color-accent));
+    opacity: 0.28;
+    pointer-events: none;
+  }
+  .news-cover__cross svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .news-cover--hero .news-cover__cross { width: 96px; left: 2rem; bottom: 1.75rem; }
+  .news-cover--card .news-cover__cross { width: 52px; }
+
+  /* Diagonal hatch — slightly more visible than before. */
   .news-cover::before {
     content: '';
     position: absolute;
@@ -128,11 +182,11 @@ const dateLabel = formatDate(date, DEFAULT_LOCALE, {
       135deg,
       transparent 0,
       transparent 14px,
-      color-mix(in oklab, var(--cover-accent, var(--color-accent)) 10%, transparent) 14px,
-      color-mix(in oklab, var(--cover-accent, var(--color-accent)) 10%, transparent) 15px
+      color-mix(in oklab, var(--cover-accent, var(--color-accent)) 14%, transparent) 14px,
+      color-mix(in oklab, var(--cover-accent, var(--color-accent)) 14%, transparent) 15px
     );
     mix-blend-mode: overlay;
-    opacity: 0.45;
+    opacity: 0.55;
   }
 
   .news-cover__content {
@@ -166,12 +220,13 @@ const dateLabel = formatDate(date, DEFAULT_LOCALE, {
     letter-spacing: -0.005em;
     line-height: 1.05;
     margin-top: 1.5rem;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
   }
   .news-cover__title--hero {
     font-size: clamp(1.75rem, 3.6vw, 3.25rem);
   }
   .news-cover__title--card {
-    font-size: clamp(1.25rem, 2vw, 1.6rem);
+    font-size: clamp(1.35rem, 2.1vw, 1.75rem);
     margin-top: 0.75rem;
   }
 </style>
