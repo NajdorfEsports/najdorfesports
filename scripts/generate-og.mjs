@@ -156,55 +156,49 @@ function wrapTitle(title, maxChars, maxLines) {
 // ---------------------------------------------------------------------------
 // Bishop logo: source-of-truth raster
 // ---------------------------------------------------------------------------
-// The owner's hand-drawn bishop + X-chess + wordmark mark, kept strictly
-// black & white. Anything that renders the logo as a bitmap (PWA icons,
-// off-site square logo) is derived from this single file so the next time
-// the owner drops in an updated PNG, a single `npm run build:og` re-derives
-// the full set without re-touching the SVGs.
+// The owner's hand-drawn bishop + X-chess mark, kept strictly black & white.
+// Source is transparent-bg + opaque black artwork — keeping the source
+// transparent gives the pipeline freedom to composite onto whatever surface
+// each derivative needs.
 //
-// Source format expectations: square-ish PNG, transparent or white bg,
-// black artwork. Wordmark stacked under the mark — generators that need
-// just the bishop+cross crop off the bottom band automatically.
+// Re-drop an updated PNG at this path (same dimensions or scaled) and a
+// single `npm run build:og` re-derives the full output set.
 const SOURCE_LOGO = join(PUBLIC, 'branding', 'najdorf-esports-logo.png');
 
 /** Generate the raster logo outputs from the source PNG.
  *
- *  Two output shapes:
- *  - Full mark with wordmark, padded to a square — for bishop-logo.png.
- *  - Bishop+chess only (wordmark cropped off the bottom) — for the PWA /
- *    Apple touch icons, since the wordmark is unreadable at icon sizes.
+ *  All outputs flatten the transparent source onto white — PWA / Apple
+ *  touch icons need a solid background (iOS strips alpha), and the
+ *  off-site square logo reads cleanly as a B&W card on any host
+ *  (Discord, X, GitHub org).
  *
- *  Both pad with white so the B&W treatment survives onto every surface
- *  (browser tab, iOS home screen, Discord avatar). No tinting, no overlays.
+ *  If a future surface needs the transparent source directly, it can
+ *  reference /branding/najdorf-esports-logo.png — that file is the
+ *  source-of-truth and ships unchanged.
  */
 async function deriveBishopAssets() {
-  const meta = await sharp(SOURCE_LOGO).metadata();
-
-  // Heuristic: bishop + chess fills the top ~83% of the canvas, wordmark
-  // sits in the bottom band. Tuned for the supplied 658x750 source; the
-  // ratio works for any future re-upload at the same composition.
-  const cropHeight = Math.round(meta.height * 0.83);
-  const bishopCrop = { left: 0, top: 0, width: meta.width, height: cropHeight };
   const white = { r: 255, g: 255, b: 255, alpha: 1 };
 
-  // bishop-logo.png — full mark + wordmark, square-padded for off-site use.
-  await sharp(SOURCE_LOGO)
-    .resize(1024, 1024, { fit: 'contain', background: white })
-    .png()
-    .toFile(join(PUBLIC, 'branding', 'bishop-logo.png'));
+  // Mirrors so each output uses the same composite recipe: flatten the
+  // transparent artwork onto white, then square-pad with white if the
+  // source aspect isn't 1:1.
+  const renderToSquare = (size) =>
+    sharp(SOURCE_LOGO)
+      .flatten({ background: white })
+      .resize(size, size, { fit: 'contain', background: white })
+      .png();
+
+  // bishop-logo.png — square logo for off-site use (Discord, X avatar).
+  await renderToSquare(1024).toFile(join(PUBLIC, 'branding', 'bishop-logo.png'));
   console.log(`Wrote ${join(PUBLIC, 'branding', 'bishop-logo.png')}`);
 
-  // PWA / Apple touch icons — bishop + chess only, square-padded.
+  // PWA / Apple touch icons.
   for (const [filename, size] of [
     ['apple-touch-icon.png', 180],
     ['icon-192.png', 192],
     ['icon-512.png', 512],
   ]) {
-    await sharp(SOURCE_LOGO)
-      .extract(bishopCrop)
-      .resize(size, size, { fit: 'contain', background: white })
-      .png()
-      .toFile(join(PUBLIC, filename));
+    await renderToSquare(size).toFile(join(PUBLIC, filename));
     console.log(`Wrote ${join(PUBLIC, filename)}`);
   }
 }
