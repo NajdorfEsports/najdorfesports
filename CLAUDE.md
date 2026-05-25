@@ -89,6 +89,13 @@ already obvious from the file tree or `package.json` are not repeated here.
   Run `npm run fetch:heroes` afterward so any new signature hero gets its
   portrait downloaded. Useful for new joins before the weekly team-page
   fetcher picks them up, or when overriding any field for one player.
+- `npm run fetch:maps` — same shape as `fetch:heroes` but for map images.
+  Reads every `mapScores[].map` from `matches.json` + `matches.manual.json`,
+  downloads each map's image from Liquipedia's lpcommons, writes WebP
+  thumbnails to `public/maps/<slug>.webp`, and rewrites `src/data/maps.json`
+  with the name → URL map. `MatchCard.astro` uses these as the card
+  backdrop (the deciding/last map of each match). Run this after the
+  matches fetcher introduces a new map name.
 - `src/data/site.ts` holds brand constants, OWCS season metadata, the
   socials list, and shared TS types. Socials with `url: 'TODO'` are filtered
   out by `<SocialRow>` so nothing broken ships.

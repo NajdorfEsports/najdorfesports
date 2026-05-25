@@ -11,6 +11,7 @@
     "astro": "astro",
     "fetch:matches": "node scripts/fetch-liquipedia.mjs",
     "fetch:heroes": "node scripts/fetch-hero-icons.mjs",
+    "fetch:maps": "node scripts/fetch-map-icons.mjs",
     "fetch:player": "node scripts/fetch-player.mjs",
     "build:og": "node scripts/generate-og.mjs",
     "deploy": "npm run build && wrangler deploy",

@@ -3,6 +3,7 @@ import Badge from '../ui/Badge.astro';
 import type { MatchEntry } from '../../data/site';
 import { DEFAULT_LOCALE, useT, type Locale } from '../../i18n';
 import { formatDate, translateTournament } from '../../i18n/format';
+import mapIcons from '../../data/maps.json';
 
 interface Props {
   match: MatchEntry;
@@ -43,9 +44,39 @@ const aggregate = match.mapScores?.reduce(
 const isPast = date.getTime() < Date.now();
 const watchUrl = isPast ? match.vodUrl : match.streamUrl;
 const watchLabel = isPast ? t.match.watchVod : t.match.watch;
+
+// Backdrop image: the LAST map of the match (the deciding map) with a
+// known icon. Picking the decider gives every card a different backdrop
+// even when matches share the standard Control opener (Lijiang / Busan
+// run a lot), and ties the artwork to the moment the series was decided.
+// Maps without an icon entry silently fall back to the next-most-recent
+// map; if none have icons, the card renders on the plain surface.
+const heroMap = (match.mapScores ?? [])
+  .slice()
+  .reverse()
+  .map((m) => m.map)
+  .find((name) => name && (mapIcons as Record<string, string>)[name]);
+const backdropUrl = heroMap ? (mapIcons as Record<string, string>)[heroMap] : null;
 ---
-<article class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-4 sm:p-5 grid grid-cols-[auto_1fr_auto] gap-4 items-center">
-  <div class="text-center w-16">
+<article
+  class:list={[
+    'match-card relative overflow-hidden isolate bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-4 sm:p-5 grid grid-cols-[auto_1fr_auto] gap-4 items-center',
+    backdropUrl ? 'match-card--has-backdrop' : '',
+  ]}
+>
+  {backdropUrl && (
+    <>
+      <div
+        class="match-card__backdrop"
+        style={`background-image: url('${backdropUrl}');`}
+        aria-hidden="true"
+        data-map={heroMap}
+      ></div>
+      <div class="match-card__overlay" aria-hidden="true"></div>
+    </>
+  )}
+
+  <div class="match-card__content relative z-10 text-center w-16">
     <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
       {weekday}
     </p>
@@ -55,7 +86,7 @@ const watchLabel = isPast ? t.match.watchVod : t.match.watch;
     </p>
   </div>
 
-  <div class="min-w-0">
+  <div class="match-card__content relative z-10 min-w-0">
     <p class="text-xs uppercase tracking-wider text-[var(--color-accent-2)]">
       {translateTournament(match.tournament, locale)}
     </p>
@@ -80,7 +111,7 @@ const watchLabel = isPast ? t.match.watchVod : t.match.watch;
     </p>
   </div>
 
-  <div class="text-right">
+  <div class="match-card__content relative z-10 text-right">
     {match.result === 'tbd' ? (
       <Badge tone="neutral">{t.match.tbd}</Badge>
     ) : (
@@ -97,3 +128,78 @@ const watchLabel = isPast ? t.match.watchVod : t.match.watch;
     )}
   </div>
 </article>
+
+<style>
+  .match-card {
+    transition:
+      transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.2s ease-out,
+      box-shadow 0.25s ease-out;
+  }
+
+  .match-card--has-backdrop:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklab, var(--color-accent) 60%, var(--color-border));
+    box-shadow:
+      0 1px 0 0 color-mix(in oklab, var(--color-accent) 35%, transparent),
+      0 14px 36px -18px color-mix(in oklab, var(--color-accent) 55%, transparent);
+  }
+
+  /* Map backdrop, vertically fills the card. Soft Ken-Burns zoom on hover
+   * matches the player card "breathing" effect: subtle, cinematic, not a
+   * jarring scale-up. */
+  .match-card__backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-size: cover;
+    background-position: 50% 45%;
+    background-repeat: no-repeat;
+    border-radius: inherit;
+    transform-origin: 50% 45%;
+    transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+    pointer-events: none;
+  }
+  .match-card--has-backdrop:hover .match-card__backdrop {
+    transform: scale(1.06);
+  }
+
+  /* Dark overlay so text stays readable over the map. Slightly heavier
+   * on the left + right edges (where the date pillar and result badge
+   * live) so those numbers don't fight the backdrop. */
+  .match-card__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      linear-gradient(
+        90deg,
+        rgba(11, 11, 15, 0.92) 0%,
+        rgba(11, 11, 15, 0.74) 18%,
+        rgba(11, 11, 15, 0.62) 50%,
+        rgba(11, 11, 15, 0.74) 82%,
+        rgba(11, 11, 15, 0.92) 100%
+      );
+    transition: opacity 450ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .match-card--has-backdrop:hover .match-card__overlay {
+    opacity: 0.88;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .match-card,
+    .match-card__backdrop,
+    .match-card__overlay {
+      transition: none;
+    }
+    .match-card--has-backdrop:hover {
+      transform: none;
+    }
+    .match-card--has-backdrop:hover .match-card__backdrop {
+      transform: none;
+    }
+  }
+</style>
