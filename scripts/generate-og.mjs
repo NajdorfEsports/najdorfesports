@@ -179,9 +179,9 @@ const SOURCE_LOGO = join(PUBLIC, 'branding', 'najdorf-esports-logo.png');
 async function deriveBishopAssets() {
   const white = { r: 255, g: 255, b: 255, alpha: 1 };
 
-  // Mirrors so each output uses the same composite recipe: flatten the
-  // transparent artwork onto white, then square-pad with white if the
-  // source aspect isn't 1:1.
+  // White-bg square variant — flatten transparent artwork onto white,
+  // then square-pad if the source aspect isn't 1:1. Used for avatar /
+  // home-screen surfaces that need a solid background.
   const renderToSquare = (size) =>
     sharp(SOURCE_LOGO)
       .flatten({ background: white })
@@ -201,6 +201,17 @@ async function deriveBishopAssets() {
     await renderToSquare(size).toFile(join(PUBLIC, filename));
     console.log(`Wrote ${join(PUBLIC, filename)}`);
   }
+
+  // bishop-logo-dark.png — white-on-transparent variant for use on dark
+  // surfaces (site header, future dark contexts). `.negate({alpha:false})`
+  // inverts the RGB channels (black → white) while leaving the alpha
+  // mask untouched, so the silhouette stays pixel-identical to the source.
+  // No resize: the consumer (e.g. <img height>) scales it to fit.
+  await sharp(SOURCE_LOGO)
+    .negate({ alpha: false })
+    .png()
+    .toFile(join(PUBLIC, 'branding', 'bishop-logo-dark.png'));
+  console.log(`Wrote ${join(PUBLIC, 'branding', 'bishop-logo-dark.png')}`);
 }
 
 // ---------------------------------------------------------------------------
