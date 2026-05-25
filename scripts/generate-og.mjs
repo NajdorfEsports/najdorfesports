@@ -27,8 +27,13 @@ const NEWS_DIR = join(ROOT, 'src', 'content', 'news');
 
 /** Renders the OG card SVG. Tone toggles which accent leads on the bottom
  *  rail and the eyebrow color, primary blue by default, soft blue as the
- *  secondary, split for posts that span both. */
-function ogSvg({ eyebrow, title, tone = 'primary' }) {
+ *  secondary, split for posts that span both.
+ *
+ *  `bishopUri` is a data: URI of the owner's bishop logo (the white-on-
+ *  transparent variant derived from najdorf-esports-logo.png). Embedding
+ *  the real artwork rather than redrawing a hand-coded SVG approximation
+ *  keeps the OG unfurl visually identical to the in-site logo. */
+function ogSvg({ eyebrow, title, tone = 'primary' }, bishopUri) {
   const accentTop = '#215BFF';
   const accentBot = '#6B8DFF';
   const eyebrowColor = tone === 'secondary' ? accentBot : accentTop;
@@ -71,36 +76,11 @@ function ogSvg({ eyebrow, title, tone = 'primary' }) {
     <ellipse cx="32" cy="90" rx="22" ry="3.5"/>
   </g>
 
-  <!-- Small org bishop, top-left, rendered in monochrome white to match
-       the B&W logo treatment (see public/branding/najdorf-esports-logo.png).
-       Brand blue stays on the rails + eyebrow so the card still carries
-       the accent without recolouring the logo mark. -->
-  <g transform="translate(96 200)" fill="#FFFFFF">
-    <path fill-rule="evenodd" d="M48 9 C 60 27, 66 45, 66 57 C 66 69, 57 75, 48 75 C 39 75, 30 69, 30 57 C 30 45, 36 27, 48 9 Z M42 18 L 57 33 L 54 36 L 39 21 Z"/>
-    <rect x="39" y="69" width="18" height="18"/>
-    <rect x="30" y="84" width="36" height="9" rx="1.5"/>
-    <path d="M33 90 L 63 90 L 69 117 L 27 117 Z"/>
-    <path d="M21 117 L 75 117 L 78 132 L 18 132 Z"/>
-    <ellipse cx="48" cy="135" rx="33" ry="5.25"/>
-    <!-- Compact X chess-cross signature beneath the bishop. Four diamond
-         tiles arranged in X formation around a center keystone. Each tile
-         carries two filled sub-cells; the unfilled cells stay transparent
-         so the chess pattern reads cleanly against the OG card surface. -->
-    <!-- NW tile: N + S sub-cells -->
-    <polygon points="40,153 47,160 40,167 33,160"/>
-    <polygon points="40,167 47,174 40,181 33,174"/>
-    <!-- NE tile: W + E sub-cells -->
-    <polygon points="61,153 68,160 61,167 54,160"/>
-    <polygon points="75,153 82,160 75,167 68,160"/>
-    <!-- SW tile: W + E sub-cells -->
-    <polygon points="33,181 40,188 33,195 26,188"/>
-    <polygon points="47,181 54,188 47,195 40,188"/>
-    <!-- SE tile: N + S sub-cells -->
-    <polygon points="68,174 75,181 68,188 61,181"/>
-    <polygon points="68,188 75,195 68,202 61,195"/>
-    <!-- Center keystone -->
-    <polygon points="54,170 58,174 54,178 50,174"/>
-  </g>
+  <!-- Small org bishop, top-left. Embeds the owner's actual logo PNG
+       (white-on-transparent variant) so the OG unfurl matches what's
+       in the site header rather than a hand-drawn approximation. Sized
+       to fit alongside the title column without overlap. -->
+  <image href="${bishopUri}" x="78" y="190" width="142" height="162" preserveAspectRatio="xMidYMid meet"/>
 
   <!-- Eyebrow chip -->
   <text x="240" y="210" font-family="Inter, system-ui, sans-serif" font-size="26" font-weight="600" letter-spacing="6" fill="${eyebrowColor}">
@@ -281,15 +261,20 @@ async function newsRoutes() {
 
 const routes = [...STATIC_ROUTES, ...(await newsRoutes())];
 
-const tasks = routes.map((r) => ({ svg: ogSvg(r), out: join(PUBLIC, r.out) }));
+// Generate the raster bishop assets first so bishop-logo-dark.png exists
+// before we try to embed it in the OG cards.
+await deriveBishopAssets();
+
+// Embed the white-on-transparent logo variant as a data: URI inside the
+// OG SVG. The PNG is small enough that the resulting SVG strings stay
+// well under a few hundred KB.
+const bishopDarkBytes = await readFile(join(PUBLIC, 'branding', 'bishop-logo-dark.png'));
+const bishopDarkDataUri = `data:image/png;base64,${bishopDarkBytes.toString('base64')}`;
+
+const tasks = routes.map((r) => ({ svg: ogSvg(r, bishopDarkDataUri), out: join(PUBLIC, r.out) }));
 
 for (const { svg, out } of tasks) {
   await mkdir(dirname(out), { recursive: true });
   await sharp(Buffer.from(svg)).png().toFile(out);
   console.log(`Wrote ${out}`);
 }
-
-// Raster logo set (PWA icons + off-site square logo) is derived from the
-// owner's source PNG so future updates to the artwork only need a re-drop
-// of that one file.
-await deriveBishopAssets();
