@@ -32,20 +32,16 @@ const aggregate = match.mapScores?.reduce(
 );
 
 // Watch-link resolution.
-//   Upcoming match  -> streamUrl (live channel)
-//   Past match      -> vodUrl  (specific VOD)
-//                      || streamUrl's /videos page (channel VOD list)
-//                      || streamUrl raw (last resort)
-// The transform only rewrites Twitch / YouTube channel-root URLs;
-// anything else passes through untouched.
+//   Upcoming match  -> streamUrl (live channel) labelled 'Watch'.
+//   Past match      -> only render a link if vodUrl points at a specific
+//                      saved VOD. Channel-root URLs are NEVER surfaced
+//                      for past matches: a "Watch" link that lands on
+//                      the live channel (or a stale VOD list) reads as
+//                      misleading more than helpful. Owner fills vodUrl
+//                      in matches.manual.json as they find direct
+//                      Twitch /videos/N or YouTube watch URLs.
 const isPast = date.getTime() < Date.now();
-function vodListFallback(channelUrl: string): string {
-  const m = channelUrl.match(/^(https?:\/\/(?:www\.)?(?:twitch\.tv|youtube\.com)\/[^/?#]+)\/?$/);
-  return m ? `${m[1]}/videos` : channelUrl;
-}
-const watchUrl = isPast
-  ? (match.vodUrl ?? (match.streamUrl ? vodListFallback(match.streamUrl) : undefined))
-  : match.streamUrl;
+const watchUrl = isPast ? match.vodUrl : match.streamUrl;
 const watchLabel = isPast ? t.match.watchVod : t.match.watch;
 ---
 <article class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-4 sm:p-5 grid grid-cols-[auto_1fr_auto] gap-4 items-center">
