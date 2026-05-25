@@ -1,5 +1,19 @@
 [
   {
+    "handle": "akie",
+    "role": "Tank",
+    "countryCode": "kr",
+    "country": "South Korea",
+    "status": "active",
+    "realName": "Park Do-yun",
+    "birthDate": "2006-08-21"
+  },
+  {
+    "handle": "fee1ing",
+    "role": "Tank",
+    "status": "active"
+  },
+  {
     "handle": "brysonbtw",
     "role": "DPS",
     "countryCode": "hk",
@@ -30,29 +44,6 @@
     "twitch": "https://twitch.tv/laiy055555"
   },
   {
-    "handle": "OH1YO",
-    "role": "DPS",
-    "countryCode": "tw",
-    "country": "Taiwan",
-    "status": "dnp",
-    "statusNote": "DNP · Stage 1"
-  },
-  {
-    "handle": "Despair",
-    "role": "Tank",
-    "status": "active",
-    "realName": "Choy Yu-ting",
-    "birthDate": "2003-06-12",
-    "signatureHeroes": [
-      "Pharah",
-      "Echo",
-      "Tracer"
-    ],
-    "altRoles": [
-      "DPS"
-    ]
-  },
-  {
     "handle": "FEI",
     "role": "Support",
     "countryCode": "tw",
@@ -68,11 +59,26 @@
     "twitch": "https://twitch.tv/summr0824"
   },
   {
-    "handle": "Amamiyaren",
+    "handle": "Tom4to",
     "role": "Support",
     "countryCode": "cn",
     "country": "China",
-    "status": "active"
+    "status": "active",
+    "realName": "Zhao Yijie"
+  },
+  {
+    "handle": "TiAmo",
+    "role": "Support",
+    "countryCode": "tw",
+    "country": "Taiwan",
+    "status": "active",
+    "realName": "Chien Chun-yu",
+    "birthDate": "2003-12-18",
+    "signatureHeroes": [
+      "Ana",
+      "Zenyatta",
+      "Lucio"
+    ]
   },
   {
     "handle": "Detai1",
@@ -89,5 +95,10 @@
     "altRoles": [
       "Tank"
     ]
+  },
+  {
+    "handle": "rabbit",
+    "role": "Manager",
+    "status": "active"
   }
 ]

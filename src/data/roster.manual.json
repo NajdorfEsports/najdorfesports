@@ -1,11 +1,11 @@
 [
   {
-    "handle": "Despair",
+    "handle": "akie",
     "role": "Tank",
-    "country": "Hong Kong",
-    "countryCode": "hk",
+    "country": "South Korea",
+    "countryCode": "kr",
     "status": "active",
-    "liquipediaUrl": "https://liquipedia.net/overwatch/Despair"
+    "liquipediaUrl": "https://liquipedia.net/overwatch/Akie"
   },
   {
     "handle": "brysonbtw",
@@ -24,14 +24,6 @@
     "liquipediaUrl": "https://liquipedia.net/overwatch/Zephyr"
   },
   {
-    "handle": "OH1YO",
-    "role": "DPS",
-    "country": "Taiwan",
-    "countryCode": "tw",
-    "status": "dnp",
-    "liquipediaUrl": "https://liquipedia.net/overwatch/OH1YO"
-  },
-  {
     "handle": "FEI",
     "role": "Support",
     "country": "Taiwan",
@@ -40,11 +32,27 @@
     "liquipediaUrl": "https://liquipedia.net/overwatch/FEI"
   },
   {
-    "handle": "Amamiyaren",
+    "handle": "Tom4to",
     "role": "Support",
     "country": "China",
     "countryCode": "cn",
     "status": "active",
-    "liquipediaUrl": "https://liquipedia.net/overwatch/Amamiyaren"
+    "liquipediaUrl": "https://liquipedia.net/overwatch/Tom4to"
+  },
+  {
+    "handle": "TiAmo",
+    "role": "Support",
+    "country": "Taiwan",
+    "countryCode": "tw",
+    "status": "active",
+    "liquipediaUrl": "https://liquipedia.net/overwatch/TiAmo"
+  },
+  {
+    "handle": "Detai1",
+    "role": "Coach",
+    "country": "Taiwan",
+    "countryCode": "tw",
+    "status": "active",
+    "liquipediaUrl": "https://liquipedia.net/overwatch/Detai1"
   }
 ]
