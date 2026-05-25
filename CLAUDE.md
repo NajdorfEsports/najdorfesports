@@ -80,6 +80,15 @@ already obvious from the file tree or `package.json` are not repeated here.
   by the GH Action. NOTE: if you need to remove a player that Liquipedia
   still lists, you have to also edit the auto file directly until Liquipedia
   catches up; manual overrides cannot delete an auto entry.
+- `npm run fetch:player <url-or-handle> [--apply]` — pulls a single player's
+  Liquipedia profile and shapes it into a `roster.manual.json` entry
+  (handle, role, country + code, birth date, signature heroes, twitter /
+  twitch / youtube, real name, liquipediaUrl). Without `--apply` it prints
+  the entry to stdout for review; with `--apply` it merges into
+  `roster.manual.json` by handle (existing manual keys win on collision).
+  Run `npm run fetch:heroes` afterward so any new signature hero gets its
+  portrait downloaded. Useful for new joins before the weekly team-page
+  fetcher picks them up, or when overriding any field for one player.
 - `src/data/site.ts` holds brand constants, OWCS season metadata, the
   socials list, and shared TS types. Socials with `url: 'TODO'` are filtered
   out by `<SocialRow>` so nothing broken ships.

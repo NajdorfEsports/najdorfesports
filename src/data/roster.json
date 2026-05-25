@@ -16,6 +16,8 @@
   {
     "handle": "fee1ing",
     "role": "Tank",
+    "countryCode": "tw",
+    "country": "Taiwan",
     "status": "active",
     "signatureHeroes": [
       "Reinhardt",
