@@ -7,7 +7,7 @@
  * proper-noun stage names in Latin script). Brand names, team names,
  * player handles, and ${var} interpolations stay as-is.
  *
- * Native speakers — please PR fixes. The dict shape is enforced by
+ * Native speakers, please PR fixes. The dict shape is enforced by
  * `Strings` from ./en, so the type checker will catch missing keys.
  */
 import type { Strings } from './en';
@@ -58,7 +58,7 @@ export const zhTW: Strings = {
   about: {
     eyebrow: '關於',
     body: (year, region) =>
-      `Najdorf Esports 是一支以${region}賽區為據點的競技型《鬥陣特攻》戰隊。隊伍於 ${year} 年成立，目前征戰 OWCS Pacific。第二階段主賽事將於 2026 年 6 月 4 日至 7 月 9 日進行。隊名取自西西里防禦的 Najdorf 變例 — 一個比對手多算一步而勝出的開局。`,
+      `Najdorf Esports 是一支以${region}賽區為據點的競技型《鬥陣特攻》戰隊。隊伍於 ${year} 年成立，目前征戰 OWCS Pacific。第二階段主賽事將於 2026 年 6 月 4 日至 7 月 9 日進行。隊名取自西西里防禦的 Najdorf 變例，一個比對手多算一步而勝出的開局。`,
     previously:     '前身為 OWCS Pacific 賽事中的 Rankers。',
     contactHeading: '聯絡我們',
     contactNote:    '合作、媒體與選手相關洽詢，請寄送至上方信箱。',

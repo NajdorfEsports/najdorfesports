@@ -1,8 +1,8 @@
 ---
 /**
  * Typographic news cover. Used in two variants:
- *   - `variant="hero"`  — full-width article hero block on /news/<slug>/
- *   - `variant="card"`  — compact thumb at the top of each card on /news/
+ *   - `variant="hero"`, full-width article hero block on /news/<slug>/
+ *   - `variant="card"`, compact thumb at the top of each card on /news/
  *
  * The "image" is rendered from the post metadata + a bishop motif rather
  * than from a static asset, so adding a new post doesn't require running
@@ -37,12 +37,12 @@ const dateLabel = formatDate(date, DEFAULT_LOCALE, {
 });
 ---
 <div class:list={['news-cover', `news-cover--${tone}`, `news-cover--${variant}`]} aria-hidden="false">
-  {/* Top accent rule — gives the cover a defined "card top" edge so the
+  {/* Top accent rule, gives the cover a defined "card top" edge so the
       cover never reads as empty space, even when the bishop watermark
       sits low in the frame. */}
   <span class="news-cover__rule" aria-hidden="true"></span>
 
-  {/* Bishop motif — larger + more opaque than the previous pass so the
+  {/* Bishop motif, larger + more opaque than the previous pass so the
       cover always carries clear visual weight, even at card sizes. */}
   <span class="news-cover__bishop" aria-hidden="true">
     <svg viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.4">
@@ -56,7 +56,7 @@ const dateLabel = formatDate(date, DEFAULT_LOCALE, {
     </svg>
   </span>
 
-  {/* X chess cross watermark in the lower-left — echoes the org mark so
+  {/* X chess cross watermark in the lower-left, echoes the org mark so
       the cover reads as branded, not as an empty placeholder. */}
   <span class="news-cover__cross" aria-hidden="true">
     <svg viewBox="0 0 120 120" fill="currentColor">
@@ -134,7 +134,7 @@ const dateLabel = formatDate(date, DEFAULT_LOCALE, {
     z-index: 2;
   }
 
-  /* Bishop watermark — larger + more opaque than the previous pass. */
+  /* Bishop watermark, larger + more opaque than the previous pass. */
   .news-cover__bishop {
     position: absolute;
     right: -3%;
@@ -154,7 +154,7 @@ const dateLabel = formatDate(date, DEFAULT_LOCALE, {
     bottom: -28%;
   }
 
-  /* X chess cross watermark in the lower-left — echoes the org mark. */
+  /* X chess cross watermark in the lower-left, echoes the org mark. */
   .news-cover__cross {
     position: absolute;
     left: 1.25rem;
@@ -172,7 +172,7 @@ const dateLabel = formatDate(date, DEFAULT_LOCALE, {
   .news-cover--hero .news-cover__cross { width: 96px; left: 2rem; bottom: 1.75rem; }
   .news-cover--card .news-cover__cross { width: 52px; }
 
-  /* Diagonal hatch — slightly more visible than before. */
+  /* Diagonal hatch, slightly more visible than before. */
   .news-cover::before {
     content: '';
     position: absolute;

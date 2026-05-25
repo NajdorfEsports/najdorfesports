@@ -69,7 +69,7 @@ const updated = '2026-05-24';
       <h2 class="font-display text-2xl mt-8 tracking-wide">No commercial transactions yet</h2>
       <p>
         This website does not currently sell goods or services. The "Shop"
-        page is a notice of future availability only — no checkout, payment
+        page is a notice of future availability only. No checkout, payment
         processing, or transaction of any kind takes place on this site
         today. When the store launches, separate terms of sale will apply.
       </p>
@@ -83,7 +83,7 @@ const updated = '2026-05-24';
       <h2 class="font-display text-2xl mt-8 tracking-wide">Copyright complaints (DMCA / equivalent)</h2>
       <p>
         If you believe content on this site infringes a copyright you own or
-        control, email {site.contactEmail} with: (1) identification of the
+        control, email <Fragment set:html={'<!--email_off-->'} />{site.contactEmail}<Fragment set:html={'<!--/email_off-->'} /> with: (1) identification of the
         copyrighted work, (2) the URL of the allegedly infringing material,
         (3) your contact information, and (4) a good-faith statement that the
         use is not authorized. We will respond promptly and remove material
@@ -92,7 +92,7 @@ const updated = '2026-05-24';
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">Contact</h2>
       <p>
-        Questions about these terms: {site.contactEmail}.
+        Questions about these terms: <Fragment set:html={'<!--email_off-->'} />{site.contactEmail}<Fragment set:html={'<!--/email_off-->'} />.
       </p>
     </div>
   </section>

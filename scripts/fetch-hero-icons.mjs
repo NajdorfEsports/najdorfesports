@@ -37,7 +37,7 @@ const USER_AGENT =
   'NajdorfEsportsSite/1.0 (https://najdorfesports.gg; owner@najdorfesports.gg)';
 
 const API = 'https://liquipedia.net/overwatch/api.php';
-const QUERY_INTERVAL_MS = 2_000; // 1 query per 2s — Liquipedia non-parse limit
+const QUERY_INTERVAL_MS = 2_000; // 1 query per 2s, Liquipedia non-parse limit
 const ICON_WIDTH = 120;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -53,7 +53,7 @@ function slugify(heroName) {
 /**
  * Liquipedia uses two naming conventions: older heroes have
  * <HeroName>_concept.png, newer heroes use <HeroName>_full_portrait.png.
- * We try both in priority order — first hit wins.
+ * We try both in priority order, first hit wins.
  */
 function fileTitleCandidates(heroName) {
   const base = heroName.replace(/ /g, '_');

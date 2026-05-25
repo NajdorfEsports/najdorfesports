@@ -20,7 +20,7 @@ const sorted = [...achievements].sort(
   (a, b) => +new Date(b.date) - +new Date(a.date),
 );
 
-/** Map a placement string to its medal tier — drives the trophy-plate
+/** Map a placement string to its medal tier, drives the trophy-plate
  *  gradient and ring color. Falls back to a neutral tier for non-podium. */
 function placementTier(placement: string): 'gold' | 'silver' | 'bronze' | 'neutral' {
   if (/^1(st)?\b/i.test(placement)) return 'gold';
@@ -86,7 +86,7 @@ function placementTier(placement: string): 'gold' | 'silver' | 'bronze' | 'neutr
     transform: translateY(-2px);
   }
 
-  /* Trophy plate — a beveled medallion in front of each row. Gradient
+  /* Trophy plate, a beveled medallion in front of each row. Gradient
    * lives behind a thin inner-shadow ring so it reads as embossed metal
    * rather than a flat-color number. Three tiers (gold/silver/bronze)
    * pull from real medal hex; the neutral tier is the existing text-dim

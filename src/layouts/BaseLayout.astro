@@ -33,7 +33,7 @@ const canonicalUrl = canonical ?? new URL(Astro.url.pathname, site.url).toString
 
 // Cache-bust the og:image URL so Discord / Slack / X / Facebook stop
 // serving the prior branding from their CDN caches. Bump OG_VERSION
-// whenever the OG card artwork changes — the URL change is what forces
+// whenever the OG card artwork changes, the URL change is what forces
 // every unfurl service to re-scrape and re-fetch the image.
 const OG_VERSION = '2026-05-25';
 const ogImageUrlObj = new URL(ogImage, site.url);
@@ -47,7 +47,7 @@ const alternates = SUPPORTED_LOCALES.map((l) => ({
   href: new URL(pathFor(l, basePath), site.url).toString(),
 }));
 
-// SportsOrganization Schema.org block — emitted on every page so the org
+// SportsOrganization Schema.org block, emitted on every page so the org
 // identity is discoverable wherever a crawler lands. Stable @id allows
 // Person and SportsEvent blocks elsewhere to reference it. `sameAs`
 // pulls confirmed social URLs from src/data/site.ts so search engines
@@ -103,7 +103,7 @@ const orgJsonLd = {
 
     {/*
       Fonts self-hosted (see global.css @font-face) instead of loaded from
-      fonts.googleapis.com / fonts.gstatic.com — hot-linking those sends
+      fonts.googleapis.com / fonts.gstatic.com, hot-linking those sends
       visitor IPs to Google and has been ruled a GDPR violation in some
       EU jurisdictions (Landgericht München, 2022). Preloading the two
       latin woff2 files keeps first-paint snappy.
@@ -143,7 +143,7 @@ const orgJsonLd = {
       Astro 5 client-side router. Replaces full-page navigations with a
       View-Transitions-API crossfade, persisting <header> / <footer> across
       page changes. ~3 KB inlined first-party JS, no cookies, no network
-      calls — falls back cleanly to standard nav on browsers that don't
+      calls, falls back cleanly to standard nav on browsers that don't
       support the View Transitions API. Reduced-motion preference is
       respected automatically. Per-element transition names live on the
       wordmark and the OWCS badge below so they morph between routes.

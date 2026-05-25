@@ -19,7 +19,7 @@ const updated = '2026-05-24';
       <p class="text-[var(--color-text)]">
         This site sets no cookies of its own, runs no analytics, and embeds
         no tracking scripts. Cloudflare sets one strictly-necessary security
-        cookie for bot protection. The Twitch player is click-to-load — no
+        cookie for bot protection. The Twitch player is click-to-load. No
         request is made to Twitch until you press play.
       </p>
     </aside>
@@ -45,7 +45,7 @@ const updated = '2026-05-24';
         Our hosting platform (Cloudflare Pages) sets one strictly-necessary,
         first-party cookie named <code>__cf_bm</code> on requests to this
         domain. It is a 30-minute bot-management token used only for
-        infrastructure security — it is not shared with us, is not used for
+        infrastructure security. It is not shared with us, is not used for
         cross-site tracking, and is exempt from cookie-consent requirements
         under the "strictly necessary" exception in EU ePrivacy guidance.
         See
@@ -91,7 +91,7 @@ const updated = '2026-05-24';
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">Email contact</h2>
       <p>
-        If you email us at {site.contactEmail}, we will store the contents of your
+        If you email us at <Fragment set:html={'<!--email_off-->'} />{site.contactEmail}<Fragment set:html={'<!--/email_off-->'} />, we will store the contents of your
         message and your email address for as long as is reasonably needed to
         respond and keep records of the correspondence.
       </p>
@@ -100,7 +100,7 @@ const updated = '2026-05-24';
       <p>
         Depending on where you live, you may have the right to request a copy of any
         personal data we hold about you, request that we delete it, or ask us to
-        correct it. Reach us at {site.contactEmail}.
+        correct it. Reach us at <Fragment set:html={'<!--email_off-->'} />{site.contactEmail}<Fragment set:html={'<!--/email_off-->'} />.
       </p>
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">Changes</h2>

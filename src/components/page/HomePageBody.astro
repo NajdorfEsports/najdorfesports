@@ -1,6 +1,6 @@
 ---
 /**
- * Home page body. Same markup is rendered at `/`, `/zh-TW/`, and `/zh-CN/` —
+ * Home page body. Same markup is rendered at `/`, `/zh-TW/`, and `/zh-CN/`.
  * Astro.currentLocale is resolved per-URL by Astro's i18n router, so this
  * component picks up the right locale automatically.
  */
@@ -103,7 +103,7 @@ const newsHref    = '/news/';
   server-rendered so there is no FOUC and SEO crawlers see the default.
 
   The default hero composes three layers:
-    - .hero-bishops — five drifting bishop SVGs (decorative, very faint)
+    - .hero-bishops: five drifting bishop SVGs (decorative, very faint)
     - the gradient surface→bg wash, dimmer at top
     - the actual content (wordmark, subhead, body, CTAs)
 
@@ -237,7 +237,7 @@ const newsHref    = '/news/';
             <span data-count-up data-target={losses} data-count-suffix={t.match.loss}>0{t.match.loss}</span>
           </dd>
         ) : (
-          <dd class="font-display text-2xl sm:text-3xl leading-none mt-1 text-[var(--color-text-dim)]">—</dd>
+          <dd class="font-display text-2xl sm:text-3xl leading-none mt-1 text-[var(--color-text-dim)]">0W &middot; 0L</dd>
         )}
       </div>
     </dl>
@@ -247,7 +247,7 @@ const newsHref    = '/news/';
 {/*
   Hero parallax driver. As the user scrolls, the inner hero content
   (wordmark / eyebrow / body / CTAs / stat strip) translates upward at
-  25% of scroll speed and gradually fades out — a "sticky lag" that
+  25% of scroll speed and gradually fades out, a "sticky lag" that
   keeps the wordmark in view longer than a plain scroll would. The
   bishop motif in the background drifts via its own keyframes,
   independent of scroll, so the two layers create depth. requestAnimationFrame

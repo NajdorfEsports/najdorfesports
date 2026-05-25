@@ -52,7 +52,7 @@ const allRoles = [player.role, ...(player.altRoles ?? [])].filter(
 );
 
 // Resolve signature heroes to icon URLs. Heroes we don't have an icon for
-// are silently dropped — no fallback letter cluttering the backdrop.
+// are silently dropped, no fallback letter cluttering the backdrop.
 const heroMap = heroIcons as Record<string, string>;
 const backdropHeroes = (player.signatureHeroes ?? [])
   .map((name) => ({ name, iconUrl: heroMap[name] }))
@@ -188,7 +188,7 @@ const hasBackdrop = backdropHeroes.length > 0;
       0 12px 40px -12px color-mix(in oklab, var(--accent) 50%, transparent);
   }
 
-  /* Hero backdrop — vertical strips with soft edge masks for a poster blend.
+  /* Hero backdrop, vertical strips with soft edge masks for a poster blend.
      Lives behind the content via z-index. */
   .player-card__backdrop {
     position: absolute;
@@ -215,7 +215,7 @@ const hasBackdrop = backdropHeroes.length > 0;
     );
     /* Cinematic zoom on hover. Each strip gets a slightly different
        transform-origin via :nth-child below so the heroes don't all
-       move in lockstep — it reads like a poster gently breathing. */
+       move in lockstep, it reads like a poster gently breathing. */
     transform-origin: 50% 30%;
     transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
     will-change: transform;
@@ -266,7 +266,7 @@ const hasBackdrop = backdropHeroes.length > 0;
     opacity: 0.82;
   }
 
-  /* Diagonal shine sweep — one-shot streak from upper-left to lower-right
+  /* Diagonal shine sweep, one-shot streak from upper-left to lower-right
      when the cursor enters. Inspired by Apple product card hovers. */
   .player-card::before {
     content: '';
@@ -318,7 +318,7 @@ const hasBackdrop = backdropHeroes.length > 0;
 
   .player-card:hover .player-card__handle {
     color: var(--accent);
-    /* Soft accent halo — picks up the role color set on the card */
+    /* Soft accent halo, picks up the role color set on the card */
     text-shadow:
       0 0 18px color-mix(in oklab, var(--accent) 55%, transparent),
       0 0 36px color-mix(in oklab, var(--accent) 25%, transparent);

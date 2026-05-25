@@ -8,7 +8,7 @@ const t = useT(locale);
 const nav = [
   { href: pathFor(locale, '/'),         label: t.nav.home    },
   { href: pathFor(locale, '/roster/'),  label: t.nav.roster  },
-  // Matches and News are English-only per spec — link goes to the un-prefixed path.
+  // Matches and News are English-only per spec, link goes to the un-prefixed path.
   { href: '/matches/',                  label: t.nav.matches },
   { href: '/news/',                     label: t.nav.news    },
   { href: pathFor(locale, '/about/'),   label: t.nav.about   },

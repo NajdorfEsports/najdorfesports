@@ -31,22 +31,22 @@ export const socials: ReadonlyArray<{
     name: 'Discord',
     url: 'https://discord.gg/7X2QbvUW3z',
     handle: 'discord.gg/najdorf',
-    blurb: 'Hang with the squad — match chat, watch parties, and roster updates first.',
+    blurb: 'Hang with the squad. Match chat, watch parties, and roster updates first.',
   },
   {
     name: 'X',
     url: 'https://x.com/najdorfesports',
     handle: '@najdorfesports',
-    blurb: 'Roster moves, match results, and OWCS Pacific posts — straight from the org.',
+    blurb: 'Roster moves, match results, and OWCS Pacific posts, straight from the org.',
   },
-  // Instagram / Twitch / YouTube intentionally omitted — the org is on
+  // Instagram / Twitch / YouTube intentionally omitted. The org is on
   // Discord + X for now. Add new entries here when fresh channels launch.
 ];
 
 /**
  * Official OWCS Pacific broadcast channels. Pulls into the <WatchHub />
  * on the home page so visitors landing outside the live-hero window
- * still see "where to watch." Same TODO-filter convention as socials —
+ * still see "where to watch." Same TODO-filter convention as socials:
  * unconfirmed channels stay TODO and don't render. The Thai broadcast
  * is sourced from match streamUrl entries already in matches.json.
  */
@@ -56,7 +56,7 @@ export interface WatchChannel {
   url: string;
   /** Language label rendered as small chrome under the name. */
   language: string;
-  /** Platform — drives icon / styling. */
+  /** Platform. Drives icon / styling. */
   platform: 'twitch' | 'youtube' | 'other';
 }
 

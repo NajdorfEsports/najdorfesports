@@ -79,7 +79,7 @@ export const en = {
     loadPlayerNote: 'Loading sets Twitch\'s own cookies on your device.',
   },
 
-  /** Display names for roles. Kept short — used on player cards and roster strip. */
+  /** Display names for roles. Kept short, used on player cards and roster strip. */
   roles: {
     Tank: 'Tank',
     DPS: 'DPS',

@@ -27,7 +27,7 @@ const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
 const t = useT(locale);
 
 /** Pull the channel slug out of a Twitch stream URL. Returns undefined for
- *  non-Twitch URLs (YouTube, owl.gg, etc.) — those still get the WATCH NOW
+ *  non-Twitch URLs (YouTube, owl.gg, etc.), those still get the WATCH NOW
  *  CTA but no embed. */
 function twitchChannel(url?: string): string | undefined {
   if (!url) return;
@@ -38,7 +38,7 @@ function twitchChannel(url?: string): string | undefined {
 const channel = twitchChannel(match?.streamUrl);
 const parentDomains = ['najdorfesports.gg', 'najdorfesports.pages.dev'];
 
-// If there's no candidate match or no stream URL, render nothing — there
+// If there's no candidate match or no stream URL, render nothing, there
 // is no live mode to enter on this page load. The default hero stays.
 const renderable = !!match && !!match.streamUrl;
 ---

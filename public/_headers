@@ -1,4 +1,4 @@
-# Cloudflare Pages — response headers
+# Cloudflare Pages, response headers
 # https://developers.cloudflare.com/pages/configuration/headers/
 
 # Defaults for every response
@@ -17,21 +17,21 @@
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
 
-# Self-hosted fonts — content-addressed by version, safe to cache for a year.
+# Self-hosted fonts, content-addressed by version, safe to cache for a year.
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
 
-# Brand assets — change rarely, fine to cache a day
+# Brand assets, change rarely, fine to cache a day
 /branding/*
   Cache-Control: public, max-age=86400
 
-# Hero portraits — fetched from Liquipedia on a weekly cadence and only
+# Hero portraits, fetched from Liquipedia on a weekly cadence and only
 # replaced when the roster's signatureHeroes list changes. Safe to cache
 # for a week so repeat visitors don't re-fetch each card backdrop.
 /heroes/*
   Cache-Control: public, max-age=604800
 
-# Player portraits — same cadence as hero icons; updated rarely.
+# Player portraits, same cadence as hero icons; updated rarely.
 /roster/*
   Cache-Control: public, max-age=604800
 

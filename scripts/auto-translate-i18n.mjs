@@ -8,7 +8,7 @@
  * `owcsBadge`, `rosterStrip`, `achievement`, `nextMatch`, `match`, `ticker`,
  * `player`, plus `footer.dataCredit`, `home.newsEnglishOnly`, `live.loadPlayer`,
  * `live.loadPlayerNote`). The PLAIN/TEMPLATES tables and the emit() template
- * below have NOT been updated — running this script today produces zh-*.ts
+ * below have NOT been updated, running this script today produces zh-*.ts
  * files that don't satisfy the `Strings` type. Both zh-TW.ts and zh-CN.ts
  * are hand-maintained from here on.
  *
@@ -28,7 +28,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 
 // ---------------------------------------------------------------------------
-// Source strings — mirror of src/i18n/en.ts. If you add a key there, add it
+// Source strings, mirror of src/i18n/en.ts. If you add a key there, add it
 // here too and re-run the script.
 // ---------------------------------------------------------------------------
 
@@ -190,13 +190,13 @@ async function translate(text, langpair) {
 
 function escTs(s) {
   // Single-quoted string literal: backslash and single quote need escaping.
-  // Keep template literals (backticks) used for templates below — escape
+  // Keep template literals (backticks) used for templates below, escape
   // ${ separately so it doesn't get interpreted by the emitted TS.
   return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
 function escTpl(s) {
-  // For backtick-emitted template literals — preserve ${...}.
+  // For backtick-emitted template literals, preserve ${...}.
   return s.replace(/\\/g, '\\\\').replace(/`/g, '\\`');
 }
 

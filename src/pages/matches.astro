@@ -33,7 +33,7 @@ const wins = past.filter((m) => m.result === 'win').length;
 const losses = past.filter((m) => m.result === 'loss').length;
 const recordLine = wins + losses > 0 ? `${wins}W – ${losses}L` : null;
 
-// SportsEvent per match — both upcoming and past. Past matches get
+// SportsEvent per match, both upcoming and past. Past matches get
 // EventCompleted status; upcoming get EventScheduled. Location is a
 // VirtualLocation pointing at the Twitch stream URL when available.
 const orgId = `${site.url}/#org`;

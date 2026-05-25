@@ -12,7 +12,7 @@ const current = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
 const base = unlocalizedPath(Astro.url.pathname);
 
 // Routes that have localized variants. Anything else (matches, news, privacy,
-// terms, feed, 404) is English-only by spec — for those, the non-English
+// terms, feed, 404) is English-only by spec, for those, the non-English
 // links route to the locale home instead of re-prefixing a path that has no
 // translated counterpart. Stops "I'm on /matches/, switch to zh-CN" from
 // landing on a 404 at /zh-CN/matches/.

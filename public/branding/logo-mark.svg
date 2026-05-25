@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300" fill="currentColor" role="img" aria-label="Najdorf bishop mark">
   <!-- Monochrome SVG rendition of the bishop mark. Renders in whatever the
-       caller sets via currentColor — typically white on the dark site
+       caller sets via currentColor, typically white on the dark site
        (`text-[var(--color-text)]`) so it reads as part of the B&W logo
        treatment. The canonical raster lives in branding/bishop-logo.png. -->
 

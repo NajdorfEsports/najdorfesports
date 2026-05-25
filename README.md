@@ -1,6 +1,6 @@
 # najdorfesports.gg
 
-Source for [najdorfesports.gg](https://najdorfesports.gg), the official site for **Najdorf Esports** — an Overwatch organization competing in OWCS Pacific.
+Source for [najdorfesports.gg](https://najdorfesports.gg), the official site for **Najdorf Esports** , an Overwatch organization competing in OWCS Pacific.
 
 ## Stack
 
@@ -41,12 +41,12 @@ npm run preview      # serves ./dist on http://localhost:4321
 | Path | Purpose |
 | --- | --- |
 | `src/data/site.ts` | Brand constants, OWCS season metadata, socials, shared TypeScript types, `mergeByKey` helper. |
-| `src/data/roster.json` | Active roster — auto-populated by the Liquipedia fetcher. |
-| `src/data/roster.manual.json` | Manual roster overrides — wins on `handle` collision against `roster.json`. |
+| `src/data/roster.json` | Active roster , auto-populated by the Liquipedia fetcher. |
+| `src/data/roster.manual.json` | Manual roster overrides , wins on `handle` collision against `roster.json`. |
 | `src/data/matches.json` | Auto-populated by the Liquipedia fetcher. |
-| `src/data/matches.manual.json` | Manual match overrides — wins on `id` collision. |
+| `src/data/matches.manual.json` | Manual match overrides , wins on `id` collision. |
 | `src/data/achievements.json` | Auto-populated by the Liquipedia fetcher. |
-| `src/data/achievements.manual.json` | Manual achievement overrides — wins on `id` collision. |
+| `src/data/achievements.manual.json` | Manual achievement overrides , wins on `id` collision. |
 | `src/data/sponsors.json` | Sponsor list. Hidden in the UI when empty. |
 | `src/data/products.ts` | Product catalogue. Empty at launch. |
 | `src/content/news/` | News posts as Markdown (Astro content collection). |
@@ -64,7 +64,7 @@ Output directory: `dist`
 
 The fetcher complies with Liquipedia's [API terms of use](https://liquipedia.net/api-terms-of-use): descriptive User-Agent, gzip-aware, rate-limit-respecting (one parse per 30s), and fail-soft (leaves the JSON file untouched on any error). Data displayed on the site is attributed to Liquipedia under CC BY-SA 3.0 in the footer and on `/matches` and `/roster`.
 
-Manual corrections live in sibling `*.manual.json` files and win on collision — the auto file is rewritten by the action, so always edit the manual file.
+Manual corrections live in sibling `*.manual.json` files and win on collision , the auto file is rewritten by the action, so always edit the manual file.
 
 ## Brand
 

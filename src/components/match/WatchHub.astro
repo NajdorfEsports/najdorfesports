@@ -1,11 +1,11 @@
 ---
 /**
- * "Where to watch" band — surfaced on the home page below the OWCS badge.
+ * "Where to watch" band, surfaced on the home page below the OWCS badge.
  * Pulls from `watchChannels` in src/data/site.ts; any channel with
  * url: 'TODO' is filtered out so partial info never ships. The whole
  * section hides itself when no channels are confirmed yet.
  *
- * Click-only — no auto-embed. Matches the LiveHero facade stance and
+ * Click-only, no auto-embed. Matches the LiveHero facade stance and
  * keeps the zero-cookie posture (no Twitch / YouTube requests fire
  * unless the visitor clicks).
  */
@@ -38,7 +38,7 @@ const platformLabel: Record<WatchChannel['platform'], string> = {
             target="_blank"
             rel="noopener"
             class="watch-card group flex items-center justify-between gap-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md px-4 py-3 transition-colors"
-            aria-label={`${c.name} — ${c.language} broadcast on ${platformLabel[c.platform]}`}
+            aria-label={`${c.name}, ${c.language} broadcast on ${platformLabel[c.platform]}`}
           >
             <div class="min-w-0">
               <p class="font-display text-base tracking-wide truncate">{c.name}</p>

@@ -4,9 +4,9 @@
  *
  * Pulls roster, achievements, and OWCS match data from Liquipedia. Writes:
  *
- *   src/data/roster.json        — active player list (handle, role, country)
- *   src/data/matches.json       — upcoming + recent matches involving our team
- *   src/data/achievements.json  — tournament placements
+ *   src/data/roster.json, active player list (handle, role, country)
+ *   src/data/matches.json, upcoming + recent matches involving our team
+ *   src/data/achievements.json, tournament placements
  *
  * Each output is merged at render time with a sibling *.manual.json that wins
  * on key collision, so manual corrections always survive a Liquipedia refresh.
@@ -44,7 +44,7 @@ const USER_AGENT =
 
 // Liquipedia identifiers used to find OUR team inside the tournament pages.
 // When the team page on Liquipedia is renamed from "Rankers" to "Najdorf
-// Esports", BOTH names get tried — whichever appears in the wikitext wins.
+// Esports", BOTH names get tried, whichever appears in the wikitext wins.
 // Add new aliases here (most-current first) and the pipeline keeps working
 // with zero downtime through the rename window.
 const TEAM_LIQUIPEDIA_NAMES = ['Najdorf Esports', 'Rankers'];
@@ -150,14 +150,14 @@ function normalizeRole(raw) {
  *   }}
  *
  * We locate the `{{Opponent|<TeamName>` block, then pull every `{{Person|…}}`
- * inside it. Outside that block we ignore — other teams' rosters live there.
+ * inside it. Outside that block we ignore, other teams' rosters live there.
  *
  * Returns array of { handle, role?, country?, countryCode?, status, statusNote? }
  */
 function extractRoster(wikitext, teamName) {
   if (typeof wikitext !== 'string' || wikitext.length === 0) return [];
 
-  // Find the team's Opponent block — match across newlines until the closing
+  // Find the team's Opponent block, match across newlines until the closing
   // `}}` that pairs with the opening `{{Opponent|`.
   const opener = new RegExp(`\\{\\{Opponent\\|${escapeRegex(teamName)}\\b`, 'i');
   const startMatch = wikitext.match(opener);
@@ -342,7 +342,7 @@ function parseMatchDate(raw) {
 
 /**
  * Title-case a team name pulled from Liquipedia wikitext. Editors are
- * inconsistent ("team secret", "Quasar esports") — normalize so the
+ * inconsistent ("team secret", "Quasar esports"), normalize so the
  * rendered match cards look right. Leave all-caps short tokens alone
  * (so "G2 ESPORTS" doesn't become "G2 Esports"), and don't downcase
  * letters that are already uppercase past position 0 (so "DRX" /
@@ -354,7 +354,7 @@ function titleCaseTeamName(raw) {
     .split(/(\s+)/)
     .map((word) => {
       if (!word || /^\s+$/.test(word)) return word;
-      // Already has uppercase past position 0 — assume editor knew what they meant.
+      // Already has uppercase past position 0, assume editor knew what they meant.
       if (/[A-Z]/.test(word.slice(1))) return word;
       // Lowercase or first-letter-upper: capitalize the first letter, keep the rest as-is.
       return word[0].toUpperCase() + word.slice(1);
@@ -412,7 +412,7 @@ function extractMatches(wikitext, teamName, defaultTournament, sourcePage) {
       if (!mapName || Number.isNaN(score1) || Number.isNaN(score2)) continue;
 
       // Liquipedia's `score1`/`score2` on Push and (rarely) tiebroken Control
-      // maps stores raw progress — meters pushed (e.g. 144.86) or seconds of
+      // maps stores raw progress, meters pushed (e.g. 144.86) or seconds of
       // time-bank remaining. Those aren't round counts and shouldn't end up
       // in MapScore.ourScore/theirScore (which the UI treats as integer
       // scoring units). When either value is non-integer, fall back to
@@ -429,7 +429,7 @@ function extractMatches(wikitext, teamName, defaultTournament, sourcePage) {
         ourScore = 0;
         theirScore = 1;
       } else {
-        // Non-integer scores AND no winner metadata — best to drop this
+        // Non-integer scores AND no winner metadata, best to drop this
         // map entry rather than ship a meaningless float pair.
         continue;
       }
@@ -553,7 +553,7 @@ function withFirstMatchingName(wikitext, names, extractor) {
 /**
  * Derive a human-friendly tournament label from a page slug.
  * e.g. "Overwatch_Champions_Series/2026/Asia/Stage_2/Pacific"
- *   -> "OWCS Pacific 2026 — Stage 2"
+ *   -> "OWCS Pacific 2026, Stage 2"
  */
 function labelFromPage(pageSlug) {
   const m = pageSlug.match(/(\d{4})\/(?:[^/]+\/)?Stage_(\d+)\/(\w+)/i);
@@ -565,7 +565,7 @@ function labelFromPage(pageSlug) {
 
 (async () => {
   const allMatches = [];
-  /** First page to actually contain our team — used as the roster source.
+  /** First page to actually contain our team, used as the roster source.
    *  Defaults to the highest-priority page so the most recent stage wins. */
   let primaryWikitext = null;
   let primaryPage = null;
@@ -659,7 +659,7 @@ function labelFromPage(pageSlug) {
     achievements.sort((a, b) => +new Date(b.date) - +new Date(a.date));
     await safeWrite(ACHIEVEMENTS_PATH, 'achievements', achievements);
   } else {
-    console.warn('[liquipedia] no roster source page found — preserving existing roster.json.');
+    console.warn('[liquipedia] no roster source page found, preserving existing roster.json.');
   }
 
   // Dedup matches across pages on id, sort soonest-first, write.

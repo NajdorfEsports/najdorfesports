@@ -6,9 +6,9 @@
 //   npm run build:og
 //
 // Outputs (committed):
-//   public/branding/og-default.png        — sitewide fallback (BaseLayout default)
-//   public/branding/og/<route>.png        — per-route variants
-//   public/apple-touch-icon.png + icon-{192,512}.png — PWA / Apple icons
+//   public/branding/og-default.png, sitewide fallback (BaseLayout default)
+//   public/branding/og/<route>.png, per-route variants
+//   public/apple-touch-icon.png + icon-{192,512}.png, PWA / Apple icons
 //
 // Build-time only. Sharp is a devDep; no Node code touches the browser.
 import { mkdir, readFile, readdir } from 'node:fs/promises';
@@ -26,7 +26,7 @@ const NEWS_DIR = join(ROOT, 'src', 'content', 'news');
 // ---------------------------------------------------------------------------
 
 /** Renders the OG card SVG. Tone toggles which accent leads on the bottom
- *  rail and the eyebrow color — primary blue by default, soft blue as the
+ *  rail and the eyebrow color, primary blue by default, soft blue as the
  *  secondary, split for posts that span both. */
 function ogSvg({ eyebrow, title, tone = 'primary' }) {
   const accentTop = '#215BFF';
@@ -107,12 +107,12 @@ function ogSvg({ eyebrow, title, tone = 'primary' }) {
     ${escapeXml(eyebrow.toUpperCase())}
   </text>
 
-  <!-- Title — sized so it stays inside the column at any sans fallback width. -->
+  <!-- Title, sized so it stays inside the column at any sans fallback width. -->
   ${lines.map((line, i) =>
     `<text x="240" y="${firstBaselineY + i * lineHeight}" font-family="Anton, Oswald, Impact, Arial Narrow, sans-serif" font-size="${fontSize}" font-weight="700" letter-spacing="4" fill="#E9ECF1">${escapeXml(line)}</text>`,
   ).join('\n  ')}
 
-  <!-- Domain — bottom-anchored, clear of even a 3-line title. -->
+  <!-- Domain, bottom-anchored, clear of even a 3-line title. -->
   <text x="240" y="585" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="400" fill="#9CA3AF">
     najdorfesports.gg
   </text>
@@ -157,7 +157,7 @@ function wrapTitle(title, maxChars, maxLines) {
 // Bishop logo: source-of-truth raster
 // ---------------------------------------------------------------------------
 // The owner's hand-drawn bishop + X-chess mark, kept strictly black & white.
-// Source is transparent-bg + opaque black artwork — keeping the source
+// Source is transparent-bg + opaque black artwork, keeping the source
 // transparent gives the pipeline freedom to composite onto whatever surface
 // each derivative needs.
 //
@@ -167,19 +167,19 @@ const SOURCE_LOGO = join(PUBLIC, 'branding', 'najdorf-esports-logo.png');
 
 /** Generate the raster logo outputs from the source PNG.
  *
- *  All outputs flatten the transparent source onto white — PWA / Apple
+ *  All outputs flatten the transparent source onto white, PWA / Apple
  *  touch icons need a solid background (iOS strips alpha), and the
  *  off-site square logo reads cleanly as a B&W card on any host
  *  (Discord, X, GitHub org).
  *
  *  If a future surface needs the transparent source directly, it can
- *  reference /branding/najdorf-esports-logo.png — that file is the
+ *  reference /branding/najdorf-esports-logo.png, that file is the
  *  source-of-truth and ships unchanged.
  */
 async function deriveBishopAssets() {
   const white = { r: 255, g: 255, b: 255, alpha: 1 };
 
-  // White-bg square variant — flatten transparent artwork onto white,
+  // White-bg square variant, flatten transparent artwork onto white,
   // then square-pad if the source aspect isn't 1:1. Used for avatar /
   // home-screen surfaces that need a solid background.
   const renderToSquare = (size) =>
@@ -188,7 +188,7 @@ async function deriveBishopAssets() {
       .resize(size, size, { fit: 'contain', background: white })
       .png();
 
-  // bishop-logo.png — square logo for off-site use (Discord, X avatar).
+  // bishop-logo.png, square logo for off-site use (Discord, X avatar).
   await renderToSquare(1024).toFile(join(PUBLIC, 'branding', 'bishop-logo.png'));
   console.log(`Wrote ${join(PUBLIC, 'branding', 'bishop-logo.png')}`);
 
@@ -202,7 +202,7 @@ async function deriveBishopAssets() {
     console.log(`Wrote ${join(PUBLIC, filename)}`);
   }
 
-  // bishop-logo-dark.png — white-on-transparent variant for use on dark
+  // bishop-logo-dark.png, white-on-transparent variant for use on dark
   // surfaces (site header, future dark contexts). `.negate({alpha:false})`
   // inverts the RGB channels (black → white) while leaving the alpha
   // mask untouched, so the silhouette stays pixel-identical to the source.

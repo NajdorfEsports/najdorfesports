@@ -1,12 +1,23 @@
-# Najdorf Esports — Working Notes for Claude
+# Najdorf Esports: Working Notes for Claude
 
 Brief for future Claude Code sessions. Read this first, then the code. Things
 already obvious from the file tree or `package.json` are not repeated here.
 
+## Writing rules
+
+- **NEVER use em-dashes (`—`) anywhere.** Not in user-facing copy, not in code
+  comments, not in commit messages, not in PR descriptions. Em-dashes are a
+  notorious AI tell and the owner is allergic to them. Use a period, a comma,
+  a colon, a semicolon, parentheses, or restructure the sentence instead.
+  En-dashes (`–`) are fine in numeric ranges. Hyphens (`-`) are fine.
+- No "owner's name", real-life identity, or personal handles anywhere in
+  copy, commits, JSON-LD, or meta tags. The org is the only identity. Player
+  handles on the roster are fine; the rule is about the org's owner.
+
 ## Workflow
 
 - **Commit directly to `main`. Do not open PRs.** Stage changes, commit with a
-  descriptive message, push to `origin/main` — Cloudflare Pages picks it up
+  descriptive message, push to `origin/main`. Cloudflare Pages picks it up
   from main automatically.
 - Flag in chat before pushing if a change is risky (irreversible, public-facing
   copy, security-relevant). Otherwise keep going.
@@ -19,11 +30,15 @@ already obvious from the file tree or `package.json` are not repeated here.
 
 - The **org** is the only identity in code, copy, commits, meta tags, or
   JSON-LD. **No personal/owner names anywhere.** (Player handles in the
-  roster are fine — the rule is about the org's owner.)
+  roster are fine; the rule is about the org's owner.)
 - Contact address everywhere: `owner@najdorfesports.gg`.
 - Org JSON-LD `@id` is `https://najdorfesports.gg/#org`, emitted on every
   page by `BaseLayout.astro`. Per-page JSON-LD (SportsEvent, Person) should
   reference this `@id` rather than redefining the org.
+- The org is **Najdorf Esports**, a separate entity that acquired the **Rankers**
+  roster (Liquipedia spells it "Rankers" with an S, no Z, on the OWCS Pacific
+  2026 Stage 1 bracket page). It is NOT a rebrand of Rankers. Phrasing in
+  news posts, about copy, and any external comms should reflect that.
 
 ## Stack
 
@@ -32,7 +47,7 @@ already obvious from the file tree or `package.json` are not repeated here.
 - **No UI-framework integrations.** No React/Preact/Svelte/Vue/Solid. Don't
   introduce one without flagging first. Vanilla inline scripts wrapped in
   `requestIdleCallback` (see `LiveHero.astro`) cover client-side needs.
-- `sharp` is a devDep for the OG image script only — keep it that way.
+- `sharp` is a devDep for the OG image script only. Keep it that way.
 
 ## i18n
 
@@ -43,14 +58,14 @@ already obvious from the file tree or `package.json` are not repeated here.
 - **News and Matches are English-only.** They live at root (`/news/`,
   `/matches/`) with no localized variant. Non-en home pages show a
   "News articles are currently published in English only" line.
-- Build localized URLs with `pathFor(locale, '/path/')` — don't hand-craft
+- Build localized URLs with `pathFor(locale, '/path/')`. Don't hand-craft
   `/zh-TW/...` strings.
 - `{{TODO_zhTW: ...}}` / `{{TODO_zhCN: ...}}` markers in zh-* page
   `description` props mean a meta description is still the English source.
   Replace in-place when translated copy lands.
 - `scripts/auto-translate-i18n.mjs` is a **one-shot helper**, not part of
   the build. Run manually, commit, hand-edit. Its inline string table is
-  allowed to drift from `en.ts` — don't trust it as a source.
+  allowed to drift from `en.ts`. Don't trust it as a source.
 
 ## Data
 
@@ -61,8 +76,10 @@ already obvious from the file tree or `package.json` are not repeated here.
   overrides live in `*.manual.json` siblings and **win on collision** via
   `mergeByKey` (key: `handle` for roster, `id` for matches and achievements).
   Auto-only entries are kept; manual-only entries are appended.
-- Always edit the `.manual.json` for corrections — the auto file is
-  rewritten by the GH Action.
+- Always edit the `.manual.json` for corrections. The auto file is rewritten
+  by the GH Action. NOTE: if you need to remove a player that Liquipedia
+  still lists, you have to also edit the auto file directly until Liquipedia
+  catches up; manual overrides cannot delete an auto entry.
 - `src/data/site.ts` holds brand constants, OWCS season metadata, the
   socials list, and shared TS types. Socials with `url: 'TODO'` are filtered
   out by `<SocialRow>` so nothing broken ships.
@@ -70,9 +87,27 @@ already obvious from the file tree or `package.json` are not repeated here.
   automatically. Don't add a placeholder section back.
 - News is an Astro content collection (`src/content/news/*.md`); schema in
   `src/content.config.ts`. Author defaults to `Najdorf Esports`.
+- News front matter `tone` is `primary` (default) / `secondary` / `split`.
+  These names map to the brand color palette in `NewsCover.astro` and the
+  OG card generator.
 - Roster portraits: add a real `.webp` to `public/roster/{handle}.webp`,
   THEN add the lowercase handle to `rosterPortraits` in
   `src/data/roster-portraits.ts`. Stub files alone don't flip the UI.
+
+## Branding
+
+- Brand colors live in `src/styles/tokens.css` and `global.css`:
+  `--color-accent` (primary, blue `#215BFF`) and `--color-accent-2`
+  (secondary, soft blue `#6B8DFF`). Both cascade into every component.
+- The bishop logo is **strictly black and white**. The canonical raster
+  source is `public/branding/najdorf-esports-logo.png` (transparent bg,
+  opaque black artwork). `scripts/generate-og.mjs` derives every raster
+  output from that single file (PWA icons, `bishop-logo.png`, and
+  `bishop-logo-dark.png` for dark-bg uses via `.negate({alpha:false})`).
+  Logo never gets tinted blue; brand blue is for UI accents only.
+- Cache-bust the og:image URLs by bumping `OG_VERSION` in
+  `BaseLayout.astro` whenever OG art changes; otherwise Discord/Slack/X
+  serve stale unfurl cards from their CDN caches.
 
 ## Liquipedia compliance
 
@@ -92,7 +127,7 @@ that surfaces this data (currently footer, `/matches`, `/roster`).
 
 ## Privacy and security
 
-These are deliberate stances — don't undo without flagging.
+These are deliberate stances. Don't undo without flagging.
 
 - **Zero own cookies.** No analytics, no third-party scripts, no
   fingerprinting. Nothing on the site touches `document.cookie`,
@@ -100,16 +135,20 @@ These are deliberate stances — don't undo without flagging.
   security cookie is the only acceptable exception under the strictly-
   necessary doctrine.)
 - Fonts are **self-hosted** from `/fonts/` (Anton + Inter, SIL OFL 1.1).
-  Don't hot-link Google Fonts — that sends visitor IPs to Google and has
+  Don't hot-link Google Fonts. That sends visitor IPs to Google and has
   been ruled a GDPR violation (Landgericht München 2022).
-- Twitch player is **click-to-load** (`LiveHero.astro` facade) — the
+- Twitch player is **click-to-load** (`LiveHero.astro` facade). The
   iframe is only injected after the user clicks. Don't auto-embed.
 - `public/_headers` defines a tight CSP. `frame-src` allows **only**
-  `https://player.twitch.tv` — adding a new third-party embed requires
+  `https://player.twitch.tv`. Adding a new third-party embed requires
   updating this header.
 - `public/_redirects` handles www→apex, pages.dev→apex, and
   lowercase-locale fixups (`/zh-tw/*` → `/zh-TW/*`). Locale prefixes are
   case-sensitive on disk.
+- Email addresses are wrapped in `<!--email_off--> ... <!--/email_off-->`
+  HTML comments (rendered via `<Fragment set:html=...>`) to opt out of
+  Cloudflare's automatic Email Obfuscation. If you add a new mailto link
+  or visible email in a page or component, wrap it the same way.
 
 ## Out of scope (don't add unless asked)
 

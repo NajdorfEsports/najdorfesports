@@ -5,7 +5,7 @@
  *
  * PlayerAvatar checks membership in this list to decide between rendering
  * the photo and rendering the monogram fallback. Stubs alone do not flip the
- * UI — they only reserve the URL path.
+ * UI, they only reserve the URL path.
  *
  * Convention: lowercase, no whitespace, no special characters. So:
  *   - "brysonbtw" → public/roster/brysonbtw.webp
@@ -19,7 +19,7 @@
  * download.
  */
 export const rosterPortraits: ReadonlyArray<string> = [
-  // (no real portraits yet — every handle still renders the monogram fallback)
+  // (no real portraits yet, every handle still renders the monogram fallback)
 ];
 
 export function hasPortrait(handle: string): boolean {

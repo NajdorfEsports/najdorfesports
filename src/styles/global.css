@@ -4,7 +4,7 @@
 /*
  * Self-hosted fonts. Anton and Inter both ship under SIL Open Font License
  * 1.1, free for commercial use. Self-hosting avoids sending visitor IPs to
- * Google's font CDN (a GDPR concern in EU jurisdictions — Landgericht
+ * Google's font CDN (a GDPR concern in EU jurisdictions, Landgericht
  * München 2022 ruled hot-linked Google Fonts a violation without consent).
  *
  * Two subsets per family: latin (~U+0020-00FF) covers English; latin-ext
@@ -32,7 +32,7 @@
     U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
-/* Inter is a variable font — one file serves every weight we use (300/400/600/700). */
+/* Inter is a variable font, one file serves every weight we use (300/400/600/700). */
 @font-face {
   font-family: 'Inter';
   font-style: normal;
@@ -215,7 +215,7 @@
     box-shadow: 0 14px 38px -18px color-mix(in oklab, var(--color-accent-2) 60%, transparent);
   }
 
-  /* Button hover lift (additive — applied via class so existing variants stay). */
+  /* Button hover lift (additive, applied via class so existing variants stay). */
   .btn-lift {
     transition:
       transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
@@ -268,7 +268,7 @@
 
   /* Drifting bishop motif sits behind the hero. Each instance gets its own
    * `--dur`, `--dx`, `--dy`, `--rot`, `--op` so the five (or however many)
-   * pieces never sync. Pure transform — GPU-cheap, no reflow. */
+   * pieces never sync. Pure transform, GPU-cheap, no reflow. */
   .bishop-drift {
     position: absolute;
     pointer-events: none;

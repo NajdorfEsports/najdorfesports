@@ -1,5 +1,5 @@
 /**
- * Person JSON-LD for the roster page. Locale-independent — the same block
+ * Person JSON-LD for the roster page. Locale-independent, the same block
  * is emitted at /roster/, /zh-TW/roster/, and /zh-CN/roster/. Each Person
  * references the SportsOrganization @id emitted by BaseLayout.
  */
