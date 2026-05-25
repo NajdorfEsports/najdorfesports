@@ -1,12 +1,18 @@
 {
+  "Ana": "/heroes/ana.webp",
   "Echo": "/heroes/echo.webp",
   "Emre": "/heroes/emre.webp",
   "Genji": "/heroes/genji.webp",
+  "Hazard": "/heroes/hazard.webp",
   "Illari": "/heroes/illari.webp",
   "Kiriko": "/heroes/kiriko.webp",
   "Lucio": "/heroes/lucio.webp",
   "Pharah": "/heroes/pharah.webp",
   "Reaper": "/heroes/reaper.webp",
-  "Tracer": "/heroes/tracer.webp",
-  "Wrecking Ball": "/heroes/wrecking-ball.webp"
+  "Reinhardt": "/heroes/reinhardt.webp",
+  "Sigma": "/heroes/sigma.webp",
+  "Winston": "/heroes/winston.webp",
+  "Wrecking Ball": "/heroes/wrecking-ball.webp",
+  "Zarya": "/heroes/zarya.webp",
+  "Zenyatta": "/heroes/zenyatta.webp"
 }

@@ -6,12 +6,22 @@
     "country": "South Korea",
     "status": "active",
     "realName": "Park Do-yun",
-    "birthDate": "2006-08-21"
+    "birthDate": "2006-08-21",
+    "signatureHeroes": [
+      "Zarya",
+      "Sigma",
+      "Hazard"
+    ]
   },
   {
     "handle": "fee1ing",
     "role": "Tank",
-    "status": "active"
+    "status": "active",
+    "signatureHeroes": [
+      "Reinhardt",
+      "Winston",
+      "Wrecking Ball"
+    ]
   },
   {
     "handle": "brysonbtw",
@@ -64,7 +74,12 @@
     "countryCode": "cn",
     "country": "China",
     "status": "active",
-    "realName": "Zhao Yijie"
+    "realName": "Zhao Yijie",
+    "signatureHeroes": [
+      "Ana",
+      "Kiriko",
+      "Lucio"
+    ]
   },
   {
     "handle": "TiAmo",
@@ -99,6 +114,9 @@
   {
     "handle": "rabbit",
     "role": "Manager",
-    "status": "active"
+    "countryCode": "cn",
+    "country": "China",
+    "status": "active",
+    "twitter": "https://x.com/RabbitVV030"
   }
 ]

@@ -54,5 +54,13 @@
     "countryCode": "tw",
     "status": "active",
     "liquipediaUrl": "https://liquipedia.net/overwatch/Detai1"
+  },
+  {
+    "handle": "rabbit",
+    "role": "Manager",
+    "country": "China",
+    "countryCode": "cn",
+    "status": "active",
+    "twitter": "https://x.com/RabbitVV030"
   }
 ]
