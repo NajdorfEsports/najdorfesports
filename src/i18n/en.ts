@@ -141,6 +141,7 @@ export const en = {
   match: {
     vs: (opponent: string) => `vs ${opponent}`,
     watch: 'Watch',
+    watchVod: 'Watch VOD',
     tbd: 'TBD',
     win: 'W',
     loss: 'L',

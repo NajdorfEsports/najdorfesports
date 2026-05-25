@@ -131,7 +131,16 @@ export interface MatchEntry {
   opponentLogo?: string;
   tournament: string;
   format: string;
+  /** Live broadcast channel for upcoming matches (e.g., twitch.tv/foo). */
   streamUrl?: string;
+  /**
+   * Direct link to the saved VOD of this specific match (Twitch /videos/N,
+   * YouTube watch URL, etc.). Optional. When set, past-match cards prefer
+   * this over the channel link. When absent, past matches fall back to
+   * the channel's /videos page so the user lands on the VOD list rather
+   * than the (potentially live) channel root.
+   */
+  vodUrl?: string;
   /** Liquipedia tournament/bracket page that lists this match. */
   liquipediaUrl?: string;
   result: MatchResult;

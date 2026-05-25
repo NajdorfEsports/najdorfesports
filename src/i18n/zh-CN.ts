@@ -130,6 +130,7 @@ export const zhCN: Strings = {
   match: {
     vs: (opponent) => `对战 ${opponent}`,
     watch: '观看',
+    watchVod: '观看回放',
     tbd:   '待定',
     win:   '胜',
     loss:  '负',

@@ -131,6 +131,7 @@ export const zhTW: Strings = {
   match: {
     vs: (opponent) => `對戰 ${opponent}`,
     watch: '觀看',
+    watchVod: '觀看回放',
     tbd:   '待定',
     win:   '勝',
     loss:  '負',
