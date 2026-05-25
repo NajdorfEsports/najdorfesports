@@ -55,7 +55,9 @@ const TEAM_LIQUIPEDIA_NAMES = ['Najdorf Esports', 'Rankers'];
 // 30s rate-limit sleep, so keep the list short (≤4 pages per run).
 const TOURNAMENT_PAGES = [
   'Overwatch_Champions_Series/2026/Asia/Stage_2/Pacific',
+  'Overwatch_Champions_Series/2026/Asia/Stage_2/Pacific/Regular_Season',
   'Overwatch_Champions_Series/2026/Asia/Stage_1/Pacific',
+  'Overwatch_Champions_Series/2026/Asia/Stage_1/Pacific/Regular_Season',
 ];
 const API = 'https://liquipedia.net/overwatch/api.php';
 const PARSE_INTERVAL_MS = 30_000; // Liquipedia: parse rate-limited to 1 per 30 s.

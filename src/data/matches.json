@@ -1,56 +1,110 @@
 [
   {
+    "id": "liquipedia-owcs-pacific-rs-2026-03-26-team-secret",
+    "date": "2026-03-26T11:30:00.000Z",
+    "opponent": "Team Secret",
+    "tournament": "OWCS Pacific 2026 · Stage 1 Regular Season",
+    "format": "BO5",
+    "streamUrl": "https://twitch.tv/ow_esports_th",
+    "liquipediaUrl": "https://liquipedia.net/overwatch/Overwatch_Champions_Series/2026/Asia/Stage_1/Pacific/Regular_Season",
+    "result": "loss",
+    "mapScores": [
+      { "map": "Busan",     "ourScore": 0,     "theirScore": 2     },
+      { "map": "Esperança", "ourScore": 90.78, "theirScore": 90.79 },
+      { "map": "Rialto",    "ourScore": 1,     "theirScore": 3     }
+    ]
+  },
+  {
+    "id": "liquipedia-owcs-pacific-rs-2026-04-02-quasar-esports",
+    "date": "2026-04-02T13:20:00.000Z",
+    "opponent": "Quasar Esports",
+    "tournament": "OWCS Pacific 2026 · Stage 1 Regular Season",
+    "format": "BO5",
+    "streamUrl": "https://twitch.tv/ow_esports_th",
+    "liquipediaUrl": "https://liquipedia.net/overwatch/Overwatch_Champions_Series/2026/Asia/Stage_1/Pacific/Regular_Season",
+    "result": "win",
+    "mapScores": [
+      { "map": "Lijiang Tower", "ourScore": 2,      "theirScore": 0      },
+      { "map": "Esperança",     "ourScore": 142.41, "theirScore": 101.00 },
+      { "map": "Numbani",       "ourScore": 0,      "theirScore": 1      },
+      { "map": "Busan",         "ourScore": 2,      "theirScore": 1      }
+    ]
+  },
+  {
+    "id": "liquipedia-owcs-pacific-rs-2026-04-09-fury",
+    "date": "2026-04-09T11:05:00.000Z",
+    "opponent": "FURY",
+    "tournament": "OWCS Pacific 2026 · Stage 1 Regular Season",
+    "format": "BO5",
+    "streamUrl": "https://twitch.tv/ow_esports_th",
+    "liquipediaUrl": "https://liquipedia.net/overwatch/Overwatch_Champions_Series/2026/Asia/Stage_1/Pacific/Regular_Season",
+    "result": "win",
+    "mapScores": [
+      { "map": "Lijiang Tower", "ourScore": 2,      "theirScore": 0    },
+      { "map": "Numbani",       "ourScore": 3,      "theirScore": 1    },
+      { "map": "Esperança",     "ourScore": 142.41, "theirScore": 5.12 }
+    ]
+  },
+  {
+    "id": "liquipedia-owcs-pacific-rs-2026-04-16-mmy",
+    "date": "2026-04-16T13:05:00.000Z",
+    "opponent": "MMY",
+    "tournament": "OWCS Pacific 2026 · Stage 1 Regular Season",
+    "format": "BO5",
+    "streamUrl": "https://twitch.tv/ow_esports_th",
+    "liquipediaUrl": "https://liquipedia.net/overwatch/Overwatch_Champions_Series/2026/Asia/Stage_1/Pacific/Regular_Season",
+    "result": "win",
+    "mapScores": [
+      { "map": "Oasis",          "ourScore": 0,     "theirScore": 2      },
+      { "map": "Esperança",      "ourScore": 53.55, "theirScore": 140.32 },
+      { "map": "Rialto",         "ourScore": 3,     "theirScore": 2      },
+      { "map": "Blizzard World", "ourScore": 4,     "theirScore": 3      },
+      { "map": "Lijiang Tower",  "ourScore": 2,     "theirScore": 0      }
+    ]
+  },
+  {
+    "id": "liquipedia-owcs-pacific-rs-2026-04-23-the-gatos-guapos",
+    "date": "2026-04-23T13:30:00.000Z",
+    "opponent": "The Gatos Guapos",
+    "tournament": "OWCS Pacific 2026 · Stage 1 Regular Season",
+    "format": "BO5",
+    "streamUrl": "https://twitch.tv/ow_esports_th",
+    "liquipediaUrl": "https://liquipedia.net/overwatch/Overwatch_Champions_Series/2026/Asia/Stage_1/Pacific/Regular_Season",
+    "result": "win",
+    "mapScores": [
+      { "map": "Busan",  "ourScore": 2, "theirScore": 0 },
+      { "map": "Rialto", "ourScore": 3, "theirScore": 2 },
+      { "map": "Aatlis", "ourScore": 3, "theirScore": 1 }
+    ]
+  },
+  {
     "id": "liquipedia-owcs-pacific-2026-stage-1-1-202604301235",
     "date": "2026-04-30T12:35:00.000Z",
     "opponent": "Team Secret",
-    "tournament": "OWCS Pacific 2026 · Stage 1",
+    "tournament": "OWCS Pacific 2026 · Stage 1 Playoffs",
     "format": "BO5",
     "streamUrl": "https://twitch.tv/ow_esports_th",
     "liquipediaUrl": "https://liquipedia.net/overwatch/Overwatch_Champions_Series/2026/Asia/Stage_1/Pacific",
     "result": "loss",
     "mapScores": [
-      {
-        "map": "Lijiang Tower",
-        "ourScore": 0,
-        "theirScore": 2
-      },
-      {
-        "map": "Rialto",
-        "ourScore": 1,
-        "theirScore": 3
-      },
-      {
-        "map": "Aatlis",
-        "ourScore": 0,
-        "theirScore": 3
-      }
+      { "map": "Lijiang Tower", "ourScore": 0, "theirScore": 2 },
+      { "map": "Rialto",        "ourScore": 1, "theirScore": 3 },
+      { "map": "Aatlis",        "ourScore": 0, "theirScore": 3 }
     ]
   },
   {
     "id": "liquipedia-owcs-pacific-2026-stage-1-2-202604301345",
     "date": "2026-04-30T13:45:00.000Z",
     "opponent": "Quasar Esports",
-    "tournament": "OWCS Pacific 2026 · Stage 1",
+    "tournament": "OWCS Pacific 2026 · Stage 1 Playoffs",
     "format": "BO5",
     "streamUrl": "https://twitch.tv/ow_esports_th",
     "liquipediaUrl": "https://liquipedia.net/overwatch/Overwatch_Champions_Series/2026/Asia/Stage_1/Pacific",
     "result": "win",
     "mapScores": [
-      {
-        "map": "Lijiang Tower",
-        "ourScore": 2,
-        "theirScore": 1
-      },
-      {
-        "map": "Numbani",
-        "ourScore": 3,
-        "theirScore": 2
-      },
-      {
-        "map": "Runasapi",
-        "ourScore": 1,
-        "theirScore": 0
-      }
+      { "map": "Lijiang Tower", "ourScore": 2, "theirScore": 1 },
+      { "map": "Numbani",       "ourScore": 3, "theirScore": 2 },
+      { "map": "Runasapi",      "ourScore": 1, "theirScore": 0 }
     ]
   }
 ]
