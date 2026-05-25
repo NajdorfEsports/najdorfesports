@@ -90,12 +90,22 @@ already obvious from the file tree or `package.json` are not repeated here.
   portrait downloaded. Useful for new joins before the weekly team-page
   fetcher picks them up, or when overriding any field for one player.
 - `npm run fetch:maps` — same shape as `fetch:heroes` but for map images.
-  Reads every `mapScores[].map` from `matches.json` + `matches.manual.json`,
-  downloads each map's image from Liquipedia's lpcommons, writes WebP
-  thumbnails to `public/maps/<slug>.webp`, and rewrites `src/data/maps.json`
-  with the name → URL map. `MatchCard.astro` uses these as the card
-  backdrop (the deciding/last map of each match). Run this after the
-  matches fetcher introduces a new map name.
+  Reads every `mapScores[].map` from `matches.json` + `matches.manual.json`
+  AND merges in the hardcoded `OWCS_MAP_POOL` constant (every OW2
+  competitive map in the current rotation), then downloads each map's
+  image from Liquipedia's lpcommons, writes WebP thumbnails to
+  `public/maps/<slug>.webp`, and rewrites `src/data/maps.json`. New OW
+  maps only need to be appended to that constant. Liquipedia files
+  several maps under their real-world LOCATION name (Circuit Royal at
+  `Monte_Carlo`, Colosseo at `Rome`, Watchpoint: Gibraltar at
+  `Gibraltar`, etc.) — those overrides live in `MAP_FILENAME_OVERRIDES`
+  in the same script.
+- `MatchCard.astro` backdrop priority:
+  1. The LAST map of the match (the deciding map) with a known icon.
+  2. Any earlier map in the match with a known icon (walk back).
+  3. Hash-of-match-id fallback into the full pool, so future matches
+     with no map data yet (TBD opponent, freshly imported) still get a
+     backdrop. Same match → same hash → same backdrop on every load.
 - `src/data/site.ts` holds brand constants, OWCS season metadata, the
   socials list, and shared TS types. Socials with `url: 'TODO'` are filtered
   out by `<SocialRow>` so nothing broken ships.

@@ -41,6 +41,30 @@ const TARGET_WIDTH = 600;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+/** Baseline pool of OW2 competitive maps. Pre-fetching the whole pool
+ *  once means a future match on any of these maps automatically picks
+ *  up its backdrop without anyone re-running this script. Anything new
+ *  that lands in the rotation (Season X map, etc.) only needs to be
+ *  appended here. The discover-from-matches step still merges in any
+ *  additional map names not on this list, so out-of-pool maps still
+ *  work, just not pre-fetched. */
+const OWCS_MAP_POOL = [
+  // Control
+  'Antarctic Peninsula', 'Busan', 'Ilios', 'Lijiang Tower', 'Nepal', 'Oasis', 'Samoa',
+  // Push
+  'Colosseo', 'Esperança', 'New Queen Street', 'Runasapi',
+  // Hybrid
+  'Blizzard World', 'Eichenwalde', 'Hollywood', "King's Row",
+  'Midtown', 'Numbani', 'Paraíso',
+  // Escort
+  'Circuit Royal', 'Dorado', 'Havana', 'Junkertown',
+  'Rialto', 'Route 66', 'Shambali Monastery', 'Watchpoint: Gibraltar',
+  // Flashpoint
+  'New Junk City', 'Suravasa', 'Aatlis',
+  // Clash
+  'Hanaoka', 'Throne of Anubis',
+];
+
 function slugify(name) {
   return name
     .toLowerCase()
@@ -56,6 +80,22 @@ function stripAccents(s) {
   return s.normalize('NFD').replace(/[̀-ͯ]/g, '');
 }
 
+/** Liquipedia files several maps under their real-world LOCATION name
+ *  rather than the in-game map name (Circuit Royal lives at Monte_Carlo,
+ *  Colosseo at Rome, etc.). Map these explicitly so the fetcher tries
+ *  the location filename first. Append new entries here as Blizzard
+ *  adds more "named-after-a-city" maps. */
+const MAP_FILENAME_OVERRIDES = {
+  'Circuit Royal':         'Monte_Carlo',
+  'Colosseo':              'Rome',
+  'Midtown':               'New_York_City',
+  'New Queen Street':      'Toronto',
+  'Paraíso':               'Rio_de_Janeiro',
+  'Shambali Monastery':    'Shambali',
+  "King's Row":            'Kings_row_map',
+  'Watchpoint: Gibraltar': 'Gibraltar',
+};
+
 /** Liquipedia stores map images on lpcommons under inconsistent names:
  *  - Single-word older maps: `Busan.jpg`, `Numbani.jpg`
  *  - Newer/multi-word maps:  `Lijiang_Tower_Map.jpg`, `Blizzard_World_Map.jpg`
@@ -64,15 +104,21 @@ function stripAccents(s) {
 function fileTitleCandidates(mapName) {
   const base = mapName.replace(/ /g, '_');
   const ascii = stripAccents(base);
-  const variants = new Set([
-    `File:${base}.jpg`,
-    `File:${ascii}.jpg`,
-    `File:${base}_Map.jpg`,
-    `File:${ascii}_Map.jpg`,
-    `File:${base}.png`,
-    `File:${base}_overview.jpg`,
-    `File:${base}_loadscreen.jpg`,
-  ]);
+  const override = MAP_FILENAME_OVERRIDES[mapName];
+  const variants = new Set();
+  // Real-world location overrides ride at the top of the list, so we
+  // try them before the boring "Map_Name.jpg" guess that will 404.
+  if (override) {
+    variants.add(`File:${override}.jpg`);
+    variants.add(`File:${override}.png`);
+  }
+  variants.add(`File:${base}.jpg`);
+  variants.add(`File:${ascii}.jpg`);
+  variants.add(`File:${base}_Map.jpg`);
+  variants.add(`File:${ascii}_Map.jpg`);
+  variants.add(`File:${base}.png`);
+  variants.add(`File:${base}_overview.jpg`);
+  variants.add(`File:${base}_loadscreen.jpg`);
   return Array.from(variants);
 }
 
@@ -120,7 +166,7 @@ async function downloadTo(filePath, url) {
 }
 
 async function collectMapNames() {
-  const seen = new Set();
+  const seen = new Set(OWCS_MAP_POOL);
   for (const path of [MATCHES_AUTO, MATCHES_MANUAL]) {
     try {
       const data = JSON.parse(await readFile(path, 'utf8'));

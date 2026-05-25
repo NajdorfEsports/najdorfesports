@@ -45,18 +45,39 @@ const isPast = date.getTime() < Date.now();
 const watchUrl = isPast ? match.vodUrl : match.streamUrl;
 const watchLabel = isPast ? t.match.watchVod : t.match.watch;
 
-// Backdrop image: the LAST map of the match (the deciding map) with a
-// known icon. Picking the decider gives every card a different backdrop
-// even when matches share the standard Control opener (Lijiang / Busan
-// run a lot), and ties the artwork to the moment the series was decided.
-// Maps without an icon entry silently fall back to the next-most-recent
-// map; if none have icons, the card renders on the plain surface.
+// Backdrop image, in priority order:
+//   1. The LAST map of the match (the deciding map) with a known icon.
+//      Picking the decider gives matches that share a Control opener
+//      (Lijiang / Busan run a lot) different backdrops and ties the
+//      artwork to the moment the series was decided.
+//   2. Any earlier map in the match with a known icon (walking back).
+//   3. A deterministic-random pick from the full pre-fetched map pool,
+//      seeded by the match id. Same match -> same backdrop on every
+//      page load; different matches -> different picks. Handles
+//      upcoming/TBD matches and matches imported before their maps
+//      had icons cached.
+const knownMaps = mapIcons as Record<string, string>;
 const heroMap = (match.mapScores ?? [])
   .slice()
   .reverse()
   .map((m) => m.map)
-  .find((name) => name && (mapIcons as Record<string, string>)[name]);
-const backdropUrl = heroMap ? (mapIcons as Record<string, string>)[heroMap] : null;
+  .find((name) => name && knownMaps[name]);
+
+function hashStr(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i += 1) {
+    h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
+let backdropUrl: string | null = heroMap ? knownMaps[heroMap] : null;
+if (!backdropUrl) {
+  const pool = Object.values(knownMaps);
+  if (pool.length > 0) {
+    backdropUrl = pool[hashStr(match.id) % pool.length] ?? null;
+  }
+}
 ---
 <article
   class:list={[
