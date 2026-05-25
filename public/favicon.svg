@@ -1,9 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Compact monochrome bishop mark — the chess cross drops off below
+       favicon readability, so this trims to bishop-only on the site's
+       dark surface. The full B&W mark with X chess lives in
+       branding/bishop-logo.png (sourced from najdorf-esports-logo.png). -->
   <rect width="200" height="200" fill="#0B0B0F"/>
-  <!-- Compact bishop + chess-cross mark, optimised for browser favicon sizes. -->
-  <g fill="#215BFF">
-    <!-- Bishop, centered horizontally, sits in the upper portion. -->
-    <g transform="translate(70 10)">
+  <g fill="#E9ECF1">
+    <g transform="translate(70 22)">
       <path fill-rule="evenodd" d="M30 4 C 41 20, 47 36, 47 48 C 47 58, 40 64, 30 64 C 20 64, 13 58, 13 48 C 13 36, 19 20, 30 4 Z M24 14 L 38 28 L 36 30 L 22 16 Z"/>
       <rect x="24" y="60" width="12" height="10"/>
       <rect x="18" y="70" width="24" height="6" rx="1.2"/>
@@ -11,8 +13,8 @@
       <path d="M12 92 L 48 92 L 50 104 L 10 104 Z"/>
       <ellipse cx="30" cy="106" rx="22" ry="3.5"/>
     </g>
-    <!-- Minimal X-cross beneath the bishop: four small filled diamonds in X formation,
-         tied together by a center keystone. Visible even at 16px. -->
+    <!-- Minimal X-cross beneath the bishop: four small filled diamonds
+         in X formation, tied together by a center keystone. -->
     <polygon points="58,148 68,158 58,168 48,158"/>
     <polygon points="142,148 152,158 142,168 132,158"/>
     <polygon points="58,178 68,188 58,198 48,188"/>

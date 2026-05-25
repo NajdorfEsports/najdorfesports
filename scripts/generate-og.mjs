@@ -71,8 +71,11 @@ function ogSvg({ eyebrow, title, tone = 'crimson' }) {
     <ellipse cx="32" cy="90" rx="22" ry="3.5"/>
   </g>
 
-  <!-- Small org bishop, top-left, in accent blue so it always reads as "Najdorf". -->
-  <g transform="translate(96 200)" fill="#215BFF">
+  <!-- Small org bishop, top-left, rendered in monochrome white to match
+       the B&W logo treatment (see public/branding/najdorf-esports-logo.png).
+       Brand blue stays on the rails + eyebrow so the card still carries
+       the accent without recolouring the logo mark. -->
+  <g transform="translate(96 200)" fill="#FFFFFF">
     <path fill-rule="evenodd" d="M48 9 C 60 27, 66 45, 66 57 C 66 69, 57 75, 48 75 C 39 75, 30 69, 30 57 C 30 45, 36 27, 48 9 Z M42 18 L 57 33 L 54 36 L 39 21 Z"/>
     <rect x="39" y="69" width="18" height="18"/>
     <rect x="30" y="84" width="36" height="9" rx="1.5"/>
@@ -150,75 +153,61 @@ function wrapTitle(title, maxChars, maxLines) {
   return lines;
 }
 
-// Off-site square logo, 1024x1024. Full mark — bishop + X chess cross +
-// wordmark — on the site's dark surface, sized so it reads at avatar sizes
-// (Discord, X, GitHub Org) without losing the chess detail.
-const bishopLogoSvg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <rect width="1024" height="1024" fill="#0B0B0F"/>
-  <g fill="#215BFF">
-    <!-- Bishop, centered horizontally -->
-    <g transform="translate(376 120) scale(3.1)">
-      <path fill-rule="evenodd" d="M44 4 C 58 26, 66 48, 66 64 C 66 78, 57 86, 44 86 C 31 86, 22 78, 22 64 C 22 48, 30 26, 44 4 Z M36 20 L 54 38 L 51 41 L 33 23 Z"/>
-      <rect x="36" y="80" width="16" height="14"/>
-      <rect x="28" y="93" width="32" height="8" rx="1.5"/>
-      <path d="M30 99 L 58 99 L 62 124 L 26 124 Z"/>
-      <path d="M20 122 L 68 122 L 70 138 L 18 138 Z"/>
-      <ellipse cx="44" cy="141" rx="30" ry="4.5"/>
-    </g>
-    <!-- X chess cross centered at (512, 710), scaled up for the 1024 canvas. -->
-    <polygon points="447,595 472,620 447,645 422,620"/>
-    <polygon points="447,645 472,670 447,695 422,670"/>
-    <polygon points="552,620 577,645 552,670 527,645"/>
-    <polygon points="602,620 627,645 602,670 577,645"/>
-    <polygon points="422,750 447,775 422,800 397,775"/>
-    <polygon points="472,750 497,775 472,800 447,775"/>
-    <polygon points="577,725 602,750 577,775 552,750"/>
-    <polygon points="577,775 602,800 577,825 552,800"/>
-    <polygon points="512,695 527,710 512,725 497,710"/>
-  </g>
-  <!-- Wordmark beneath the mark. Use an explicit wider gap between the
-       two tspans — librsvg collapses single ASCII spaces under letter-
-       spacing, so we render the gap as its own tspan. -->
-  <text x="512" y="938" text-anchor="middle" font-family="Anton, Oswald, Impact, Arial Narrow, sans-serif" font-size="86" font-weight="700" letter-spacing="6">
-    <tspan fill="#215BFF">NAJDORF</tspan><tspan fill="#E9ECF1" dx="34">ESPORTS</tspan>
-  </text>
-</svg>`;
+// ---------------------------------------------------------------------------
+// Bishop logo: source-of-truth raster
+// ---------------------------------------------------------------------------
+// The owner's hand-drawn bishop + X-chess + wordmark mark, kept strictly
+// black & white. Anything that renders the logo as a bitmap (PWA icons,
+// off-site square logo) is derived from this single file so the next time
+// the owner drops in an updated PNG, a single `npm run build:og` re-derives
+// the full set without re-touching the SVGs.
+//
+// Source format expectations: square-ish PNG, transparent or white bg,
+// black artwork. Wordmark stacked under the mark — generators that need
+// just the bishop+cross crop off the bottom band automatically.
+const SOURCE_LOGO = join(PUBLIC, 'branding', 'najdorf-esports-logo.png');
 
-// Maskable icon (PWA / Apple touch). Bishop + chess-cross sit in the
-// maskable safe zone (~80% inner area). Bishop on top, chess cross below.
-const iconSvg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#0B0B0F"/>
-  <g fill="#215BFF">
-    <!-- Bishop, centered horizontally, top of mitre at y=72 -->
-    <g transform="translate(181 72) scale(1.69)">
-      <path fill-rule="evenodd" d="M44 4 C 58 26, 66 48, 66 64 C 66 78, 57 86, 44 86 C 31 86, 22 78, 22 64 C 22 48, 30 26, 44 4 Z M36 20 L 54 38 L 51 41 L 33 23 Z"/>
-      <rect x="36" y="80" width="16" height="14"/>
-      <rect x="28" y="93" width="32" height="8" rx="1.5"/>
-      <path d="M30 99 L 58 99 L 62 124 L 26 124 Z"/>
-      <path d="M20 122 L 68 122 L 70 138 L 18 138 Z"/>
-      <ellipse cx="44" cy="141" rx="30" ry="4.5"/>
-    </g>
-    <!-- X chess cross centered at (256, 405). Four diamond tiles arranged
-         in X formation around a small center keystone, each tile carrying
-         two filled sub-cells in chess pattern. -->
-    <!-- NW tile (N + S sub-cells) -->
-    <polygon points="226,353 237,364 226,375 215,364"/>
-    <polygon points="226,375 237,386 226,397 215,386"/>
-    <!-- NE tile (W + E sub-cells) -->
-    <polygon points="275,364 286,375 275,386 264,375"/>
-    <polygon points="297,364 308,375 297,386 286,375"/>
-    <!-- SW tile (W + E sub-cells) -->
-    <polygon points="215,424 226,435 215,446 204,435"/>
-    <polygon points="237,424 248,435 237,446 226,435"/>
-    <!-- SE tile (N + S sub-cells) -->
-    <polygon points="286,413 297,424 286,435 275,424"/>
-    <polygon points="286,435 297,446 286,457 275,446"/>
-    <!-- Center keystone -->
-    <polygon points="256,398 263,405 256,412 249,405"/>
-  </g>
-</svg>`;
+/** Generate the raster logo outputs from the source PNG.
+ *
+ *  Two output shapes:
+ *  - Full mark with wordmark, padded to a square — for bishop-logo.png.
+ *  - Bishop+chess only (wordmark cropped off the bottom) — for the PWA /
+ *    Apple touch icons, since the wordmark is unreadable at icon sizes.
+ *
+ *  Both pad with white so the B&W treatment survives onto every surface
+ *  (browser tab, iOS home screen, Discord avatar). No tinting, no overlays.
+ */
+async function deriveBishopAssets() {
+  const meta = await sharp(SOURCE_LOGO).metadata();
+
+  // Heuristic: bishop + chess fills the top ~83% of the canvas, wordmark
+  // sits in the bottom band. Tuned for the supplied 658x750 source; the
+  // ratio works for any future re-upload at the same composition.
+  const cropHeight = Math.round(meta.height * 0.83);
+  const bishopCrop = { left: 0, top: 0, width: meta.width, height: cropHeight };
+  const white = { r: 255, g: 255, b: 255, alpha: 1 };
+
+  // bishop-logo.png — full mark + wordmark, square-padded for off-site use.
+  await sharp(SOURCE_LOGO)
+    .resize(1024, 1024, { fit: 'contain', background: white })
+    .png()
+    .toFile(join(PUBLIC, 'branding', 'bishop-logo.png'));
+  console.log(`Wrote ${join(PUBLIC, 'branding', 'bishop-logo.png')}`);
+
+  // PWA / Apple touch icons — bishop + chess only, square-padded.
+  for (const [filename, size] of [
+    ['apple-touch-icon.png', 180],
+    ['icon-192.png', 192],
+    ['icon-512.png', 512],
+  ]) {
+    await sharp(SOURCE_LOGO)
+      .extract(bishopCrop)
+      .resize(size, size, { fit: 'contain', background: white })
+      .png()
+      .toFile(join(PUBLIC, filename));
+    console.log(`Wrote ${join(PUBLIC, filename)}`);
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Route → OG metadata. Keep this list in sync with src/pages/.
@@ -287,18 +276,15 @@ async function newsRoutes() {
 
 const routes = [...STATIC_ROUTES, ...(await newsRoutes())];
 
-const tasks = [
-  ...routes.map((r) => ({ svg: ogSvg(r), out: join(PUBLIC, r.out) })),
-  { svg: iconSvg, out: join(PUBLIC, 'apple-touch-icon.png'), resize: 180 },
-  { svg: iconSvg, out: join(PUBLIC, 'icon-192.png'), resize: 192 },
-  { svg: iconSvg, out: join(PUBLIC, 'icon-512.png'), resize: 512 },
-  { svg: bishopLogoSvg, out: join(PUBLIC, 'branding/bishop-logo.png') },
-];
+const tasks = routes.map((r) => ({ svg: ogSvg(r), out: join(PUBLIC, r.out) }));
 
-for (const { svg, out, resize } of tasks) {
+for (const { svg, out } of tasks) {
   await mkdir(dirname(out), { recursive: true });
-  let pipeline = sharp(Buffer.from(svg));
-  if (resize) pipeline = pipeline.resize(resize, resize);
-  await pipeline.png().toFile(out);
+  await sharp(Buffer.from(svg)).png().toFile(out);
   console.log(`Wrote ${out}`);
 }
+
+// Raster logo set (PWA icons + off-site square logo) is derived from the
+// owner's source PNG so future updates to the artwork only need a re-drop
+// of that one file.
+await deriveBishopAssets();

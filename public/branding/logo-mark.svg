@@ -1,4 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300" fill="currentColor" role="img" aria-label="Najdorf bishop mark">
+  <!-- Monochrome SVG rendition of the bishop mark. Renders in whatever the
+       caller sets via currentColor — typically white on the dark site
+       (`text-[var(--color-text)]`) so it reads as part of the B&W logo
+       treatment. The canonical raster lives in branding/bishop-logo.png. -->
+
   <!-- Bishop chess piece -->
   <g transform="translate(56 6)">
     <!-- Mitre/head with diagonal slit -->
@@ -15,26 +20,16 @@
     <ellipse cx="44" cy="141" rx="30" ry="4.5"/>
   </g>
 
-  <!-- X-shaped chess pattern: 4 diamond tiles, each subdivided into a 2x2 chess pattern -->
-  <!-- Center of the X at (100, 220) -->
+  <!-- X-shaped chess pattern: 4 diamond tiles around a center keystone -->
   <g>
-    <!-- NW diamond, center (56, 200), half-diagonal 22 — N + S sub-cells filled -->
     <polygon points="56,178 67,189 56,200 45,189"/>
     <polygon points="56,200 67,211 56,222 45,211"/>
-
-    <!-- NE diamond, center (144, 200) — E + W sub-cells filled (alternates chess pattern) -->
     <polygon points="133,189 144,200 133,211 122,200"/>
     <polygon points="155,189 166,200 155,211 144,200"/>
-
-    <!-- SW diamond, center (56, 256) — E + W sub-cells filled -->
     <polygon points="45,245 56,256 45,267 34,256"/>
     <polygon points="67,245 78,256 67,267 56,256"/>
-
-    <!-- SE diamond, center (144, 256) — N + S sub-cells filled -->
     <polygon points="144,234 155,245 144,256 133,245"/>
     <polygon points="144,256 155,267 144,278 133,267"/>
-
-    <!-- Small center diamond locking the X together visually -->
     <polygon points="100,212 108,220 100,228 92,220"/>
   </g>
 </svg>
