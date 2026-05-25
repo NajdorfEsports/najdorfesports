@@ -30,7 +30,15 @@ const {
 
 const fullTitle = title === site.name ? title : `${title} · ${site.name}`;
 const canonicalUrl = canonical ?? new URL(Astro.url.pathname, site.url).toString();
-const ogImageUrl = new URL(ogImage, site.url).toString();
+
+// Cache-bust the og:image URL so Discord / Slack / X / Facebook stop
+// serving the prior branding from their CDN caches. Bump OG_VERSION
+// whenever the OG card artwork changes — the URL change is what forces
+// every unfurl service to re-scrape and re-fetch the image.
+const OG_VERSION = '2026-05-25';
+const ogImageUrlObj = new URL(ogImage, site.url);
+ogImageUrlObj.searchParams.set('v', OG_VERSION);
+const ogImageUrl = ogImageUrlObj.toString();
 
 const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
 const basePath = unlocalizedPath(Astro.url.pathname);
