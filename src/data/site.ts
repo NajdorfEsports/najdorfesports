@@ -39,9 +39,8 @@ export const socials: ReadonlyArray<{
     handle: '@najdorfesports',
     blurb: 'Roster moves, match results, and OWCS Pacific posts — straight from the org.',
   },
-  { name: 'Instagram', url: 'TODO', handle: '@najdorfesports' },
-  { name: 'Twitch',    url: 'TODO', handle: 'najdorfesports'  },
-  { name: 'YouTube',   url: 'TODO', handle: '@najdorfesports' },
+  // Instagram / Twitch / YouTube intentionally omitted — the org is on
+  // Discord + X for now. Add new entries here when fresh channels launch.
 ];
 
 /**

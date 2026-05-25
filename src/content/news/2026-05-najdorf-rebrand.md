@@ -8,7 +8,7 @@ tone: 'primary'
 
 We're rebranding. The org that competed as Rankers in OWCS Pacific Stage 1 is now **Najdorf Esports**.
 
-The roster doesn't change. The five players who took the Stage 1 Open Qualifier are still the five going into Stage 2, plus the same coaching staff. What's new is the name, the visual identity, and a clearer way to talk about how we want to play.
+The roster doesn't change. The five players who took Stage 1 are still the five going into Stage 2, plus the same coaching staff. What's new is the name, the visual identity, and a clearer way to talk about how we want to play.
 
 The Najdorf is the Sicilian Defence's sharpest sound reply to 1.e4. It looks quiet at the surface. Black plays a sleepy little pawn move to a6 and waits. Then the game explodes into some of the most analyzed attacking lines in chess history. Bobby Fischer loved it. Kasparov used it twice to beat Karpov for the world title. That's the version of us we want showing up at the LAN. Patient setup, sharp execution.
 
