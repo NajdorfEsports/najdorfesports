@@ -61,6 +61,7 @@
     "country": "China",
     "countryCode": "cn",
     "status": "active",
+    "signatureHeroes": ["Jetpack Cat"],
     "twitter": "https://x.com/RabbitVV030"
   }
 ]
