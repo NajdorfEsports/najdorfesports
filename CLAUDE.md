@@ -60,9 +60,6 @@ already obvious from the file tree or `package.json` are not repeated here.
   "News articles are currently published in English only" line.
 - Build localized URLs with `pathFor(locale, '/path/')`. Don't hand-craft
   `/zh-TW/...` strings.
-- `{{TODO_zhTW: ...}}` / `{{TODO_zhCN: ...}}` markers in zh-* page
-  `description` props mean a meta description is still the English source.
-  Replace in-place when translated copy lands.
 - `scripts/auto-translate-i18n.mjs` is a **one-shot helper**, not part of
   the build. Run manually, commit, hand-edit. Its inline string table is
   allowed to drift from `en.ts`. Don't trust it as a source.
@@ -80,26 +77,24 @@ already obvious from the file tree or `package.json` are not repeated here.
   by the GH Action. NOTE: if you need to remove a player that Liquipedia
   still lists, you have to also edit the auto file directly until Liquipedia
   catches up; manual overrides cannot delete an auto entry.
-- `npm run fetch:player <url-or-handle> [--apply]` — pulls a single player's
-  Liquipedia profile and shapes it into a `roster.manual.json` entry
-  (handle, role, country + code, birth date, signature heroes, twitter /
-  twitch / youtube, real name, liquipediaUrl). Without `--apply` it prints
-  the entry to stdout for review; with `--apply` it merges into
-  `roster.manual.json` by handle (existing manual keys win on collision).
-  Run `npm run fetch:heroes` afterward so any new signature hero gets its
-  portrait downloaded. Useful for new joins before the weekly team-page
-  fetcher picks them up, or when overriding any field for one player.
-- `npm run fetch:maps` — same shape as `fetch:heroes` but for map images.
-  Reads every `mapScores[].map` from `matches.json` + `matches.manual.json`
-  AND merges in the hardcoded `OWCS_MAP_POOL` constant (every OW2
-  competitive map in the current rotation), then downloads each map's
-  image from Liquipedia's lpcommons, writes WebP thumbnails to
-  `public/maps/<slug>.webp`, and rewrites `src/data/maps.json`. New OW
-  maps only need to be appended to that constant. Liquipedia files
+- `npm run fetch:player <url-or-handle> [--apply]`: pulls one player's
+  Liquipedia profile into a `roster.manual.json` entry (handle, role,
+  country + code, birth date, signature heroes, socials, real name,
+  liquipediaUrl). Without `--apply`, prints the entry to stdout for
+  review; with `--apply`, merges into `roster.manual.json` by handle
+  (existing manual keys win on collision). Run `npm run fetch:heroes`
+  afterward so any new signature hero gets a portrait. Useful for
+  mid-week joins before the weekly team-page fetcher picks them up.
+- `npm run fetch:maps`: same shape as `fetch:heroes` but for map images.
+  Reads every `mapScores[].map` from both match JSONs and merges with the
+  hardcoded `OWCS_MAP_POOL` constant (the full current OW2 competitive
+  rotation), then downloads each image from Liquipedia's lpcommons into
+  `public/maps/<slug>.webp` and rewrites `src/data/maps.json`. New OW
+  maps just need to be appended to that constant. Liquipedia files
   several maps under their real-world LOCATION name (Circuit Royal at
   `Monte_Carlo`, Colosseo at `Rome`, Watchpoint: Gibraltar at
-  `Gibraltar`, etc.) — those overrides live in `MAP_FILENAME_OVERRIDES`
-  in the same script.
+  `Gibraltar`, etc.); those aliases live in `MAP_FILENAME_OVERRIDES` in
+  the same script.
 - `MatchCard.astro` backdrop priority:
   1. The LAST map of the match (the deciding map) with a known icon.
   2. Any earlier map in the match with a known icon (walk back).
@@ -109,8 +104,8 @@ already obvious from the file tree or `package.json` are not repeated here.
 - `src/data/site.ts` holds brand constants, OWCS season metadata, the
   socials list, and shared TS types. Socials with `url: 'TODO'` are filtered
   out by `<SocialRow>` so nothing broken ships.
-- Sponsors and products are empty arrays at launch; UI hides empty sections
-  automatically. Don't add a placeholder section back.
+- `src/data/sponsors.json` is an empty array at launch; UI hides empty
+  sections automatically. Don't add a placeholder section back.
 - News is an Astro content collection (`src/content/news/*.md`); schema in
   `src/content.config.ts`. Author defaults to `Najdorf Esports`.
 - News front matter `tone` is `primary` (default) / `secondary` / `split`.
@@ -180,3 +175,8 @@ These are deliberate stances. Don't undo without flagging.
 
 Press kit, social icon links, individual player pages, per-page OG image
 generation, iCal feed, streams hub, comment system, any form of analytics.
+
+`/shop/` is a deliberate coming-soon stub (`src/pages/shop/index.astro`)
+that announces drops with the OWCS Pacific Stage 2 LAN. Don't backfill
+products data or convert the stub into a real catalog without being
+asked.

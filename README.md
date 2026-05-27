@@ -1,6 +1,6 @@
 # najdorfesports.gg
 
-Source for [najdorfesports.gg](https://najdorfesports.gg), the official site for **Najdorf Esports** , an Overwatch organization competing in OWCS Pacific.
+Source for [najdorfesports.gg](https://najdorfesports.gg), the official site for **Najdorf Esports**, an Overwatch organization competing in OWCS Pacific.
 
 ## Stack
 
@@ -70,7 +70,7 @@ Output directory: `dist`
 
 The fetcher complies with Liquipedia's [API terms of use](https://liquipedia.net/api-terms-of-use): descriptive User-Agent, gzip-aware, rate-limit-respecting (one parse per 30s), and fail-soft (leaves the JSON file untouched on any error). Data displayed on the site is attributed to Liquipedia under CC BY-SA 3.0 in the footer and on `/matches` and `/roster`.
 
-Manual corrections live in sibling `*.manual.json` files and win on collision , the auto file is rewritten by the action, so always edit the manual file.
+Manual corrections live in sibling `*.manual.json` files and win on collision. The auto file is rewritten by the action, so always edit the manual file.
 
 ## Brand
 
