@@ -90,6 +90,10 @@ const tournament = match ? translateTournament(match.tournament, locale) : '';
         const diff = target - Date.now();
         if (diff <= 0) {
           slots.forEach((s) => (s.textContent = '00'));
+          if (intervalId !== null) {
+            clearInterval(intervalId);
+            intervalId = null;
+          }
           return;
         }
         const days = Math.floor(diff / 86400000);

@@ -65,19 +65,19 @@ const OWCS_MAP_POOL = [
   'Hanaoka', 'Throne of Anubis',
 ];
 
-function slugify(name) {
-  return name
-    .toLowerCase()
-    .replace(/[:.]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '');
-}
-
 /** Strip non-ASCII diacritics so 'Esperança' becomes 'Esperanca'
  *  (Liquipedia's older file uploads frequently used the plain-Latin
  *  transliteration for filenames). */
 function stripAccents(s) {
   return s.normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+function slugify(name) {
+  return stripAccents(name)
+    .toLowerCase()
+    .replace(/[:.]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
 }
 
 /** Liquipedia files several maps under their real-world LOCATION name

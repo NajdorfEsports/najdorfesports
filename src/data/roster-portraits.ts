@@ -19,7 +19,15 @@
  * download.
  */
 export const rosterPortraits: ReadonlyArray<string> = [
-  // (no real portraits yet, every handle still renders the monogram fallback)
+  'akie',
+  'brysonbtw',
+  'detai1',
+  'fee1ing',
+  'fei',
+  'rabbit',
+  'tiamo',
+  'tom4to',
+  'zephyr',
 ];
 
 export function hasPortrait(handle: string): boolean {

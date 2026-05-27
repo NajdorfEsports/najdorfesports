@@ -570,7 +570,6 @@ function labelFromPage(pageSlug) {
   /** First page to actually contain our team, used as the roster source.
    *  Defaults to the highest-priority page so the most recent stage wins. */
   let primaryWikitext = null;
-  let primaryPage = null;
   let primaryName = null;
 
   for (let i = 0; i < TOURNAMENT_PAGES.length; i += 1) {
@@ -614,7 +613,6 @@ function labelFromPage(pageSlug) {
         );
         if (rosterHit) {
           primaryWikitext = wikitext;
-          primaryPage = label;
           primaryName = rosterHit.name;
           console.log(`[liquipedia] ${label}: primary source for roster (alias: "${primaryName}", ${rosterHit.result.length} players).`);
         }

@@ -44,6 +44,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function slugify(heroName) {
   return heroName
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
     .toLowerCase()
     .replace(/[:.]/g, '')
     .replace(/\s+/g, '-')

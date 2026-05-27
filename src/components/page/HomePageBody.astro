@@ -82,9 +82,6 @@ const players = roster.filter((p) => ['Tank', 'DPS', 'Support', 'Flex'].includes
 const countries = new Set(players.map((p) => p.country).filter(Boolean));
 const wins = past.filter((m) => m.result === 'win').length;
 const losses = past.filter((m) => m.result === 'loss').length;
-const recordLine = wins + losses > 0
-  ? `${wins}${t.match.win} – ${losses}${t.match.loss}`
-  : null;
 
 const topAchievement = [...achievements].sort(
   (a, b) => +new Date(b.date) - +new Date(a.date),
@@ -216,8 +213,8 @@ const newsHref    = '/news/';
       Hero stat strip. Each numeric value carries `data-count-up` +
       `data-target` so the BaseLayout count-up driver animates it from 0
       when the strip enters the viewport. tabular-nums keeps the digit
-      cells from jittering during the count. The W–L record renders as
-      two count-up cells separated by a static em-dash, since the count
+      cells from jittering during the count. The W-L record renders as
+      two count-up cells separated by a static en-dash, since the count
       driver only handles single integers.
     */}
     <dl class="hero-fade-in mt-10 grid grid-cols-3 max-w-md gap-px bg-[var(--color-border)] border border-[var(--color-border)] rounded-md overflow-hidden" style="--delay:1000ms">

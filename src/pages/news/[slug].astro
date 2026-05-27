@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NewsCover from '../../components/news/NewsCover.astro';
 import { getCollection, render } from 'astro:content';
+import { site } from '../../data/site';
 
 export async function getStaticPaths() {
   const posts = await getCollection('news', ({ data }) => !data.draft);
@@ -14,12 +15,20 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content } = await render(post);
 
+const articleUrl = `${site.url}/news/${post.id}/`;
+const ogImage = `${site.url}/branding/og/news-${post.id}.png`;
+const orgId = `${site.url}/#org`;
+
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'NewsArticle',
   headline: post.data.title,
   datePublished: post.data.date.toISOString(),
-  author: { '@type': 'Organization', name: post.data.author },
+  author: { '@type': 'Organization', name: post.data.author, '@id': orgId },
+  publisher: { '@id': orgId },
+  mainEntityOfPage: { '@type': 'WebPage', '@id': articleUrl },
+  image: ogImage,
+  ...(post.data.description ? { description: post.data.description } : {}),
 };
 ---
 <BaseLayout

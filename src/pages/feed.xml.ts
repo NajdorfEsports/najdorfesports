@@ -29,7 +29,7 @@ export const GET: APIRoute = async () => {
       <link>${url}</link>
       <guid isPermaLink="true">${url}</guid>
       <pubDate>${post.data.date.toUTCString()}</pubDate>
-${desc}      <author>noreply@najdorfesports.gg (${escape(post.data.author)})</author>
+${desc}      <author>${escape(site.contactEmail)} (${escape(post.data.author)})</author>
     </item>`;
     })
     .join('\n');

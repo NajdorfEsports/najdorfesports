@@ -173,4 +173,19 @@ export const en = {
   skipLink: 'Skip to main content',
 } as const;
 
-export type Strings = typeof en;
+/**
+ * Recursively widen literal string types to `string` while preserving
+ * function signatures. Without this, `as const` on `en` makes `Strings`
+ * carry English literal values (`'Home'` instead of `string`), and
+ * zh-TW.ts / zh-CN.ts get rejected for "not assignable to 'Home'".
+ * Functions are passed through unchanged so callers keep their typed args.
+ */
+type Widen<T> = T extends (...args: never[]) => unknown
+  ? T
+  : T extends string
+    ? string
+    : T extends object
+      ? { -readonly [K in keyof T]: Widen<T[K]> }
+      : T;
+
+export type Strings = Widen<typeof en>;

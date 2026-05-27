@@ -161,7 +161,7 @@ export interface Sponsor {
  * entries are appended. Used for roster (key: handle), matches (key: id),
  * achievements (key: id).
  */
-export function mergeByKey<T extends Record<string, unknown>>(
+export function mergeByKey<T extends object>(
   auto: ReadonlyArray<T>,
   manual: ReadonlyArray<T>,
   idKey: keyof T,
