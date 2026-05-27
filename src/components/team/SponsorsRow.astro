@@ -7,11 +7,6 @@ interface Props {
 }
 const { sponsors, heading = 'Partners' } = Astro.props;
 
-if (sponsors.length === 0) {
-  // Conditional render: stay invisible until a sponsor signs.
-  // The plan explicitly calls for this empty-state behavior.
-}
-
 const tiers = ['primary', 'partner', 'community'] as const;
 const grouped: Partial<Record<typeof tiers[number] | 'unranked', Sponsor[]>> = {};
 for (const s of sponsors) {
@@ -24,6 +19,17 @@ const sizeByTier: Record<string, string> = {
   partner: 'h-10 sm:h-12 grayscale hover:grayscale-0',
   community: 'h-8 grayscale hover:grayscale-0',
   unranked: 'h-12 grayscale hover:grayscale-0',
+};
+
+// Per-tier gap class. Tailwind can't compile interpolated class names
+// (`gap-x-${...}`), they have to appear as literal tokens in source so
+// the JIT scanner picks them up. The primary tier breathes more so
+// the headline partner reads as the headline partner.
+const gapByTier: Record<string, string> = {
+  primary: 'gap-x-12',
+  partner: 'gap-x-8',
+  community: 'gap-x-8',
+  unranked: 'gap-x-8',
 };
 ---
 {sponsors.length > 0 && (
@@ -39,7 +45,7 @@ const sizeByTier: Record<string, string> = {
         const list = grouped[tier];
         if (!list || list.length === 0) return null;
         return (
-          <ul class={`flex flex-wrap items-center justify-center gap-x-${tier === 'primary' ? '12' : '8'} gap-y-6`}>
+          <ul class={`flex flex-wrap items-center justify-center ${gapByTier[tier]} gap-y-6`}>
             {list.map((s) => (
               <li>
                 <a

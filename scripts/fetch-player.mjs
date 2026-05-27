@@ -289,7 +289,7 @@ function buildEntry(fields, handle) {
     out.birthDate = fields.birth_date;
   }
 
-  // Signature heroes — Liquipedia uses |hero=, |hero2=, |hero3=, ...
+  // Signature heroes: Liquipedia uses |hero=, |hero2=, |hero3=, ...
   const heroes = [];
   const firstHero = normalizeHero(fields.hero);
   if (firstHero) heroes.push(firstHero);

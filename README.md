@@ -4,7 +4,7 @@ Source for [najdorfesports.gg](https://najdorfesports.gg), the official site for
 
 ## Stack
 
-- [Astro](https://astro.build/) 5.x (static output, no SSR adapter)
+- [Astro](https://astro.build/) 5.x with the `@astrojs/cloudflare` adapter
 - [Tailwind CSS v4](https://tailwindcss.com/) via the official Vite plugin (`@tailwindcss/vite`)
 - TypeScript strict
 - [Cloudflare Pages](https://pages.cloudflare.com/) deployment target
@@ -30,25 +30,31 @@ npm run preview      # serves ./dist on http://localhost:4321
 | --- | --- |
 | `npm run dev` | Local dev server with HMR. |
 | `npm run build` | Static build to `./dist`. |
-| `npm run preview` | Serves the built site. |
+| `npm run preview` | Builds, then serves via `wrangler dev` (closest local match to the Pages runtime). |
 | `npm run fetch:matches` | One-off Liquipedia pull (writes `src/data/{roster,matches,achievements}.json`). |
-| `npm run fetch:heroes` | Refreshes hero icons in `public/heroes/`. |
-| `npm run build:og` | Regenerates `public/branding/og-default.png` from inline SVG. |
+| `npm run fetch:heroes` | Refreshes hero icons in `public/heroes/` from Liquipedia. |
+| `npm run fetch:maps` | Refreshes map artwork in `public/maps/` from Liquipedia (full OW2 map pool plus anything referenced in `matches.json`). |
+| `npm run fetch:player <url-or-handle> [--apply]` | Pulls a single player's Liquipedia profile; with `--apply` merges it into `roster.manual.json`. |
+| `npm run build:og` | Regenerates `public/branding/og-default.png` + per-route OG cards + PWA icons from inline SVG and the source bishop logo. |
 | `npm run deploy` | Build and deploy directly via `wrangler deploy` (bypasses the Pages git integration). |
+| `npm run cf-typegen` | Regenerates the Cloudflare Worker type bindings (`worker-configuration.d.ts`). |
 
 ## Data files
 
 | Path | Purpose |
 | --- | --- |
-| `src/data/site.ts` | Brand constants, OWCS season metadata, socials, shared TypeScript types, `mergeByKey` helper. |
-| `src/data/roster.json` | Active roster , auto-populated by the Liquipedia fetcher. |
-| `src/data/roster.manual.json` | Manual roster overrides , wins on `handle` collision against `roster.json`. |
+| `src/data/site.ts` | Brand constants, OWCS season metadata, socials, watch channels, shared TypeScript types, `mergeByKey` helper. |
+| `src/data/roster.json` | Active roster, auto-populated by the Liquipedia fetcher. |
+| `src/data/roster.manual.json` | Manual roster overrides, wins on `handle` collision against `roster.json`. |
 | `src/data/matches.json` | Auto-populated by the Liquipedia fetcher. |
-| `src/data/matches.manual.json` | Manual match overrides , wins on `id` collision. |
+| `src/data/matches.manual.json` | Manual match overrides, wins on `id` collision. |
 | `src/data/achievements.json` | Auto-populated by the Liquipedia fetcher. |
-| `src/data/achievements.manual.json` | Manual achievement overrides , wins on `id` collision. |
+| `src/data/achievements.manual.json` | Manual achievement overrides, wins on `id` collision. |
 | `src/data/sponsors.json` | Sponsor list. Hidden in the UI when empty. |
-| `src/data/products.ts` | Product catalogue. Empty at launch. |
+| `src/data/heroes.json` | Hero name → portrait path, written by `fetch:heroes`. |
+| `src/data/maps.json` | Map name → artwork path, written by `fetch:maps`. |
+| `src/data/roster-portraits.ts` | Manifest of handles that have a real `.webp` portrait under `public/roster/`. |
+| `src/data/roster-jsonld.ts` | Builds the Person JSON-LD block for `/roster/`. |
 | `src/content/news/` | News posts as Markdown (Astro content collection). |
 
 ## Deployment
@@ -70,14 +76,14 @@ Manual corrections live in sibling `*.manual.json` files and win on collision , 
 
 | Token | Value |
 | --- | --- |
-| Primary | `#C8102E` (crimson) |
-| Secondary | `#C9A227` (tarnished gold) |
+| Primary accent | `#215BFF` (electric blue) |
+| Secondary accent | `#6B8DFF` (soft blue) |
 | Background | `#0B0B0F` (near-black, never pure black) |
-| Body | `#E9ECF1` |
+| Text | `#E9ECF1` |
 | Display font | Anton (self-hosted from `/fonts/`, SIL OFL 1.1) |
 | Body font | Inter (self-hosted from `/fonts/`, SIL OFL 1.1) |
 
-See `src/styles/tokens.css` for the full palette and `src/styles/global.css` for Tailwind theme bindings.
+See `src/styles/global.css` for the full `@theme` block (Tailwind v4 publishes it to `:root` automatically) and `src/styles/tokens.css` for non-Tailwind tokens (`--shadow-card`, `--max-content`).
 
 ## Contact
 

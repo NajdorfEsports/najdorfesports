@@ -19,7 +19,7 @@ const posts = (await getCollection('news', ({ data }) => !data.draft))
   <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10 grid gap-6 md:grid-cols-2">
     {posts.map((post) => (
       <a
-        href={`/news/${post.id}`}
+        href={`/news/${post.id}/`}
         class="news-link group block surface-hover bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md overflow-hidden"
       >
         <NewsCover

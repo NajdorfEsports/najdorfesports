@@ -50,6 +50,11 @@ export const en = {
     playersLabel: 'Players',
     regionLabel: 'Region',
     fullRoster: 'Full roster',
+    /** Stat-strip labels on the home hero. countryLabel is the singular
+     *  form (1 country), countriesLabel the plural. */
+    countryLabel: 'Country',
+    countriesLabel: 'Countries',
+    recordLabel: 'Record',
   },
   about: {
     eyebrow: 'About',

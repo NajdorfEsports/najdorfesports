@@ -74,7 +74,7 @@
   html {
     background-color: var(--color-bg);
     color: var(--color-text);
-    font-family: var(--font-body);
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -310,6 +310,20 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Sitewide safety net: dial every animation and transition to a single
+   * frame. Catches anything we forgot to opt into the named overrides below. */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Named overrides for elements whose default state would otherwise be
+   * invisible or pre-animated (opacity:0, translateY) without the JS
+   * intersection observer kicking them into the final state. */
   .reveal {
     opacity: 1 !important;
     transform: none !important;
@@ -336,16 +350,5 @@
   .bishop-drift {
     animation: none !important;
     transform: none !important;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }

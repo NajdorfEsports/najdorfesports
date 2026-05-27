@@ -54,6 +54,9 @@ export const zhTW: Strings = {
     playersLabel:       '選手',
     regionLabel:        '賽區',
     fullRoster:         '完整名單',
+    countryLabel:       '國家',
+    countriesLabel:     '國家',
+    recordLabel:        '戰績',
   },
   about: {
     eyebrow: '關於',

@@ -53,6 +53,9 @@ export const zhCN: Strings = {
     playersLabel:       '选手',
     regionLabel:        '赛区',
     fullRoster:         '完整名单',
+    countryLabel:       '国家',
+    countriesLabel:     '国家',
+    recordLabel:        '战绩',
   },
   about: {
     eyebrow: '关于',

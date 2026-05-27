@@ -68,24 +68,32 @@ const duplicated = [...items, ...items];
 ---
 <div class="ticker" aria-label="Match ticker" role="region">
   <div class="ticker__edge ticker__edge--left" aria-hidden="true"></div>
-  <ul class="ticker__track" aria-hidden={items.length > 1 ? 'true' : undefined}>
-    {duplicated.map((item, i) => (
-      <li class:list={['ticker__item', `ticker__item--${item.variant}`]} data-half={i < items.length ? 'a' : 'b'}>
-        {item.href ? (
-          <a href={item.href} target="_blank" rel="noopener" class="ticker__link">
-            {item.label}
-          </a>
-        ) : (
-          <span>{item.label}</span>
-        )}
-      </li>
-    ))}
+  <ul class="ticker__track">
+    {duplicated.map((item, i) => {
+      const isDuplicate = i >= items.length;
+      return (
+        <li
+          class:list={['ticker__item', `ticker__item--${item.variant}`]}
+          data-half={isDuplicate ? 'b' : 'a'}
+          {...(isDuplicate ? { 'aria-hidden': 'true' } : {})}
+        >
+          {item.href ? (
+            <a
+              href={item.href}
+              target="_blank"
+              rel="noopener"
+              class="ticker__link"
+              {...(isDuplicate ? { tabindex: -1 } : {})}
+            >
+              {item.label}
+            </a>
+          ) : (
+            <span>{item.label}</span>
+          )}
+        </li>
+      );
+    })}
   </ul>
-  {items.length === 1 && (
-    <ul class="sr-only">
-      <li>{items[0]!.label}</li>
-    </ul>
-  )}
   <div class="ticker__edge ticker__edge--right" aria-hidden="true"></div>
 </div>
 

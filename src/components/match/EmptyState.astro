@@ -1,14 +1,21 @@
 ---
 import { owcs } from '../../data/site';
+import { formatDate } from '../../i18n/format';
 
 interface Props {
   variant?: 'upcoming' | 'past';
 }
 const { variant = 'upcoming' } = Astro.props;
 
+const startPretty = formatDate(owcs.mainEventStart, 'en', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
 const messages = {
-  upcoming: `No upcoming matches yet. ${owcs.league} ${owcs.stage} main event begins June 4, 2026.`,
-  past: 'No completed matches yet. Stage 2 results will appear here once the main event begins.',
+  upcoming: `No upcoming matches yet. ${owcs.league} ${owcs.stage} main event begins ${startPretty}.`,
+  past: `No completed matches yet. ${owcs.stage} results will appear here once the main event begins.`,
 };
 ---
 <div class="border border-dashed border-[var(--color-border)] rounded-md p-8 text-center text-[var(--color-text-dim)]">
