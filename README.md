@@ -10,6 +10,12 @@ Source for [najdorfesports.gg](https://najdorfesports.gg), the official site for
 - [Cloudflare Pages](https://pages.cloudflare.com/) deployment target
 - Match data sourced from [Liquipedia](https://liquipedia.net/overwatch/) under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)
 
+## Maintenance
+
+Day-to-day owner tasks (bench a player, add a match, publish a news post, when
+to bump `OG_VERSION`) are in [MAINTENANCE.md](MAINTENANCE.md). Architecture and
+the reasoning behind each rule live in `CLAUDE.md`.
+
 ## Develop
 
 ```bash
