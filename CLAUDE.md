@@ -77,6 +77,14 @@ already obvious from the file tree or `package.json` are not repeated here.
   by the GH Action. NOTE: if you need to remove a player that Liquipedia
   still lists, you have to also edit the auto file directly until Liquipedia
   catches up; manual overrides cannot delete an auto entry.
+  - **Preferred workaround:** instead of editing the auto file, add a manual
+    entry with the same `handle` and `"status": "inactive"`. `RosterPageBody`
+    filters those out of the `headcount` and they drop off the active sections
+    naturally. This is reversible (delete the manual entry to re-list them)
+    and survives the weekly fetch. Only fall back to editing the auto file
+    if Liquipedia is wrong about a player who is genuinely off the roster
+    AND you need them gone immediately. Do NOT invent a `_delete: true` flag
+    in `mergeByKey`, the inactive-status pattern covers every real case.
 - `npm run fetch:player <url-or-handle> [--apply]`: pulls one player's
   Liquipedia profile into a `roster.manual.json` entry (handle, role,
   country + code, birth date, signature heroes, socials, real name,
