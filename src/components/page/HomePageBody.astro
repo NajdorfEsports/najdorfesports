@@ -121,9 +121,12 @@ const heroBishops = [
     class="hero-content relative mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12 sm:pt-20 pb-12"
     data-hero-content
   >
-    {/* Wordmark with per-letter rise. aria-label gives assistive tech the
-        unbroken word so the per-letter spans don't fragment the readout. */}
-    <p
+    {/* Wordmark with per-letter rise. This is the home page's single h1.
+        aria-label gives assistive tech the unbroken word so the per-letter
+        spans don't fragment the readout. Tailwind preflight zeroes heading
+        margins and inherits font-size, so the p->h1 swap is visually
+        identical. */}
+    <h1
       class="font-display text-5xl sm:text-7xl md:text-8xl tracking-tight leading-none"
       aria-label="Najdorf Esports"
     >
@@ -133,7 +136,7 @@ const heroBishops = [
       <span class="text-[var(--color-text)]" aria-hidden="true">
         <span class="hero-letter" style="--n:7">&nbsp;</span><span class="hero-letter" style="--n:8">E</span><span class="hero-letter" style="--n:9">S</span><span class="hero-letter" style="--n:10">P</span><span class="hero-letter" style="--n:11">O</span><span class="hero-letter" style="--n:12">R</span><span class="hero-letter" style="--n:13">T</span><span class="hero-letter" style="--n:14">S</span>
       </span>
-    </p>
+    </h1>
 
     <p class="hero-fade-in mt-4 font-display text-xl sm:text-2xl text-[var(--color-accent-2)] tracking-[0.3em]" style="--delay:680ms">
       {t.hero.subhead}

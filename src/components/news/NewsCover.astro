@@ -33,6 +33,11 @@ const {
 } = Astro.props;
 
 const isHero = variant === 'hero';
+// The cover title is a real heading, not decorative text. On an article page
+// (hero) it is the page's single h1; in the index grid (card) each title is an
+// h2 under that page's "From the team" h1. Tailwind preflight zeroes heading
+// margins and inherits font-size, so the tag swap is visually identical.
+const TitleTag = isHero ? 'h1' : 'h2';
 const dateLabel = formatDate(date, locale, {
   month: 'long',
   day: 'numeric',
@@ -72,9 +77,9 @@ const dateLabel = formatDate(date, locale, {
       {eyebrow && <><span class="news-cover__eyebrow">{eyebrow}</span><span aria-hidden="true" class="news-cover__sep">·</span></>}
       <span class="news-cover__date">{dateLabel}</span>
     </p>
-    <p class={isHero ? 'news-cover__title news-cover__title--hero' : 'news-cover__title news-cover__title--card'}>
+    <TitleTag class={isHero ? 'news-cover__title news-cover__title--hero' : 'news-cover__title news-cover__title--card'}>
       {title}
-    </p>
+    </TitleTag>
   </div>
 </div>
 
