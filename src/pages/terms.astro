@@ -2,6 +2,9 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { site } from '../data/site';
 
+// `updated` is the date the policy TEXT last changed, not the page's
+// build date. Bump only when you've actually changed the policy below.
+// (Future Claude: do NOT auto-update this to the current session date.)
 const updated = '2026-05-25';
 ---
 <BaseLayout

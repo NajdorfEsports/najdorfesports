@@ -104,13 +104,14 @@ export function translatePlacement(placement: string, locale: Locale): string {
   if (/^2(nd)?\b/i.test(placement)) return isTW ? '亞軍' : '亚军';
   if (/^3(rd)?\b/i.test(placement)) return isTW ? '季軍' : '季军';
 
-  // "Top 8" → "前 8 名"
+  // "Top 8" → "前 8 名". Same characters in zh-TW and zh-CN, no branch.
   const top = placement.match(/^Top\s+(\d+)$/i);
-  if (top) return isTW ? `前 ${top[1]} 名` : `前 ${top[1]} 名`;
+  if (top) return `前 ${top[1]} 名`;
 
-  // "3rd-4th", "5th-8th" → keep numbers, replace -th suffixes with 名
+  // "3rd-4th", "5th-8th" → keep numbers, replace -th suffixes with 名.
+  // Same characters in both Chinese locales.
   const range = placement.match(/^(\d+)(?:st|nd|rd|th)\s*[–-]\s*(\d+)(?:st|nd|rd|th)$/i);
-  if (range) return isTW ? `第 ${range[1]}–${range[2]} 名` : `第 ${range[1]}–${range[2]} 名`;
+  if (range) return `第 ${range[1]}–${range[2]} 名`;
 
   // Generic "Nth"
   const nth = placement.match(/^(\d+)(?:st|nd|rd|th)$/i);

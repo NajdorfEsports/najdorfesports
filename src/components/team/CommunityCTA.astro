@@ -121,13 +121,13 @@ const ctaFor = (name: string) =>
 
   /* Default chip, keep brand-neutral so the card reads as part of the
      org's palette. On hover the chip lifts into the platform colour as
-     a small recognition cue. */
+     a small recognition cue. Platform brand colors live in tokens.css. */
   .community-card--discord .community-card__chip {
-    background-color: color-mix(in oklab, #5865F2 14%, transparent);
-    color: #B8BFFF;
+    background-color: color-mix(in oklab, var(--color-discord) 14%, transparent);
+    color: var(--color-discord-fg);
   }
   .community-card--discord:hover .community-card__chip {
-    background-color: #5865F2;
+    background-color: var(--color-discord);
     color: #fff;
   }
 

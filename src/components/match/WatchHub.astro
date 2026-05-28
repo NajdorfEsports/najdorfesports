@@ -46,13 +46,15 @@ const platformLabel: Record<WatchChannel['platform'], string> = {
                 {platformLabel[c.platform]} · {c.language}
               </p>
             </div>
-            {/* Tiny play-glyph chip, role-coloured per platform. */}
+            {/* Tiny play-glyph chip, role-coloured per platform. Brand
+                colors live in tokens.css; the modifier classes below
+                pull them in. */}
             <span
               class:list={[
                 'watch-card__chip inline-flex items-center justify-center w-9 h-9 rounded-full shrink-0',
-                c.platform === 'twitch'  ? 'bg-[#9146FF]/15 text-[#B689FF]' : '',
-                c.platform === 'youtube' ? 'bg-[#FF0033]/15 text-[#FF6E84]' : '',
-                c.platform === 'other'   ? 'bg-[var(--color-surface-2)] text-[var(--color-text-dim)]' : '',
+                c.platform === 'twitch'  ? 'watch-card__chip--twitch'  : '',
+                c.platform === 'youtube' ? 'watch-card__chip--youtube' : '',
+                c.platform === 'other'   ? 'watch-card__chip--other'   : '',
               ]}
               aria-hidden="true"
             >
@@ -84,6 +86,21 @@ const platformLabel: Record<WatchChannel['platform'], string> = {
   }
   .watch-card__chip {
     transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Platform-coloured chip backgrounds. Brand values are sourced from
+     tokens.css so a platform-wide brand refresh is a single edit. */
+  .watch-card__chip--twitch {
+    background-color: color-mix(in oklab, var(--color-twitch) 15%, transparent);
+    color: var(--color-twitch-fg);
+  }
+  .watch-card__chip--youtube {
+    background-color: color-mix(in oklab, var(--color-youtube) 15%, transparent);
+    color: var(--color-youtube-fg);
+  }
+  .watch-card__chip--other {
+    background-color: var(--color-surface-2);
+    color: var(--color-text-dim);
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -30,8 +30,6 @@ export const zhCN: Strings = {
   },
   hero: {
     subhead: 'OWCS PACIFIC 2026',
-    stats: (players, countries) => `${players} 名选手・来自 ${countries} 个国家。`,
-    record: (line) => `第一阶段战绩 ${line}。`,
     achievement: (placement, event) => `${event} ${placement}。`,
     tagline:        '备战 6 月 4 日开打的 OWCS Pacific 第二阶段。',
     matchSchedule:  '查看赛程',

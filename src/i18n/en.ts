@@ -25,9 +25,6 @@ export const en = {
   },
   hero: {
     subhead: 'OWCS PACIFIC 2026',
-    stats: (players: number, countries: number) =>
-      `${players} players across ${countries} ${countries === 1 ? 'country' : 'countries'}.`,
-    record: (line: string) => `${line} in Stage 1.`,
     achievement: (placement: string, event: string) => `${placement} at ${event}.`,
     tagline: 'Headed to OWCS Pacific Stage 2 on June 4.',
     matchSchedule: 'Match schedule',

@@ -8,4 +8,17 @@
 :root {
   --shadow-card: 0 1px 0 0 var(--color-border), 0 6px 24px -8px rgba(0, 0, 0, 0.6);
   --max-content: 72rem;
+
+  /* Brand colors for the third-party platforms we link out to. Defined
+   * once so a future brand refresh (Discord's blurple shift, Twitch's
+   * purple, etc.) is one edit instead of seven. Consumers: SocialRow,
+   * CommunityCTA, WatchHub. The `-fg` variants are the muted text/icon
+   * shade used on a dark surface; the unsuffixed value is the brand's
+   * canonical solid. */
+  --color-discord: #5865F2;
+  --color-discord-fg: #B8BFFF;
+  --color-twitch: #9146FF;
+  --color-twitch-fg: #B689FF;
+  --color-youtube: #FF0033;
+  --color-youtube-fg: #FF6E84;
 }
