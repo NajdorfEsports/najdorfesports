@@ -160,15 +160,33 @@ export interface Sponsor {
  * Manual entries win on collision; auto-only entries are kept; manual-only
  * entries are appended. Used for roster (key: handle), matches (key: id),
  * achievements (key: id).
+ *
+ * Entries missing a usable `idKey` are skipped with a warning rather than
+ * silently colliding in an `undefined` bucket. The realistic trigger is a
+ * Liquipedia wikitext layout change that causes the fetcher to emit an
+ * entry without its id/handle; without the guard, every such entry would
+ * shadow the next one and only the last would survive.
  */
 export function mergeByKey<T extends object>(
   auto: ReadonlyArray<T>,
   manual: ReadonlyArray<T>,
   idKey: keyof T,
 ): T[] {
+  const isValidKey = (v: unknown): v is string | number =>
+    (typeof v === 'string' && v.trim() !== '') || typeof v === 'number';
   const out = new Map<unknown, T>();
-  for (const a of auto) out.set(a[idKey], a);
+  for (const a of auto) {
+    if (!isValidKey(a[idKey])) {
+      console.warn(`[mergeByKey] auto entry missing "${String(idKey)}", skipping:`, a);
+      continue;
+    }
+    out.set(a[idKey], a);
+  }
   for (const m of manual) {
+    if (!isValidKey(m[idKey])) {
+      console.warn(`[mergeByKey] manual entry missing "${String(idKey)}", skipping:`, m);
+      continue;
+    }
     const existing = out.get(m[idKey]);
     out.set(m[idKey], existing ? { ...existing, ...m } : m);
   }

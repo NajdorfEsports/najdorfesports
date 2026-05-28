@@ -56,12 +56,30 @@ const watchLabel = isPast ? t.match.watchVod : t.match.watch;
 //      page load; different matches -> different picks. Handles
 //      upcoming/TBD matches and matches imported before their maps
 //      had icons cached.
+//
+// `lookupMap` falls back to a normalized comparison when a direct key
+// hit misses, so casing or punctuation drift in match data ("kings
+// row", "King's Row", "King’s Row") still resolves to the canonical
+// `/maps/kings-row.webp`. The on-disk `maps.json` stays keyed by
+// canonical display name (it is the human-edited surface).
 const knownMaps = mapIcons as Record<string, string>;
+const normalizeMapKey = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '');
+function lookupMap(name: string | undefined): string | null {
+  if (!name) return null;
+  if (knownMaps[name]) return knownMaps[name];
+  const target = normalizeMapKey(name);
+  if (target.length === 0) return null;
+  for (const k of Object.keys(knownMaps)) {
+    if (normalizeMapKey(k) === target) return knownMaps[k] ?? null;
+  }
+  return null;
+}
+
 const heroMap = (match.mapScores ?? [])
   .slice()
   .reverse()
   .map((m) => m.map)
-  .find((name) => name && knownMaps[name]);
+  .find((name) => lookupMap(name));
 
 function hashStr(s: string): number {
   let h = 0;
@@ -71,7 +89,7 @@ function hashStr(s: string): number {
   return Math.abs(h);
 }
 
-let backdropUrl: string | null = heroMap ? knownMaps[heroMap] : null;
+let backdropUrl: string | null = heroMap ? lookupMap(heroMap) : null;
 if (!backdropUrl) {
   const pool = Object.values(knownMaps);
   if (pool.length > 0) {

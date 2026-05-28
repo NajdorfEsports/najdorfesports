@@ -15,19 +15,8 @@ import SponsorsRow from '../team/SponsorsRow.astro';
 import CommunityCTA from '../team/CommunityCTA.astro';
 import Button from '../ui/Button.astro';
 import { getCollection } from 'astro:content';
-import {
-  mergeByKey,
-  type MatchEntry,
-  type RosterEntry,
-  type Achievement,
-  type Sponsor,
-} from '../../data/site';
-import autoMatchesData from '../../data/matches.json';
-import manualMatchesData from '../../data/matches.manual.json';
-import rosterAutoData from '../../data/roster.json';
-import rosterManualData from '../../data/roster.manual.json';
-import achievementsAutoData from '../../data/achievements.json';
-import achievementsManualData from '../../data/achievements.manual.json';
+import { type Sponsor } from '../../data/site';
+import { loadRoster, loadMatches, loadAchievements } from '../../data/loaders';
 import sponsorsData from '../../data/sponsors.json';
 import { DEFAULT_LOCALE, pathFor, useT, type Locale } from '../../i18n';
 import { formatDate, translateTournament, translatePlacement } from '../../i18n/format';
@@ -35,21 +24,9 @@ import { formatDate, translateTournament, translatePlacement } from '../../i18n/
 const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
 const t = useT(locale);
 
-const allMatches = mergeByKey(
-  autoMatchesData as MatchEntry[],
-  manualMatchesData as MatchEntry[],
-  'id',
-);
-const roster = mergeByKey(
-  rosterAutoData as RosterEntry[],
-  rosterManualData as RosterEntry[],
-  'handle',
-);
-const achievements = mergeByKey(
-  achievementsAutoData as Achievement[],
-  achievementsManualData as Achievement[],
-  'id',
-);
+const allMatches = loadMatches();
+const roster = loadRoster();
+const achievements = loadAchievements();
 
 const now = Date.now();
 const upcoming = allMatches

@@ -7,49 +7,25 @@
 import PlayerCard from '../player/PlayerCard.astro';
 import AchievementStrip from '../team/AchievementStrip.astro';
 import MatchTicker from '../match/MatchTicker.astro';
-import {
-  mergeByKey,
-  site,
-  type RosterEntry,
-  type MatchEntry,
-  type Achievement,
-  type Role,
-} from '../../data/site';
+import { site, ROLE_ORDER, type RosterEntry, type Role } from '../../data/site';
+import { loadRoster, loadMatches, loadAchievements } from '../../data/loaders';
 import { DEFAULT_LOCALE, useT, type Locale } from '../../i18n';
-
-import rosterAutoData from '../../data/roster.json';
-import rosterManualData from '../../data/roster.manual.json';
-import matchesAutoData from '../../data/matches.json';
-import matchesManualData from '../../data/matches.manual.json';
-import achievementsAutoData from '../../data/achievements.json';
-import achievementsManualData from '../../data/achievements.manual.json';
 
 const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
 const t = useT(locale);
 
-const roster = mergeByKey(
-  rosterAutoData as RosterEntry[],
-  rosterManualData as RosterEntry[],
-  'handle',
-);
-const matches = mergeByKey(
-  matchesAutoData as MatchEntry[],
-  matchesManualData as MatchEntry[],
-  'id',
-);
-const achievements = mergeByKey(
-  achievementsAutoData as Achievement[],
-  achievementsManualData as Achievement[],
-  'id',
-);
+const roster = loadRoster();
+const matches = loadMatches();
+const achievements = loadAchievements();
 
-// Group by role for display.
+// Group by role for display, sorted by the shared ROLE_ORDER so the order
+// stays consistent with any future consumer (ticker, strip, etc.).
 const grouped: Partial<Record<Role, RosterEntry[]>> = {};
 for (const p of roster) {
   (grouped[p.role] ??= []).push(p);
 }
-const sectionOrder: Role[] = ['Tank', 'DPS', 'Support', 'Flex', 'Coach', 'Manager'];
-const sections = sectionOrder
+const sections = (Object.keys(ROLE_ORDER) as Role[])
+  .sort((a, b) => ROLE_ORDER[a] - ROLE_ORDER[b])
   .filter((r) => grouped[r] && grouped[r]!.length > 0)
   .map((r) => ({ role: r, players: grouped[r]!.sort((a, b) => a.handle.localeCompare(b.handle)) }));
 

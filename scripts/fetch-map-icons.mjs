@@ -21,7 +21,7 @@
  * site footer + /matches page.
  */
 
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, rename, writeFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import sharp from 'sharp';
@@ -167,12 +167,26 @@ async function downloadTo(filePath, url) {
 
 async function collectMapNames() {
   const seen = new Set(OWCS_MAP_POOL);
+  // Reverse-lookup index from normalized form -> canonical name. A
+  // discovered name in matches data ("kings row", "King’s Row") gets
+  // collapsed onto the canonical pool entry so we do not create a
+  // duplicate maps.json entry that the MatchCard lookup would also
+  // have to absorb. The on-disk maps.json stays keyed by canonical
+  // display name.
+  const normMap = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '');
+  const canonicalByNorm = new Map();
+  for (const n of OWCS_MAP_POOL) canonicalByNorm.set(normMap(n), n);
+
   for (const path of [MATCHES_AUTO, MATCHES_MANUAL]) {
     try {
       const data = JSON.parse(await readFile(path, 'utf8'));
       for (const match of data) {
         for (const m of match.mapScores ?? []) {
-          if (m.map && typeof m.map === 'string') seen.add(m.map.trim());
+          if (m.map && typeof m.map === 'string') {
+            const raw = m.map.trim();
+            const canonical = canonicalByNorm.get(normMap(raw));
+            seen.add(canonical ?? raw);
+          }
         }
       }
     } catch {
@@ -212,7 +226,10 @@ async function collectMapNames() {
     }
   }
 
-  await writeFile(MAPS_JSON, JSON.stringify(out, null, 2) + '\n', 'utf8');
+  // Atomic write: same rationale as scripts/fetch-liquipedia.mjs.
+  const tmp = `${MAPS_JSON}.tmp`;
+  await writeFile(tmp, JSON.stringify(out, null, 2) + '\n', 'utf8');
+  await rename(tmp, MAPS_JSON);
   console.log(`[map-icons] Wrote ${Object.keys(out).length} mappings to ${MAPS_JSON}`);
   process.exit(0);
 })();

@@ -3,13 +3,8 @@
  * is emitted at /roster/, /zh-TW/roster/, and /zh-CN/roster/. Each Person
  * references the SportsOrganization @id emitted by BaseLayout.
  */
-import {
-  mergeByKey,
-  site,
-  type RosterEntry,
-} from './site';
-import rosterAutoData from './roster.json';
-import rosterManualData from './roster.manual.json';
+import { site } from './site';
+import { loadRoster } from './loaders';
 
 const orgId = `${site.url}/#org`;
 
@@ -23,11 +18,7 @@ function splitName(real?: string): { givenName?: string; familyName?: string } {
 }
 
 export function buildRosterJsonLd(): Array<Record<string, unknown>> {
-  const roster = mergeByKey(
-    rosterAutoData as RosterEntry[],
-    rosterManualData as RosterEntry[],
-    'handle',
-  );
+  const roster = loadRoster();
   return roster.map((p) => {
     const sameAs = [
       p.liquipediaUrl,
@@ -50,11 +41,7 @@ export function buildRosterJsonLd(): Array<Record<string, unknown>> {
 }
 
 export function rosterMetaCounts(): { headcount: number; countries: string[] } {
-  const roster = mergeByKey(
-    rosterAutoData as RosterEntry[],
-    rosterManualData as RosterEntry[],
-    'handle',
-  );
+  const roster = loadRoster();
   const headcount = roster.filter((p) => p.status !== 'inactive').length;
   const countries = Array.from(
     new Set(roster.map((p) => p.country).filter((c): c is string => !!c && c !== 'TBD')),

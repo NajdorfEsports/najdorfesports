@@ -3,15 +3,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import MatchCard from '../components/match/MatchCard.astro';
 import MatchEmptyState from '../components/match/EmptyState.astro';
 import MatchTicker from '../components/match/MatchTicker.astro';
-import { mergeByKey, site, owcs, type MatchEntry } from '../data/site';
-import autoMatchesData from '../data/matches.json';
-import manualMatchesData from '../data/matches.manual.json';
+import { site, owcs, type MatchEntry } from '../data/site';
+import { loadMatches } from '../data/loaders';
 
-const allMatches = mergeByKey(
-  autoMatchesData as MatchEntry[],
-  manualMatchesData as MatchEntry[],
-  'id',
-);
+const allMatches = loadMatches();
 
 const now = Date.now();
 const upcoming = allMatches
