@@ -1,0 +1,43 @@
+name: CI build check
+
+# The project commits straight to `main` and Cloudflare Pages auto-deploys
+# every push, so there is no PR review gate. This workflow is a lightweight
+# safety net: it type-checks and builds on every push to `main` (and on any
+# PR, if one is ever opened) so a broken build surfaces here instead of only
+# in the Cloudflare deploy log. It does NOT deploy: Cloudflare owns deploy.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # Pinned to commit SHAs (not floating tags); human-readable version is
+      # in the trailing comment, matching the convention in update-matches.yml.
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npx astro check
+
+      - name: Build
+        run: npm run build
