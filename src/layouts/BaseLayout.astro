@@ -18,6 +18,12 @@ interface Props {
   ogImage?: string;
   jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
   canonical?: string;
+  // Set false on pages that exist only in English (privacy, terms, shop,
+  // 404). hreflang alternates are only valid when the page genuinely has
+  // other-locale versions; pointing them at /zh-TW/... URLs that 404 is a
+  // Search Console error. Localized pages (index, about, matches, roster,
+  // news) leave this true so all three locales cross-link.
+  localized?: boolean;
 }
 
 const {
@@ -26,6 +32,7 @@ const {
   ogImage = '/branding/og-default.png',
   jsonLd,
   canonical,
+  localized = true,
 } = Astro.props;
 
 const fullTitle = title === site.name ? title : `${title} · ${site.name}`;
@@ -93,14 +100,18 @@ const orgJsonLd = {
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
-    {alternates.map((alt) => (
-      <link rel="alternate" hreflang={alt.locale} href={alt.href} />
-    ))}
-    <link
-      rel="alternate"
-      hreflang="x-default"
-      href={new URL(pathFor('en', basePath), site.url).toString()}
-    />
+    {localized && (
+      <Fragment>
+        {alternates.map((alt) => (
+          <link rel="alternate" hreflang={alt.locale} href={alt.href} />
+        ))}
+        <link
+          rel="alternate"
+          hreflang="x-default"
+          href={new URL(pathFor('en', basePath), site.url).toString()}
+        />
+      </Fragment>
+    )}
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
