@@ -1,10 +1,10 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import NewsList from '../../components/news/NewsList.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import NewsList from '../../../components/news/NewsList.astro';
 import { getCollection } from 'astro:content';
-import { useT, type Locale } from '../../i18n';
+import { useT, type Locale } from '../../../i18n';
 
-const LOCALE: Locale = 'en';
+const LOCALE: Locale = 'zh-TW';
 const t = useT(LOCALE);
 
 const posts = (await getCollection(

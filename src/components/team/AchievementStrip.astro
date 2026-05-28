@@ -1,6 +1,6 @@
 ---
 import type { Achievement } from '../../data/site';
-import { DEFAULT_LOCALE, useT, type Locale } from '../../i18n';
+import { getLocale, useT } from '../../i18n';
 import {
   formatDate,
   formatCurrencyUSD,
@@ -13,7 +13,7 @@ interface Props {
 }
 const { achievements } = Astro.props;
 
-const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const locale = getLocale(Astro);
 const t = useT(locale);
 
 const sorted = [...achievements].sort(
@@ -30,7 +30,7 @@ function placementTier(placement: string): 'gold' | 'silver' | 'bronze' | 'neutr
 }
 ---
 {sorted.length > 0 && (
-  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10" aria-label="Achievements">
+  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10" aria-label={t.achievement.ariaLabel}>
     <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] mb-3">{t.achievement.recentResults}</p>
     <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {sorted.map((a) => {
@@ -39,7 +39,7 @@ function placementTier(placement: string): 'gold' | 'silver' | 'bronze' | 'neutr
           <li class:list={['achievement', `achievement--${tier}`, 'bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-4 flex items-center gap-4']}>
             <span
               class:list={['placement-plate', `placement-plate--${tier}`]}
-              aria-label={`Placement: ${a.placement}`}
+              aria-label={t.achievement.placementLabel(translatePlacement(a.placement, locale))}
             >
               <span class="placement-plate__value">{translatePlacement(a.placement, locale)}</span>
             </span>

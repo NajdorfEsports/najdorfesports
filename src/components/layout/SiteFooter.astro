@@ -1,20 +1,14 @@
 ---
 import { site } from '../../data/site';
 import SocialRow from './SocialRow.astro';
-import { DEFAULT_LOCALE, pathFor, useT, type Locale } from '../../i18n';
+import { getLocale, primaryNav, useT } from '../../i18n';
 
-const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const locale = getLocale(Astro);
 const t = useT(locale);
 
-// Primary nav (top row of the footer). Localized routes for pages that have
-// translations; fixed paths for English-only routes (Matches, News).
-const primaryLinks = [
-  { href: pathFor(locale, '/'),         label: t.nav.home    },
-  { href: pathFor(locale, '/roster/'),  label: t.nav.roster  },
-  { href: '/matches/',                  label: t.nav.matches },
-  { href: '/news/',                     label: t.nav.news    },
-  { href: pathFor(locale, '/about/'),   label: t.nav.about   },
-];
+// Primary nav (top row of the footer). Shared with SiteHeader via primaryNav
+// so the two never drift; every route is localized.
+const primaryLinks = primaryNav(locale, t);
 
 // Legal links demoted to the meta row, they don't need primary-nav weight.
 const legalLinks = [

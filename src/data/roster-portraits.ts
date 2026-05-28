@@ -18,17 +18,11 @@
  * the file as 2x density; retina displays render sharp without an extra
  * download.
  */
-export const rosterPortraits: ReadonlyArray<string> = [
-  'akie',
-  'brysonbtw',
-  'detai1',
-  'fee1ing',
-  'fei',
-  'rabbit',
-  'tiamo',
-  'tom4to',
-  'zephyr',
-];
+// Empty until real portraits exist. The files under public/roster/ today are
+// placeholder stubs (0-byte or 1x1), so listing their handles here only made
+// PlayerAvatar emit broken/blank <img>s instead of the monogram fallback. Add
+// a handle back the moment a real .webp lands over its stub, never before.
+export const rosterPortraits: ReadonlyArray<string> = [];
 
 export function hasPortrait(handle: string): boolean {
   return rosterPortraits.includes(handle.toLowerCase());

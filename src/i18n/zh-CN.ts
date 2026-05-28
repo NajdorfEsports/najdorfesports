@@ -43,7 +43,13 @@ export const zhCN: Strings = {
     latest:          '最新消息',
     allNews:         '所有新闻',
     read:            '阅读',
-    newsEnglishOnly: '目前新闻文章仅提供英文版本。',
+  },
+
+  news: {
+    eyebrow:         '新闻',
+    heading:         '来自战队',
+    backToAll:       '所有新闻',
+    metaDescription: 'Najdorf Esports 的公告、品牌动态与赛事报道。',
   },
   roster: {
     eyebrow:            '现役名单 · OWCS Pacific 2026',
@@ -113,6 +119,14 @@ export const zhCN: Strings = {
 
   achievement: {
     recentResults: '近期战绩',
+    ariaLabel: '战绩',
+    placementLabel: (placement) => `名次：${placement}`,
+  },
+
+  watch: {
+    eyebrow: '观看渠道',
+    heading: 'OWCS Pacific 官方转播',
+    cardAriaLabel: (name, language, platform) => `${name}，在 ${platform} 上的${language}转播`,
   },
 
   nextMatch: {
@@ -137,12 +151,34 @@ export const zhCN: Strings = {
     loss:  '负',
   },
 
+  matches: {
+    metaDescription: (league) => `Najdorf Esports 在 ${league} 的近期赛程与最新战绩。`,
+    eyebrow: (league, year) => `赛程 · ${league} ${year}`,
+    upcoming:    '即将开打',
+    recordLabel: '战绩',
+    record: (wins, losses) => `${wins} 胜 ${losses} 负`,
+    pastResults: '过往战绩',
+    attribution: {
+      before:  '赛事数据来自 ',
+      between: '，并依 ',
+      after:   ' 授权发布。赛程每周更新。',
+    },
+  },
+
+  matchEmpty: {
+    upcoming: (league, stage, startDate) =>
+      `目前暂无即将进行的比赛。${league} ${stage}主赛事将于 ${startDate} 开打。`,
+    past: (stage) =>
+      `目前暂无已完成的比赛。${stage}主赛事开打后，战绩将显示于此。`,
+  },
+
   ticker: {
     upcoming: (date, opponent, tournament) => `${date} · 对战 ${opponent} · ${tournament}`,
     win:  (opponent, tournament) => `胜 对战 ${opponent} · ${tournament}`,
     loss: (opponent, tournament) => `负 对战 ${opponent} · ${tournament}`,
     tbd:  (opponent, tournament) => `对战 ${opponent} · ${tournament}`,
     fallback: 'OWCS Pacific 第二阶段主赛事将于 2026 年 6 月 4 日开打。',
+    ariaLabel: '赛事跑马灯',
   },
 
   player: {

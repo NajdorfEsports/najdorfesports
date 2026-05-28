@@ -9,9 +9,9 @@ import AchievementStrip from '../team/AchievementStrip.astro';
 import MatchTicker from '../match/MatchTicker.astro';
 import { site, ROLE_ORDER, type RosterEntry, type Role } from '../../data/site';
 import { loadRoster, loadMatches, loadAchievements } from '../../data/loaders';
-import { DEFAULT_LOCALE, useT, type Locale } from '../../i18n';
+import { getLocale, useT } from '../../i18n';
 
-const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const locale = getLocale(Astro);
 const t = useT(locale);
 
 const roster = loadRoster();

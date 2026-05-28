@@ -14,14 +14,15 @@ import AchievementStrip from '../team/AchievementStrip.astro';
 import SponsorsRow from '../team/SponsorsRow.astro';
 import CommunityCTA from '../team/CommunityCTA.astro';
 import Button from '../ui/Button.astro';
+import BishopMark from '../ui/BishopMark.astro';
 import { getCollection } from 'astro:content';
 import { type Sponsor } from '../../data/site';
 import { loadRoster, loadMatches, loadAchievements } from '../../data/loaders';
 import sponsorsData from '../../data/sponsors.json';
-import { DEFAULT_LOCALE, pathFor, useT, type Locale } from '../../i18n';
+import { getLocale, pathFor, useT } from '../../i18n';
 import { formatDate, translateTournament, translatePlacement } from '../../i18n/format';
 
-const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const locale = getLocale(Astro);
 const t = useT(locale);
 
 const allMatches = loadMatches();
@@ -49,8 +50,12 @@ const inProgress = past.find(
 );
 const liveCandidate = inProgress ?? nextMatch;
 
-// News is English-only per spec, so we don't filter by locale.
-const newsPosts = (await getCollection('news', ({ data }) => !data.draft))
+// News is per-locale now: show the current locale's articles. A locale with
+// a missing translation simply shows fewer (or older) posts here.
+const newsPosts = (await getCollection(
+  'news',
+  ({ data }) => !data.draft && data.locale === locale,
+))
   .sort((a, b) => +b.data.date - +a.data.date)
   .slice(0, 2);
 
@@ -65,9 +70,22 @@ const topAchievement = [...achievements].sort(
 )[0];
 
 // Localized hrefs for the two CTAs and the "All matches" / "All news" links.
-const matchesHref = '/matches/';
+const matchesHref = pathFor(locale, '/matches/');
 const rosterHref  = pathFor(locale, '/roster/');
-const newsHref    = '/news/';
+const newsHref    = pathFor(locale, '/news/');
+
+// Drifting bishop motif behind the hero. Each entry is one instance: position
+// + animation vars live in `style`, responsive visibility in `class`, and the
+// svg size / stroke on the mark itself. They never sync because the durations
+// (--dur) differ. The 4th instance tints itself with the secondary accent via
+// an inline `color` (the mark's stroke is currentColor).
+const heroBishops = [
+  { class: '',                       width: 180, height: 270, strokeWidth: 1.6, style: 'top:8%;left:6%;--dur:62s;--dx:24px;--dy:-18px;--rot:5deg;--op:0.07;' },
+  { class: '',                       width: 240, height: 360, strokeWidth: 1.4, style: 'top:32%;right:4%;--dur:78s;--dx:-32px;--dy:22px;--rot:-7deg;--op:0.05;' },
+  { class: 'hidden md:inline-block', width: 140, height: 210, strokeWidth: 1.6, style: 'bottom:6%;left:28%;--dur:54s;--dx:18px;--dy:-26px;--rot:9deg;--op:0.04;' },
+  { class: 'hidden lg:inline-block', width: 160, height: 240, strokeWidth: 1.5, style: 'top:52%;left:62%;--dur:70s;--dx:-20px;--dy:30px;--rot:-5deg;--op:0.06; color:var(--color-accent-2);' },
+  { class: 'hidden xl:inline-block', width: 100, height: 150, strokeWidth: 1.6, style: 'top:18%;right:36%;--dur:84s;--dx:30px;--dy:-14px;--rot:4deg;--op:0.04;' },
+];
 ---
 <MatchTicker matches={allMatches} />
 
@@ -91,61 +109,11 @@ const newsHref    = '/news/';
       durations so they never sync. Pointer-events:none so CTAs underneath
       stay clickable. aria-hidden because they're purely decorative. */}
   <div class="hero-bishops absolute inset-0" aria-hidden="true">
-    <span class="bishop-drift" style="top:8%;left:6%;--dur:62s;--dx:24px;--dy:-18px;--rot:5deg;--op:0.07;">
-      <svg width="180" height="270" viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.6">
-        <path fill-rule="evenodd" d="M32 6 C 40 18, 44 30, 44 38 C 44 46, 38 50, 32 50 C 26 50, 20 46, 20 38 C 20 30, 24 18, 32 6 Z"/>
-        <path d="M28 12 L 38 22 L 36 24 L 26 14 Z"/>
-        <rect x="26" y="46" width="12" height="12"/>
-        <rect x="20" y="56" width="24" height="6" rx="1"/>
-        <path d="M22 60 L 42 60 L 46 78 L 18 78 Z"/>
-        <path d="M14 78 L 50 78 L 52 88 L 12 88 Z"/>
-        <ellipse cx="32" cy="90" rx="22" ry="3.5"/>
-      </svg>
-    </span>
-    <span class="bishop-drift" style="top:32%;right:4%;--dur:78s;--dx:-32px;--dy:22px;--rot:-7deg;--op:0.05;">
-      <svg width="240" height="360" viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.4">
-        <path fill-rule="evenodd" d="M32 6 C 40 18, 44 30, 44 38 C 44 46, 38 50, 32 50 C 26 50, 20 46, 20 38 C 20 30, 24 18, 32 6 Z"/>
-        <path d="M28 12 L 38 22 L 36 24 L 26 14 Z"/>
-        <rect x="26" y="46" width="12" height="12"/>
-        <rect x="20" y="56" width="24" height="6" rx="1"/>
-        <path d="M22 60 L 42 60 L 46 78 L 18 78 Z"/>
-        <path d="M14 78 L 50 78 L 52 88 L 12 88 Z"/>
-        <ellipse cx="32" cy="90" rx="22" ry="3.5"/>
-      </svg>
-    </span>
-    <span class="bishop-drift hidden md:inline-block" style="bottom:6%;left:28%;--dur:54s;--dx:18px;--dy:-26px;--rot:9deg;--op:0.04;">
-      <svg width="140" height="210" viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.6">
-        <path fill-rule="evenodd" d="M32 6 C 40 18, 44 30, 44 38 C 44 46, 38 50, 32 50 C 26 50, 20 46, 20 38 C 20 30, 24 18, 32 6 Z"/>
-        <path d="M28 12 L 38 22 L 36 24 L 26 14 Z"/>
-        <rect x="26" y="46" width="12" height="12"/>
-        <rect x="20" y="56" width="24" height="6" rx="1"/>
-        <path d="M22 60 L 42 60 L 46 78 L 18 78 Z"/>
-        <path d="M14 78 L 50 78 L 52 88 L 12 88 Z"/>
-        <ellipse cx="32" cy="90" rx="22" ry="3.5"/>
-      </svg>
-    </span>
-    <span class="bishop-drift hidden lg:inline-block" style="top:52%;left:62%;--dur:70s;--dx:-20px;--dy:30px;--rot:-5deg;--op:0.06; color:var(--color-accent-2);">
-      <svg width="160" height="240" viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path fill-rule="evenodd" d="M32 6 C 40 18, 44 30, 44 38 C 44 46, 38 50, 32 50 C 26 50, 20 46, 20 38 C 20 30, 24 18, 32 6 Z"/>
-        <path d="M28 12 L 38 22 L 36 24 L 26 14 Z"/>
-        <rect x="26" y="46" width="12" height="12"/>
-        <rect x="20" y="56" width="24" height="6" rx="1"/>
-        <path d="M22 60 L 42 60 L 46 78 L 18 78 Z"/>
-        <path d="M14 78 L 50 78 L 52 88 L 12 88 Z"/>
-        <ellipse cx="32" cy="90" rx="22" ry="3.5"/>
-      </svg>
-    </span>
-    <span class="bishop-drift hidden xl:inline-block" style="top:18%;right:36%;--dur:84s;--dx:30px;--dy:-14px;--rot:4deg;--op:0.04;">
-      <svg width="100" height="150" viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.6">
-        <path fill-rule="evenodd" d="M32 6 C 40 18, 44 30, 44 38 C 44 46, 38 50, 32 50 C 26 50, 20 46, 20 38 C 20 30, 24 18, 32 6 Z"/>
-        <path d="M28 12 L 38 22 L 36 24 L 26 14 Z"/>
-        <rect x="26" y="46" width="12" height="12"/>
-        <rect x="20" y="56" width="24" height="6" rx="1"/>
-        <path d="M22 60 L 42 60 L 46 78 L 18 78 Z"/>
-        <path d="M14 78 L 50 78 L 52 88 L 12 88 Z"/>
-        <ellipse cx="32" cy="90" rx="22" ry="3.5"/>
-      </svg>
-    </span>
+    {heroBishops.map((b) => (
+      <span class:list={['bishop-drift', b.class]} style={b.style}>
+        <BishopMark width={b.width} height={b.height} strokeWidth={b.strokeWidth} />
+      </span>
+    ))}
   </div>
 
   <div class="absolute inset-0 bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg)] opacity-80" aria-hidden="true"></div>
@@ -366,16 +334,10 @@ const newsHref    = '/news/';
     </a>
   </div>
 
-  {locale !== 'en' && (
-    <p class="text-xs text-[var(--color-text-dim)] mb-4 italic">
-      {t.home.newsEnglishOnly}
-    </p>
-  )}
-
   <div class="grid gap-6 md:grid-cols-2">
     {newsPosts.map((post, i) => (
       <a
-        href={`/news/${post.id}/`}
+        href={pathFor(locale, `/news/${post.data.slug}/`)}
         class="surface-hover reveal block bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 group"
         data-stagger={i + 1}
       >

@@ -11,16 +11,18 @@ const escape = (s: string) =>
     .replace(/'/g, '&apos;');
 
 export const GET: APIRoute = async () => {
-  const posts = (await getCollection('news', ({ data }) => !data.draft)).sort(
-    (a, b) => +b.data.date - +a.data.date,
-  );
+  // English-only feed: the collection now holds per-locale entries, so filter
+  // to en or every article would appear three times.
+  const posts = (
+    await getCollection('news', ({ data }) => !data.draft && data.locale === 'en')
+  ).sort((a, b) => +b.data.date - +a.data.date);
 
   const lastBuild =
     posts[0]?.data.date.toUTCString() ?? new Date().toUTCString();
 
   const items = posts
     .map((post) => {
-      const url = `${site.url}/news/${post.id}/`;
+      const url = `${site.url}/news/${post.data.slug}/`;
       const desc = post.data.description
         ? `      <description>${escape(post.data.description)}</description>\n`
         : '';

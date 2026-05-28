@@ -4,7 +4,7 @@ import CountryFlag from './CountryFlag.astro';
 import Badge from '../ui/Badge.astro';
 import heroIcons from '../../data/heroes.json';
 import type { RosterEntry, Role } from '../../data/site';
-import { DEFAULT_LOCALE, useT, type Locale } from '../../i18n';
+import { getLocale, useT } from '../../i18n';
 import { displayCountry } from '../../i18n/format';
 
 interface Props {
@@ -14,7 +14,7 @@ interface Props {
 }
 const { player, index = 0 } = Astro.props;
 
-const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const locale = getLocale(Astro);
 const t = useT(locale);
 const countryName = displayCountry(player.countryCode, player.country, locale);
 
@@ -92,7 +92,7 @@ const hasBackdrop = backdropHeroes.length > 0;
   )}
 
   <div class="player-card__content relative z-10 flex flex-col items-center w-full">
-    <PlayerAvatar handle={player.handle} size={96} />
+    <PlayerAvatar handle={player.handle} heroes={player.signatureHeroes} size={96} />
 
     <h3 class="font-display text-2xl sm:text-3xl mt-4 tracking-wide leading-none">
       {cardLink ? (

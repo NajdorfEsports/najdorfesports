@@ -67,6 +67,16 @@ export const watchChannels: ReadonlyArray<WatchChannel> = [
   { name: 'Overwatch Esports', url: 'TODO',                            language: 'VOD',      platform: 'youtube' },
 ];
 
+/**
+ * Keep only entries with a confirmed URL, dropping the `url: 'TODO'`
+ * placeholders used by `socials` and `watchChannels`. Centralizes the filter
+ * so every consumer (SocialRow, CommunityCTA, WatchHub, and the JSON-LD
+ * `sameAs` in BaseLayout) hides unconfirmed channels identically.
+ */
+export function confirmed<T extends { url: string }>(items: ReadonlyArray<T>): T[] {
+  return items.filter((item) => Boolean(item.url) && item.url !== 'TODO');
+}
+
 export type Role = 'Tank' | 'DPS' | 'Support' | 'Flex' | 'Coach' | 'Manager';
 
 export type RosterStatus = 'active' | 'dnp' | 'inactive';

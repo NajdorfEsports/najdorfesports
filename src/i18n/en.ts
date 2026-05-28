@@ -38,8 +38,15 @@ export const en = {
     latest: 'Latest',
     allNews: 'All news',
     read: 'Read',
-    /** Shown above the news section on non-English pages to set expectations. */
-    newsEnglishOnly: 'News articles are currently published in English only.',
+  },
+
+  /** News index + article chrome. Article bodies are per-locale markdown
+   *  in src/content/news; these are the surrounding labels. */
+  news: {
+    eyebrow: 'News',
+    heading: 'From the team',
+    backToAll: 'All news',
+    metaDescription: 'Announcements, brand updates, and match reports from Najdorf Esports.',
   },
   roster: {
     eyebrow: 'Active roster · OWCS Pacific 2026',
@@ -122,6 +129,18 @@ export const en = {
   /** Achievement strip below the hero. */
   achievement: {
     recentResults: 'Recent results',
+    /** Section landmark label. */
+    ariaLabel: 'Achievements',
+    /** Per-row label for the placement medallion. */
+    placementLabel: (placement: string) => `Placement: ${placement}`,
+  },
+
+  /** "Where to watch" band (WatchHub) on the home page. */
+  watch: {
+    eyebrow: 'Where to watch',
+    heading: 'Official OWCS Pacific broadcasts',
+    cardAriaLabel: (name: string, language: string, platform: string) =>
+      `${name}, ${language} broadcast on ${platform}`,
   },
 
   /** Next match countdown card. */
@@ -149,6 +168,32 @@ export const en = {
     loss: 'L',
   },
 
+  /** /matches page chrome (header, stat strip, attribution). */
+  matches: {
+    metaDescription: (league: string) =>
+      `Upcoming matches and recent results for Najdorf Esports in ${league}.`,
+    eyebrow: (league: string, year: number) => `Schedule · ${league} ${year}`,
+    upcoming: 'Upcoming',
+    recordLabel: 'Record',
+    record: (wins: number, losses: number) => `${wins}W – ${losses}L`,
+    pastResults: 'Past Results',
+    /** Attribution sentence with two inline links; rendered as
+     *  before + <Liquipedia> + between + <CC BY-SA 3.0> + after. */
+    attribution: {
+      before: 'Match data sourced from ',
+      between: ', available under ',
+      after: '. Schedule refreshes weekly.',
+    },
+  },
+
+  /** Empty-state copy on /matches when a section has no fixtures yet. */
+  matchEmpty: {
+    upcoming: (league: string, stage: string, startDate: string) =>
+      `No upcoming matches yet. ${league} ${stage} main event begins ${startDate}.`,
+    past: (stage: string) =>
+      `No completed matches yet. ${stage} results will appear here once the main event begins.`,
+  },
+
   /** Top-of-page marquee. */
   ticker: {
     upcoming: (date: string, opponent: string, tournament: string) =>
@@ -157,6 +202,7 @@ export const en = {
     loss: (opponent: string, tournament: string) => `L vs ${opponent} · ${tournament}`,
     tbd: (opponent: string, tournament: string) => `vs ${opponent} · ${tournament}`,
     fallback: 'OWCS Pacific Stage 2 main event begins June 4, 2026.',
+    ariaLabel: 'Match ticker',
   },
 
   /** Player card details. */

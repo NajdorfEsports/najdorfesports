@@ -1,23 +1,28 @@
 ---
 import { owcs } from '../../data/site';
-import { formatDate } from '../../i18n/format';
+import { getLocale, useT } from '../../i18n';
+import { formatDate, translateTournament } from '../../i18n/format';
 
 interface Props {
   variant?: 'upcoming' | 'past';
 }
 const { variant = 'upcoming' } = Astro.props;
 
-const startPretty = formatDate(owcs.mainEventStart, 'en', {
+const locale = getLocale(Astro);
+const t = useT(locale);
+
+const stage = translateTournament(owcs.stage, locale);
+const startPretty = formatDate(owcs.mainEventStart, locale, {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
 });
 
-const messages = {
-  upcoming: `No upcoming matches yet. ${owcs.league} ${owcs.stage} main event begins ${startPretty}.`,
-  past: `No completed matches yet. ${owcs.stage} results will appear here once the main event begins.`,
-};
+const message =
+  variant === 'past'
+    ? t.matchEmpty.past(stage)
+    : t.matchEmpty.upcoming(owcs.league, stage, startPretty);
 ---
 <div class="border border-dashed border-[var(--color-border)] rounded-md p-8 text-center text-[var(--color-text-dim)]">
-  <p class="text-sm sm:text-base">{messages[variant]}</p>
+  <p class="text-sm sm:text-base">{message}</p>
 </div>

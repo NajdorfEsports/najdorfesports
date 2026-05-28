@@ -55,9 +55,15 @@ already obvious from the file tree or `package.json` are not repeated here.
   `zh-TW` and `zh-CN` prefixed.
 - `src/i18n/en.ts` is the source of truth. Every key here must exist in
   `zh-TW.ts` and `zh-CN.ts`; the shared `Strings` type enforces shape.
-- **News and Matches are English-only.** They live at root (`/news/`,
-  `/matches/`) with no localized variant. Non-en home pages show a
-  "News articles are currently published in English only" line.
+- **Matches IS localized** (en + zh-TW + zh-CN). Root `/matches/` plus
+  `/zh-TW/matches/` and `/zh-CN/matches/`. All three are thin wrappers over
+  `MatchesPageBody.astro`; the SportsEvent JSON-LD comes from
+  `src/data/matches-jsonld.ts` (locale-independent, canonical English names).
+  Tournament headings run through `translateTournament`.
+- **News IS localized** (en + zh-TW + zh-CN). See the Data section for the
+  `slug` + `locale` front-matter convention. The RSS feed and OG cards stay
+  English-only on purpose (feed would otherwise triple; OG art reuses the
+  English card by slug).
 - Build localized URLs with `pathFor(locale, '/path/')`. Don't hand-craft
   `/zh-TW/...` strings.
 - `scripts/auto-translate-i18n.mjs` is a **one-shot helper**, not part of
@@ -116,6 +122,20 @@ already obvious from the file tree or `package.json` are not repeated here.
   sections automatically. Don't add a placeholder section back.
 - News is an Astro content collection (`src/content/news/*.md`); schema in
   `src/content.config.ts`. Author defaults to `Najdorf Esports`.
+- **News is multilingual via a `slug` + `locale` convention.** Each article
+  is three files sharing ONE `slug`: `<base>.md` (en), `<base>.zh-TW.md`,
+  `<base>.zh-CN.md`. The English file's slug equals its filename base, so old
+  `/news/<slug>/` URLs and `news-<slug>.png` OG cards keep working. Routes:
+  `/news/`, `/zh-TW/news/`, `/zh-CN/news/` (index + `[slug]`) all filter the
+  collection by `data.locale`. Every article should ship all three locales; a
+  missing translation is soft-handled (the switcher falls back to that
+  locale's news index, never 404s). Shared bodies live in
+  `NewsList.astro` + `NewsArticle.astro`.
+- **GOTCHA:** the `glob()` loader's default `generateId` returns
+  `data.slug` when a `slug` field exists, which would collapse all three
+  locale files to one entry id (only the last-read survives). We override
+  `generateId` to key off the file path. Keep that override or news silently
+  loses locales.
 - News front matter `tone` is `primary` (default) / `secondary` / `split`.
   These names map to the brand color palette in `NewsCover.astro` and the
   OG card generator.

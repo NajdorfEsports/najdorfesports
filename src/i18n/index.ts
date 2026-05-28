@@ -29,6 +29,30 @@ export function useT(localeLike: string | undefined): Strings {
 }
 
 /**
+ * Resolve the active locale from the Astro global (anything exposing
+ * `currentLocale`), with a safe fallback to the default. Replaces the
+ * `(Astro.currentLocale ?? DEFAULT_LOCALE) as Locale` cast that every page
+ * and component otherwise repeats.
+ */
+export function getLocale(astro: { currentLocale?: string }): Locale {
+  return (astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+}
+
+/**
+ * Primary navigation links, shared by SiteHeader and SiteFooter so the two
+ * never drift. Every route is localized through `pathFor`.
+ */
+export function primaryNav(locale: Locale, t: Strings): Array<{ href: string; label: string }> {
+  return [
+    { href: pathFor(locale, '/'),         label: t.nav.home    },
+    { href: pathFor(locale, '/roster/'),  label: t.nav.roster  },
+    { href: pathFor(locale, '/matches/'), label: t.nav.matches },
+    { href: pathFor(locale, '/news/'),    label: t.nav.news    },
+    { href: pathFor(locale, '/about/'),   label: t.nav.about   },
+  ];
+}
+
+/**
  * Build the absolute pathname for a given locale + page path. Default locale
  * stays prefix-less; non-default locales get a leading `/{locale}` segment.
  *

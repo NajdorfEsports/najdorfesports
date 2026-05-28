@@ -1,18 +1,11 @@
 ---
 import LanguageSwitcher from './LanguageSwitcher.astro';
-import { DEFAULT_LOCALE, pathFor, useT, type Locale } from '../../i18n';
+import { getLocale, pathFor, primaryNav, useT } from '../../i18n';
 
-const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const locale = getLocale(Astro);
 const t = useT(locale);
 
-const nav = [
-  { href: pathFor(locale, '/'),         label: t.nav.home    },
-  { href: pathFor(locale, '/roster/'),  label: t.nav.roster  },
-  // Matches and News are English-only per spec, link goes to the un-prefixed path.
-  { href: '/matches/',                  label: t.nav.matches },
-  { href: '/news/',                     label: t.nav.news    },
-  { href: pathFor(locale, '/about/'),   label: t.nav.about   },
-];
+const nav = primaryNav(locale, t);
 
 const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
 const isActive = (href: string) => {
@@ -44,7 +37,7 @@ const homeHref = pathFor(locale, '/');
           decoding="async"
         />
       </span>
-      <span class="font-display text-2xl sm:text-2xl tracking-wide" transition:name="wordmark-compact">
+      <span class="font-display text-2xl tracking-wide" transition:name="wordmark-compact">
         <span class="text-[var(--color-accent)]">NAJDORF</span>
         <span class="text-[var(--color-text)]">ESPORTS</span>
       </span>

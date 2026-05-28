@@ -3,14 +3,13 @@ import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
 import SiteHeader from '../components/layout/SiteHeader.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
-import { site, socials } from '../data/site';
+import { site, socials, confirmed } from '../data/site';
 import {
-  DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
+  getLocale,
   pathFor,
   unlocalizedPath,
   useT,
-  type Locale,
 } from '../i18n';
 
 interface Props {
@@ -41,7 +40,7 @@ const ogImageUrlObj = new URL(ogImage, site.url);
 ogImageUrlObj.searchParams.set('v', OG_VERSION);
 const ogImageUrl = ogImageUrlObj.toString();
 
-const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const locale = getLocale(Astro);
 const t = useT(locale);
 const basePath = unlocalizedPath(Astro.url.pathname);
 const alternates = SUPPORTED_LOCALES.map((l) => ({
@@ -55,9 +54,7 @@ const alternates = SUPPORTED_LOCALES.map((l) => ({
 // pulls confirmed social URLs from src/data/site.ts so search engines
 // link the org's identity to its profiles (Discord URLs are accepted
 // here per Google's guidelines).
-const socialSameAs = socials
-  .filter((s) => s.url && s.url !== 'TODO')
-  .map((s) => s.url);
+const socialSameAs = confirmed(socials).map((s) => s.url);
 
 // JSON-LD is injected with `set:html`, which does NOT HTML-escape. Some of
 // the values that reach these blocks are Liquipedia-sourced (player handles,
