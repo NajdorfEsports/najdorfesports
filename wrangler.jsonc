@@ -1,3 +1,20 @@
+// HOW THIS SITE DEPLOYS (read before changing anything here)
+// ----------------------------------------------------------
+// Production deploys through the Cloudflare PAGES Git integration: every
+// push to `main` triggers a Pages build (`npm run build`, output `dist`).
+// That path serves `dist` as static assets and applies `public/_headers`
+// and `public/_redirects` to every response (verified live: the CSP and
+// HSTS headers are present on HTML, static assets, and 404s alike).
+//
+// This wrangler.jsonc only drives the MANUAL fallback `npm run deploy`
+// (`wrangler deploy`) and `npm run preview` (`wrangler dev`). It is NOT the
+// production path. The site is fully static (no `prerender = false` route,
+// no SSR), so the `_worker.js` the Cloudflare adapter emits is a thin asset
+// shim; `/_worker.js` is correctly inaccessible in production (returns 404).
+//
+// If you ever migrate production to `wrangler deploy`, remember that headers
+// set via `_headers` apply to ASSET responses only. Re-verify the CSP/HSTS
+// posture against the live worker before switching.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "najdorfesports",
