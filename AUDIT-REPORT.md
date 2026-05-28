@@ -332,3 +332,43 @@ additionally validate the commits on push.
 - `2186e64` docs(deploy): document Pages-vs-wrangler split in wrangler.jsonc
 - `296ae46` docs: add owner-facing MAINTENANCE.md cheat-sheet
 - (this file) AUDIT-REPORT.md
+
+---
+
+## Follow-up pass (build-verified)
+
+The pass documented above ran on a machine **without** the Node toolchain and
+so, by design, only made changes it could verify without a build. A follow-up
+pass on a machine **with** Node installed picked up three defects that needed
+`.astro` edits and a build to apply safely. All three were confirmed with
+`npx astro check` (0 errors / 0 warnings / 0 hints), `npm run build`, and
+inspection of the generated `dist/` output.
+
+1. **SEO: hreflang no longer points at pages that 404 (was a live defect).**
+   The English-only pages (privacy, terms, shop, 404) were emitting
+   `<link rel="alternate" hreflang="zh-TW"...>` / `zh-CN` tags in `<head>` that
+   pointed at localized URLs which do not exist (a Search Console error). Added
+   a `localized` prop to `BaseLayout.astro` (default `true`) gating the hreflang
+   block, and set `localized={false}` on those four pages. Verified in `dist/`:
+   the four en-only pages emit **0** head hreflang tags; localized pages (home,
+   about, matches, roster, news and every locale variant) keep all **4** (en,
+   zh-TW, zh-CN, x-default). The in-page language switcher links are unaffected.
+
+2. **Accessibility: every page now has exactly one `<h1>` (was a live defect).**
+   The home hero wordmark and the news cover title both rendered as `<p>`,
+   leaving the home page and all nine news articles with no top-level heading.
+   Promoted the home wordmark to `<h1>` and the `NewsCover` title to a
+   conditional `<h1>` (article hero) / `<h2>` (index card). Tailwind preflight
+   zeroes heading margins and inherits font-size, so the swap is visually
+   identical. Verified in `dist/`: exactly one `<h1>` per page.
+
+3. **Privacy: opted out of Google's Topics API.** Added `browsing-topics=()` to
+   the `Permissions-Policy` in `public/_headers`, consistent with the site's
+   no-tracking stance. Verified present in the shipped `dist/_headers`.
+
+### Commits from the follow-up pass
+
+- `6556de1` fix(seo): gate hreflang alternates to localized pages only
+- `0fa2ff3` fix(a11y): give every page exactly one h1
+- `7da68dd` security(headers): opt out of Google Topics API
+- (this addendum) AUDIT-REPORT.md
