@@ -59,6 +59,19 @@ const socialSameAs = socials
   .filter((s) => s.url && s.url !== 'TODO')
   .map((s) => s.url);
 
+// JSON-LD is injected with `set:html`, which does NOT HTML-escape. Some of
+// the values that reach these blocks are Liquipedia-sourced (player handles,
+// real names, opponent and tournament names) and so are not fully trusted.
+// JSON.stringify leaves `<` intact, so a value containing `</script>` could
+// close the script element early and inject markup. Escaping `<`, `>`, `&`
+// to their \uXXXX forms keeps the output valid JSON while making a
+// script-context breakout impossible.
+const serializeJsonLd = (data: unknown): string =>
+  JSON.stringify(data).replace(
+    /[<>&]/g,
+    (c) => '\\u00' + c.charCodeAt(0).toString(16),
+  );
+
 const orgJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'SportsOrganization',
@@ -131,13 +144,13 @@ const orgJsonLd = {
     <script
       is:inline
       type="application/ld+json"
-      set:html={JSON.stringify(orgJsonLd)}
+      set:html={serializeJsonLd(orgJsonLd)}
     />
     {jsonLd && (
       <script
         is:inline
         type="application/ld+json"
-        set:html={JSON.stringify(jsonLd)}
+        set:html={serializeJsonLd(jsonLd)}
       />
     )}
 
