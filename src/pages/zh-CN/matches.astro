@@ -1,9 +1,9 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import MatchesPageBody from '../components/page/MatchesPageBody.astro';
-import { useT, getLocale } from '../i18n';
-import { owcs } from '../data/site';
-import { buildMatchesJsonLd } from '../data/matches-jsonld';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MatchesPageBody from '../../components/page/MatchesPageBody.astro';
+import { useT, getLocale } from '../../i18n';
+import { owcs } from '../../data/site';
+import { buildMatchesJsonLd } from '../../data/matches-jsonld';
 
 const locale = getLocale(Astro);
 const t = useT(locale);

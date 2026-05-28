@@ -55,8 +55,11 @@ already obvious from the file tree or `package.json` are not repeated here.
   `zh-TW` and `zh-CN` prefixed.
 - `src/i18n/en.ts` is the source of truth. Every key here must exist in
   `zh-TW.ts` and `zh-CN.ts`; the shared `Strings` type enforces shape.
-- **Matches is English-only.** It lives at root (`/matches/`) with no
-  localized variant; nav/footer link to the un-prefixed path.
+- **Matches IS localized** (en + zh-TW + zh-CN). Root `/matches/` plus
+  `/zh-TW/matches/` and `/zh-CN/matches/`. All three are thin wrappers over
+  `MatchesPageBody.astro`; the SportsEvent JSON-LD comes from
+  `src/data/matches-jsonld.ts` (locale-independent, canonical English names).
+  Tournament headings run through `translateTournament`.
 - **News IS localized** (en + zh-TW + zh-CN). See the Data section for the
   `slug` + `locale` front-matter convention. The RSS feed and OG cards stay
   English-only on purpose (feed would otherwise triple; OG art reuses the

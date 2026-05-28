@@ -40,16 +40,15 @@ export function getLocale(astro: { currentLocale?: string }): Locale {
 
 /**
  * Primary navigation links, shared by SiteHeader and SiteFooter so the two
- * never drift. Localized routes go through `pathFor`; Matches is English-only
- * per spec and always links to the un-prefixed `/matches/` path.
+ * never drift. Every route is localized through `pathFor`.
  */
 export function primaryNav(locale: Locale, t: Strings): Array<{ href: string; label: string }> {
   return [
-    { href: pathFor(locale, '/'),        label: t.nav.home    },
-    { href: pathFor(locale, '/roster/'), label: t.nav.roster  },
-    { href: '/matches/',                 label: t.nav.matches },
-    { href: pathFor(locale, '/news/'),   label: t.nav.news    },
-    { href: pathFor(locale, '/about/'),  label: t.nav.about   },
+    { href: pathFor(locale, '/'),         label: t.nav.home    },
+    { href: pathFor(locale, '/roster/'),  label: t.nav.roster  },
+    { href: pathFor(locale, '/matches/'), label: t.nav.matches },
+    { href: pathFor(locale, '/news/'),    label: t.nav.news    },
+    { href: pathFor(locale, '/about/'),   label: t.nav.about   },
   ];
 }
 

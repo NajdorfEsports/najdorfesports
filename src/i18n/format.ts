@@ -62,10 +62,15 @@ export function displayCountry(
  * English passes through untouched.
  */
 const TOURNAMENT_TERMS: Record<Exclude<Locale, 'en'>, Array<[string, string]>> = {
+  // Order matters: split/join runs top to bottom, so multi-word terms that
+  // contain a shorter term ("Regional Playoffs" vs "Playoffs") must come
+  // first or the shorter rule would fire inside the longer phrase.
   'zh-TW': [
     ['Open Qualifier',    '公開預選賽'],
     ['Main Event',        '主賽事'],
     ['Regional Playoffs', '區域季後賽'],
+    ['Regular Season',    '例行賽'],
+    ['Playoffs',          '季後賽'],
     ['Midseason Championship', '季中錦標賽'],
     ['Stage 1',           '第一階段'],
     ['Stage 2',           '第二階段'],
@@ -75,6 +80,8 @@ const TOURNAMENT_TERMS: Record<Exclude<Locale, 'en'>, Array<[string, string]>> =
     ['Open Qualifier',    '公开预选赛'],
     ['Main Event',        '主赛事'],
     ['Regional Playoffs', '区域季后赛'],
+    ['Regular Season',    '常规赛'],
+    ['Playoffs',          '季后赛'],
     ['Midseason Championship', '季中锦标赛'],
     ['Stage 1',           '第一阶段'],
     ['Stage 2',           '第二阶段'],

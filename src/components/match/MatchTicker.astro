@@ -66,7 +66,7 @@ if (items.length === 0) {
 // Duplicate the item list so the CSS marquee can translate -50% for a seamless loop.
 const duplicated = [...items, ...items];
 ---
-<div class="ticker" aria-label="Match ticker" role="region">
+<div class="ticker" aria-label={t.ticker.ariaLabel} role="region">
   <div class="ticker__edge ticker__edge--left" aria-hidden="true"></div>
   <ul class="ticker__track">
     {duplicated.map((item, i) => {

@@ -70,7 +70,7 @@ const topAchievement = [...achievements].sort(
 )[0];
 
 // Localized hrefs for the two CTAs and the "All matches" / "All news" links.
-const matchesHref = '/matches/';
+const matchesHref = pathFor(locale, '/matches/');
 const rosterHref  = pathFor(locale, '/roster/');
 const newsHref    = pathFor(locale, '/news/');
 

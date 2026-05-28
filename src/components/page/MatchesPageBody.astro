@@ -1,0 +1,130 @@
+---
+/**
+ * Shared body for the /matches pages (en + zh-TW + zh-CN). Locale-aware:
+ * tournament headings run through translateTournament and records/labels
+ * through the i18n dict. The thin page wrappers supply BaseLayout (title,
+ * description, JSON-LD); this renders the ticker, schedule header, upcoming
+ * list, past results grouped by tournament, and the Liquipedia attribution.
+ */
+import MatchCard from '../match/MatchCard.astro';
+import MatchEmptyState from '../match/EmptyState.astro';
+import MatchTicker from '../match/MatchTicker.astro';
+import { owcs, type MatchEntry } from '../../data/site';
+import { loadMatches } from '../../data/loaders';
+import { getLocale, useT } from '../../i18n';
+import { translateTournament } from '../../i18n/format';
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+
+const allMatches = loadMatches();
+
+const now = Date.now();
+const upcoming = allMatches
+  .filter((m) => new Date(m.date).getTime() >= now)
+  .sort((a, b) => +new Date(a.date) - +new Date(b.date));
+const past = allMatches
+  .filter((m) => new Date(m.date).getTime() < now)
+  .sort((a, b) => +new Date(b.date) - +new Date(a.date));
+
+// Group past matches by tournament so each stage has its own section.
+const pastByTournament = new Map<string, MatchEntry[]>();
+for (const m of past) {
+  const arr = pastByTournament.get(m.tournament) ?? [];
+  arr.push(m);
+  pastByTournament.set(m.tournament, arr);
+}
+
+const wins = past.filter((m) => m.result === 'win').length;
+const losses = past.filter((m) => m.result === 'loss').length;
+const recordLine = wins + losses > 0 ? t.matches.record(wins, losses) : null;
+
+// Precompute the per-tournament sections with translated headings + records.
+const pastSections = Array.from(pastByTournament.entries()).map(([tournament, matches]) => {
+  const w = matches.filter((x) => x.result === 'win').length;
+  const l = matches.filter((x) => x.result === 'loss').length;
+  return {
+    heading: translateTournament(tournament, locale),
+    record: t.matches.record(w, l),
+    matches,
+  };
+});
+---
+<MatchTicker matches={allMatches} />
+
+<section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12">
+  <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+    <div>
+      <p class="text-xs uppercase tracking-[0.25em] text-[var(--color-accent-2)]">
+        {t.matches.eyebrow(owcs.league, owcs.year)}
+      </p>
+      <h1 class="font-display text-5xl sm:text-6xl mt-2 tracking-tight leading-none">
+        {t.nav.matches}
+      </h1>
+    </div>
+    {(recordLine || upcoming.length > 0) && (
+      <dl class="flex items-center gap-8 text-sm">
+        {upcoming.length > 0 && (
+          <div>
+            <dt class="text-[var(--color-text-dim)] uppercase tracking-wider text-[0.65rem]">{t.matches.upcoming}</dt>
+            <dd class="font-display text-3xl mt-1 leading-none tabular-nums">{upcoming.length}</dd>
+          </div>
+        )}
+        {recordLine && (
+          <div>
+            <dt class="text-[var(--color-text-dim)] uppercase tracking-wider text-[0.65rem]">{t.matches.recordLabel}</dt>
+            <dd class="font-display text-3xl mt-1 leading-none tabular-nums">{recordLine}</dd>
+          </div>
+        )}
+      </dl>
+    )}
+  </div>
+</section>
+
+<section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10">
+  <div class="flex items-center gap-3 mb-5">
+    <h2 class="font-display text-2xl tracking-wide">{t.matches.upcoming}</h2>
+    <span class="flex-1 h-px bg-[var(--color-border)]"></span>
+    <span class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] tabular-nums">
+      {upcoming.length}
+    </span>
+  </div>
+  {upcoming.length > 0 ? (
+    <div class="space-y-3">
+      {upcoming.map((m) => <MatchCard match={m} />)}
+    </div>
+  ) : (
+    <MatchEmptyState variant="upcoming" />
+  )}
+</section>
+
+{past.length > 0 ? (
+  pastSections.map((sec) => (
+    <section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12">
+      <div class="flex items-center gap-3 mb-5">
+        <h2 class="font-display text-2xl tracking-wide">{sec.heading}</h2>
+        <span class="flex-1 h-px bg-[var(--color-border)]"></span>
+        <span class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] tabular-nums">
+          {sec.record}
+        </span>
+      </div>
+      <div class="space-y-3">
+        {sec.matches.map((m) => <MatchCard match={m} />)}
+      </div>
+    </section>
+  ))
+) : (
+  <section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12">
+    <div class="flex items-center gap-3 mb-5">
+      <h2 class="font-display text-2xl tracking-wide">{t.matches.pastResults}</h2>
+      <span class="flex-1 h-px bg-[var(--color-border)]"></span>
+    </div>
+    <MatchEmptyState variant="past" />
+  </section>
+)}
+
+<section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16 text-xs text-[var(--color-text-dim)]">
+  <p>
+    {t.matches.attribution.before}<a href="https://liquipedia.net/overwatch/" target="_blank" rel="noopener" class="link-slide text-[var(--color-accent-2)]">Liquipedia</a>{t.matches.attribution.between}<a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener" class="link-slide text-[var(--color-accent-2)]">CC BY-SA 3.0</a>{t.matches.attribution.after}
+  </p>
+</section>

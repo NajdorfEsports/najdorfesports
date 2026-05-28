@@ -152,12 +152,34 @@ export const zhTW: Strings = {
     loss:  '負',
   },
 
+  matches: {
+    metaDescription: (league) => `Najdorf Esports 在 ${league} 的近期賽程與最新戰績。`,
+    eyebrow: (league, year) => `賽程 · ${league} ${year}`,
+    upcoming:    '即將開打',
+    recordLabel: '戰績',
+    record: (wins, losses) => `${wins} 勝 ${losses} 負`,
+    pastResults: '過往戰績',
+    attribution: {
+      before:  '賽事資料來自 ',
+      between: '，並依 ',
+      after:   ' 授權釋出。賽程每週更新。',
+    },
+  },
+
+  matchEmpty: {
+    upcoming: (league, stage, startDate) =>
+      `目前尚無即將進行的比賽。${league} ${stage}主賽事將於 ${startDate} 開打。`,
+    past: (stage) =>
+      `目前尚無已完成的比賽。${stage}主賽事開打後，戰績將顯示於此。`,
+  },
+
   ticker: {
     upcoming: (date, opponent, tournament) => `${date} · 對戰 ${opponent} · ${tournament}`,
     win:  (opponent, tournament) => `勝 對戰 ${opponent} · ${tournament}`,
     loss: (opponent, tournament) => `負 對戰 ${opponent} · ${tournament}`,
     tbd:  (opponent, tournament) => `對戰 ${opponent} · ${tournament}`,
     fallback: 'OWCS Pacific 第二階段主賽事將於 2026 年 6 月 4 日開打。',
+    ariaLabel: '賽事跑馬燈',
   },
 
   player: {

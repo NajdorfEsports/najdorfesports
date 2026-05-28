@@ -168,6 +168,32 @@ export const en = {
     loss: 'L',
   },
 
+  /** /matches page chrome (header, stat strip, attribution). */
+  matches: {
+    metaDescription: (league: string) =>
+      `Upcoming matches and recent results for Najdorf Esports in ${league}.`,
+    eyebrow: (league: string, year: number) => `Schedule · ${league} ${year}`,
+    upcoming: 'Upcoming',
+    recordLabel: 'Record',
+    record: (wins: number, losses: number) => `${wins}W – ${losses}L`,
+    pastResults: 'Past Results',
+    /** Attribution sentence with two inline links; rendered as
+     *  before + <Liquipedia> + between + <CC BY-SA 3.0> + after. */
+    attribution: {
+      before: 'Match data sourced from ',
+      between: ', available under ',
+      after: '. Schedule refreshes weekly.',
+    },
+  },
+
+  /** Empty-state copy on /matches when a section has no fixtures yet. */
+  matchEmpty: {
+    upcoming: (league: string, stage: string, startDate: string) =>
+      `No upcoming matches yet. ${league} ${stage} main event begins ${startDate}.`,
+    past: (stage: string) =>
+      `No completed matches yet. ${stage} results will appear here once the main event begins.`,
+  },
+
   /** Top-of-page marquee. */
   ticker: {
     upcoming: (date: string, opponent: string, tournament: string) =>
@@ -176,6 +202,7 @@ export const en = {
     loss: (opponent: string, tournament: string) => `L vs ${opponent} · ${tournament}`,
     tbd: (opponent: string, tournament: string) => `vs ${opponent} · ${tournament}`,
     fallback: 'OWCS Pacific Stage 2 main event begins June 4, 2026.',
+    ariaLabel: 'Match ticker',
   },
 
   /** Player card details. */

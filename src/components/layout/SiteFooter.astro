@@ -7,7 +7,7 @@ const locale = getLocale(Astro);
 const t = useT(locale);
 
 // Primary nav (top row of the footer). Shared with SiteHeader via primaryNav
-// so the two never drift; Matches stays English-only per spec.
+// so the two never drift; every route is localized.
 const primaryLinks = primaryNav(locale, t);
 
 // Legal links demoted to the meta row, they don't need primary-nav weight.
