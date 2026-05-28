@@ -63,5 +63,13 @@
     "status": "active",
     "signatureHeroes": ["Jetpack Cat"],
     "twitter": "https://x.com/RabbitVV030"
+  },
+  {
+    "handle": "RiRi",
+    "role": "Manager",
+    "country": "TBD",
+    "status": "active",
+    "signatureHeroes": ["Kiriko"],
+    "twitter": "https://x.com/pearriri23"
   }
 ]
