@@ -7,21 +7,44 @@ import {
   DEFAULT_LOCALE,
   type Locale,
 } from '../../i18n';
+import { getCollection } from 'astro:content';
 
 const current = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
 const base = unlocalizedPath(Astro.url.pathname);
 
-// Routes that have localized variants. Anything else (matches, news, privacy,
-// terms, feed, 404) is English-only by spec, for those, the non-English
-// links route to the locale home instead of re-prefixing a path that has no
-// translated counterpart. Stops "I'm on /matches/, switch to zh-CN" from
-// landing on a 404 at /zh-CN/matches/.
+// Routes that have a localized variant for every supported locale. Anything
+// not handled here and not news (matches, privacy, terms, feed, 404) is
+// English-only, so its non-English links route to the locale home instead of
+// re-prefixing a path that has no translated counterpart. Stops "I'm on
+// /matches/, switch to zh-CN" from landing on a 404 at /zh-CN/matches/.
 const LOCALIZED_ROUTES = new Set(['/', '/roster/', '/about/']);
-const baseIsLocalized = LOCALIZED_ROUTES.has(base);
+
+// News is per-article localized. The index (/news/) exists in every locale;
+// an article (/news/<slug>/) exists in a locale only if that translation was
+// authored. We look up which locales carry the current slug so a missing
+// translation falls back to that locale's news index rather than 404-ing.
+const NEWS_INDEX = '/news/';
+const articleSlug = base.match(/^\/news\/([^/]+)\/$/)?.[1];
+
+let localesForSlug: Set<Locale> | null = null;
+if (articleSlug) {
+  const posts = await getCollection('news', ({ data }) => !data.draft);
+  localesForSlug = new Set(
+    posts
+      .filter((p) => p.data.slug === articleSlug)
+      .map((p) => p.data.locale as Locale),
+  );
+}
 
 function hrefFor(locale: Locale): string {
+  if (base === NEWS_INDEX) return pathFor(locale, NEWS_INDEX);
+  if (articleSlug) {
+    return localesForSlug?.has(locale)
+      ? pathFor(locale, base)
+      : pathFor(locale, NEWS_INDEX);
+  }
   if (locale === DEFAULT_LOCALE) return pathFor(locale, base);
-  return baseIsLocalized ? pathFor(locale, base) : pathFor(locale, '/');
+  return LOCALIZED_ROUTES.has(base) ? pathFor(locale, base) : pathFor(locale, '/');
 }
 ---
 <nav class="language-switcher" aria-label="Language">

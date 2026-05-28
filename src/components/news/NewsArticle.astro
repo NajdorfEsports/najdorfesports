@@ -1,0 +1,79 @@
+---
+/**
+ * News article body: the typographic hero cover, the rendered markdown,
+ * and the "back to all news" link. Shared by the English and localized
+ * article routes. The back link points at the locale's own news index.
+ */
+import NewsCover from './NewsCover.astro';
+import { render, type CollectionEntry } from 'astro:content';
+import { pathFor, useT, type Locale } from '../../i18n';
+
+interface Props {
+  post: CollectionEntry<'news'>;
+  locale: Locale;
+}
+
+const { post, locale } = Astro.props;
+const t = useT(locale);
+const { Content } = await render(post);
+---
+<article class="mx-auto max-w-3xl px-4 sm:px-6 pt-12 pb-16">
+  <NewsCover
+    title={post.data.title}
+    date={post.data.date}
+    eyebrow={post.data.eyebrow}
+    tone={post.data.tone}
+    variant="hero"
+    locale={locale}
+  />
+
+  <div class="prose mt-8">
+    <Content />
+  </div>
+
+  <hr class="border-[var(--color-border)] mt-12" />
+  <p class="mt-4 text-sm text-[var(--color-text-dim)]">
+    <a href={pathFor(locale, '/news/')} class="text-[var(--color-accent-2)] hover:underline">← {t.news.backToAll}</a>
+  </p>
+</article>
+
+<style is:global>
+  .prose {
+    color: var(--color-text);
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+  .prose p { margin-bottom: 1.25em; }
+  .prose strong { color: var(--color-text); font-weight: 700; }
+  .prose em { color: var(--color-text-dim); }
+  .prose a { color: var(--color-accent-2); text-decoration: underline; text-underline-offset: 3px; }
+  .prose a:hover { color: var(--color-accent); }
+  .prose h2 {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    margin-top: 2em;
+    margin-bottom: 0.5em;
+    letter-spacing: 0.01em;
+  }
+  .prose h3 {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    margin-top: 1.75em;
+    margin-bottom: 0.4em;
+  }
+  .prose ul, .prose ol { padding-left: 1.4em; margin-bottom: 1.25em; }
+  .prose li { margin-bottom: 0.4em; }
+  .prose blockquote {
+    border-left: 3px solid var(--color-accent);
+    padding-left: 1em;
+    color: var(--color-text-dim);
+    margin: 1.5em 0;
+  }
+  .prose hr { border-color: var(--color-border); margin: 2.5em 0; }
+  .prose code {
+    background: var(--color-surface-2);
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+</style>

@@ -38,8 +38,15 @@ export const en = {
     latest: 'Latest',
     allNews: 'All news',
     read: 'Read',
-    /** Shown above the news section on non-English pages to set expectations. */
-    newsEnglishOnly: 'News articles are currently published in English only.',
+  },
+
+  /** News index + article chrome. Article bodies are per-locale markdown
+   *  in src/content/news; these are the surrounding labels. */
+  news: {
+    eyebrow: 'News',
+    heading: 'From the team',
+    backToAll: 'All news',
+    metaDescription: 'Announcements, brand updates, and match reports from Najdorf Esports.',
   },
   roster: {
     eyebrow: 'Active roster · OWCS Pacific 2026',

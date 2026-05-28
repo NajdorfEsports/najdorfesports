@@ -240,6 +240,9 @@ async function newsRoutes() {
   const out = [];
   for (const f of files) {
     if (!f.endsWith('.md')) continue;
+    // Translations (<base>.zh-TW.md / <base>.zh-CN.md) share the English
+    // article's OG card, so only the English source file generates art.
+    if (/\.(zh-TW|zh-CN)\.md$/.test(f)) continue;
     const slug = f.replace(/\.md$/, '');
     const md = await readFile(join(NEWS_DIR, f), 'utf8');
     const fm = parseFrontmatter(md);

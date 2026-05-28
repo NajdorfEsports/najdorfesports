@@ -49,8 +49,12 @@ const inProgress = past.find(
 );
 const liveCandidate = inProgress ?? nextMatch;
 
-// News is English-only per spec, so we don't filter by locale.
-const newsPosts = (await getCollection('news', ({ data }) => !data.draft))
+// News is per-locale now: show the current locale's articles. A locale with
+// a missing translation simply shows fewer (or older) posts here.
+const newsPosts = (await getCollection(
+  'news',
+  ({ data }) => !data.draft && data.locale === locale,
+))
   .sort((a, b) => +b.data.date - +a.data.date)
   .slice(0, 2);
 
@@ -67,7 +71,7 @@ const topAchievement = [...achievements].sort(
 // Localized hrefs for the two CTAs and the "All matches" / "All news" links.
 const matchesHref = '/matches/';
 const rosterHref  = pathFor(locale, '/roster/');
-const newsHref    = '/news/';
+const newsHref    = pathFor(locale, '/news/');
 ---
 <MatchTicker matches={allMatches} />
 
@@ -366,16 +370,10 @@ const newsHref    = '/news/';
     </a>
   </div>
 
-  {locale !== 'en' && (
-    <p class="text-xs text-[var(--color-text-dim)] mb-4 italic">
-      {t.home.newsEnglishOnly}
-    </p>
-  )}
-
   <div class="grid gap-6 md:grid-cols-2">
     {newsPosts.map((post, i) => (
       <a
-        href={`/news/${post.id}/`}
+        href={pathFor(locale, `/news/${post.data.slug}/`)}
         class="surface-hover reveal block bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 group"
         data-stagger={i + 1}
       >

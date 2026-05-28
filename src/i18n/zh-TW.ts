@@ -44,7 +44,13 @@ export const zhTW: Strings = {
     latest:          '最新消息',
     allNews:         '所有新聞',
     read:            '閱讀',
-    newsEnglishOnly: '目前新聞文章僅提供英文版本。',
+  },
+
+  news: {
+    eyebrow:         '新聞',
+    heading:         '來自戰隊',
+    backToAll:       '所有新聞',
+    metaDescription: 'Najdorf Esports 的公告、品牌動態與賽事報導。',
   },
   roster: {
     eyebrow:            '現役名單 · OWCS Pacific 2026',

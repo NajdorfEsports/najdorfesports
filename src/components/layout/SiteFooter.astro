@@ -7,12 +7,12 @@ const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
 const t = useT(locale);
 
 // Primary nav (top row of the footer). Localized routes for pages that have
-// translations; fixed paths for English-only routes (Matches, News).
+// translations; fixed path for the English-only route (Matches).
 const primaryLinks = [
   { href: pathFor(locale, '/'),         label: t.nav.home    },
   { href: pathFor(locale, '/roster/'),  label: t.nav.roster  },
   { href: '/matches/',                  label: t.nav.matches },
-  { href: '/news/',                     label: t.nav.news    },
+  { href: pathFor(locale, '/news/'),    label: t.nav.news    },
   { href: pathFor(locale, '/about/'),   label: t.nav.about   },
 ];
 

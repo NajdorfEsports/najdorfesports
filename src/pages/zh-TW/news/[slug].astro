@@ -1,16 +1,16 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import NewsArticle from '../../components/news/NewsArticle.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import NewsArticle from '../../../components/news/NewsArticle.astro';
 import { getCollection } from 'astro:content';
-import { site } from '../../data/site';
-import { pathFor, type Locale } from '../../i18n';
+import { site } from '../../../data/site';
+import { pathFor, type Locale } from '../../../i18n';
 
-const LOCALE: Locale = 'en';
+const LOCALE: Locale = 'zh-TW';
 
 export async function getStaticPaths() {
   const posts = await getCollection(
     'news',
-    ({ data }) => !data.draft && data.locale === 'en',
+    ({ data }) => !data.draft && data.locale === 'zh-TW',
   );
   return posts.map((post) => ({
     params: { slug: post.data.slug },
@@ -22,8 +22,6 @@ const { post } = Astro.props;
 
 const articlePath = pathFor(LOCALE, `/news/${post.data.slug}/`);
 const articleUrl = `${site.url}${articlePath}`;
-// Translations share one OG card (keyed by slug, generated from the English
-// source). The card art is typographic + brand-driven, not language-specific.
 const ogImagePath = `/branding/og/news-${post.data.slug}.png`;
 const orgId = `${site.url}/#org`;
 
