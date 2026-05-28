@@ -7,7 +7,22 @@ import cloudflare from "@astrojs/cloudflare";
 
 export default defineConfig({
   site: 'https://najdorfesports.gg',
-  integrations: [sitemap()],
+  // The sitemap `i18n` block mirrors the routing config below so the
+  // generated sitemap emits <xhtml:link rel="alternate" hreflang="...">
+  // entries linking each page to its localized variants. Keys are the
+  // on-disk path prefixes; values are the hreflang language tags. Without
+  // this, the sitemap lists URLs with no alternate-language signal, which
+  // is a real (and free) SEO loss for an APAC-facing org. News and Matches
+  // are English-only and have no localized variants, so they simply appear
+  // without alternates, which is correct.
+  integrations: [
+    sitemap({
+      i18n: {
+        defaultLocale: 'en',
+        locales: { en: 'en', 'zh-TW': 'zh-TW', 'zh-CN': 'zh-CN' },
+      },
+    }),
+  ],
 
   i18n: {
     defaultLocale: 'en',
