@@ -29,7 +29,7 @@
  * with empty data because of a single failed API call.
  */
 
-import { writeFile } from 'node:fs/promises';
+import { rename, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -487,7 +487,13 @@ async function safeWrite(path, label, data) {
     console.warn(`[liquipedia] ${label}: no entries found, preserving existing ${path}.`);
     return;
   }
-  await writeFile(path, JSON.stringify(data, null, 2) + '\n', 'utf8');
+  // Atomic write: stage to ${path}.tmp, then rename. Prevents a runner
+  // crash mid-write from truncating the JSON file. Rename is atomic on
+  // POSIX and effectively all-or-nothing on Windows for same-volume
+  // operations, which is what we get inside the GHA workspace.
+  const tmp = `${path}.tmp`;
+  await writeFile(tmp, JSON.stringify(data, null, 2) + '\n', 'utf8');
+  await rename(tmp, path);
   console.log(`[liquipedia] ${label}: wrote ${data.length} entries to ${path}.`);
 }
 

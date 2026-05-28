@@ -30,7 +30,7 @@
  * needed for a single fetch.
  */
 
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, rename, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -331,7 +331,10 @@ async function mergeIntoManual(entry) {
   } else {
     existing.push(entry);
   }
-  await writeFile(ROSTER_MANUAL, JSON.stringify(existing, null, 2) + '\n', 'utf8');
+  // Atomic write: same rationale as scripts/fetch-liquipedia.mjs.
+  const tmp = `${ROSTER_MANUAL}.tmp`;
+  await writeFile(tmp, JSON.stringify(existing, null, 2) + '\n', 'utf8');
+  await rename(tmp, ROSTER_MANUAL);
 }
 
 // ---------------------------------------------------------------------------
