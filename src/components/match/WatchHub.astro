@@ -9,11 +9,13 @@
  * keeps the zero-cookie posture (no Twitch / YouTube requests fire
  * unless the visitor clicks).
  */
-import { watchChannels, type WatchChannel } from '../../data/site';
+import { watchChannels, confirmed, type WatchChannel } from '../../data/site';
+import { getLocale, useT } from '../../i18n';
 
-const visible = watchChannels.filter(
-  (c): c is WatchChannel => Boolean(c.url) && c.url !== 'TODO',
-);
+const locale = getLocale(Astro);
+const t = useT(locale);
+
+const visible = confirmed(watchChannels);
 
 const platformLabel: Record<WatchChannel['platform'], string> = {
   twitch: 'Twitch',
@@ -22,11 +24,11 @@ const platformLabel: Record<WatchChannel['platform'], string> = {
 };
 ---
 {visible.length > 0 && (
-  <section class="watch-hub mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10" aria-label="Where to watch">
+  <section class="watch-hub mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10" aria-label={t.watch.eyebrow}>
     <div class="flex items-end justify-between mb-4 gap-4">
       <div>
-        <p class="text-[0.65rem] uppercase tracking-[0.25em] text-[var(--color-accent-2)]">Where to watch</p>
-        <h2 class="font-display text-2xl sm:text-3xl mt-1 tracking-wide">Official OWCS Pacific broadcasts</h2>
+        <p class="text-[0.65rem] uppercase tracking-[0.25em] text-[var(--color-accent-2)]">{t.watch.eyebrow}</p>
+        <h2 class="font-display text-2xl sm:text-3xl mt-1 tracking-wide">{t.watch.heading}</h2>
       </div>
     </div>
 
@@ -38,7 +40,7 @@ const platformLabel: Record<WatchChannel['platform'], string> = {
             target="_blank"
             rel="noopener"
             class="watch-card group flex items-center justify-between gap-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md px-4 py-3 transition-colors"
-            aria-label={`${c.name}, ${c.language} broadcast on ${platformLabel[c.platform]}`}
+            aria-label={t.watch.cardAriaLabel(c.name, c.language, platformLabel[c.platform])}
           >
             <div class="min-w-0">
               <p class="font-display text-base tracking-wide truncate">{c.name}</p>

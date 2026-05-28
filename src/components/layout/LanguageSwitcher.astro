@@ -2,6 +2,7 @@
 import {
   SUPPORTED_LOCALES,
   LOCALE_LABEL,
+  getLocale,
   pathFor,
   unlocalizedPath,
   DEFAULT_LOCALE,
@@ -9,7 +10,7 @@ import {
 } from '../../i18n';
 import { getCollection } from 'astro:content';
 
-const current = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const current = getLocale(Astro);
 const base = unlocalizedPath(Astro.url.pathname);
 
 // Routes that have a localized variant for every supported locale. Anything

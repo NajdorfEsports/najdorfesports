@@ -129,6 +129,18 @@ export const en = {
   /** Achievement strip below the hero. */
   achievement: {
     recentResults: 'Recent results',
+    /** Section landmark label. */
+    ariaLabel: 'Achievements',
+    /** Per-row label for the placement medallion. */
+    placementLabel: (placement: string) => `Placement: ${placement}`,
+  },
+
+  /** "Where to watch" band (WatchHub) on the home page. */
+  watch: {
+    eyebrow: 'Where to watch',
+    heading: 'Official OWCS Pacific broadcasts',
+    cardAriaLabel: (name: string, language: string, platform: string) =>
+      `${name}, ${language} broadcast on ${platform}`,
   },
 
   /** Next match countdown card. */

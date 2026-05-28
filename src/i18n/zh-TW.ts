@@ -120,6 +120,14 @@ export const zhTW: Strings = {
 
   achievement: {
     recentResults: '近期戰績',
+    ariaLabel: '戰績',
+    placementLabel: (placement) => `名次：${placement}`,
+  },
+
+  watch: {
+    eyebrow: '觀看管道',
+    heading: 'OWCS Pacific 官方轉播',
+    cardAriaLabel: (name, language, platform) => `${name}，在 ${platform} 上的${language}轉播`,
   },
 
   nextMatch: {

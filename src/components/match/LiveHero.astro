@@ -15,7 +15,7 @@
  * `requestIdleCallback` preserves the intent (don't block first paint)
  * without pulling in a framework. Flagged in the PR description.
  */
-import { DEFAULT_LOCALE, useT, type Locale } from '../../i18n';
+import { getLocale, useT } from '../../i18n';
 import type { MatchEntry } from '../../data/site';
 
 interface Props {
@@ -23,7 +23,7 @@ interface Props {
 }
 const { match } = Astro.props;
 
-const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+const locale = getLocale(Astro);
 const t = useT(locale);
 
 /** Pull the channel slug out of a Twitch stream URL. Returns undefined for

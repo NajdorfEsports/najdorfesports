@@ -119,6 +119,14 @@ export const zhCN: Strings = {
 
   achievement: {
     recentResults: '近期战绩',
+    ariaLabel: '战绩',
+    placementLabel: (placement) => `名次：${placement}`,
+  },
+
+  watch: {
+    eyebrow: '观看渠道',
+    heading: 'OWCS Pacific 官方转播',
+    cardAriaLabel: (name, language, platform) => `${name}，在 ${platform} 上的${language}转播`,
   },
 
   nextMatch: {
