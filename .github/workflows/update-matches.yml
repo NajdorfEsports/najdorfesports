@@ -24,17 +24,31 @@ jobs:
     # headroom for a 10-player roster + 4 tournament pages.
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      # Actions are pinned to commit SHAs (not floating tags) so a
+      # compromised tag at any of these repos cannot inject arbitrary
+      # commits into `main`. The human-readable version tag is in the
+      # trailing comment; Dependabot / Renovate can bump both atomically.
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '22'
+
+      # npm install cache, keyed on the lockfile. Saves ~20s per weekly
+      # run; more importantly, makes the workflow resilient to a flaky
+      # npm registry on cron Mondays.
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            npm-
 
       - name: Fetch roster, matches, achievements from Liquipedia
         run: node scripts/fetch-liquipedia.mjs
 
       - name: Commit updated data (if changed)
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 # v5.2.0
         with:
           commit_message: 'chore(data): refresh from Liquipedia'
           file_pattern: |
