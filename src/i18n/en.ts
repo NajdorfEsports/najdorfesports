@@ -67,6 +67,7 @@ export const en = {
     previously: 'Several of our Stage 2 players competed for Rankers in OWCS Pacific Stage 1.',
     contactHeading: 'Contact',
     contactNote: 'For partnerships, press, or player inquiries, email the address above.',
+    partnerNote: 'Affiliate and sponsorship partnerships are managed through impact.com.',
     followHeading: 'Follow along',
   },
   community: {

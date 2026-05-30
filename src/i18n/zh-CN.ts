@@ -68,6 +68,7 @@ export const zhCN: Strings = {
     previously:     '我们第二阶段阵容中部分选手，曾于 OWCS Pacific 第一阶段代表 Rankers 出战。',
     contactHeading: '联系我们',
     contactNote:    '合作、媒体与选手相关咨询，请发送至上方邮箱。',
+    partnerNote:    '联盟营销与赞助合作通过 impact.com 进行。',
     followHeading:  '关注我们',
   },
   community: {
