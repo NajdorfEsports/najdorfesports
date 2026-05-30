@@ -23,5 +23,85 @@
         "theirScore": 0
       }
     ]
+  },
+  {
+    "id": "manual-owcs-pacific-2026-stage-2-01-team-secret",
+    "date": "2026-06-04T14:00:00.000Z",
+    "opponent": "Team Secret",
+    "tournament": "OWCS Pacific 2026 · Stage 2 Regular Season",
+    "format": "BO5",
+    "streamUrl": "https://twitch.tv/ow_esports_th",
+    "result": "tbd",
+    "mapScores": [
+      {
+        "map": "Ilios",
+        "ourScore": 0,
+        "theirScore": 0
+      }
+    ]
+  },
+  {
+    "id": "manual-owcs-pacific-2026-stage-2-02-trap-12",
+    "date": "2026-06-11T14:00:00.000Z",
+    "opponent": "Trap 12",
+    "tournament": "OWCS Pacific 2026 · Stage 2 Regular Season",
+    "format": "BO5",
+    "streamUrl": "https://twitch.tv/ow_esports_th",
+    "result": "tbd",
+    "mapScores": [
+      {
+        "map": "Ilios",
+        "ourScore": 0,
+        "theirScore": 0
+      }
+    ]
+  },
+  {
+    "id": "manual-owcs-pacific-2026-stage-2-03-meng-gong-3",
+    "date": "2026-06-18T14:00:00.000Z",
+    "opponent": "MENG GONG 3",
+    "tournament": "OWCS Pacific 2026 · Stage 2 Regular Season",
+    "format": "BO5",
+    "streamUrl": "https://twitch.tv/ow_esports_th",
+    "result": "tbd",
+    "mapScores": [
+      {
+        "map": "Ilios",
+        "ourScore": 0,
+        "theirScore": 0
+      }
+    ]
+  },
+  {
+    "id": "manual-owcs-pacific-2026-stage-2-04-elemental",
+    "date": "2026-06-25T14:00:00.000Z",
+    "opponent": "Elemental",
+    "tournament": "OWCS Pacific 2026 · Stage 2 Regular Season",
+    "format": "BO5",
+    "streamUrl": "https://twitch.tv/ow_esports_th",
+    "result": "tbd",
+    "mapScores": [
+      {
+        "map": "Oasis",
+        "ourScore": 0,
+        "theirScore": 0
+      }
+    ]
+  },
+  {
+    "id": "manual-owcs-pacific-2026-stage-2-05-shengshi-esports",
+    "date": "2026-07-02T14:00:00.000Z",
+    "opponent": "ShengShi Esports",
+    "tournament": "OWCS Pacific 2026 · Stage 2 Regular Season",
+    "format": "BO5",
+    "streamUrl": "https://twitch.tv/ow_esports_th",
+    "result": "tbd",
+    "mapScores": [
+      {
+        "map": "Ilios",
+        "ourScore": 0,
+        "theirScore": 0
+      }
+    ]
   }
 ]

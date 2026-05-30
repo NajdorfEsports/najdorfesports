@@ -20,6 +20,37 @@ export function formatDate(
   }
 }
 
+/**
+ * Broadcast timezone the whole match schedule renders in. OWCS Pacific runs
+ * on Indochina Time (UTC+7), and this is an Asia-Pacific team, so match dates
+ * and start times are pinned to ICT rather than the build machine's zone.
+ * The site is statically generated (Cloudflare builds in UTC), so without a
+ * fixed zone a 21:00 ICT match would render as "2:00 PM" for everyone.
+ * Pass MATCH_TIME_ZONE into formatDate for match date parts; use
+ * formatMatchTime for the clock time.
+ */
+export const MATCH_TIME_ZONE = 'Asia/Bangkok';
+export const MATCH_TIME_ZONE_LABEL = 'ICT';
+
+/**
+ * Match start time in ICT, e.g. "9:00 PM ICT". The label is deliberate: the
+ * value is baked at build time, so every visitor sees the same ICT wall-clock
+ * (not their own local time) and the card has to say which zone that is.
+ */
+export function formatMatchTime(date: Date | string, locale: Locale): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  try {
+    const time = new Intl.DateTimeFormat(locale, {
+      timeZone: MATCH_TIME_ZONE,
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(d);
+    return `${time} ${MATCH_TIME_ZONE_LABEL}`;
+  } catch {
+    return MATCH_TIME_ZONE_LABEL;
+  }
+}
+
 /** Format USD prize money for the active locale. Falls back to a $1,000-style
  *  rendering if Intl misbehaves. Chinese locales render as "US$1,000.00". */
 export function formatCurrencyUSD(amount: number, locale: Locale): string {

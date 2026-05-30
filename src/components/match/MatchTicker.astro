@@ -1,7 +1,7 @@
 ---
 import type { MatchEntry } from '../../data/site';
 import { getLocale, useT } from '../../i18n';
-import { formatDate, translateTournament } from '../../i18n/format';
+import { formatDate, translateTournament, MATCH_TIME_ZONE } from '../../i18n/format';
 
 interface Props {
   matches: ReadonlyArray<MatchEntry>;
@@ -25,7 +25,7 @@ const items: TickerItem[] = [];
 for (const m of matches) {
   const ts = +new Date(m.date);
   const isPast = ts < now;
-  const dateStr = formatDate(m.date, locale, { month: 'short', day: 'numeric' });
+  const dateStr = formatDate(m.date, locale, { month: 'short', day: 'numeric', timeZone: MATCH_TIME_ZONE });
   const tournament = translateTournament(m.tournament, locale);
   const href = m.liquipediaUrl;
   if (!isPast) {

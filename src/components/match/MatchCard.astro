@@ -2,7 +2,7 @@
 import Badge from '../ui/Badge.astro';
 import type { MatchEntry } from '../../data/site';
 import { getLocale, useT } from '../../i18n';
-import { formatDate, translateTournament } from '../../i18n/format';
+import { formatDate, formatMatchTime, translateTournament, MATCH_TIME_ZONE } from '../../i18n/format';
 import mapIcons from '../../data/maps.json';
 
 interface Props {
@@ -14,13 +14,10 @@ const locale = getLocale(Astro);
 const t = useT(locale);
 
 const date = new Date(match.date);
-const weekday = formatDate(date, locale, { weekday: 'short' });
-const dayNum = formatDate(date, locale, { day: 'numeric' });
-const monthShort = formatDate(date, locale, { month: 'short' });
-const timePretty = new Intl.DateTimeFormat(locale, {
-  hour: 'numeric',
-  minute: '2-digit',
-}).format(date);
+const weekday = formatDate(date, locale, { weekday: 'short', timeZone: MATCH_TIME_ZONE });
+const dayNum = formatDate(date, locale, { day: 'numeric', timeZone: MATCH_TIME_ZONE });
+const monthShort = formatDate(date, locale, { month: 'short', timeZone: MATCH_TIME_ZONE });
+const timePretty = formatMatchTime(date, locale);
 
 const resultLabel = match.result === 'win' ? t.match.win : match.result === 'loss' ? t.match.loss : '·';
 const aggregate = match.mapScores?.reduce(
