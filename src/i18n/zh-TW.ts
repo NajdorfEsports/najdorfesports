@@ -190,5 +190,7 @@ export const zhTW: Strings = {
     inactive: '非現役',
   },
 
+  competedAs: (name) => `代表 ${name} 出戰`,
+
   skipLink: '跳至主要內容',
 };

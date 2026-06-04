@@ -1,5 +1,5 @@
 ---
-import type { Achievement } from '../../data/site';
+import { competedAsFor, type Achievement } from '../../data/site';
 import { getLocale, useT } from '../../i18n';
 import {
   formatDate,
@@ -35,6 +35,7 @@ function placementTier(placement: string): 'gold' | 'silver' | 'bronze' | 'neutr
     <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {sorted.map((a) => {
         const tier = placementTier(a.placement);
+        const competedAs = competedAsFor(a.event);
         return (
           <li class:list={['achievement', `achievement--${tier}`, 'bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-4 flex items-center gap-4']}>
             <span
@@ -58,6 +59,11 @@ function placementTier(placement: string): 'gold' | 'silver' | 'bronze' | 'neutr
                   translateTournament(a.event, locale)
                 )}
               </p>
+              {competedAs && (
+                <p class="text-[0.7rem] uppercase tracking-wider text-[var(--color-accent-2)] mt-0.5">
+                  {t.competedAs(competedAs)}
+                </p>
+              )}
               <p class="text-xs text-[var(--color-text-dim)] mt-0.5">
                 {formatDate(a.date, locale, { month: 'long', year: 'numeric' })}
                 {typeof a.prizeUsd === 'number' && a.prizeUsd > 0 && (

@@ -214,6 +214,12 @@ export const en = {
     inactive: 'Inactive',
   },
 
+  /** Attribution tag for results the roster earned under its former name,
+   *  before Najdorf Esports acquired it (currently OWCS Pacific Stage 1 as
+   *  Rankers). Shown next to those results so the org showcases the players'
+   *  record without claiming the achievement. See competedAsFor in site.ts. */
+  competedAs: (name: string) => `As ${name}`,
+
   skipLink: 'Skip to main content',
 } as const;
 

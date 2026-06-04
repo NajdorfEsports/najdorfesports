@@ -16,7 +16,7 @@ import CommunityCTA from '../team/CommunityCTA.astro';
 import Button from '../ui/Button.astro';
 import BishopMark from '../ui/BishopMark.astro';
 import { getCollection } from 'astro:content';
-import { type Sponsor } from '../../data/site';
+import { competedAsFor, type Sponsor } from '../../data/site';
 import { loadRoster, loadMatches, loadAchievements } from '../../data/loaders';
 import sponsorsData from '../../data/sponsors.json';
 import { getLocale, pathFor, useT } from '../../i18n';
@@ -68,6 +68,9 @@ const losses = past.filter((m) => m.result === 'loss').length;
 const topAchievement = [...achievements].sort(
   (a, b) => +new Date(b.date) - +new Date(a.date),
 )[0];
+// "As Rankers" attribution if the headline achievement predates the org
+// (Stage 1). Rendered as an aside on the hero so we don't claim it as ours.
+const heroCompetedAs = topAchievement ? competedAsFor(topAchievement.event) : null;
 
 // Localized hrefs for the two CTAs and the "All matches" / "All news" links.
 const matchesHref = pathFor(locale, '/matches/');
@@ -146,6 +149,9 @@ const heroBishops = [
       {topAchievement && (
         <span class="text-[var(--color-text)]">
           {t.hero.achievement(translatePlacement(topAchievement.placement, locale), translateTournament(topAchievement.event.replace(/^.*?·\s*/, ''), locale))}
+          {heroCompetedAs && (
+            <span class="text-[var(--color-text-dim)]"> ({t.competedAs(heroCompetedAs)})</span>
+          )}
           {' '}
         </span>
       )}

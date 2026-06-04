@@ -189,5 +189,7 @@ export const zhCN: Strings = {
     inactive: '非现役',
   },
 
+  competedAs: (name) => `代表 ${name} 出战`,
+
   skipLink: '跳至主内容',
 };

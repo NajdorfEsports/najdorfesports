@@ -9,7 +9,7 @@
 import MatchCard from '../match/MatchCard.astro';
 import MatchEmptyState from '../match/EmptyState.astro';
 import MatchTicker from '../match/MatchTicker.astro';
-import { owcs, type MatchEntry } from '../../data/site';
+import { owcs, competedAsFor, type MatchEntry } from '../../data/site';
 import { loadMatches } from '../../data/loaders';
 import { getLocale, useT } from '../../i18n';
 import { translateTournament } from '../../i18n/format';
@@ -46,6 +46,7 @@ const pastSections = Array.from(pastByTournament.entries()).map(([tournament, ma
   return {
     heading: translateTournament(tournament, locale),
     record: t.matches.record(w, l),
+    competedAs: competedAsFor(tournament),
     matches,
   };
 });
@@ -103,6 +104,11 @@ const pastSections = Array.from(pastByTournament.entries()).map(([tournament, ma
     <section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12">
       <div class="flex items-center gap-3 mb-5">
         <h2 class="font-display text-2xl tracking-wide">{sec.heading}</h2>
+        {sec.competedAs && (
+          <span class="text-[0.7rem] uppercase tracking-wider text-[var(--color-accent-2)] border border-[var(--color-border)] rounded-full px-2 py-0.5">
+            {t.competedAs(sec.competedAs)}
+          </span>
+        )}
         <span class="flex-1 h-px bg-[var(--color-border)]"></span>
         <span class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] tabular-nums">
           {sec.record}

@@ -18,6 +18,27 @@ export const owcs = {
   badgeLine: 'OWCS Pacific Stage 2 main event runs June 4 to July 9, 2026',
 } as const;
 
+/**
+ * The roster competed under the name "Rankers" during OWCS Pacific 2026
+ * Stage 1, before Najdorf Esports acquired them. Stage 1 was therefore not
+ * earned under this org, so every surface that shows a Stage 1 result carries
+ * an "As Rankers" attribution: we showcase the players' record without
+ * claiming the achievement as the org's own. (Spelling is "Rankers" with an
+ * S, matching Liquipedia's OWCS Pacific 2026 Stage 1 bracket.)
+ *
+ * `competedAsFor` returns the former name for any Stage 1 event/tournament
+ * label, or null for everything else (Stage 2 onward renders with no tag).
+ * Keyed off the "Stage 1" fragment so it survives Liquipedia label drift
+ * ("Stage 1", "Stage 1 Regular Season", "Stage 1 Playoffs" all match);
+ * the `\b` after the digit keeps "Stage 1" from matching a future "Stage 10".
+ */
+export const FORMER_ROSTER_NAME = 'Rankers';
+
+export function competedAsFor(eventOrTournament: string | undefined): string | null {
+  if (!eventOrTournament) return null;
+  return /\bStage 1\b/.test(eventOrTournament) ? FORMER_ROSTER_NAME : null;
+}
+
 // Fill these in as accounts are confirmed. Any URL left as 'TODO' will be
 // filtered out by <SocialRow> and <CommunityCTA> so nothing broken ships.
 // `blurb` is the optional one-line CTA copy used by <CommunityCTA>.
