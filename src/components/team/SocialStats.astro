@@ -1,0 +1,184 @@
+---
+/**
+ * Community stats strip: a row of "<count> <metric>" cards per channel, with an
+ * optional live "watching now" pill.
+ *
+ * DORMANT: while `SHOW_SOCIAL_STATS` is false in src/data/social.ts,
+ * `loadSocialStats()` returns [] and this component renders nothing, so it is
+ * safe to place anywhere ahead of launch. To surface it:
+ *   1. Set `SHOW_SOCIAL_STATS = true` (and `SHOW_LIVE_VIEWERS = true` for the
+ *      live pill) in src/data/social.ts.
+ *   2. Set `display: true` on the channels you want in `socialChannels`.
+ *   3. Render `<SocialStats />` where it belongs.
+ *
+ * Numbers come from build-time fetches (scripts/fetch-social-stats.mjs), so
+ * nothing here calls a third party at runtime. Labels are English-only for now;
+ * move them into the i18n Strings table when this lands in localized chrome.
+ */
+import {
+  loadSocialStats,
+  loadLiveViewers,
+  socialChannels,
+  formatCount,
+  type SocialPlatform,
+  type SocialMetric,
+} from '../../data/social';
+import PlatformIcon from '../ui/PlatformIcon.astro';
+
+const stats = loadSocialStats();
+const live = loadLiveViewers();
+
+// platform id -> the capitalized name PlatformIcon and labels expect.
+const DISPLAY_NAME: Record<SocialPlatform, string> = {
+  youtube: 'YouTube',
+  tiktok: 'TikTok',
+  instagram: 'Instagram',
+  x: 'X',
+  discord: 'Discord',
+};
+
+const METRIC_LABEL: Record<SocialMetric, string> = {
+  subscribers: 'subscribers',
+  followers: 'followers',
+  members: 'members',
+  views: 'views',
+  likes: 'likes',
+};
+
+const channelByPlatform = new Map(socialChannels.map((c) => [c.platform, c]));
+---
+{stats.length > 0 && (
+  <section class="social-stats" aria-label="Community by the numbers">
+    <ul class="social-stats__row">
+      {stats.map((s) => {
+        const channel = channelByPlatform.get(s.platform as SocialPlatform);
+        const name = DISPLAY_NAME[s.platform as SocialPlatform] ?? s.platform;
+        const metric = channel?.primaryMetric ?? 'followers';
+        const Tag = channel?.url && channel.url !== 'TODO' ? 'a' : 'div';
+        return (
+          <li>
+            <Tag
+              class="social-stats__card"
+              {...(Tag === 'a'
+                ? { href: channel!.url, target: '_blank', rel: 'noopener noreferrer me' }
+                : {})}
+            >
+              <span class="social-stats__icon" aria-hidden="true">
+                <PlatformIcon platform={name} size={18} />
+              </span>
+              <span class="social-stats__count">{formatCount(s.count)}</span>
+              <span class="social-stats__label">{METRIC_LABEL[metric]}</span>
+              <span class="social-stats__net">{name}</span>
+            </Tag>
+          </li>
+        );
+      })}
+    </ul>
+
+    {live && (
+      <p class="social-stats__live">
+        <span class="social-stats__dot" aria-hidden="true"></span>
+        <span class="social-stats__live-count">{formatCount(live.liveViewers)}</span>
+        watching now
+      </p>
+    )}
+  </section>
+)}
+
+<style>
+  .social-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .social-stats__row {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  .social-stats__card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'icon count'
+      'icon label';
+    align-items: center;
+    column-gap: 0.6rem;
+    row-gap: 0;
+    min-width: 8.5rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    background: var(--color-surface);
+    color: var(--color-text);
+    text-decoration: none;
+    transition:
+      border-color 0.2s ease-out,
+      transform 0.2s ease-out;
+  }
+  a.social-stats__card:hover {
+    border-color: var(--color-accent-2);
+    transform: translateY(-2px);
+  }
+  .social-stats__icon {
+    grid-area: icon;
+    display: inline-flex;
+    color: var(--color-text-dim);
+  }
+  .social-stats__count {
+    grid-area: count;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    line-height: 1;
+  }
+  .social-stats__label {
+    grid-area: label;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-dim);
+  }
+  /* Network name is encoded in the icon + link; kept for screen readers and
+     wide layouts but visually folded into the label row. */
+  .social-stats__net {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .social-stats__live {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-text-dim);
+  }
+  .social-stats__live-count {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  .social-stats__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: #ef4444;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
+    animation: social-stats-pulse 1.8s ease-out infinite;
+  }
+  @keyframes social-stats-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+    100% { box-shadow: 0 0 0 0.6rem rgba(239, 68, 68, 0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .social-stats__card { transition: none; }
+    .social-stats__dot { animation: none; }
+  }
+</style>

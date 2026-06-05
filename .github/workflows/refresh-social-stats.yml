@@ -1,0 +1,60 @@
+name: Refresh social stats
+
+# DORMANT until the feature goes live. Right now this runs only on a manual
+# trigger (Actions tab -> "Run workflow"), so it does not auto-commit while the
+# stats surface is hidden. When you are ready for it to keep itself fresh,
+# uncomment the `schedule:` block below. Hourly is fine for slowly-moving
+# follower / subscriber / member counts; dial it back to `0 */6 * * *` (every
+# 6 hours) or up during events. Trigger it by hand any time to refresh the live
+# "watching now" number while streaming.
+on:
+  workflow_dispatch: {}
+  # schedule:
+  #   - cron: '7 * * * *' # hourly at :07
+
+permissions:
+  contents: write
+
+concurrency:
+  group: social-stats-refresh
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Actions pinned to commit SHAs (not floating tags) so a compromised tag
+      # cannot inject commits into main. Human-readable version in the comment.
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            npm-
+
+      # Discord needs no secret. The others are optional: each source skips
+      # itself when its credentials are absent, so the job is safe to run with
+      # any subset of these set (or none).
+      - name: Fetch social / community stats
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          YOUTUBE_CHANNEL_ID: ${{ secrets.YOUTUBE_CHANNEL_ID }}
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
+          TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
+          TWITCH_LOGIN: ${{ secrets.TWITCH_LOGIN }}
+        run: node scripts/fetch-social-stats.mjs
+
+      - name: Commit updated stats (if changed)
+        uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 # v5.2.0
+        with:
+          commit_message: 'chore(data): refresh social stats'
+          file_pattern: |
+            src/data/social-stats.json
