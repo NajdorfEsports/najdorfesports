@@ -39,15 +39,19 @@ function ogSvg({ eyebrow, title, tone = 'primary' }, bishopUri) {
   const eyebrowColor = tone === 'secondary' ? accentBot : accentTop;
   const railTop = tone === 'secondary' ? accentBot : accentTop;
   const railBottom = tone === 'secondary' ? accentTop : accentBot;
-  // Hard-wrap long titles. Sized for a safe fit under the wide sans
-  // fallback that librsvg/sharp uses when Anton isn't in the font cache.
-  // Caps at 3 lines (ellipsis-truncated past that). Top-aligned at a
-  // fixed first baseline so the eyebrow chip never collides with the
-  // title regardless of line count.
-  const lines = wrapTitle(title, 14, 3);
-  const fontSize = 100;
-  const lineHeight = 100;
-  const firstBaselineY = 310; // always; subsequent lines step by +lineHeight
+  // Auto-fit the title: pick the largest font size (<= 100) at which the FULL
+  // headline wraps within the text column and the vertical band, so a long
+  // title is shown in full instead of being ellipsis-truncated the way the old
+  // fixed 100px / 3-line cap did. The wrapped block is then vertically centered
+  // between the eyebrow chip and the domain line.
+  const { lines, fontSize, lineHeight } = layoutTitle(title);
+  const TITLE_BAND_TOP = 248; // just below the eyebrow baseline (y=210)
+  const TITLE_BAND_BOTTOM = 558; // just above the domain line (y=585)
+  const blockHeight = lines.length * lineHeight;
+  const blockTop =
+    TITLE_BAND_TOP +
+    Math.max(0, (TITLE_BAND_BOTTOM - TITLE_BAND_TOP - blockHeight) / 2);
+  const firstBaselineY = Math.round(blockTop + fontSize * 0.8);
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
@@ -131,6 +135,60 @@ function wrapTitle(title, maxChars, maxLines) {
     return trimmed;
   }
   return lines;
+}
+
+/** Greedy word-wrap with NO truncation: the full title is always preserved.
+ *  Pairs with layoutTitle, which shrinks the font until this full wrap fits. */
+function wrapAll(title, maxChars) {
+  const words = title.replace(/\s+/g, ' ').trim().split(' ');
+  const lines = [];
+  let buf = '';
+  for (const w of words) {
+    const test = buf ? `${buf} ${w}` : w;
+    if (test.length <= maxChars) {
+      buf = test;
+    } else {
+      if (buf) lines.push(buf);
+      buf = w;
+    }
+  }
+  if (buf) lines.push(buf);
+  return lines.length ? lines : [''];
+}
+
+/** Choose the largest font size (<= MAX_FONT) at which the FULL title wraps
+ *  into at most MAX_LINES lines AND fits the vertical band. A bigger font fits
+ *  fewer characters per line, so it needs more lines and more height; a long
+ *  headline therefore lands on a smaller size rather than getting cut off.
+ *
+ *  The per-line character budget is anchored to the previous calibration (14
+ *  chars at 100px is the documented safe width under the wide sans fallback
+ *  librsvg uses when Anton isn't cached), so short titles do not regress: they
+ *  still render at the full 100px. Hard truncation is only a last resort if
+ *  even the smallest size overflows, which none of our titles do. */
+function layoutTitle(title) {
+  const COLUMN_W = 840; // usable text width at the wide sans fallback (px)
+  const EM_ADVANCE = 0.6; // approx glyph advance per em for that fallback
+  const MAX_LINES = 4;
+  const V_BAND = 310; // vertical px available for the title block
+  const MAX_FONT = 100;
+  const MIN_FONT = 44;
+  const charsFor = (f) => Math.max(6, Math.floor(COLUMN_W / (EM_ADVANCE * f)));
+
+  for (let f = MAX_FONT; f >= MIN_FONT; f -= 2) {
+    const maxChars = charsFor(f);
+    const lines = wrapAll(title, maxChars);
+    const longest = Math.max(...lines.map((l) => l.length));
+    if (lines.length <= MAX_LINES && lines.length * f <= V_BAND && longest <= maxChars) {
+      return { lines, fontSize: f, lineHeight: f };
+    }
+  }
+  // Extreme title that fit nowhere cleanly: smallest size, hard line cap.
+  return {
+    lines: wrapTitle(title, charsFor(MIN_FONT), MAX_LINES),
+    fontSize: MIN_FONT,
+    lineHeight: MIN_FONT,
+  };
 }
 
 // ---------------------------------------------------------------------------

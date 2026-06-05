@@ -134,24 +134,35 @@ const dateLabel = formatDate(date, locale, {
     z-index: 2;
   }
 
-  /* Bishop watermark, larger + more opaque than the previous pass. */
+  /* Bishop watermark. The svg must be sized off a parent with a RESOLVED
+     height: a percentage height on the svg itself collapses to 0 because its
+     wrapping span is auto-height, which is why the mark used to render at 0x0
+     and the covers looked empty. So the height lives on the span (a real % of
+     the card, which has a definite aspect-ratio height) and the svg fills it. */
   .news-cover__bishop {
     position: absolute;
-    right: -3%;
-    bottom: -22%;
     color: var(--cover-accent, var(--color-accent));
-    opacity: 0.32;
     pointer-events: none;
   }
   .news-cover__bishop :global(svg) {
     display: block;
     width: auto;
+    height: 100%;
   }
-  .news-cover--hero .news-cover__bishop :global(svg) { height: 220%; }
-  .news-cover--card .news-cover__bishop :global(svg) { height: 200%; }
+  /* Hero (article page): large, faint linework anchored bottom-right. */
+  .news-cover--hero .news-cover__bishop {
+    height: 200%;
+    right: -2%;
+    bottom: -55%;
+    opacity: 0.28;
+  }
+  /* Card (index thumbnail): tall and brighter, pulled into frame so the mark
+     actually fills the body of the thumbnail instead of reading as empty. */
   .news-cover--card .news-cover__bishop {
-    right: -8%;
-    bottom: -28%;
+    height: 150%;
+    right: -3%;
+    bottom: -26%;
+    opacity: 0.4;
   }
 
   /* X chess cross watermark in the lower-left, echoes the org mark. */
@@ -198,15 +209,27 @@ const dateLabel = formatDate(date, locale, {
     height: 100%;
     max-width: 80%;
   }
+  /* Card: center the eyebrow + title as a group so the title isn't stranded
+     at the very bottom with a dead band above it. (Hero keeps space-between.) */
+  .news-cover--card .news-cover__content {
+    justify-content: center;
+  }
 
   .news-cover__meta {
-    display: inline-flex;
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.2rem 0.6rem;
     font-size: 0.7rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--color-text-dim);
+  }
+  /* Keep the eyebrow and date each on one line; on a narrow card the date
+     wraps to its own line instead of both phrases breaking mid-word. */
+  .news-cover__eyebrow,
+  .news-cover__date {
+    white-space: nowrap;
   }
   .news-cover__eyebrow {
     color: var(--cover-accent, var(--color-accent));
@@ -226,7 +249,7 @@ const dateLabel = formatDate(date, locale, {
     font-size: clamp(1.75rem, 3.6vw, 3.25rem);
   }
   .news-cover__title--card {
-    font-size: clamp(1.35rem, 2.1vw, 1.75rem);
+    font-size: clamp(1.45rem, 2.3vw, 1.9rem);
     margin-top: 0.75rem;
   }
 </style>
