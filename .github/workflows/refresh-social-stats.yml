@@ -1,16 +1,15 @@
 name: Refresh social stats
 
-# DORMANT until the feature goes live. Right now this runs only on a manual
-# trigger (Actions tab -> "Run workflow"), so it does not auto-commit while the
-# stats surface is hidden. When you are ready for it to keep itself fresh,
-# uncomment the `schedule:` block below. Hourly is fine for slowly-moving
-# follower / subscriber / member counts; dial it back to `0 */6 * * *` (every
-# 6 hours) or up during events. Trigger it by hand any time to refresh the live
-# "watching now" number while streaming.
+# Keeps the live community counts (Discord members, etc.) fresh. Counts move
+# slowly, so this runs weekly to avoid burning Actions minutes; trigger it from
+# the Actions tab any time for an on-demand refresh (e.g. after a member surge
+# or while streaming, to update the "watching now" number).
 on:
   workflow_dispatch: {}
-  # schedule:
-  #   - cron: '7 * * * *' # hourly at :07
+  schedule:
+    # Weekly, Monday 09:22 UTC. Offset a few minutes from the Liquipedia refresh
+    # (09:07) so the two weekly jobs don't overlap.
+    - cron: '22 9 * * 1'
 
 permissions:
   contents: write

@@ -120,29 +120,32 @@ already obvious from the file tree or `package.json` are not repeated here.
   out by `<SocialRow>` so nothing broken ships.
 - `src/data/sponsors.json` is an empty array at launch; UI hides empty
   sections automatically. Don't add a placeholder section back.
-- **Social / community stats are DORMANT scaffolding.** `src/data/social.ts`
-  holds the config, types, `formatCount`, and two master switches
-  (`SHOW_SOCIAL_STATS`, `SHOW_LIVE_VIEWERS`), both `false`. While off,
-  `loadSocialStats()` returns `[]` and `<SocialStats>` (in `components/team/`)
-  renders nothing, so the feature is invisible in production. Counts are fetched
-  at BUILD time by `scripts/fetch-social-stats.mjs` (`npm run fetch:social`),
-  written to `social-stats.json` (auto) with a `social-stats.manual.json`
-  override merged by `platform` (manual wins, same contract as roster/matches).
-  No client ever calls a third party, so the zero-cookie / no-third-party-script
-  posture and the CSP are untouched. The fetcher is fail-soft (keeps each
-  source's last good value; never writes empty). Discord member/online counts
-  need NO secret (public invite endpoint; the fetcher reads only the aggregate
-  numbers, never the inviter's personal account). YouTube (subs + views + live
-  viewers), X (followers; PAID API), and Twitch (live "watching now") are
-  optional and only run when their secrets are present; TikTok + Instagram have
-  no simple API and stay on manual override. The refresh workflow
-  (`.github/workflows/refresh-social-stats.yml`) is dispatch-only with its
-  `schedule:` cron commented out, so nothing auto-commits while dormant.
-  **To go live:** set `SHOW_SOCIAL_STATS` (and `SHOW_LIVE_VIEWERS`) to `true`,
-  set `display: true` on the channels worth showing, place `<SocialStats />`
-  (add i18n strings if it lands in localized chrome), add the GitHub secrets
-  you need, and uncomment the cron. True per-second "watching now" realtime
-  (vs the scheduled snapshot) would need an on-demand endpoint
+- **Social / community stats: LIVE for Discord + X, dormant for the rest.**
+  `src/data/social.ts` holds the config, types, `formatCount`, and two master
+  switches. `SHOW_SOCIAL_STATS` is `true`: Discord + X have `display: true` and
+  their counts render in `<CommunityCTA>` (the "Join the community" band on the
+  home page) as a "<count> members/followers" line. `SHOW_LIVE_VIEWERS` is still
+  `false` (gates the live "watching now" pill). Channels at zero (YouTube /
+  TikTok / Instagram) keep `display: false` and stay hidden. The standalone
+  `<SocialStats>` strip (`components/team/`) exists but is not placed anywhere;
+  it's an alternative surface. Counts are fetched at BUILD time by
+  `scripts/fetch-social-stats.mjs` (`npm run fetch:social`), written to
+  `social-stats.json` (auto) with a `social-stats.manual.json` override merged
+  by `platform` (manual wins, same contract as roster/matches). No client ever
+  calls a third party, so the zero-cookie / no-third-party-script posture and
+  the CSP are untouched. The fetcher is fail-soft (keeps each source's last good
+  value; never writes empty). Discord member/online counts need NO secret
+  (public invite endpoint; the fetcher reads only the aggregate numbers, never
+  the inviter's personal account). YouTube (subs + views + live viewers), X
+  (followers; PAID API), and Twitch (live "watching now") are optional and only
+  run when their secrets are present; TikTok + Instagram have no simple API and
+  stay on manual override. **The X follower count is maintained BY HAND** (no
+  free API): edit `count` in `social-stats.manual.json`. The refresh workflow
+  (`.github/workflows/refresh-social-stats.yml`) runs **weekly** (Mon 09:22 UTC)
+  and on manual dispatch; it auto-commits `social-stats.json` only when a number
+  changes. To hide all counts again, flip `SHOW_SOCIAL_STATS` back to `false`
+  (CommunityCTA reverts to no counts automatically). True per-second "watching
+  now" realtime (vs the scheduled snapshot) would need an on-demand endpoint
   (`prerender = false` via the CF adapter); `connect-src 'self'` and
   `script-src ... 'unsafe-inline'` are already in the CSP, so no header change
   is needed for that upgrade.
