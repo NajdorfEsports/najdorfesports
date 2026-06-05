@@ -77,6 +77,8 @@ export const zhCN: Strings = {
     body:       '两个官方频道，没有算法干扰。Discord 是赛间与队伍同乐的地方，X 则是抢先看到公告的渠道。',
     discordCta: '加入 Discord',
     xCta:       '在 X 上关注',
+    members:    '位成员',
+    followers:  '位粉丝',
   },
   live: {
     liveNow:      '直播中',

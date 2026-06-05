@@ -78,6 +78,8 @@ export const zhTW: Strings = {
     body:       '兩個官方頻道，沒有演算法。Discord 是賽間與隊伍同樂的地方，X 則是搶先看到公告的管道。',
     discordCta: '加入 Discord',
     xCta:       '在 X 上追蹤',
+    members:    '位成員',
+    followers:  '位追蹤者',
   },
   live: {
     liveNow:      '直播中',

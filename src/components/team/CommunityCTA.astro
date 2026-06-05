@@ -14,6 +14,7 @@
 import { socials, confirmed } from '../../data/site';
 import { getLocale, useT } from '../../i18n';
 import PlatformIcon from '../ui/PlatformIcon.astro';
+import { loadSocialStats, formatCount } from '../../data/social';
 
 const locale = getLocale(Astro);
 const t = useT(locale);
@@ -24,6 +25,24 @@ const ctaFor = (name: string) =>
   name === 'Discord' ? t.community.discordCta
   : name === 'X'     ? t.community.xCta
   : `Follow on ${name}`;
+
+// Live counts (Discord members, X followers), surfaced only when the
+// social-stats feature is on AND the channel has a real number. When it's off
+// the map is empty and the cards render exactly as before, so this is fully
+// backward-compatible. Numbers come from build-time fetches; nothing here calls
+// a third party at runtime.
+const statByPlatform = new Map(loadSocialStats().map((s) => [s.platform, s]));
+const countMeta: Record<string, { platform: 'discord' | 'x'; label: string }> = {
+  Discord: { platform: 'discord', label: t.community.members },
+  X: { platform: 'x', label: t.community.followers },
+};
+const countFor = (name: string) => {
+  const meta = countMeta[name];
+  const stat = meta ? statByPlatform.get(meta.platform) : undefined;
+  return stat && typeof stat.count === 'number'
+    ? { value: stat.count, label: meta!.label }
+    : null;
+};
 ---
 {visible.length > 0 && (
   <section
@@ -43,48 +62,57 @@ const ctaFor = (name: string) =>
     </div>
 
     <ul class="mt-8 grid gap-4 sm:grid-cols-2">
-      {visible.map((s) => (
-        <li>
-          <a
-            href={s.url}
-            target="_blank"
-            rel="me noopener"
-            class:list={[
-              'community-card group relative flex items-start gap-4 bg-[var(--color-surface)]',
-              'border border-[var(--color-border)] rounded-md p-5 sm:p-6',
-              s.name === 'Discord' ? 'community-card--discord' : '',
-              s.name === 'X'       ? 'community-card--x'       : '',
-            ]}
-            aria-label={`Najdorf Esports on ${s.name}${s.handle ? ` (${s.handle})` : ''}`}
-          >
-            <span
-              class="community-card__chip inline-flex items-center justify-center w-12 h-12 rounded-full shrink-0"
-              aria-hidden="true"
+      {visible.map((s) => {
+        const count = countFor(s.name);
+        return (
+          <li>
+            <a
+              href={s.url}
+              target="_blank"
+              rel="me noopener"
+              class:list={[
+                'community-card group relative flex items-start gap-4 bg-[var(--color-surface)]',
+                'border border-[var(--color-border)] rounded-md p-5 sm:p-6',
+                s.name === 'Discord' ? 'community-card--discord' : '',
+                s.name === 'X'       ? 'community-card--x'       : '',
+              ]}
+              aria-label={`Najdorf Esports on ${s.name}${s.handle ? ` (${s.handle})` : ''}`}
             >
-              <PlatformIcon platform={s.name} size={s.name === 'Discord' ? 22 : 20} />
-            </span>
+              <span
+                class="community-card__chip inline-flex items-center justify-center w-12 h-12 rounded-full shrink-0"
+                aria-hidden="true"
+              >
+                <PlatformIcon platform={s.name} size={s.name === 'Discord' ? 22 : 20} />
+              </span>
 
-            <div class="min-w-0 flex-1">
-              <div class="flex items-baseline justify-between gap-3">
-                <p class="font-display text-xl tracking-wide">{s.name}</p>
-                {s.handle && (
-                  <span class="text-[0.7rem] uppercase tracking-wider text-[var(--color-text-dim)] truncate">
-                    {s.handle}
-                  </span>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-baseline justify-between gap-3">
+                  <p class="font-display text-xl tracking-wide">{s.name}</p>
+                  {s.handle && (
+                    <span class="text-[0.7rem] uppercase tracking-wider text-[var(--color-text-dim)] truncate">
+                      {s.handle}
+                    </span>
+                  )}
+                </div>
+                {count && (
+                  <p class="community-card__stat" aria-label={`${count.value} ${count.label}`}>
+                    <span class="community-card__stat-num">{formatCount(count.value)}</span>
+                    <span class="community-card__stat-label">{count.label}</span>
+                  </p>
                 )}
-              </div>
-              {s.blurb && (
-                <p class="mt-2 text-sm text-[var(--color-text-dim)] leading-relaxed">
-                  {s.blurb}
+                {s.blurb && (
+                  <p class="mt-2 text-sm text-[var(--color-text-dim)] leading-relaxed">
+                    {s.blurb}
+                  </p>
+                )}
+                <p class="link-arrow has-glyph mt-3 text-xs uppercase tracking-wider text-[var(--color-accent-2)] group-hover:text-[var(--color-accent)]">
+                  <span>{ctaFor(s.name)}</span>
                 </p>
-              )}
-              <p class="link-arrow has-glyph mt-3 text-xs uppercase tracking-wider text-[var(--color-accent-2)] group-hover:text-[var(--color-accent)]">
-                <span>{ctaFor(s.name)}</span>
-              </p>
-            </div>
-          </a>
-        </li>
-      ))}
+              </div>
+            </a>
+          </li>
+        );
+      })}
     </ul>
   </section>
 )}
@@ -109,6 +137,27 @@ const ctaFor = (name: string) =>
   }
   .community-card:hover .community-card__chip {
     transform: scale(1.06);
+  }
+
+  /* Live count, e.g. "15 members". The number leads in the display face; the
+     metric label sits dim beside it. Only rendered when a real number exists. */
+  .community-card__stat {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    margin-top: 0.6rem;
+  }
+  .community-card__stat-num {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--color-text);
+  }
+  .community-card__stat-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-dim);
   }
 
   /* Default chip, keep brand-neutral so the card reads as part of the

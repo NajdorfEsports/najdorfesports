@@ -1,14 +1,16 @@
 /**
  * Social / community stats: config, types, formatting, and the merged loader.
  *
- * STATUS: DORMANT. `SHOW_SOCIAL_STATS` is false, so `loadSocialStats()` returns
- * `[]` and `<SocialStats />` renders nothing anywhere. This is the plumbing for
- * a future "community numbers" surface (follower / subscriber / member counts,
- * plus an optional live "watching now" pill). To turn it on later:
- *   1. Flip `SHOW_SOCIAL_STATS` to true.
- *   2. Set `display: true` on the channels worth showing (see `socialChannels`).
- *   3. Drop `<SocialStats />` where you want it (footer / home / about) and add
- *      the matching i18n strings if it lands in localized chrome.
+ * STATUS: LIVE for Discord + X. `SHOW_SOCIAL_STATS` is true and those two
+ * channels have `display: true`, so their counts render in <CommunityCTA> (the
+ * "Join the community" band on the home page). Channels still at zero (YouTube
+ * / TikTok / Instagram) keep `display: false` and stay hidden. The standalone
+ * <SocialStats /> strip remains available but is not placed anywhere; it is an
+ * alternative surface, not required. To add a channel later: give it a real
+ * `url` + the relevant id/username and set `display: true`. To hide all counts
+ * again, flip `SHOW_SOCIAL_STATS` back to false (CommunityCTA reverts to no
+ * counts automatically). `SHOW_LIVE_VIEWERS` still gates the live "watching
+ * now" pill separately.
  *
  * PRIVACY: every number is fetched at BUILD TIME by
  * `scripts/fetch-social-stats.mjs` (a GitHub Action), written to
@@ -28,7 +30,7 @@ import statsManual from './social-stats.manual.json';
  * JSON. Most channels are at zero today; turn this on when the numbers are
  * worth showing.
  */
-export const SHOW_SOCIAL_STATS = false;
+export const SHOW_SOCIAL_STATS = true;
 
 /**
  * Second switch, for the realtime "watching now" pill specifically. Even with
@@ -87,7 +89,7 @@ export const socialChannels: ReadonlyArray<SocialChannel> = [
     handle: 'discord.gg/najdorf',
     primaryMetric: 'members',
     discordInvite: '7X2QbvUW3z',
-    display: false,
+    display: true,
   },
   {
     platform: 'x',
@@ -95,7 +97,7 @@ export const socialChannels: ReadonlyArray<SocialChannel> = [
     handle: '@najdorfesports',
     primaryMetric: 'followers',
     xUsername: 'najdorfesports',
-    display: false,
+    display: true,
   },
   {
     platform: 'youtube',

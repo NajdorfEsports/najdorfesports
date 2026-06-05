@@ -76,6 +76,9 @@ export const en = {
     body: 'Two channels, no algorithm games. The Discord is where the squad hangs out between matches. X is where you catch the announcements first.',
     discordCta: 'Join the Discord',
     xCta: 'Follow on X',
+    /** Count labels shown next to a channel's live number (e.g. "15 members"). */
+    members: 'members',
+    followers: 'followers',
   },
   live: {
     liveNow: 'LIVE NOW',
