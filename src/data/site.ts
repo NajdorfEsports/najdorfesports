@@ -174,6 +174,14 @@ export interface MatchEntry {
   vodUrl?: string;
   /** Liquipedia tournament/bracket page that lists this match. */
   liquipediaUrl?: string;
+  /**
+   * Peak CONCURRENT viewers of the official OWCS Pacific broadcast during this
+   * match (observed from the VOD). This is the BROADCAST's audience, not the
+   * org's own channel, so every surface that renders it must attribute it to
+   * the OWCS Pacific broadcast. Manual data point (no API for a channel we
+   * don't own); set it by hand in matches.manual.json when known.
+   */
+  broadcastPeakViewers?: number;
   result: MatchResult;
   mapScores?: MapScore[];
   notes?: string;

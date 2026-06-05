@@ -150,9 +150,17 @@ export const zhTW: Strings = {
     vs: (opponent) => `對戰 ${opponent}`,
     watch: '觀看',
     watchVod: '觀看回放',
+    broadcastPeak: (n) => `OWCS Pacific 直播尖峰 ${n}`,
     tbd:   '待定',
     win:   '勝',
     loss:  '負',
+  },
+
+  reach: {
+    eyebrow: '直播觸及',
+    peakLabel: '尖峰同時觀眾',
+    context: (opponent) => `在 OWCS Pacific 對戰 ${opponent} 的官方直播中。`,
+    cta: '查看比賽',
   },
 
   matches: {

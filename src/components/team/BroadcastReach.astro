@@ -1,0 +1,146 @@
+---
+/**
+ * Broadcast-reach highlight for the home page. Surfaces the single largest
+ * logged broadcast peak across all matches as a sponsor-facing reach stat, and
+ * links through to the matches page (where the match + its VOD live) so the
+ * claim is verifiable.
+ *
+ * IMPORTANT: the number is the peak CONCURRENT viewers of the official OWCS
+ * Pacific broadcast during our match, NOT the org's own channel audience. The
+ * copy attributes it to the OWCS Pacific broadcast on purpose, so the stat
+ * holds up under sponsor / investor scrutiny. Renders nothing when no match has
+ * a `broadcastPeakViewers` value, so it is self-hiding and auto-updates to the
+ * biggest peak as you log more matches.
+ */
+import { loadMatches } from '../../data/loaders';
+import { getLocale, pathFor, useT } from '../../i18n';
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+
+const peakMatch = loadMatches()
+  .filter((m) => typeof m.broadcastPeakViewers === 'number')
+  .sort((a, b) => (b.broadcastPeakViewers ?? 0) - (a.broadcastPeakViewers ?? 0))[0];
+
+const peakDisplay = peakMatch
+  ? new Intl.NumberFormat(locale).format(peakMatch.broadcastPeakViewers as number)
+  : null;
+const matchesHref = pathFor(locale, '/matches/');
+---
+{peakMatch && (
+  <section
+    class="reach mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-20"
+    aria-label={t.reach.eyebrow}
+  >
+    <a href={matchesHref} class="reach-card group">
+      <div class="reach-card__num">
+        <span class="reach-card__value">{peakDisplay}</span>
+        <span class="reach-card__label">{t.reach.peakLabel}</span>
+      </div>
+      <div class="reach-card__body">
+        <p class="reach-card__eyebrow">{t.reach.eyebrow}</p>
+        <p class="reach-card__context">{t.reach.context(peakMatch.opponent)}</p>
+        <p class="reach-card__cta link-arrow has-glyph">
+          <span>{t.reach.cta}</span>
+        </p>
+      </div>
+    </a>
+  </section>
+)}
+
+<style>
+  .reach-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    align-items: flex-start;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    color: var(--color-text);
+    text-decoration: none;
+    transition:
+      border-color 0.2s ease-out,
+      transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.22s ease-out;
+  }
+  @media (min-width: 640px) {
+    .reach-card {
+      flex-direction: row;
+      align-items: center;
+      gap: 2rem;
+      padding: 1.75rem 2rem;
+    }
+  }
+  .reach-card:hover {
+    border-color: var(--color-accent-2);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px -16px color-mix(in oklab, var(--color-accent-2) 55%, transparent);
+  }
+
+  .reach-card__num {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .reach-card__value {
+    font-family: var(--font-display);
+    font-size: clamp(2.75rem, 7vw, 4rem);
+    line-height: 0.95;
+    color: var(--color-accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .reach-card__label {
+    margin-top: 0.5rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-dim);
+  }
+
+  .reach-card__body {
+    min-width: 0;
+  }
+  @media (min-width: 640px) {
+    .reach-card__body {
+      padding-left: 2rem;
+      border-left: 1px solid var(--color-border);
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+  }
+  .reach-card__eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--color-accent-2);
+  }
+  .reach-card__context {
+    margin-top: 0.5rem;
+    max-width: 40rem;
+    line-height: 1.5;
+    color: var(--color-text-dim);
+  }
+  .reach-card__cta {
+    margin-top: 0.75rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent-2);
+  }
+  .reach-card:hover .reach-card__cta {
+    color: var(--color-accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reach-card,
+    .reach-card:hover {
+      transition: none;
+      transform: none;
+    }
+  }
+</style>

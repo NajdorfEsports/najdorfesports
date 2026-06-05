@@ -3,6 +3,7 @@ import Badge from '../ui/Badge.astro';
 import type { MatchEntry } from '../../data/site';
 import { getLocale, useT } from '../../i18n';
 import { formatDate, formatMatchTime, translateTournament, MATCH_TIME_ZONE } from '../../i18n/format';
+import { formatCount } from '../../data/social';
 import mapIcons from '../../data/maps.json';
 
 interface Props {
@@ -145,6 +146,14 @@ if (!backdropUrl) {
         </>
       )}
     </p>
+    {match.broadcastPeakViewers && (
+      <p
+        class="text-[0.7rem] text-[var(--color-text-dim)] mt-1"
+        aria-label={`Peak concurrent viewers on the OWCS Pacific broadcast: ${match.broadcastPeakViewers}`}
+      >
+        {t.match.broadcastPeak(formatCount(match.broadcastPeakViewers))}
+      </p>
+    )}
   </div>
 
   <div class="match-card__content relative z-10 text-right">

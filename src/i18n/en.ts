@@ -167,9 +167,23 @@ export const en = {
     vs: (opponent: string) => `vs ${opponent}`,
     watch: 'Watch',
     watchVod: 'Watch VOD',
+    /** Attributed broadcast-peak note on a match card. The number is the OWCS
+        Pacific broadcast's peak concurrent viewers, not the org's own. */
+    broadcastPeak: (n: string) => `${n} peak on OWCS Pacific`,
     tbd: 'TBD',
     win: 'W',
     loss: 'L',
+  },
+
+  /** Broadcast-reach highlight on the home page (BroadcastReach). The number is
+      the OWCS Pacific broadcast's peak concurrent viewers for our biggest
+      match, NOT the org's own channel; the copy attributes it to the broadcast. */
+  reach: {
+    eyebrow: 'Broadcast reach',
+    peakLabel: 'peak concurrent viewers',
+    context: (opponent: string) =>
+      `On the OWCS Pacific broadcast of our match vs ${opponent}.`,
+    cta: 'See the match',
   },
 
   /** /matches page chrome (header, stat strip, attribution). */

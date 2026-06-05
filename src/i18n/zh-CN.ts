@@ -149,9 +149,17 @@ export const zhCN: Strings = {
     vs: (opponent) => `对战 ${opponent}`,
     watch: '观看',
     watchVod: '观看回放',
+    broadcastPeak: (n) => `OWCS Pacific 直播峰值 ${n}`,
     tbd:   '待定',
     win:   '胜',
     loss:  '负',
+  },
+
+  reach: {
+    eyebrow: '直播触达',
+    peakLabel: '峰值同时观众',
+    context: (opponent) => `在 OWCS Pacific 对战 ${opponent} 的官方直播中。`,
+    cta: '查看比赛',
   },
 
   matches: {
