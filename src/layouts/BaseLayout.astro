@@ -59,6 +59,15 @@ const ogImageUrl = ogImageUrlObj.toString();
 
 const locale = getLocale(Astro);
 const t = useT(locale);
+// BCP47 language for the <html lang> attribute. Script subtags (zh-Hant /
+// zh-Hans) are more explicit than region subtags (zh-TW / zh-CN) for declaring
+// the written language of the content, which is what a screen reader needs.
+const HTML_LANG: Record<string, string> = {
+  en: 'en',
+  'zh-TW': 'zh-Hant',
+  'zh-CN': 'zh-Hans',
+};
+const htmlLang = HTML_LANG[locale] ?? locale;
 const basePath = unlocalizedPath(Astro.url.pathname);
 const alternates = SUPPORTED_LOCALES.map((l) => ({
   locale: l,
@@ -123,7 +132,7 @@ if (crumbSegments.length > 0) {
 }
 ---
 <!doctype html>
-<html lang={locale}>
+<html lang={htmlLang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

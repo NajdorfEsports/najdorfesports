@@ -50,7 +50,8 @@ export const zhTW: Strings = {
     eyebrow:         '新聞',
     heading:         '來自戰隊',
     backToAll:       '所有新聞',
-    metaDescription: 'Najdorf Esports 的公告、品牌動態與賽事報導。',
+    metaDescription:
+      '來自 Najdorf Esports 的公告、選手異動與賽事回顧。我們是一支征戰 OWCS Pacific 的《鬥陣特攻》戰隊，在此閱讀戰隊的最新消息。',
   },
   roster: {
     eyebrow:            '現役名單 · OWCS Pacific 2026',
@@ -250,7 +251,8 @@ export const zhTW: Strings = {
   },
 
   matches: {
-    metaDescription: (league) => `Najdorf Esports 在 ${league} 的近期賽程與最新戰績。`,
+    metaDescription: (league) =>
+      `Najdorf Esports 在 ${league} 第二階段的即將賽程與近期戰績。完整賽程、地圖比分、對手資訊，以及每場系列賽的觀賽連結。`,
     eyebrow: (league, year) => `賽程 · ${league} ${year}`,
     upcoming:    '即將開打',
     recordLabel: '戰績',

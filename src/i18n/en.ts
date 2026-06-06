@@ -46,7 +46,8 @@ export const en = {
     eyebrow: 'News',
     heading: 'From the team',
     backToAll: 'All news',
-    metaDescription: 'Announcements, brand updates, and match reports from Najdorf Esports.',
+    metaDescription:
+      'Announcements, roster moves, and match recaps from Najdorf Esports, the Overwatch organization competing in OWCS Pacific. Read the latest from the org.',
   },
   roster: {
     eyebrow: 'Active roster · OWCS Pacific 2026',
@@ -287,7 +288,7 @@ export const en = {
   /** /matches page chrome (header, stat strip, attribution). */
   matches: {
     metaDescription: (league: string) =>
-      `Upcoming matches and recent results for Najdorf Esports in ${league}.`,
+      `Upcoming ${league} Stage 2 matches and recent results for Najdorf Esports. Full schedule with map scores, opponents, and where to watch each series live.`,
     eyebrow: (league: string, year: number) => `Schedule · ${league} ${year}`,
     upcoming: 'Upcoming',
     recordLabel: 'Record',

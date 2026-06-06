@@ -49,7 +49,8 @@ export const zhCN: Strings = {
     eyebrow:         '新闻',
     heading:         '来自战队',
     backToAll:       '所有新闻',
-    metaDescription: 'Najdorf Esports 的公告、品牌动态与赛事报道。',
+    metaDescription:
+      '来自 Najdorf Esports 的公告、选手变动与赛事回顾。我们是一支征战 OWCS Pacific 的《守望先锋》战队，在此阅读战队的最新消息。',
   },
   roster: {
     eyebrow:            '现役名单 · OWCS Pacific 2026',
@@ -249,7 +250,8 @@ export const zhCN: Strings = {
   },
 
   matches: {
-    metaDescription: (league) => `Najdorf Esports 在 ${league} 的近期赛程与最新战绩。`,
+    metaDescription: (league) =>
+      `Najdorf Esports 在 ${league} 第二阶段的即将赛程与近期战绩。完整赛程、地图比分、对手信息，以及每场系列赛的观赛链接。`,
     eyebrow: (league, year) => `赛程 · ${league} ${year}`,
     upcoming:    '即将开打',
     recordLabel: '战绩',
