@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PlayerDetailBody from '../../components/page/PlayerDetailBody.astro';
+import { loadRoster } from '../../data/loaders';
+import { playerSlug, hasDetailPage, type RosterEntry } from '../../data/site';
+import { buildPlayerJsonLd } from '../../data/roster-jsonld';
+import { useT, getLocale } from '../../i18n';
+
+// One page per player + coach (managers excluded; inactive excluded). Driven by
+// the merged roster so it stays in sync with the data and the next cron run.
+export function getStaticPaths() {
+  return loadRoster()
+    .filter(hasDetailPage)
+    .map((player) => ({ params: { handle: playerSlug(player.handle) }, props: { player } }));
+}
+
+interface Props { player: RosterEntry }
+const { player } = Astro.props;
+const locale = getLocale(Astro);
+const t = useT(locale);
+
+const jsonLd = buildPlayerJsonLd(player);
+const roleName = t.roles[player.role] ?? player.role;
+---
+<BaseLayout
+  title={player.handle}
+  description={t.playerPage.metaDescription(player.handle, roleName)}
+  jsonLd={jsonLd}
+>
+  <PlayerDetailBody player={player} />
+</BaseLayout>

@@ -1,0 +1,48 @@
+---
+/**
+ * Home-page highlights strip. Surfaces the most recent match highlights as
+ * vertical (9:16) click-to-load players. Hides itself entirely when there are
+ * no (non-draft) highlights, so the feature is invisible until content exists.
+ *
+ * Highlights are authored once (English title) and shown on all locales; the
+ * surrounding chrome is localized. Titles are short match labels (proper
+ * nouns), so they are not triple-authored like news articles.
+ */
+import { getCollection } from 'astro:content';
+import HighlightPlayer from '../highlight/HighlightPlayer.astro';
+import { getLocale, useT } from '../../i18n';
+import { formatDate } from '../../i18n/format';
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+
+const highlights = (await getCollection('highlights', ({ data }) => !data.draft))
+  .sort((a, b) => +b.data.date - +a.data.date)
+  .slice(0, 4);
+---
+{highlights.length > 0 && (
+  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16" aria-label="Match highlights">
+    <div class="flex items-end justify-between mb-5">
+      <div>
+        <p class="text-xs uppercase tracking-[0.25em] text-[var(--color-accent-2)]">
+          {t.highlights.eyebrow}
+        </p>
+        <h2 class="font-display text-3xl sm:text-4xl mt-1 tracking-wide">
+          {t.highlights.heading}
+        </h2>
+      </div>
+    </div>
+
+    <ul class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5" role="list">
+      {highlights.map((h) => (
+        <li>
+          <HighlightPlayer videoId={h.data.videoId} title={h.data.title} poster={h.data.poster} />
+          <p class="mt-2 text-xs text-[var(--color-text-dim)]">
+            {formatDate(h.data.date, locale, { month: 'short', day: 'numeric' })}
+            {h.data.opponent ? ` · ${t.match.vs(h.data.opponent)}` : ''}
+          </p>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}

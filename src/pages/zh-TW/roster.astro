@@ -3,19 +3,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import RosterPageBody from '../../components/page/RosterPageBody.astro';
 import { useT, getLocale } from '../../i18n';
 import { site } from '../../data/site';
-import { buildRosterJsonLd, rosterMetaCounts } from '../../data/roster-jsonld';
+import { rosterMetaCounts } from '../../data/roster-jsonld';
 
 const locale = getLocale(Astro);
 const t = useT(locale);
 
-const personJsonLd = buildRosterJsonLd();
 const { headcount, countries } = rosterMetaCounts();
 ---
 <BaseLayout
   title={t.nav.roster}
   description={`${site.name} 現役 OWCS Pacific 名單，共 ${headcount} 名選手，來自 ${countries.join('、')}。`}
   ogImage="/branding/og/roster.png"
-  jsonLd={personJsonLd}
+  enrichedOrg
 >
   <RosterPageBody />
 </BaseLayout>

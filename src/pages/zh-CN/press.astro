@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PressPageBody from '../../components/page/PressPageBody.astro';
+import { useT, getLocale } from '../../i18n';
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+// Dormant (see src/pages/press.astro for the go-live steps).
+---
+<BaseLayout
+  title={t.press.eyebrow}
+  description={t.press.metaDescription}
+  ogImage="/branding/og-default.png"
+  noindex
+>
+  <PressPageBody />
+</BaseLayout>

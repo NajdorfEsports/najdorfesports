@@ -3,8 +3,8 @@ import PlayerAvatar from './PlayerAvatar.astro';
 import CountryFlag from './CountryFlag.astro';
 import Badge from '../ui/Badge.astro';
 import heroIcons from '../../data/heroes.json';
-import type { RosterEntry, Role } from '../../data/site';
-import { getLocale, useT } from '../../i18n';
+import { playerSlug, hasDetailPage, type RosterEntry, type Role } from '../../data/site';
+import { getLocale, pathFor, useT } from '../../i18n';
 import { displayCountry } from '../../i18n/format';
 
 interface Props {
@@ -31,7 +31,16 @@ const roleAccent: Record<string, string> = {
   Manager: '#60A5FA',
 };
 const accent = roleAccent[player.role] ?? 'var(--color-accent-2)';
-const cardLink = player.liquipediaUrl;
+
+// The handle now links to the internal player detail page when one exists
+// (players + coach). Managers have no detail page, so their handle falls back
+// to the outbound Liquipedia profile (kept, per the brief). The full Liquipedia
+// link lives on the detail page for everyone who has one.
+const detailHref = hasDetailPage(player)
+  ? pathFor(locale, `/roster/${playerSlug(player.handle)}/`)
+  : null;
+const handleHref = detailHref ?? player.liquipediaUrl ?? null;
+const handleExternal = !detailHref && !!player.liquipediaUrl;
 
 function ageFromBirth(iso?: string): number | null {
   if (!iso) return null;
@@ -59,6 +68,14 @@ const backdropHeroes = (player.signatureHeroes ?? [])
   .filter((h): h is { name: string; iconUrl: string } => !!h.iconUrl)
   .slice(0, 4);
 const hasBackdrop = backdropHeroes.length > 0;
+
+// Meaningful avatar alt text derived from data (Task I): handle, localized
+// role, and the signature hero the avatar actually shows (first with an icon).
+const avatarAlt = t.player.avatarAlt(
+  player.handle,
+  t.roles[player.role] ?? player.role,
+  backdropHeroes[0]?.name,
+);
 ---
 <article
   class:list={[
@@ -92,14 +109,14 @@ const hasBackdrop = backdropHeroes.length > 0;
   )}
 
   <div class="player-card__content relative z-10 flex flex-col items-center w-full">
-    <PlayerAvatar handle={player.handle} heroes={player.signatureHeroes} size={96} />
+    <PlayerAvatar handle={player.handle} heroes={player.signatureHeroes} size={96} label={avatarAlt} />
 
     <h3 class="font-display text-2xl sm:text-3xl mt-4 tracking-wide leading-none">
-      {cardLink ? (
+      {handleHref ? (
         <a
-          href={cardLink}
-          target="_blank"
-          rel="noopener"
+          href={handleHref}
+          target={handleExternal ? '_blank' : undefined}
+          rel={handleExternal ? 'noopener' : undefined}
           class="player-card__handle hover:underline underline-offset-4 decoration-[var(--accent)]"
         >
           {player.handle}

@@ -11,8 +11,9 @@
  */
 import { site } from './site';
 import { loadMatches } from './loaders';
+import { ORG_ID } from './org-jsonld';
 
-const orgId = `${site.url}/#org`;
+const orgId = ORG_ID;
 
 export function buildMatchesJsonLd(): Array<Record<string, unknown>> {
   const allMatches = loadMatches();
@@ -23,7 +24,7 @@ export function buildMatchesJsonLd(): Array<Record<string, unknown>> {
       '@type': 'SportsEvent',
       name: `${site.name} vs ${m.opponent}`,
       startDate: new Date(m.date).toISOString(),
-      sport: 'Overwatch',
+      sport: 'Overwatch 2',
       eventStatus: isPast
         ? 'https://schema.org/EventCompleted'
         : 'https://schema.org/EventScheduled',

@@ -65,10 +65,96 @@ export const en = {
     body: (year: number, region: string) =>
       `Najdorf Esports is a competitive Overwatch organization based in the ${region} region. We founded the org in ${year} and currently compete in OWCS Pacific. The Stage 2 main event runs June 4 through July 9, 2026. The name comes from the Najdorf Variation of the Sicilian Defence, an opening that wins by preparing one line deeper than the other side.`,
     previously: 'Several of our Stage 2 players competed for Rankers in OWCS Pacific Stage 1.',
+    /** "Our story" history subsection. Drawn from the rebrand + founder's-note
+     *  news posts; factual, coexists with the voice-y Founder's Note. */
+    historyHeading: 'Our story',
+    history1:
+      'Najdorf Esports is a new organization, not a rebrand of Rankers. On May 5, 2026, the org acquired the Rankers roster, carrying the core of the Stage 1 lineup forward into Stage 2 under new ownership and a new identity.',
+    history2:
+      'That Stage 1 run, a 3rd-place finish, was earned as Rankers, and we credit it that way. The coaching staff continued from Stage 1, joined by new signings for the Stage 2 main event, which runs June 4 through July 9, 2026.',
+    /** Low-key legal disclosure, mirroring the Privacy Policy wording. */
+    incorporationNote:
+      'The legal entity behind the organization is being formalized; this notice will be updated to name the operating company once registration is complete.',
     contactHeading: 'Contact',
     contactNote: 'For partnerships, press, or player inquiries, email the address above.',
     partnerNote: 'Affiliate and sponsorship partnerships are managed through impact.com.',
     followHeading: 'Follow along',
+  },
+
+  /** Partners / Business inquiries page (/partners/). Honest, no inflation,
+   *  no invented sponsor logos. */
+  partners: {
+    eyebrow: 'Partners',
+    title: 'Partner with Najdorf Esports',
+    intro:
+      'Najdorf Esports is an independent Overwatch organization competing in OWCS Pacific. We acquired the Rankers roster ahead of Stage 2 and are building from there: a regional team playing on the official OWCS Pacific broadcast.',
+    standing:
+      'We are early, and we would rather be precise about that than oversell it. The roster placed 3rd in OWCS Pacific Stage 1 (as Rankers) and is in the Stage 2 main event now. What follows is what we can genuinely deliver at our current size.',
+    offerHeading: 'What we offer',
+    offerNote:
+      'A new org with a growing audience, not a tier-one franchise. This is the inventory we can deliver today, and it grows as we do.',
+    offerJersey: {
+      title: 'Jersey and kit placement',
+      body: 'Your mark on the team jersey and player kit worn on the OWCS Pacific broadcast and at LAN.',
+    },
+    offerBroadcast: {
+      title: 'Broadcast and co-stream presence',
+      body: 'Logo and mentions across our co-streams and content, once cleared by the league broadcast.',
+    },
+    offerDiscord: {
+      title: 'Discord pinned placement',
+      body: 'A pinned placement and mentions in our community Discord, where the team and fans gather between matches.',
+    },
+    offerLogo: {
+      title: 'On-site logo placement',
+      body: 'Your logo and link in the partners section of this website.',
+    },
+    offerSocial: {
+      title: 'Social mentions',
+      body: 'Tagged posts and shout-outs from the org X account around matches and announcements.',
+    },
+    foundingHeading: 'Founding partner slots are open',
+    foundingBody:
+      'We have no partners yet, and that is deliberate: the founding slots are open. We will not show placeholder logos or invented brands. If you want to be the first name on the jersey, talk to us.',
+    affiliateNote:
+      'Affiliate and sponsorship partnerships are managed through impact.com.',
+    contactHeading: 'Get in touch',
+    contactResponse: 'We aim to reply within 24 to 48 hours.',
+    metaDescription:
+      'Partnership and sponsorship inquiries for Najdorf Esports, an OWCS Pacific Overwatch organization. Founding partner slots are open.',
+  },
+
+  /** Press / Media kit page (/press/). Built but kept dormant (unlinked,
+   *  noindex) until the owner is ready to surface it. */
+  press: {
+    eyebrow: 'Press',
+    title: 'Press and media kit',
+    intro:
+      'Everything you need to write about or feature Najdorf Esports. For interviews or anything not covered here, email us at',
+    assetsHeading: 'Brand assets',
+    assetsNote:
+      'Give the bishop logo clear space, do not recolor it (it is strictly black and white), and do not stretch or rotate it. The wordmark may be used in the brand blue, or in white on dark backgrounds.',
+    downloadHeading: 'Logo files',
+    colorsHeading: 'Brand colors',
+    colorPrimary: 'Primary',
+    colorSecondary: 'Secondary',
+    colorBackground: 'Background',
+    factHeading: 'Fact sheet',
+    factOrg: 'Organization',
+    factFounded: 'Founded',
+    factRegion: 'Region',
+    factGame: 'Game',
+    factRoster: 'Roster',
+    factResults: 'Notable results',
+    teamHeading: 'Team',
+    ownerRole: 'Owner',
+    ownerBody:
+      'Founder and operator. Najdorf Esports is independently owned and run under the organization name rather than a personal identity.',
+    marksHeading: 'Fair use of our marks',
+    marksBody:
+      'You may use the Najdorf Esports name and logo to report on or reference the organization. Do not alter the logo, imply a partnership or endorsement we have not announced, or use our marks in a misleading way. Overwatch and OWCS marks belong to Blizzard Entertainment; see our Terms of Use.',
+    metaDescription:
+      'Press and media kit for Najdorf Esports: brand assets, fact sheet, and contact.',
   },
   community: {
     eyebrow: 'Join the community',
@@ -76,9 +162,21 @@ export const en = {
     body: 'Two channels, no algorithm games. The Discord is where the squad hangs out between matches. X is where you catch the announcements first.',
     discordCta: 'Join the Discord',
     xCta: 'Follow on X',
-    /** Count labels shown next to a channel's live number (e.g. "15 members"). */
+    /** Count labels shown next to a channel's live number (e.g. "15 members").
+     *  Currently unused (counts are hidden) but kept for the optional toggle. */
     members: 'members',
     followers: 'followers',
+  },
+
+  /** Weekly match highlights (vertical YouTube Shorts, click-to-load). */
+  highlights: {
+    eyebrow: 'Highlights',
+    heading: 'Match highlights',
+    /** Dormant state shown when a highlight has no video published yet. */
+    comingSoon: 'Highlight coming soon',
+    loadVideo: 'Play highlight',
+    /** Mirrors the Twitch facade note: no Google contact until the click. */
+    loadNote: 'Loading plays from YouTube and lets Google set its cookies.',
   },
   live: {
     liveNow: 'LIVE NOW',
@@ -227,8 +325,24 @@ export const en = {
   player: {
     twitter: 'Twitter',
     twitch: 'Twitch',
+    bilibili: 'Bilibili',
+    liquipedia: 'Liquipedia',
     dnp: 'DNP',
     inactive: 'Inactive',
+    /** Accessible alt text for a player's avatar art (Task I). `hero` is the
+     *  signature character the avatar shows; omitted for the monogram/strip. */
+    avatarAlt: (handle: string, role: string, hero?: string) =>
+      hero ? `${handle}, ${role}, signature hero ${hero}` : `${handle}, ${role}`,
+  },
+
+  /** Individual player detail page (/roster/<handle>/). */
+  playerPage: {
+    backToRoster: 'Back to roster',
+    heroPool: 'Hero pool',
+    links: 'Links',
+    realName: 'Real name',
+    metaDescription: (handle: string, role: string) =>
+      `${handle}, ${role} for Najdorf Esports in OWCS Pacific.`,
   },
 
   /** Attribution tag for results the roster earned under its former name,

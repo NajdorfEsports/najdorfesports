@@ -1,0 +1,133 @@
+---
+/**
+ * Click-to-load YouTube highlight player. Mirrors the Twitch facade in
+ * LiveHero.astro for the identical privacy guarantee: NOTHING is requested
+ * from Google on page load. The self-hosted poster (or a branded placeholder)
+ * is shown; only when the visitor clicks Play is an iframe injected, pointed at
+ * the privacy-enhanced youtube-nocookie.com domain. Sized 9:16 for Shorts.
+ *
+ * Dormant state: when `videoId` is empty the component renders a clean
+ * "coming soon" panel with no Play button and no script wiring, so an
+ * unpublished highlight is never broken or empty. Adding the `videoId` is the
+ * single step that makes it playable.
+ */
+import { getLocale, useT } from '../../i18n';
+
+interface Props {
+  videoId?: string;
+  title: string;
+  poster?: string;
+}
+const { videoId = '', title, poster } = Astro.props;
+const locale = getLocale(Astro);
+const t = useT(locale);
+const hasVideo = videoId.trim().length > 0;
+---
+<div
+  class="yt-facade relative w-full overflow-hidden rounded-md border border-[var(--color-border)] bg-[var(--color-surface-2)]"
+  style="aspect-ratio: 9 / 16;"
+  data-yt-facade
+>
+  {/* Self-hosted poster, or a branded placeholder. NEVER a remote YouTube
+      thumbnail (that would contact Google before any click). */}
+  {poster ? (
+    <img
+      src={poster}
+      alt=""
+      width="360"
+      height="640"
+      loading="lazy"
+      decoding="async"
+      class="absolute inset-0 w-full h-full object-cover"
+    />
+  ) : (
+    <div class="absolute inset-0 yt-facade__placeholder" aria-hidden="true"></div>
+  )}
+  <div class="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/80" aria-hidden="true"></div>
+
+  {hasVideo ? (
+    <button
+      type="button"
+      data-yt-load
+      data-video-id={videoId}
+      class="yt-facade__btn absolute inset-0 flex flex-col items-center justify-center gap-3 group cursor-pointer"
+      aria-label={`${t.highlights.loadVideo}: ${title}`}
+    >
+      <span class="yt-facade__play inline-flex items-center justify-center w-16 h-16 rounded-full bg-[var(--color-accent)] text-black transition-transform group-hover:scale-110">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <polygon points="6,4 20,12 6,20" />
+        </svg>
+      </span>
+      <span class="font-display text-sm tracking-wide text-white drop-shadow">{t.highlights.loadVideo}</span>
+      <span class="text-[0.6rem] leading-snug text-white/75 max-w-[15rem] text-center px-4">
+        {t.highlights.loadNote}
+      </span>
+    </button>
+  ) : (
+    <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center px-4">
+      <span class="inline-flex items-center justify-center w-14 h-14 rounded-full border border-[var(--color-border)] bg-[var(--color-bg)]/60 text-[var(--color-text-dim)]" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="7,5 19,12 7,19" /></svg>
+      </span>
+      <span class="text-xs uppercase tracking-[0.2em] text-[var(--color-text-dim)]">
+        {t.highlights.comingSoon}
+      </span>
+    </div>
+  )}
+
+  <div class="absolute bottom-0 left-0 right-0 p-3 pt-8 bg-gradient-to-t from-black/85 to-transparent pointer-events-none">
+    <p class="font-display text-sm tracking-wide text-white leading-tight line-clamp-2">{title}</p>
+  </div>
+</div>
+
+<style>
+  .yt-facade__placeholder {
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 35%, color-mix(in oklab, var(--color-accent) 18%, transparent) 0%, transparent 70%),
+      linear-gradient(160deg, var(--color-surface) 0%, var(--color-surface-2) 100%);
+  }
+  .yt-facade__btn,
+  .yt-facade__play {
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .yt-facade__play { transition: none; }
+    .yt-facade__btn:hover .yt-facade__play { transform: none; }
+  }
+</style>
+
+<script is:inline>
+  // Facade -> iframe swap. Mirrors LiveHero: the iframe (and Google's cookies)
+  // is only created after a deliberate click. Re-binds on ClientRouter nav.
+  (() => {
+    function init() {
+      document.querySelectorAll('[data-yt-load]').forEach((btn) => {
+        if (btn.dataset.bound === '1') return;
+        btn.dataset.bound = '1';
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-video-id');
+          const facade = btn.closest('[data-yt-facade]');
+          if (!id || !facade) return;
+          const iframe = document.createElement('iframe');
+          // Privacy-enhanced domain: youtube-nocookie.com, NOT youtube.com.
+          iframe.src =
+            'https://www.youtube-nocookie.com/embed/' +
+            encodeURIComponent(id) +
+            '?autoplay=1&rel=0';
+          iframe.title = 'YouTube video player';
+          iframe.allow = 'autoplay; encrypted-media; picture-in-picture; web-share';
+          iframe.allowFullscreen = true;
+          iframe.setAttribute('loading', 'lazy');
+          iframe.style.position = 'absolute';
+          iframe.style.inset = '0';
+          iframe.style.width = '100%';
+          iframe.style.height = '100%';
+          iframe.style.border = '0';
+          facade.appendChild(iframe);
+          btn.remove();
+        });
+      });
+    }
+    init();
+    document.addEventListener('astro:page-load', init);
+  })();
+</script>

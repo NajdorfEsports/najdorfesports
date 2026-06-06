@@ -1,7 +1,7 @@
 ---
 import PlayerAvatar from '../player/PlayerAvatar.astro';
 import CountryFlag from '../player/CountryFlag.astro';
-import type { RosterEntry, Role } from '../../data/site';
+import { playerSlug, hasDetailPage, type RosterEntry, type Role } from '../../data/site';
 import { getLocale, pathFor, useT } from '../../i18n';
 import { displayCountry } from '../../i18n/format';
 
@@ -44,18 +44,30 @@ const coaches = players.filter((p) => p.role === 'Coach');
 
   <div class="roster-strip">
     <ul class="roster-strip__track">
-      {visible.map((p, i) => (
+      {visible.map((p, i) => {
+        // Link to the internal detail page when one exists (all players here
+        // do); fall back to the outbound Liquipedia profile otherwise.
+        const detailHref = hasDetailPage(p)
+          ? pathFor(locale, `/roster/${playerSlug(p.handle)}/`)
+          : (p.liquipediaUrl ?? href);
+        const external = !hasDetailPage(p) && !!p.liquipediaUrl;
+        return (
         <li
           class="roster-strip__item"
           style={`--stagger:${i};`}
         >
           <a
-            href={p.liquipediaUrl ?? href}
-            target={p.liquipediaUrl ? '_blank' : undefined}
-            rel={p.liquipediaUrl ? 'noopener' : undefined}
+            href={detailHref}
+            target={external ? '_blank' : undefined}
+            rel={external ? 'noopener' : undefined}
             class="flex flex-col items-center gap-2"
           >
-            <PlayerAvatar handle={p.handle} heroes={p.signatureHeroes} size={48} />
+            <PlayerAvatar
+              handle={p.handle}
+              heroes={p.signatureHeroes}
+              size={48}
+              label={t.player.avatarAlt(p.handle, t.roles[p.role as Role] ?? p.role)}
+            />
             <span class="font-display text-base tracking-wide leading-none">{p.handle}</span>
             <span class="flex items-center gap-1.5 text-[0.65rem] uppercase tracking-wider text-[var(--color-text-dim)]">
               {t.roles[p.role as Role] ?? p.role}
@@ -68,7 +80,8 @@ const coaches = players.filter((p) => p.role === 'Coach');
             </span>
           </a>
         </li>
-      ))}
+        );
+      })}
     </ul>
   </div>
 

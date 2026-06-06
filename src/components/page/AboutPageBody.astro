@@ -25,6 +25,13 @@ const t = useT(locale);
   </p>
 
   <section class="mt-12">
+    <h2 class="font-display text-2xl tracking-wide">{t.about.historyHeading}</h2>
+    <p class="mt-4 text-[var(--color-text-dim)] leading-relaxed">{t.about.history1}</p>
+    <p class="mt-3 text-[var(--color-text-dim)] leading-relaxed">{t.about.history2}</p>
+    <p class="mt-4 text-xs text-[var(--color-text-dim)]">{t.about.incorporationNote}</p>
+  </section>
+
+  <section class="mt-12">
     <h2 class="font-display text-2xl tracking-wide">{t.about.contactHeading}</h2>
     <p class="mt-3">
       <Fragment set:html={'<!--email_off-->'} />

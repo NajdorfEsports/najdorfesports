@@ -1,6 +1,6 @@
 [
   {
-    "handle": "akie",
+    "handle": "Skel3d1rge",
     "role": "Tank",
     "countryCode": "kr",
     "country": "South Korea",
@@ -11,18 +11,6 @@
       "Zarya",
       "Sigma",
       "Hazard"
-    ]
-  },
-  {
-    "handle": "fee1ing",
-    "role": "Tank",
-    "countryCode": "tw",
-    "country": "Taiwan",
-    "status": "active",
-    "signatureHeroes": [
-      "Wrecking Ball",
-      "Roadhog",
-      "Reinhardt"
     ]
   },
   {

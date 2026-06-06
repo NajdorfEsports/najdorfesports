@@ -11,7 +11,7 @@
  * link target; sighted users get the platform glyph + a tooltip via
  * `title`.
  */
-import { socials, confirmed } from '../../data/site';
+import { displaySocials } from '../../data/site';
 import PlatformIcon from '../ui/PlatformIcon.astro';
 
 interface Props {
@@ -19,7 +19,10 @@ interface Props {
 }
 
 const { size = 'md' } = Astro.props;
-const visible = confirmed(socials);
+// displaySocials() = confirmed channels with display !== false. YouTube joins
+// automatically once its channel URL is filled in (Task L); the org Twitch is
+// sameAs-only (display:false) so it does not appear here.
+const visible = displaySocials();
 
 const dims = size === 'sm'
   ? { box: 'w-8 h-8',  icon: 14 }
@@ -42,6 +45,7 @@ const dims = size === 'sm'
             dims.box,
             s.name === 'Discord' ? 'social-chip--discord' : '',
             s.name === 'X'       ? 'social-chip--x'       : '',
+            s.name === 'YouTube' ? 'social-chip--youtube' : '',
           ]}
         >
           <span class="sr-only">{s.name}</span>
@@ -60,5 +64,9 @@ const dims = size === 'sm'
   .social-chip--x:hover {
     border-color: var(--color-text);
     color: var(--color-text);
+  }
+  .social-chip--youtube:hover {
+    border-color: #ff0000;
+    color: #ff0000;
   }
 </style>

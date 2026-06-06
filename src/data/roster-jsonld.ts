@@ -1,43 +1,19 @@
 /**
- * Person JSON-LD for the roster page. Locale-independent, the same block
- * is emitted at /roster/, /zh-TW/roster/, and /zh-CN/roster/. Each Person
- * references the SportsOrganization @id emitted by BaseLayout.
+ * Roster-related JSON-LD + meta helpers.
+ *
+ * The roster PAGE no longer emits a flat Person[] array: it now renders the
+ * enriched SportsOrganization block (`buildOrgJsonLd({ withRoster: true })`),
+ * which embeds the athletes as Person objects. Per-player DETAIL pages emit a
+ * single standalone Person via `buildPlayerJsonLd`. `rosterMetaCounts` feeds
+ * the roster page's meta description.
  */
-import { site } from './site';
+import { type RosterEntry } from './site';
 import { loadRoster } from './loaders';
+import { personNode } from './org-jsonld';
 
-const orgId = `${site.url}/#org`;
-
-function splitName(real?: string): { givenName?: string; familyName?: string } {
-  if (!real) return {};
-  const parts = real.trim().split(/\s+/);
-  if (parts.length < 2) return { givenName: parts[0] };
-  // Most romanizations of Chinese names appear as "Surname Given-name".
-  // Liquipedia uses that order for these players, so first token is family.
-  return { familyName: parts[0], givenName: parts.slice(1).join(' ') };
-}
-
-export function buildRosterJsonLd(): Array<Record<string, unknown>> {
-  const roster = loadRoster();
-  return roster.map((p) => {
-    const sameAs = [
-      p.liquipediaUrl,
-      p.twitter,
-      p.twitch,
-    ].filter((u): u is string => typeof u === 'string' && u.length > 0);
-    const names = splitName(p.realName);
-    return {
-      '@context': 'https://schema.org',
-      '@type': 'Person',
-      name: p.handle,
-      ...(names.givenName ? { givenName: names.givenName } : {}),
-      ...(names.familyName ? { familyName: names.familyName } : {}),
-      ...(p.country ? { nationality: p.country } : {}),
-      jobTitle: p.role,
-      memberOf: { '@id': orgId },
-      ...(sameAs.length > 0 ? { sameAs } : {}),
-    };
-  });
+/** Standalone Person node (with @context) for a player's detail page. */
+export function buildPlayerJsonLd(player: RosterEntry): Record<string, unknown> {
+  return personNode(player, { withContext: true });
 }
 
 export function rosterMetaCounts(): { headcount: number; countries: string[] } {

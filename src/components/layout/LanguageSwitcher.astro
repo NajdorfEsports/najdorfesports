@@ -18,7 +18,13 @@ const base = unlocalizedPath(Astro.url.pathname);
 // so its non-English links route to the locale home instead of re-prefixing a
 // path that has no translated counterpart. Stops "I'm on /privacy/, switch to
 // zh-CN" from landing on a 404 at /zh-CN/privacy/.
-const LOCALIZED_ROUTES = new Set(['/', '/roster/', '/matches/', '/about/']);
+const LOCALIZED_ROUTES = new Set([
+  '/', '/roster/', '/matches/', '/about/', '/partners/', '/press/',
+]);
+
+// Player detail pages (/roster/<handle>/) exist in all three locales, so a
+// language switch should stay on the same player rather than bounce home.
+const isPlayerDetail = /^\/roster\/[^/]+\/$/.test(base);
 
 // News is per-article localized. The index (/news/) exists in every locale;
 // an article (/news/<slug>/) exists in a locale only if that translation was
@@ -45,11 +51,29 @@ function hrefFor(locale: Locale): string {
       : pathFor(locale, NEWS_INDEX);
   }
   if (locale === DEFAULT_LOCALE) return pathFor(locale, base);
-  return LOCALIZED_ROUTES.has(base) ? pathFor(locale, base) : pathFor(locale, '/');
+  return LOCALIZED_ROUTES.has(base) || isPlayerDetail
+    ? pathFor(locale, base)
+    : pathFor(locale, '/');
 }
 ---
-<nav class="language-switcher" aria-label="Language">
-  <ul class="flex items-center gap-3 text-[0.7rem] uppercase tracking-wider">
+<nav class="language-switcher flex items-center gap-2" aria-label="Language">
+  {/* Globe affordance: makes the switcher recognizable at a glance without
+      redesigning it. Decorative; the nav already has an accessible label. */}
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.8"
+    class="text-[var(--color-text-dim)] shrink-0"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="9" />
+    <path d="M3 12h18" stroke-linecap="round" />
+    <path d="M12 3c2.5 2.4 3.8 5.6 3.8 9s-1.3 6.6-3.8 9c-2.5-2.4-3.8-5.6-3.8-9S9.5 5.4 12 3Z" />
+  </svg>
+  <ul class="flex items-center gap-2.5 text-[0.78rem] font-medium uppercase tracking-wider">
     {SUPPORTED_LOCALES.map((locale) => (
       <li>
         <a
@@ -58,7 +82,7 @@ function hrefFor(locale: Locale): string {
           lang={locale}
           aria-current={locale === current ? 'true' : undefined}
           class:list={[
-            'transition-colors hover:text-[var(--color-accent-2)]',
+            'inline-block py-1 transition-colors hover:text-[var(--color-accent-2)]',
             locale === current
               ? 'text-[var(--color-accent-2)]'
               : 'text-[var(--color-text-dim)]',

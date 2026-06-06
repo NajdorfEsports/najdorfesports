@@ -11,6 +11,7 @@ import LiveHero from '../match/LiveHero.astro';
 import WatchHub from '../match/WatchHub.astro';
 import RosterPreview from '../team/RosterPreview.astro';
 import AchievementStrip from '../team/AchievementStrip.astro';
+import HighlightsStrip from '../team/HighlightsStrip.astro';
 import SponsorsRow from '../team/SponsorsRow.astro';
 import BroadcastReach from '../team/BroadcastReach.astro';
 import CommunityCTA from '../team/CommunityCTA.astro';
@@ -159,6 +160,30 @@ const heroBishops = [
       {t.hero.tagline}
     </p>
 
+    {/*
+      Data-driven status line: current W-L record + next fixture, both derived
+      from the match data so they advance automatically after each result. This
+      is the live "where we stand" line; the human-written tagline above stays
+      static. Reuses existing localized labels (no new i18n keys). Hides itself
+      cleanly before any match exists.
+    */}
+    {(wins + losses > 0 || nextMatch) && (
+      <p class="hero-fade-in mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm" style="--delay:840ms">
+        {wins + losses > 0 && (
+          <span class="inline-flex items-baseline gap-2">
+            <span class="text-[0.65rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)]">{t.roster.recordLabel}</span>
+            <span class="font-display tracking-wide tabular-nums text-[var(--color-text)]">{t.matches.record(wins, losses)}</span>
+          </span>
+        )}
+        {nextMatch && (
+          <span class="inline-flex items-baseline gap-2">
+            <span class="text-[0.65rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)]">{t.home.nextMatchLabel}</span>
+            <span class="text-[var(--color-text)]">{t.nextMatch.vs(nextMatch.opponent)} · {formatDate(nextMatch.date, locale, { month: 'short', day: 'numeric' })}</span>
+          </span>
+        )}
+      </p>
+    )}
+
     <div class="hero-fade-in mt-8 flex flex-wrap gap-3" style="--delay:880ms">
       <Button href={matchesHref} variant="primary">{t.hero.matchSchedule}</Button>
       <Button href={rosterHref} variant="secondary">{t.hero.meetRoster}</Button>
@@ -175,19 +200,21 @@ const heroBishops = [
     <dl class="hero-fade-in mt-10 grid grid-cols-3 max-w-md gap-px bg-[var(--color-border)] border border-[var(--color-border)] rounded-md overflow-hidden" style="--delay:1000ms">
       <div class="bg-[var(--color-surface)] px-4 py-3 sm:px-5 sm:py-4">
         <dt class="text-[0.6rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)]">{t.roster.playersLabel}</dt>
-        <dd class="font-display text-3xl sm:text-4xl leading-none tabular-nums mt-1" data-count-up data-target={players.length}>0</dd>
+        {/* Server-render the REAL value as the baseline so crawlers and no-JS
+            visitors see the true count; the count-up driver animates over it. */}
+        <dd class="font-display text-3xl sm:text-4xl leading-none tabular-nums mt-1" data-count-up data-target={players.length}>{players.length}</dd>
       </div>
       <div class="bg-[var(--color-surface)] px-4 py-3 sm:px-5 sm:py-4">
         <dt class="text-[0.6rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)]">{countries.size === 1 ? t.roster.countryLabel : t.roster.countriesLabel}</dt>
-        <dd class="font-display text-3xl sm:text-4xl leading-none tabular-nums mt-1" data-count-up data-target={countries.size}>0</dd>
+        <dd class="font-display text-3xl sm:text-4xl leading-none tabular-nums mt-1" data-count-up data-target={countries.size}>{countries.size}</dd>
       </div>
       <div class="bg-[var(--color-surface)] px-4 py-3 sm:px-5 sm:py-4">
         <dt class="text-[0.6rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)]">{t.roster.recordLabel}</dt>
         {wins + losses > 0 ? (
           <dd class="font-display text-3xl sm:text-4xl leading-none tabular-nums mt-1 flex items-baseline gap-1">
-            <span data-count-up data-target={wins} data-count-suffix={t.match.win}>0{t.match.win}</span>
+            <span data-count-up data-target={wins} data-count-suffix={t.match.win}>{wins}{t.match.win}</span>
             <span class="text-[var(--color-text-dim)] text-2xl">–</span>
-            <span data-count-up data-target={losses} data-count-suffix={t.match.loss}>0{t.match.loss}</span>
+            <span data-count-up data-target={losses} data-count-suffix={t.match.loss}>{losses}{t.match.loss}</span>
           </dd>
         ) : (
           <dd class="font-display text-2xl sm:text-3xl leading-none mt-1 text-[var(--color-text-dim)]">0W &middot; 0L</dd>
@@ -330,6 +357,10 @@ const heroBishops = [
 
 <div class="reveal">
   <AchievementStrip achievements={achievements} />
+</div>
+
+<div class="reveal">
+  <HighlightsStrip />
 </div>
 
 <div class="reveal">

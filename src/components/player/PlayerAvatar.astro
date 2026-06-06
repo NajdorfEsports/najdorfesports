@@ -13,9 +13,16 @@ interface Props {
   heroes?: ReadonlyArray<string>;
   /** Pixel size for the 1x render. Component emits a 2x srcset variant. */
   size?: number;
+  /**
+   * Accessible name for the avatar image. Callers pass a descriptive string
+   * derived from roster data (e.g. "Skel3d1rge, Tank, signature hero Zarya").
+   * Defaults to the bare handle. Used as the <img> alt / role="img" aria-label.
+   */
+  label?: string;
 }
 
-const { handle, heroes = [], size = 96 } = Astro.props;
+const { handle, heroes = [], size = 96, label } = Astro.props;
+const alt = label ?? handle;
 
 const px = size;
 
@@ -51,7 +58,7 @@ const src = portraitPath(handle);
   <img
     src={src}
     srcset={`${src} 2x`}
-    alt={handle}
+    alt={alt}
     width={px}
     height={px}
     loading="lazy"
@@ -68,7 +75,7 @@ const src = portraitPath(handle);
    */
   <div
     role="img"
-    aria-label={handle}
+    aria-label={alt}
     class="player-avatar-hero relative border border-[var(--color-border)] overflow-hidden"
     style={`width:${px}px;height:${px}px;background-image:url('${heroIconUrl}');border-radius:9999px;`}
   ></div>
@@ -82,7 +89,7 @@ const src = portraitPath(handle);
    */
   <div
     role="img"
-    aria-label={`${handle}`}
+    aria-label={alt}
     class="player-avatar-mono relative isolate flex items-center justify-center font-display border border-[var(--color-border)] select-none overflow-hidden"
     style={`width:${px}px;height:${px}px;background:${gradient};border-radius:9999px;color:#E9ECF1;letter-spacing:0.02em;`}
   >

@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PartnersPageBody from '../../components/page/PartnersPageBody.astro';
+import { useT, getLocale } from '../../i18n';
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+---
+<BaseLayout
+  title={t.partners.eyebrow}
+  description={t.partners.metaDescription}
+  ogImage="/branding/og-default.png"
+>
+  <PartnersPageBody />
+</BaseLayout>

@@ -1,14 +1,19 @@
 ---
 import { site } from '../../data/site';
 import SocialRow from './SocialRow.astro';
-import { getLocale, primaryNav, useT } from '../../i18n';
+import { getLocale, pathFor, primaryNav, useT } from '../../i18n';
 
 const locale = getLocale(Astro);
 const t = useT(locale);
 
 // Primary nav (top row of the footer). Shared with SiteHeader via primaryNav
-// so the two never drift; every route is localized.
-const primaryLinks = primaryNav(locale, t);
+// so the two never drift; every route is localized. Partners is appended here
+// (footer only, not the header nav) per the audit placement decision. Press is
+// intentionally NOT linked: it is dormant until the owner surfaces it.
+const footerLinks = [
+  ...primaryNav(locale, t),
+  { href: pathFor(locale, '/partners/'), label: t.partners.eyebrow },
+];
 
 // Legal links demoted to the meta row, they don't need primary-nav weight.
 const legalLinks = [
@@ -46,7 +51,7 @@ const year = new Date().getFullYear();
 
       <nav aria-label="Footer">
         <ul class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[var(--color-text-dim)]">
-          {primaryLinks.map((l) => (
+          {footerLinks.map((l) => (
             <li>
               <a
                 href={l.href}

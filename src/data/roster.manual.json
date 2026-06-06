@@ -1,11 +1,14 @@
 [
   {
-    "handle": "akie",
+    "handle": "Skel3d1rge",
     "role": "Tank",
     "country": "South Korea",
     "countryCode": "kr",
     "status": "active",
-    "liquipediaUrl": "https://liquipedia.net/overwatch/Akie"
+    "realName": "Park Do-yun",
+    "birthDate": "2006-08-21",
+    "signatureHeroes": ["Zarya", "Sigma", "Hazard"],
+    "liquipediaUrl": "https://liquipedia.net/overwatch/Skel3d1rge"
   },
   {
     "handle": "brysonbtw",

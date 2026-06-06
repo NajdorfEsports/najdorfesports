@@ -40,28 +40,64 @@ export function competedAsFor(eventOrTournament: string | undefined): string | n
 }
 
 // Fill these in as accounts are confirmed. Any URL left as 'TODO' will be
-// filtered out by <SocialRow> and <CommunityCTA> so nothing broken ships.
-// `blurb` is the optional one-line CTA copy used by <CommunityCTA>.
+// filtered out by <SocialRow>, <CommunityCTA>, the footer, and the JSON-LD
+// `sameAs` so nothing broken ships. `blurb` is the optional one-line CTA copy
+// used by <CommunityCTA>.
+//
+// Three orthogonal flags decide where a channel surfaces. They default to the
+// most common case so existing entries (Discord, X) need none of them:
+//   - `display`   (default true): render as a chip in <SocialRow> (footer +
+//                 About). Set false for a channel we want in structured-data
+//                 sameAs but NOT shown as a visible link yet (the org Twitch).
+//   - `community` (default false): include in the home "Join the community"
+//                 band. Only Discord + X belong there (its copy says "two
+//                 channels"), so they opt in explicitly.
+//   - `sameAs`    (default true): feed the org JSON-LD `sameAs` identity list.
+// A `url: 'TODO'` entry is dormant everywhere until its URL is filled in (e.g.
+// YouTube): the moment a real URL lands, the footer link + sameAs entry appear
+// automatically with no other change.
 export const socials: ReadonlyArray<{
   name: 'Discord' | 'X' | 'Instagram' | 'Twitch' | 'YouTube';
   url: string;
   handle?: string;
   blurb?: string;
+  display?: boolean;
+  community?: boolean;
+  sameAs?: boolean;
 }> = [
   {
     name: 'Discord',
     url: 'https://discord.gg/7X2QbvUW3z',
     handle: 'discord.gg/najdorf',
     blurb: 'Hang with the squad. Match chat, watch parties, and roster updates first.',
+    community: true,
   },
   {
     name: 'X',
     url: 'https://x.com/najdorfesports',
     handle: '@najdorfesports',
     blurb: 'Roster moves, match results, and OWCS Pacific posts, straight from the org.',
+    community: true,
   },
-  // Instagram / Twitch / YouTube intentionally omitted. The org is on
-  // Discord + X for now. Add new entries here when fresh channels launch.
+  {
+    // Org-owned Twitch. Wired into structured-data sameAs so search engines
+    // associate it with the org, but `display: false` keeps it out of the
+    // visible footer/About chip row for now (the audit brief scoped the footer
+    // to YouTube). Flip `display` to true to surface it as a footer link.
+    name: 'Twitch',
+    url: 'https://www.twitch.tv/najdorfesports',
+    handle: 'twitch.tv/najdorfesports',
+    display: false,
+  },
+  {
+    // YouTube channel for match highlights. DORMANT until the channel URL is
+    // filled in. Replace 'TODO' with the real channel URL (e.g.
+    // 'https://www.youtube.com/@najdorfesports') and the footer link + the
+    // JSON-LD sameAs entry light up automatically. Do not invent a URL.
+    name: 'YouTube',
+    url: 'TODO',
+  },
+  // Instagram intentionally omitted (out of scope per brand guidance).
 ];
 
 /**
@@ -98,6 +134,31 @@ export function confirmed<T extends { url: string }>(items: ReadonlyArray<T>): T
   return items.filter((item) => Boolean(item.url) && item.url !== 'TODO');
 }
 
+/**
+ * Channels rendered as visible chips in <SocialRow> (footer + About). Excludes
+ * any `display: false` channel (the org Twitch, sameAs-only for now).
+ */
+export function displaySocials() {
+  return confirmed(socials).filter((s) => s.display !== false);
+}
+
+/** Channels surfaced in the home "Join the community" band (Discord + X). */
+export function communitySocials() {
+  return confirmed(socials).filter((s) => s.community === true);
+}
+
+/**
+ * Single source for the org JSON-LD `sameAs` identity list: every confirmed
+ * channel not opted out via `sameAs: false`. Discord + X + Twitch today; the
+ * YouTube URL joins automatically once its `url` is filled in. The org's
+ * Liquipedia page can be appended here when one is created.
+ */
+export function sameAsUrls(): string[] {
+  return confirmed(socials)
+    .filter((s) => s.sameAs !== false)
+    .map((s) => s.url);
+}
+
 export type Role = 'Tank' | 'DPS' | 'Support' | 'Flex' | 'Coach' | 'Manager';
 
 export type RosterStatus = 'active' | 'dnp' | 'inactive';
@@ -125,6 +186,9 @@ export interface RosterEntry {
   signatureHeroes?: string[];
   twitter?: string;
   twitch?: string;
+  /** Bilibili channel URL. Common for CN/TW players; rendered on the player
+   *  detail page only when present. No player has one listed today. */
+  bilibili?: string;
   liquipediaUrl?: string;
   status?: RosterStatus;
   /** Free-form note shown as a small badge ("DNP · Stage 1", "Sub", etc.). */
@@ -240,3 +304,21 @@ export const ROLE_ORDER: Record<Role, number> = {
   Coach: 4,
   Manager: 5,
 };
+
+/**
+ * URL slug for a player's detail page: lowercase, alphanumerics only. Mirrors
+ * the normalization in `portraitPath` so a handle maps to one stable slug
+ * everywhere. "Skel3d1rge" -> "skel3d1rge", "TiAmo" -> "tiamo".
+ */
+export function playerSlug(handle: string): string {
+  return handle.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+/**
+ * Whether a roster member gets an individual detail page. Players (Tank / DPS /
+ * Support / Flex) and the coach do; managers do not (Phase 1 decision). Inactive
+ * members are excluded so a benched/departed player has no orphan page.
+ */
+export function hasDetailPage(entry: { role: Role; status?: RosterStatus }): boolean {
+  return entry.status !== 'inactive' && entry.role !== 'Manager';
+}

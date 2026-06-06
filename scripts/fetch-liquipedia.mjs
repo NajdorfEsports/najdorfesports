@@ -184,13 +184,14 @@ function extractRoster(wikitext, teamName) {
     const flag = params.flag || params.nationality || params.country;
     const realName = params.name && params.name !== handle ? params.name : undefined;
 
-    const playedFalse = params.played?.toLowerCase() === 'false';
-    let status = 'active';
-    let statusNote;
-    if (playedFalse) {
-      status = 'dnp';
-      statusNote = 'DNP · Stage 1';
-    }
+    // `played=false` on a tournament Person template means the player is
+    // rostered but did not play this stage. We mark them 'dnp' but do NOT
+    // attach a hardcoded note: the old 'DNP · Stage 1' string was both
+    // non-localized and stage-specific (wrong once Stage 2+ rosters carry a
+    // played=false sub). Leaving statusNote unset lets the UI fall back to
+    // the localized `t.player.dnp` badge. A manual override can still pin a
+    // custom note or force the player back to 'active' (e.g. TiAmo).
+    const status = params.played?.toLowerCase() === 'false' ? 'dnp' : 'active';
 
     out.set(handle.toLowerCase(), {
       handle,
@@ -198,7 +199,6 @@ function extractRoster(wikitext, teamName) {
       ...normalizeCountry(flag),
       ...(realName ? { realName } : {}),
       status,
-      ...(statusNote ? { statusNote } : {}),
     });
   }
 

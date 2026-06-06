@@ -21,6 +21,11 @@ export default defineConfig({
         defaultLocale: 'en',
         locales: { en: 'en', 'zh-TW': 'zh-TW', 'zh-CN': 'zh-CN' },
       },
+      // The Press / Media Kit is built but kept dormant: exclude it (and its
+      // localized variants) from the sitemap so search engines don't discover
+      // it before it is ready. It also carries a noindex meta. Remove this
+      // filter and the noindex when surfacing the page.
+      filter: (page) => !page.includes('/press/'),
     }),
   ],
 

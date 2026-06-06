@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PressPageBody from '../components/page/PressPageBody.astro';
+import { useT, getLocale } from '../i18n';
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+// DORMANT: built and reachable by URL, but kept out of nav/footer, set to
+// noindex, and excluded from the sitemap (see astro.config.mjs) until the
+// owner is ready to surface it. To go live: add a footer/nav link, drop the
+// `noindex`, and remove the /press/ exclusion from the sitemap filter.
+---
+<BaseLayout
+  title={t.press.eyebrow}
+  description={t.press.metaDescription}
+  ogImage="/branding/og-default.png"
+  noindex
+>
+  <PressPageBody />
+</BaseLayout>

@@ -29,8 +29,13 @@ import statsManual from './social-stats.manual.json';
  * nothing, so the feature is invisible in production no matter what sits in the
  * JSON. Most channels are at zero today; turn this on when the numbers are
  * worth showing.
+ *
+ * Currently OFF by deliberate editorial choice: the org does not display raw
+ * follower / member counts anywhere (small early numbers read as a negative
+ * signal). <CommunityCTA> falls back to its no-number CTAs ("Join the Discord"
+ * / "Follow on X") automatically. Flip back to `true` to surface counts again.
  */
-export const SHOW_SOCIAL_STATS = true;
+export const SHOW_SOCIAL_STATS = false;
 
 /**
  * Second switch, for the realtime "watching now" pill specifically. Even with

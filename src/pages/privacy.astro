@@ -5,7 +5,8 @@ import { site } from '../data/site';
 // `updated` is the date the policy TEXT last changed, not the page's
 // build date. Bump only when you've actually changed the policy below.
 // (Future Claude: do NOT auto-update this to the current session date.)
-const updated = '2026-05-25';
+// 2026-06-06: added the YouTube / youtube-nocookie click-to-load disclosure.
+const updated = '2026-06-06';
 ---
 <BaseLayout
   title="Privacy Policy"
@@ -27,8 +28,8 @@ const updated = '2026-05-25';
         we ever keep is correspondence you choose to send to
         <Fragment set:html={'<!--email_off-->'} />owner@najdorfesports.gg<Fragment set:html={'<!--/email_off-->'} />.
         Cloudflare sets one strictly-necessary security cookie for bot
-        protection; the Twitch player is click-to-load and never contacts
-        twitch.tv until you press play.
+        protection; the embedded Twitch and YouTube players are click-to-load
+        and never contact those services until you press play.
       </p>
     </aside>
 
@@ -73,7 +74,7 @@ const updated = '2026-05-25';
         font CDNs.
       </p>
 
-      <h2 class="font-display text-2xl mt-8 tracking-wide">Embedded video player</h2>
+      <h2 class="font-display text-2xl mt-8 tracking-wide">Embedded video players</h2>
       <p>
         During an active match window (roughly 30 minutes before kickoff
         through three hours after), the home page shows a click-to-load
@@ -87,6 +88,21 @@ const updated = '2026-05-25';
         and collect usage data per its own policies. We do not control
         those cookies or receive their contents. See
         <a href="https://www.twitch.tv/p/legal/privacy-notice/" target="_blank" rel="noopener">Twitch's Privacy Notice</a>
+        for details.
+      </p>
+      <p>
+        Match highlights are hosted on YouTube and shown through the same
+        click-to-load approach. <strong>No request is made to YouTube or
+        Google until you click to load a highlight.</strong> We embed through
+        the privacy-enhanced <code>youtube-nocookie.com</code> domain, so if
+        you never click, your browser never contacts YouTube from this page.
+      </p>
+      <p>
+        Once you load a highlight, Google may set its own cookies and receive
+        data (including your IP address and information about the video and
+        your device) under its own policies. We do not control those cookies
+        or receive their contents. See
+        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>
         for details.
       </p>
 

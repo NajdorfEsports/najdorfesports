@@ -45,4 +45,35 @@ const news = defineCollection({
   }),
 });
 
-export const collections = { news };
+/**
+ * Weekly match highlights, published as vertical (9:16) YouTube Shorts on the
+ * org channel. Each entry is one highlight. The system ships DORMANT: an entry
+ * can exist with an empty `videoId`, which renders a clean "coming soon" state
+ * (no Google contact, no broken embed). Filling in `videoId` is the single step
+ * that takes a highlight live (the click-to-load nocookie player appears).
+ *
+ * No invented data: ship entries with real match context and an empty videoId
+ * until the Short is actually published. `poster` is optional; without it the
+ * player shows a branded placeholder rather than a broken image.
+ */
+const highlights = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/highlights' }),
+  schema: z.object({
+    title: z.string(),
+    date: z.coerce.date(),
+    /** Related match id from src/data/matches.json (cross-reference). */
+    matchId: z.string().optional(),
+    /** Opponent label for display (e.g. "Team Secret"). */
+    opponent: z.string().optional(),
+    /** Self-hosted 9:16 poster under /highlights/<name>.webp. Optional: a
+     *  missing poster falls back to a branded placeholder. NEVER a YouTube
+     *  thumbnail URL (that would contact Google on load). */
+    poster: z.string().optional(),
+    /** YouTube video ID only (the part after watch?v= or youtu.be/), NOT a
+     *  full URL. EMPTY until the Short is published -> "coming soon" state. */
+    videoId: z.string().default(''),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { news, highlights };

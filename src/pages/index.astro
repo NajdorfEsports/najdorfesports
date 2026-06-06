@@ -2,13 +2,14 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HomePageBody from '../components/page/HomePageBody.astro';
 import { site } from '../data/site';
-// SportsOrganization is emitted automatically by BaseLayout. No per-page
-// jsonLd needed on the homepage.
+// SportsOrganization is emitted by BaseLayout. `enrichedOrg` upgrades it to
+// the form that embeds the athlete roster + coach (Task E).
 ---
 <BaseLayout
   title={site.name}
   description={site.description}
   ogImage="/branding/og/home.png"
+  enrichedOrg
 >
   <HomePageBody />
 </BaseLayout>

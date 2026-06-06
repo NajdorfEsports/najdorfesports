@@ -11,7 +11,7 @@
  * the org runs today, keep the icon switch small and explicit; add a
  * new branch when (if) a third channel ships.
  */
-import { socials, confirmed } from '../../data/site';
+import { communitySocials } from '../../data/site';
 import { getLocale, useT } from '../../i18n';
 import PlatformIcon from '../ui/PlatformIcon.astro';
 import { loadSocialStats, formatCount } from '../../data/social';
@@ -19,7 +19,9 @@ import { loadSocialStats, formatCount } from '../../data/social';
 const locale = getLocale(Astro);
 const t = useT(locale);
 
-const visible = confirmed(socials);
+// Only the two community channels (Discord + X) belong in this band; its copy
+// says "two channels." The org Twitch/YouTube live in the footer, not here.
+const visible = communitySocials();
 
 const ctaFor = (name: string) =>
   name === 'Discord' ? t.community.discordCta
