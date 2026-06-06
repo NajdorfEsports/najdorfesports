@@ -83,6 +83,44 @@ const serializeJsonLd = (data: unknown): string =>
 // and SportsEvent blocks elsewhere reference it; `sameAs` and the optional
 // embedded roster are both built from site data (see data/org-jsonld.ts).
 const orgJsonLd = buildOrgJsonLd({ withRoster: enrichedOrg });
+
+// BreadcrumbList for every non-root page, built from the (locale-stripped)
+// URL hierarchy so Google can render breadcrumb rich results and stitch the
+// nested pages under the org. Known section segments use the localized nav
+// label; the final segment (article slug, player handle, legal page) falls
+// back to this page's `title`. The home page has no crumb trail, so it is
+// skipped. URLs are re-localized via pathFor so each locale links within
+// itself.
+const NAV_LABELS: Record<string, string> = {
+  roster: t.nav.roster,
+  matches: t.nav.matches,
+  news: t.nav.news,
+  about: t.nav.about,
+};
+const crumbSegments = basePath.split('/').filter(Boolean);
+let breadcrumbJsonLd: Record<string, unknown> | null = null;
+if (crumbSegments.length > 0) {
+  const crumbs = [{ name: t.nav.home, path: '/' }];
+  let acc = '';
+  crumbSegments.forEach((seg, i) => {
+    acc += `/${seg}`;
+    const isLast = i === crumbSegments.length - 1;
+    crumbs.push({
+      name: NAV_LABELS[seg] ?? (isLast ? title : seg),
+      path: `${acc}/`,
+    });
+  });
+  breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: crumbs.map((c, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      name: c.name,
+      item: new URL(pathFor(locale, c.path), site.url).toString(),
+    })),
+  };
+}
 ---
 <!doctype html>
 <html lang={locale}>
@@ -149,6 +187,13 @@ const orgJsonLd = buildOrgJsonLd({ withRoster: enrichedOrg });
       type="application/ld+json"
       set:html={serializeJsonLd(orgJsonLd)}
     />
+    {breadcrumbJsonLd && (
+      <script
+        is:inline
+        type="application/ld+json"
+        set:html={serializeJsonLd(breadcrumbJsonLd)}
+      />
+    )}
     {jsonLd && (
       <script
         is:inline
