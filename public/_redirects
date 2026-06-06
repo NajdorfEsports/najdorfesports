@@ -9,6 +9,13 @@ https://www.najdorfesports.gg/*  https://najdorfesports.gg/:splat  301!
 # Forward bare pages.dev hits to the canonical domain (preserve any path).
 https://najdorfesports.pages.dev/*  https://najdorfesports.gg/:splat  301!
 
+# News slug rename: the launch announcement moved off the "rebrand" slug
+# (the org acquired the Rankers roster, it is not a rebrand) to an
+# acquisition slug. Preserve any inbound links to the old URL in all locales.
+/news/2026-05-najdorf-rebrand/        /news/2026-05-najdorf-acquires-rankers/        301
+/zh-TW/news/2026-05-najdorf-rebrand/  /zh-TW/news/2026-05-najdorf-acquires-rankers/  301
+/zh-CN/news/2026-05-najdorf-rebrand/  /zh-CN/news/2026-05-najdorf-acquires-rankers/  301
+
 # Locale prefixes are case-sensitive on disk (Astro builds /zh-TW/ and
 # /zh-CN/), but URL-bar autocomplete and hand-typed URLs love to lowercase
 # the path. Forward the lowercase variants so they don't 404.
