@@ -29,7 +29,11 @@ const sections = (Object.keys(ROLE_ORDER) as Role[])
   .filter((r) => grouped[r] && grouped[r]!.length > 0)
   .map((r) => ({ role: r, players: grouped[r]!.sort((a, b) => a.handle.localeCompare(b.handle)) }));
 
-const headcount = roster.filter((p) => p.status !== 'inactive').length;
+// "Players" counts athletes only: a coach or manager is not a player. Excludes
+// inactive entries too, so the stat matches the home hero count.
+const headcount = roster.filter(
+  (p) => p.status !== 'inactive' && ['Tank', 'DPS', 'Support', 'Flex'].includes(p.role),
+).length;
 
 // Hoist the cast out of the JSX. `<string, string>` in inline TS would
 // confuse Astro's parser into seeing an HTML tag.
