@@ -45,7 +45,7 @@ this fully-static deploy most of those CVEs are not even reachable.
 
 ## 2. Per-task results
 
-### Task 1 — Dependency security and pinning (DONE)
+### Task 1: Dependency security and pinning (DONE)
 
 **Found:** `package-lock.json` already resolves **astro 5.18.1** and
 **@astrojs/cloudflare 12.6.13** (top-level `wrangler` 4.94.0, consistent with
@@ -71,7 +71,7 @@ integrity hashes, which I cannot run. Did not touch `@astrojs/sitemap`,
 `tailwindcss`, or `wrangler` ranges (already sensible). See Owner action items
 for the one-command refresh.
 
-### Task 2 — Pages-vs-Workers config drift (DONE, verified clean)
+### Task 2: Pages-vs-Workers config drift (DONE, verified clean)
 
 **Found:** the repo carries both Pages artifacts (`public/_headers`,
 `public/_redirects`, README says Pages) and a Workers `wrangler.jsonc`
@@ -108,7 +108,7 @@ build output and couples to the adapter-specific `session` / `imageService`
 config, so it needs a build to verify, which I cannot run. See Owner action
 items for the recommendation and trade-off.
 
-### Task 3 — Security headers / CSP (verified; one low finding)
+### Task 3: Security headers / CSP (verified; one low finding)
 
 **Found / verified (real strings below in section 3):** strong CSP with
 `default-src 'self'`, `frame-src https://player.twitch.tv` only,
@@ -143,7 +143,7 @@ and **live**. HSTS is live with `max-age=31536000; includeSubDomains; preload`.
 > from before commit `30bed2b`. The HTML responses serve the current CSP. This
 > is cache aging, not a config bug; it self-heals or can be purged.
 
-### Task 4 — GitHub Actions workflow + fetcher (verified clean)
+### Task 4: GitHub Actions workflow + fetcher (verified clean)
 
 **Found:** `.github/workflows/update-matches.yml` declares least-privilege
 `permissions: contents: write`, uses `stefanzweifel/git-auto-commit-action`
@@ -157,14 +157,14 @@ per-fetch `try/catch`, and a fail-soft `safeWrite` that preserves the existing
 JSON on any empty/failed result (with atomic temp-file + rename). Nothing to
 fix.
 
-### Task 5 — CI build gate (verified present)
+### Task 5: CI build gate (verified present)
 
 **Found:** `.github/workflows/ci.yml` already runs `npx astro check` + `npm run
 build` on push to `main` and on PRs, with `permissions: contents: read`,
 SHA-pinned actions, and `concurrency` cancellation. No deploy step (Cloudflare
 owns deploy). This is exactly the requested safety net; nothing to add.
 
-### Task 6 — SEO (verified)
+### Task 6: SEO (verified)
 
 - Sitemap **i18n is configured** in `astro.config.mjs` (added in commit
   `f48b027`), mirroring the routing locales, so hreflang alternates emit for
@@ -177,7 +177,7 @@ owns deploy). This is exactly the requested safety net; nothing to add.
   per-page JSON-LD (`SportsOrganization` with stable `@id`, `NewsArticle`
   referencing that `@id`) is structurally sound. No change needed.
 
-### Task 7 — Accessibility & performance (verified)
+### Task 7: Accessibility & performance (verified)
 
 - Images: `PlayerAvatar.astro` uses `alt`, explicit `width`/`height`,
   `loading="lazy"`, `decoding="async"`; the monogram fallback uses
@@ -191,7 +191,7 @@ owns deploy). This is exactly the requested safety net; nothing to add.
 
 No concrete defects found, so no markup was restructured for taste.
 
-### Task 8 — Type-safety & set:html (verified; one recommendation)
+### Task 8: Type-safety & set:html (verified; one recommendation)
 
 - **`set:html` audit (clean):** every usage is either the static
   `<!--email_off-->` / `<!--/email_off-->` literal comments, or the JSON-LD
@@ -205,7 +205,7 @@ No concrete defects found, so no markup was restructured for taste.
   **not** migrate the JSON into content collections (out of scope / growth-
   triggered).
 
-### Task 9 — Owner maintenance cheat-sheet (DONE)
+### Task 9: Owner maintenance cheat-sheet (DONE)
 
 **Added (commit `296ae46`):** `MAINTENANCE.md`, a short task-oriented guide
 (bench a player via `status: inactive`, add/correct a player, add a match by
@@ -214,7 +214,7 @@ gotcha**, when to bump `OG_VERSION`, trigger the Liquipedia refresh, the two
 house rules) with a pointer back to `CLAUDE.md` for depth. Linked from
 `README.md`.
 
-### Task 10 — Git hygiene (verified; one owner item)
+### Task 10: Git hygiene (verified; one owner item)
 
 **Found:** a pattern scan (`git grep` for AWS keys, private-key headers, Slack
 tokens, GitHub tokens, Google API keys, Stripe keys, and generic

@@ -28,6 +28,18 @@ jobs:
       # in the trailing comment, matching the convention in update-matches.yml.
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
+      # Em-dash guard. The owner bans em-dashes (U+2014) anywhere in shipped
+      # copy, content, JSON-LD, or alt text. Scan the source + public surfaces
+      # only; CLAUDE.md is intentionally excluded because it documents the rule
+      # by quoting the character. En-dashes (U+2013) in numeric ranges are fine.
+      - name: Em-dash guard
+        run: |
+          if grep -rInP '\x{2014}|&mdash;|&#8212;|&#x2014;' src public; then
+            echo "::error::Em-dash (U+2014) found above. Replace with a period, comma, colon, semicolon, parentheses, or restructure the sentence."
+            exit 1
+          fi
+          echo "No em-dashes found in src/ or public/."
+
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '22'
