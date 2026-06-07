@@ -37,9 +37,7 @@ const handleExternal = !detailHref && !!player.liquipediaUrl;
 
 const age = ageFromBirth(player.birthDate);
 
-const allRoles = [player.role, ...(player.altRoles ?? [])].filter(
-  (r, i, a) => a.indexOf(r) === i,
-);
+const allRoles = [player.role, ...(player.altRoles ?? [])].filter((r, i, a) => a.indexOf(r) === i);
 
 // Signature heroes that have an icon, capped at 4 for the card backdrop.
 const backdropHeroes = resolveHeroIcons(player.signatureHeroes, 4);
@@ -53,6 +51,7 @@ const avatarAlt = t.player.avatarAlt(
   backdropHeroes[0]?.name,
 );
 ---
+
 <article
   class:list={[
     'player-card relative bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5 flex flex-col items-center text-center shadow-[var(--shadow-card)] isolate overflow-hidden',
@@ -61,113 +60,139 @@ const avatarAlt = t.player.avatarAlt(
   ]}
   style={`--accent:${accent};--stagger:${index};`}
 >
-  {hasBackdrop && (
-    <>
-      <div class="player-card__backdrop" aria-hidden="true">
-        {backdropHeroes.map((h) => (
-          <span
-            class="player-card__hero"
-            style={`background-image: url('${h.iconUrl}');`}
-            data-hero={h.name}
-          ></span>
-        ))}
-      </div>
-      <div class="player-card__overlay" aria-hidden="true"></div>
-    </>
-  )}
+  {
+    hasBackdrop && (
+      <>
+        <div class="player-card__backdrop" aria-hidden="true">
+          {backdropHeroes.map((h) => (
+            <span
+              class="player-card__hero"
+              style={`background-image: url('${h.iconUrl}');`}
+              data-hero={h.name}
+            />
+          ))}
+        </div>
+        <div class="player-card__overlay" aria-hidden="true" />
+      </>
+    )
+  }
 
   <span class="player-card__rail" aria-hidden="true"></span>
 
-  {(isDnp || isInactive) && (
-    <span class="absolute top-3 right-3 max-w-[60%] text-right z-10">
-      <Badge tone="neutral">{player.statusNote ?? (isDnp ? t.player.dnp : t.player.inactive)}</Badge>
-    </span>
-  )}
+  {
+    (isDnp || isInactive) && (
+      <span class="absolute top-3 right-3 max-w-[60%] text-right z-10">
+        <Badge tone="neutral">
+          {player.statusNote ?? (isDnp ? t.player.dnp : t.player.inactive)}
+        </Badge>
+      </span>
+    )
+  }
 
   <div class="player-card__content relative z-10 flex flex-col items-center w-full">
-    <PlayerAvatar handle={player.handle} heroes={player.signatureHeroes} size={96} label={avatarAlt} />
+    <PlayerAvatar
+      handle={player.handle}
+      heroes={player.signatureHeroes}
+      size={96}
+      label={avatarAlt}
+    />
 
     <h3 class="font-display text-2xl sm:text-3xl mt-4 tracking-wide leading-none">
-      {handleHref ? (
-        <a
-          href={handleHref}
-          target={handleExternal ? '_blank' : undefined}
-          rel={handleExternal ? 'noopener' : undefined}
-          class="player-card__handle hover:underline underline-offset-4 decoration-[var(--accent)]"
-        >
-          {player.handle}
-        </a>
-      ) : (
-        player.handle
-      )}
+      {
+        handleHref ? (
+          <a
+            href={handleHref}
+            target={handleExternal ? '_blank' : undefined}
+            rel={handleExternal ? 'noopener' : undefined}
+            class="player-card__handle hover:underline underline-offset-4 decoration-[var(--accent)]"
+          >
+            {player.handle}
+          </a>
+        ) : (
+          player.handle
+        )
+      }
     </h3>
 
-    {(player.realName || age !== null) && (
-      <p class="text-sm text-[var(--color-text-dim)] mt-1.5">
-        {player.realName}
-        {player.realName && age !== null && ' · '}
-        {age !== null && (
-          <span class="tabular-nums">{age}</span>
-        )}
-      </p>
-    )}
+    {
+      (player.realName || age !== null) && (
+        <p class="text-sm text-[var(--color-text-dim)] mt-1.5">
+          {player.realName}
+          {player.realName && age !== null && ' · '}
+          {age !== null && <span class="tabular-nums">{age}</span>}
+        </p>
+      )
+    }
 
-    <div class="mt-3 flex items-center gap-2 text-xs uppercase tracking-wider flex-wrap justify-center">
-      {allRoles.map((r) => {
-        const a = roleAccent(r);
-        return (
-          <span
-            class="px-2 py-0.5 rounded-sm border font-semibold bg-[var(--color-bg)]/60 backdrop-blur-sm"
-            style={`color: ${a}; border-color: ${a};`}
-          >
-            {t.roles[r as Role] ?? r}
+    <div
+      class="mt-3 flex items-center gap-2 text-xs uppercase tracking-wider flex-wrap justify-center"
+    >
+      {
+        allRoles.map((r) => {
+          const a = roleAccent(r);
+          return (
+            <span
+              class="px-2 py-0.5 rounded-sm border font-semibold bg-[var(--color-bg)]/60 backdrop-blur-sm"
+              style={`color: ${a}; border-color: ${a};`}
+            >
+              {t.roles[r as Role] ?? r}
+            </span>
+          );
+        })
+      }
+      {
+        hasCountry && (
+          <span class="flex items-center gap-1.5 text-[var(--color-text-dim)] ml-1">
+            <CountryFlag code={player.countryCode} name={countryName} size="md" />
+            <span class="text-[0.7rem]">{countryName}</span>
           </span>
-        );
-      })}
-      {hasCountry && (
-        <span class="flex items-center gap-1.5 text-[var(--color-text-dim)] ml-1">
-          <CountryFlag code={player.countryCode} name={countryName} size="md" />
-          <span class="text-[0.7rem]">{countryName}</span>
-        </span>
-      )}
+        )
+      }
     </div>
 
-    {hasBackdrop && (
-      <p class="mt-3 text-[0.6rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)]">
-        {backdropHeroes.map((h) => h.name).join(' · ')}
-      </p>
-    )}
+    {
+      hasBackdrop && (
+        <p class="mt-3 text-[0.6rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)]">
+          {backdropHeroes.map((h) => h.name).join(' · ')}
+        </p>
+      )
+    }
 
-    {(player.twitter || player.twitch) && (
-      <div class="mt-3 flex items-center gap-3 text-[0.7rem] uppercase tracking-wider text-[var(--color-text-dim)]">
-        {player.twitter && (
-          <a
-            href={player.twitter}
-            target="_blank"
-            rel="noopener"
-            class="hover:text-[var(--color-accent-2)] transition-colors"
-          >
-            {t.player.twitter}
-          </a>
-        )}
-        {player.twitch && (
-          <a
-            href={player.twitch}
-            target="_blank"
-            rel="noopener"
-            class="hover:text-[var(--color-accent-2)] transition-colors"
-          >
-            {t.player.twitch}
-          </a>
-        )}
-      </div>
-    )}
+    {
+      (player.twitter || player.twitch) && (
+        <div class="mt-3 flex items-center gap-3 text-[0.7rem] uppercase tracking-wider text-[var(--color-text-dim)]">
+          {player.twitter && (
+            <a
+              href={player.twitter}
+              target="_blank"
+              rel="noopener"
+              class="hover:text-[var(--color-accent-2)] transition-colors"
+            >
+              {t.player.twitter}
+            </a>
+          )}
+          {player.twitch && (
+            <a
+              href={player.twitch}
+              target="_blank"
+              rel="noopener"
+              class="hover:text-[var(--color-accent-2)] transition-colors"
+            >
+              {t.player.twitch}
+            </a>
+          )}
+        </div>
+      )
+    }
   </div>
 </article>
 
 <style>
   .player-card {
-    transition: transform 0.2s ease-out, border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+    transition:
+      transform 0.2s ease-out,
+      border-color 0.2s ease-out,
+      box-shadow 0.2s ease-out;
     animation: card-rise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
     animation-delay: calc(var(--stagger, 0) * 70ms);
     min-height: 320px;
@@ -199,13 +224,7 @@ const avatarAlt = t.player.avatarAlt(
     background-position: 50% 18%;
     background-repeat: no-repeat;
     /* Feather the inner edges so adjacent heroes blend rather than collide */
-    mask-image: linear-gradient(
-      90deg,
-      transparent 0%,
-      black 12%,
-      black 88%,
-      transparent 100%
-    );
+    mask-image: linear-gradient(90deg, transparent 0%, black 12%, black 88%, transparent 100%);
     /* Cinematic zoom on hover. Each strip gets a slightly different
        transform-origin via :nth-child below so the heroes don't all
        move in lockstep, it reads like a poster gently breathing. */
@@ -213,10 +232,18 @@ const avatarAlt = t.player.avatarAlt(
     transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
     will-change: transform;
   }
-  .player-card__hero:nth-child(1) { transform-origin: 30% 35%; }
-  .player-card__hero:nth-child(2) { transform-origin: 50% 30%; }
-  .player-card__hero:nth-child(3) { transform-origin: 70% 35%; }
-  .player-card__hero:nth-child(4) { transform-origin: 85% 30%; }
+  .player-card__hero:nth-child(1) {
+    transform-origin: 30% 35%;
+  }
+  .player-card__hero:nth-child(2) {
+    transform-origin: 50% 30%;
+  }
+  .player-card__hero:nth-child(3) {
+    transform-origin: 70% 35%;
+  }
+  .player-card__hero:nth-child(4) {
+    transform-origin: 85% 30%;
+  }
 
   .player-card:hover .player-card__hero {
     transform: scale(1.08);
@@ -242,13 +269,12 @@ const avatarAlt = t.player.avatarAlt(
     inset: 0;
     z-index: 1;
     border-radius: inherit;
-    background:
-      radial-gradient(
-        ellipse 80% 50% at 50% 28%,
-        rgba(11, 11, 15, 0.35) 0%,
-        rgba(11, 11, 15, 0.78) 60%,
-        rgba(11, 11, 15, 0.95) 100%
-      );
+    background: radial-gradient(
+      ellipse 80% 50% at 50% 28%,
+      rgba(11, 11, 15, 0.35) 0%,
+      rgba(11, 11, 15, 0.78) 60%,
+      rgba(11, 11, 15, 0.95) 100%
+    );
     pointer-events: none;
     /* Smooth dimming via opacity rather than the un-animatable bg property */
     transition: opacity 450ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -278,7 +304,9 @@ const avatarAlt = t.player.avatarAlt(
     pointer-events: none;
     opacity: 0;
     transform: translateX(-110%);
-    transition: transform 0s linear, opacity 0s linear;
+    transition:
+      transform 0s linear,
+      opacity 0s linear;
   }
   .player-card:hover::before {
     opacity: 1;

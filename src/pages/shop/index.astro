@@ -8,17 +8,25 @@ import { getLocale } from '../../i18n';
 import { formatDate } from '../../i18n/format';
 
 const locale = getLocale(Astro);
-const mainEventStartLabel = formatDate(owcs.mainEventStart, locale, { month: 'long', day: 'numeric' });
+const mainEventStartLabel = formatDate(owcs.mainEventStart, locale, {
+  month: 'long',
+  day: 'numeric',
+});
 ---
+
 <BaseLayout
   title="Shop"
   description="Najdorf Esports first run drops alongside OWCS Pacific Stage 2. Get notified on Discord or X."
   ogImage="/branding/og/shop.png"
   localized={false}
 >
-  <section class="shop-hero relative overflow-hidden mx-auto max-w-3xl px-4 sm:px-6 pt-20 pb-24 text-center">
-    {/* Faint bishop watermark, same motif as the news covers so the page
-        reads as part of the brand, not a stub. */}
+  <section
+    class="shop-hero relative overflow-hidden mx-auto max-w-3xl px-4 sm:px-6 pt-20 pb-24 text-center"
+  >
+    {
+      /* Faint bishop watermark, same motif as the news covers so the page
+        reads as part of the brand, not a stub. */
+    }
     <span class="shop-hero__bishop" aria-hidden="true">
       <BishopMark strokeWidth={1.4} />
     </span>
@@ -28,9 +36,10 @@ const mainEventStartLabel = formatDate(owcs.mainEventStart, locale, { month: 'lo
       Drops with the LAN.
     </h1>
     <p class="text-[var(--color-text-dim)] mt-4 max-w-xl mx-auto leading-relaxed relative z-10">
-      The first run launches alongside <strong class="text-[var(--color-text)]">OWCS Pacific {owcs.stage}</strong>:
-      jerseys cut for the matchup, mousepads at competition spec, and a
-      first-edition piece you can wear to the watch parties. Main event opens
+      The first run launches alongside <strong class="text-[var(--color-text)]"
+        >OWCS Pacific {owcs.stage}</strong
+      >: jerseys cut for the matchup, mousepads at competition spec, and a first-edition piece you
+      can wear to the watch parties. Main event opens
       <strong class="text-[var(--color-text)]">{mainEventStartLabel}</strong>.
     </p>
     <p class="text-[var(--color-text-dim)] mt-4 max-w-xl mx-auto relative z-10">
@@ -71,8 +80,12 @@ const mainEventStartLabel = formatDate(owcs.mainEventStart, locale, { month: 'lo
       animation: shop-bishop-drift 14s ease-in-out infinite alternate;
     }
     @keyframes shop-bishop-drift {
-      from { transform: translate(0, 0) rotate(0deg); }
-      to   { transform: translate(-10px, 8px) rotate(-2deg); }
+      from {
+        transform: translate(0, 0) rotate(0deg);
+      }
+      to {
+        transform: translate(-10px, 8px) rotate(-2deg);
+      }
     }
   }
 </style>

@@ -24,6 +24,7 @@ const visible = players.filter((p) => !excludeRoles.includes(p.role));
 const countries = new Set(visible.map((p) => p.country).filter(Boolean));
 const coaches = players.filter((p) => p.role === 'Coach');
 ---
+
 <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16" aria-label="Roster preview">
   <div class="flex items-end justify-between mb-5">
     <div>
@@ -44,49 +45,55 @@ const coaches = players.filter((p) => p.role === 'Coach');
 
   <div class="roster-strip">
     <ul class="roster-strip__track">
-      {visible.map((p, i) => {
-        // Link to the internal detail page when one exists (all players here
-        // do); fall back to the outbound Liquipedia profile otherwise.
-        const detailHref = hasDetailPage(p)
-          ? pathFor(locale, `/roster/${playerSlug(p.handle)}/`)
-          : (p.liquipediaUrl ?? href);
-        const external = !hasDetailPage(p) && !!p.liquipediaUrl;
-        return (
-        <li
-          class="roster-strip__item"
-          style={`--stagger:${i};`}
-        >
-          <a
-            href={detailHref}
-            target={external ? '_blank' : undefined}
-            rel={external ? 'noopener' : undefined}
-            class="flex flex-col items-center gap-2"
-          >
-            <PlayerAvatar
-              handle={p.handle}
-              heroes={p.signatureHeroes}
-              size={48}
-              label={t.player.avatarAlt(p.handle, t.roles[p.role as Role] ?? p.role)}
-            />
-            <span class="font-display text-base tracking-wide leading-none">{p.handle}</span>
-            <span class="flex items-center gap-1.5 text-[0.65rem] uppercase tracking-wider text-[var(--color-text-dim)]">
-              {t.roles[p.role as Role] ?? p.role}
-              {p.countryCode && (
-                <>
-                  <span aria-hidden="true">·</span>
-                  <CountryFlag code={p.countryCode} name={displayCountry(p.countryCode, p.country, locale)} size="sm" />
-                </>
-              )}
-            </span>
-          </a>
-        </li>
-        );
-      })}
+      {
+        visible.map((p, i) => {
+          // Link to the internal detail page when one exists (all players here
+          // do); fall back to the outbound Liquipedia profile otherwise.
+          const detailHref = hasDetailPage(p)
+            ? pathFor(locale, `/roster/${playerSlug(p.handle)}/`)
+            : (p.liquipediaUrl ?? href);
+          const external = !hasDetailPage(p) && !!p.liquipediaUrl;
+          return (
+            <li class="roster-strip__item" style={`--stagger:${i};`}>
+              <a
+                href={detailHref}
+                target={external ? '_blank' : undefined}
+                rel={external ? 'noopener' : undefined}
+                class="flex flex-col items-center gap-2"
+              >
+                <PlayerAvatar
+                  handle={p.handle}
+                  heroes={p.signatureHeroes}
+                  size={48}
+                  label={t.player.avatarAlt(p.handle, t.roles[p.role as Role] ?? p.role)}
+                />
+                <span class="font-display text-base tracking-wide leading-none">{p.handle}</span>
+                <span class="flex items-center gap-1.5 text-[0.65rem] uppercase tracking-wider text-[var(--color-text-dim)]">
+                  {t.roles[p.role as Role] ?? p.role}
+                  {p.countryCode && (
+                    <>
+                      <span aria-hidden="true">·</span>
+                      <CountryFlag
+                        code={p.countryCode}
+                        name={displayCountry(p.countryCode, p.country, locale)}
+                        size="sm"
+                      />
+                    </>
+                  )}
+                </span>
+              </a>
+            </li>
+          );
+        })
+      }
     </ul>
   </div>
 
   <p class="sm:hidden text-right mt-3">
-    <a href={href} class="link-arrow has-glyph text-sm uppercase tracking-wider text-[var(--color-accent-2)] hover:text-[var(--color-accent)]">
+    <a
+      href={href}
+      class="link-arrow has-glyph text-sm uppercase tracking-wider text-[var(--color-accent-2)] hover:text-[var(--color-accent)]"
+    >
       <span>{t.rosterStrip.fullRoster}</span>
     </a>
   </p>

@@ -8,6 +8,7 @@ import { site } from '../data/site';
 // 2026-06-06: added the YouTube / youtube-nocookie click-to-load disclosure.
 const updated = '2026-06-06';
 ---
+
 <BaseLayout
   title="Privacy Policy"
   description={`How ${site.name} handles personal information on this website.`}
@@ -19,142 +20,154 @@ const updated = '2026-06-06';
     <h1 class="font-display text-4xl sm:text-5xl mt-2 tracking-wide">Privacy Policy</h1>
     <p class="text-xs text-[var(--color-text-dim)] mt-2">Last updated: {updated}</p>
 
-    <aside class="mt-6 border-l-4 border-[var(--color-accent)] bg-[var(--color-surface)] px-5 py-4 text-sm">
+    <aside
+      class="mt-6 border-l-4 border-[var(--color-accent)] bg-[var(--color-surface)] px-5 py-4 text-sm"
+    >
       <p class="font-display tracking-wide text-base mb-2">In short</p>
       <p class="text-[var(--color-text)]">
-        <strong>We store zero visitor data.</strong> No cookies of our own,
-        no analytics, no tracking scripts, no first-party logs. If you
-        only browse, we hold nothing about you. The only personal data
-        we ever keep is correspondence you choose to send to
-        <Fragment set:html={'<!--email_off-->'} />owner@najdorfesports.gg<Fragment set:html={'<!--/email_off-->'} />.
-        Cloudflare sets one strictly-necessary security cookie for bot
-        protection; the embedded Twitch and YouTube players are click-to-load
-        and never contact those services until you press play.
+        <strong>We store zero visitor data.</strong> No cookies of our own, no analytics, no tracking
+        scripts, no first-party logs. If you only browse, we hold nothing about you. The only personal
+        data we ever keep is correspondence you choose to send to
+        <Fragment set:html={'<!--email_off-->'} />owner@najdorfesports.gg<Fragment
+          set:html={'<!--/email_off-->'}
+        />. Cloudflare sets one strictly-necessary security cookie for bot protection; the embedded
+        Twitch and YouTube players are click-to-load and never contact those services until you
+        press play.
       </p>
     </aside>
 
     <div class="prose mt-8 text-[var(--color-text)] leading-relaxed space-y-5">
       <p>
-        This site is operated by Najdorf Esports (the "Organization"). The legal entity
-        behind the Organization is being formalized; this notice will be updated to
-        name the operating company once registration is complete.
+        This site is operated by Najdorf Esports (the "Organization"). The legal entity behind the
+        Organization is being formalized; this notice will be updated to name the operating company
+        once registration is complete.
       </p>
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">Cookies and tracking</h2>
       <p>
-        This site sets <strong>no cookies of its own.</strong> No analytics,
-        no advertising trackers, no fingerprinting scripts, no first-party
-        tracking pixels. Pages are static HTML, CSS, and a small amount of
-        vanilla JavaScript for the match countdown, mobile navigation, and a
-        client-side hero swap on match day. Nothing on the site reads or
-        writes to <code>document.cookie</code>, <code>localStorage</code>,
+        This site sets <strong>no cookies of its own.</strong> No analytics, no advertising trackers,
+        no fingerprinting scripts, no first-party tracking pixels. Pages are static HTML, CSS, and a small
+        amount of vanilla JavaScript for the match countdown, mobile navigation, and a client-side hero
+        swap on match day. Nothing on the site reads or writes to <code>document.cookie</code>, <code
+          >localStorage</code
+        >,
         <code>sessionStorage</code>, or <code>IndexedDB</code>.
       </p>
       <p>
-        Our hosting platform (Cloudflare Pages) sets one strictly-necessary,
-        first-party cookie named <code>__cf_bm</code> on requests to this
-        domain. It is a 30-minute bot-management token used only for
-        infrastructure security. It is not shared with us, is not used for
-        cross-site tracking, and is exempt from cookie-consent requirements
-        under the "strictly necessary" exception in EU ePrivacy guidance.
-        See
-        <a href="https://developers.cloudflare.com/fundamentals/reference/policies-compliances/cloudflare-cookies/" target="_blank" rel="noopener">Cloudflare's cookie reference</a>
+        Our hosting platform (Cloudflare Pages) sets one strictly-necessary, first-party cookie
+        named <code>__cf_bm</code> on requests to this domain. It is a 30-minute bot-management token
+        used only for infrastructure security. It is not shared with us, is not used for cross-site tracking,
+        and is exempt from cookie-consent requirements under the "strictly necessary" exception in EU
+        ePrivacy guidance. See
+        <a
+          href="https://developers.cloudflare.com/fundamentals/reference/policies-compliances/cloudflare-cookies/"
+          target="_blank"
+          rel="noopener">Cloudflare's cookie reference</a
+        >
         for details.
       </p>
       <p>
-        Cloudflare additionally retains short-term access logs (IP, user
-        agent, URL) for security and abuse-prevention. We do not link these
-        logs to any personal identity and do not use them for marketing.
+        Cloudflare additionally retains short-term access logs (IP, user agent, URL) for security
+        and abuse-prevention. We do not link these logs to any personal identity and do not use them
+        for marketing.
       </p>
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">Fonts</h2>
       <p>
-        Display and body fonts (Anton, Inter) are served directly from this
-        domain. No font requests are sent to Google, Adobe, or other third-party
-        font CDNs.
+        Display and body fonts (Anton, Inter) are served directly from this domain. No font requests
+        are sent to Google, Adobe, or other third-party font CDNs.
       </p>
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">Embedded video players</h2>
       <p>
-        During an active match window (roughly 30 minutes before kickoff
-        through three hours after), the home page shows a click-to-load
-        Twitch preview. <strong>No request is made to Twitch until you
-        click the play button.</strong> If you never click it, your browser
-        never contacts twitch.tv from this page and Twitch sets no cookies
-        on your device.
+        During an active match window (roughly 30 minutes before kickoff through three hours after),
+        the home page shows a click-to-load Twitch preview. <strong
+          >No request is made to Twitch until you click the play button.</strong
+        > If you never click it, your browser never contacts twitch.tv from this page and Twitch sets
+        no cookies on your device.
       </p>
       <p>
-        Once you click to load the player, Twitch may set its own cookies
-        and collect usage data per its own policies. We do not control
-        those cookies or receive their contents. See
-        <a href="https://www.twitch.tv/p/legal/privacy-notice/" target="_blank" rel="noopener">Twitch's Privacy Notice</a>
+        Once you click to load the player, Twitch may set its own cookies and collect usage data per
+        its own policies. We do not control those cookies or receive their contents. See
+        <a href="https://www.twitch.tv/p/legal/privacy-notice/" target="_blank" rel="noopener"
+          >Twitch's Privacy Notice</a
+        >
         for details.
       </p>
       <p>
-        Match highlights are hosted on YouTube and shown through the same
-        click-to-load approach. <strong>No request is made to YouTube or
-        Google until you click to load a highlight.</strong> We embed through
-        the privacy-enhanced <code>youtube-nocookie.com</code> domain, so if
-        you never click, your browser never contacts YouTube from this page.
+        Match highlights are hosted on YouTube and shown through the same click-to-load approach. <strong
+          >No request is made to YouTube or Google until you click to load a highlight.</strong
+        > We embed through the privacy-enhanced <code>youtube-nocookie.com</code> domain, so if you never
+        click, your browser never contacts YouTube from this page.
       </p>
       <p>
-        Once you load a highlight, Google may set its own cookies and receive
-        data (including your IP address and information about the video and
-        your device) under its own policies. We do not control those cookies
-        or receive their contents. See
-        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>
+        Once you load a highlight, Google may set its own cookies and receive data (including your
+        IP address and information about the video and your device) under its own policies. We do
+        not control those cookies or receive their contents. See
+        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener"
+          >Google's Privacy Policy</a
+        >
         for details.
       </p>
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">Outbound links</h2>
       <p>
-        Player profiles link to third-party sites (Twitter / X, Twitch,
-        Liquipedia) when those handles are available. Clicking an outbound link
-        takes you to that site, whose own privacy practices apply once you arrive.
+        Player profiles link to third-party sites (Twitter / X, Twitch, Liquipedia) when those
+        handles are available. Clicking an outbound link takes you to that site, whose own privacy
+        practices apply once you arrive.
       </p>
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">Email contact</h2>
       <p>
-        If you email us at <Fragment set:html={'<!--email_off-->'} />{site.contactEmail}<Fragment set:html={'<!--/email_off-->'} />, we will store the contents of your
-        message and your email address for as long as is reasonably needed to
-        respond and keep records of the correspondence.
+        If you email us at <Fragment set:html={'<!--email_off-->'} />{site.contactEmail}<Fragment
+          set:html={'<!--/email_off-->'}
+        />, we will store the contents of your message and your email address for as long as is
+        reasonably needed to respond and keep records of the correspondence.
       </p>
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">Your rights</h2>
       <p>
-        <strong>If you only browse this site, we hold no personal data
-        about you.</strong> The site itself collects nothing: no analytics,
-        no profiles, no logs of who visited which page. There is literally
+        <strong>If you only browse this site, we hold no personal data about you.</strong> The site itself
+        collects nothing: no analytics, no profiles, no logs of who visited which page. There is literally
         nothing for us to look up, delete, or correct.
       </p>
       <p>
         The single exception is correspondence. If you email
-        <Fragment set:html={'<!--email_off-->'} />{site.contactEmail}<Fragment set:html={'<!--/email_off-->'} />,
-        we keep your message and email address for as long as it takes to
-        reply and to maintain a reasonable record. You can ask us to
-        delete that thread at any time by writing to the same address.
+        <Fragment set:html={'<!--email_off-->'} />{site.contactEmail}<Fragment
+          set:html={'<!--/email_off-->'}
+        />, we keep your message and email address for as long as it takes to reply and to maintain
+        a reasonable record. You can ask us to delete that thread at any time by writing to the same
+        address.
       </p>
       <p>
-        Depending on where you live (GDPR in the EU/UK, CCPA in California,
-        PIPL in mainland China, APPI in Japan, PDPA in Singapore and Taiwan,
-        etc.) you may have additional statutory rights over any
-        correspondence we hold. Reach us at
-        <Fragment set:html={'<!--email_off-->'} />{site.contactEmail}<Fragment set:html={'<!--/email_off-->'} />
-        for any data request and we will respond within the timeframe your
-        local law requires.
+        Depending on where you live (GDPR in the EU/UK, CCPA in California, PIPL in mainland China,
+        APPI in Japan, PDPA in Singapore and Taiwan, etc.) you may have additional statutory rights
+        over any correspondence we hold. Reach us at
+        <Fragment set:html={'<!--email_off-->'} />{site.contactEmail}<Fragment
+          set:html={'<!--/email_off-->'}
+        />
+        for any data request and we will respond within the timeframe your local law requires.
       </p>
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">Changes</h2>
       <p>
-        We will update the "Last updated" date above when this policy changes.
-        Material changes will be announced in the news section.
+        We will update the "Last updated" date above when this policy changes. Material changes will
+        be announced in the news section.
       </p>
     </div>
   </section>
 </BaseLayout>
 
 <style is:global>
-  .prose p { margin-bottom: 1em; }
-  .prose a { color: var(--color-accent-2); text-decoration: underline; text-underline-offset: 3px; }
-  .prose a:hover { color: var(--color-accent); }
+  .prose p {
+    margin-bottom: 1em;
+  }
+  .prose a {
+    color: var(--color-accent-2);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .prose a:hover {
+    color: var(--color-accent);
+  }
 </style>

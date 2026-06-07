@@ -300,7 +300,10 @@ function extractAchievements(wikitext) {
     const placement = m[1].trim();
     const event = m[2].trim();
     const date = normalizeDate(m[3].trim());
-    const id = `liquipedia-${event}-${date}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-');
+    const id = `liquipedia-${event}-${date}`
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/-+/g, '-');
     out.push({ id, date, event, placement });
   }
   return out;
@@ -310,13 +313,34 @@ function extractAchievements(wikitext) {
 
 // Liquipedia timezone abbreviation → UTC offset in hours.
 const TZ_OFFSETS = {
-  ICT: 7, WIB: 7, BKK: 7,
-  CST: 8, CT: 8, MYT: 8, SGT: 8, PHT: 8, AWST: 8, HKT: 8,
-  KST: 9, JST: 9,
-  AEDT: 11, AEST: 10,
-  NZST: 12, NZDT: 13,
-  PST: -8, PDT: -7, MST: -7, MDT: -6, EST: -5, EDT: -4,
-  GMT: 0, UTC: 0, BST: 1, CET: 1, CEST: 2, EET: 2,
+  ICT: 7,
+  WIB: 7,
+  BKK: 7,
+  CST: 8,
+  CT: 8,
+  MYT: 8,
+  SGT: 8,
+  PHT: 8,
+  AWST: 8,
+  HKT: 8,
+  KST: 9,
+  JST: 9,
+  AEDT: 11,
+  AEST: 10,
+  NZST: 12,
+  NZDT: 13,
+  PST: -8,
+  PDT: -7,
+  MST: -7,
+  MDT: -6,
+  EST: -5,
+  EDT: -4,
+  GMT: 0,
+  UTC: 0,
+  BST: 1,
+  CET: 1,
+  CEST: 2,
+  EET: 2,
 };
 
 function parseMatchDate(raw) {
@@ -329,7 +353,9 @@ function parseMatchDate(raw) {
     .trim();
 
   // Pattern: "YYYY-MM-DD[ - ]HH:MM[ TZ]"
-  const m = cleaned.match(/^(\d{4})-(\d{2})-(\d{2})(?:\s*[-T]\s*(\d{1,2}):(\d{2}))?(?:\s*([A-Z]{2,5}))?/);
+  const m = cleaned.match(
+    /^(\d{4})-(\d{2})-(\d{2})(?:\s*[-T]\s*(\d{1,2}):(\d{2}))?(?:\s*([A-Z]{2,5}))?/,
+  );
   if (!m) return null;
   const [, y, mo, d, h, mi, tz] = m;
   if (!h) return `${y}-${mo}-${d}T00:00:00Z`;
@@ -365,9 +391,7 @@ function extractMatches(wikitext, teamName, defaultTournament, sourcePage) {
   const matches = [];
   if (typeof wikitext !== 'string' || wikitext.length === 0) return matches;
 
-  const sourceUrl = sourcePage
-    ? `https://liquipedia.net/overwatch/${sourcePage}`
-    : undefined;
+  const sourceUrl = sourcePage ? `https://liquipedia.net/overwatch/${sourcePage}` : undefined;
 
   const matchOpener = /\{\{Match\b/g;
   const teamLc = teamName.toLowerCase();
@@ -451,10 +475,10 @@ function extractMatches(wikitext, teamName, defaultTournament, sourcePage) {
     const stream = params.twitch
       ? `https://twitch.tv/${params.twitch.trim()}`
       : params.stream
-      ? params.stream.trim().startsWith('http')
-        ? params.stream.trim()
-        : `https://${params.stream.trim()}`
-      : undefined;
+        ? params.stream.trim().startsWith('http')
+          ? params.stream.trim()
+          : `https://${params.stream.trim()}`
+        : undefined;
 
     counter += 1;
     const slug = defaultTournament
@@ -541,7 +565,10 @@ async function fetchPlayerBio(handle) {
   }
 
   // Roles can be comma-separated ("Coach, Tank").
-  const rolesRaw = (p.roles ?? '').split(',').map((r) => normalizeRole(r.trim())).filter(Boolean);
+  const rolesRaw = (p.roles ?? '')
+    .split(',')
+    .map((r) => normalizeRole(r.trim()))
+    .filter(Boolean);
 
   const out = {};
   if (p.romanized_name) out.realName = p.romanized_name.trim();
@@ -606,14 +633,14 @@ function labelFromPage(pageSlug) {
       }
 
       // Find which team alias is present on this page.
-      const matchHit = withFirstMatchingName(
-        wikitext,
-        TEAM_LIQUIPEDIA_NAMES,
-        (wt, n) => extractMatches(wt, n, label, page),
+      const matchHit = withFirstMatchingName(wikitext, TEAM_LIQUIPEDIA_NAMES, (wt, n) =>
+        extractMatches(wt, n, label, page),
       );
 
       if (matchHit) {
-        console.log(`[liquipedia] ${label}: found ${matchHit.result.length} matches (team alias: "${matchHit.name}").`);
+        console.log(
+          `[liquipedia] ${label}: found ${matchHit.result.length} matches (team alias: "${matchHit.name}").`,
+        );
         allMatches.push(...matchHit.result);
       } else {
         console.log(`[liquipedia] ${label}: no matches found for any team alias.`);
@@ -623,15 +650,15 @@ function labelFromPage(pageSlug) {
       // priority order means Stage 2 wins when it exists, Stage 1 fills in
       // until then.
       if (!primaryWikitext) {
-        const rosterHit = withFirstMatchingName(
-          wikitext,
-          TEAM_LIQUIPEDIA_NAMES,
-          (wt, n) => extractRoster(wt, n),
+        const rosterHit = withFirstMatchingName(wikitext, TEAM_LIQUIPEDIA_NAMES, (wt, n) =>
+          extractRoster(wt, n),
         );
         if (rosterHit) {
           primaryWikitext = wikitext;
           primaryName = rosterHit.name;
-          console.log(`[liquipedia] ${label}: primary source for roster (alias: "${primaryName}", ${rosterHit.result.length} players).`);
+          console.log(
+            `[liquipedia] ${label}: primary source for roster (alias: "${primaryName}", ${rosterHit.result.length} players).`,
+          );
         }
       }
     } catch (err) {
@@ -647,10 +674,14 @@ function labelFromPage(pageSlug) {
     // individual Liquipedia page. Rate-limited at one parse call per 30s.
     // Players without a page (404) silently keep the tournament-page data only.
     if (roster.length > 0) {
-      console.log(`[liquipedia] enriching ${roster.length} roster entries from individual pages...`);
+      console.log(
+        `[liquipedia] enriching ${roster.length} roster entries from individual pages...`,
+      );
       for (let i = 0; i < roster.length; i += 1) {
         const entry = roster[i];
-        console.log(`[liquipedia] sleeping ${PARSE_INTERVAL_MS / 1000}s (rate limit) before ${entry.handle}.`);
+        console.log(
+          `[liquipedia] sleeping ${PARSE_INTERVAL_MS / 1000}s (rate limit) before ${entry.handle}.`,
+        );
         await sleep(PARSE_INTERVAL_MS);
         const bio = await fetchPlayerBio(entry.handle);
         if (bio) {
@@ -662,7 +693,9 @@ function labelFromPage(pageSlug) {
           const summary = [
             bio.realName ? `name=${bio.realName}` : null,
             bio.signatureHeroes ? `heroes=${bio.signatureHeroes.join('/')}` : null,
-          ].filter(Boolean).join(' ');
+          ]
+            .filter(Boolean)
+            .join(' ');
           console.log(`[liquipedia]   ${entry.handle}: ${summary || '(no extra fields)'}`);
         } else {
           console.log(`[liquipedia]   ${entry.handle}: no individual page`);
@@ -682,9 +715,7 @@ function labelFromPage(pageSlug) {
   // Dedup matches across pages on id, sort soonest-first, write.
   const byId = new Map();
   for (const m of allMatches) byId.set(m.id, m);
-  const merged = Array.from(byId.values()).sort(
-    (a, b) => +new Date(a.date) - +new Date(b.date),
-  );
+  const merged = Array.from(byId.values()).sort((a, b) => +new Date(a.date) - +new Date(b.date));
   await safeWrite(MATCHES_PATH, 'matches', merged, MatchEntrySchema);
 
   process.exit(0);

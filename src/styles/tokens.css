@@ -15,10 +15,10 @@
    * CommunityCTA, WatchHub. The `-fg` variants are the muted text/icon
    * shade used on a dark surface; the unsuffixed value is the brand's
    * canonical solid. */
-  --color-discord: #5865F2;
-  --color-discord-fg: #B8BFFF;
-  --color-twitch: #9146FF;
-  --color-twitch-fg: #B689FF;
-  --color-youtube: #FF0033;
-  --color-youtube-fg: #FF6E84;
+  --color-discord: #5865f2;
+  --color-discord-fg: #b8bfff;
+  --color-twitch: #9146ff;
+  --color-twitch-fg: #b689ff;
+  --color-youtube: #ff0033;
+  --color-youtube-fg: #ff6e84;
 }

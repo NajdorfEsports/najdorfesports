@@ -12,61 +12,69 @@ const locale = getLocale(Astro);
 const t = useT(locale);
 
 const countdownLabels = [
-  { key: 'days',  label: t.nextMatch.days  },
+  { key: 'days', label: t.nextMatch.days },
   { key: 'hours', label: t.nextMatch.hours },
-  { key: 'min',   label: t.nextMatch.min   },
-  { key: 'sec',   label: t.nextMatch.sec   },
+  { key: 'min', label: t.nextMatch.min },
+  { key: 'sec', label: t.nextMatch.sec },
 ];
 
 const tournament = match ? translateTournament(match.tournament, locale) : '';
 ---
-{match ? (
-  <section
-    class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 sm:p-8"
-    aria-label="Next match countdown"
-  >
-    <p class="text-xs uppercase tracking-wider text-[var(--color-accent-2)]">
-      {t.nextMatch.eyebrow(tournament)}
-    </p>
-    <p class="font-display text-3xl sm:text-4xl mt-2 tracking-wide">
-      {t.nextMatch.vs(match.opponent)}
-    </p>
 
-    <div
-      class="mt-5 grid grid-cols-4 gap-3 max-w-md"
-      data-countdown
-      data-target={match.date}
+{
+  match ? (
+    <section
+      class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 sm:p-8"
+      aria-label="Next match countdown"
     >
-      {countdownLabels.map((u, i) => (
-        <div class="bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-sm py-3 text-center">
-          <p class="font-display text-2xl sm:text-3xl tabular-nums" data-slot={i}>--</p>
-          <p class="text-[0.6rem] uppercase tracking-widest text-[var(--color-text-dim)] mt-1">{u.label}</p>
-        </div>
-      ))}
-    </div>
-
-    {match.streamUrl && (
-      <p class="mt-4 text-sm">
-        <a href={match.streamUrl} target="_blank" rel="noopener" class="link-arrow has-glyph text-[var(--color-accent-2)] hover:text-[var(--color-accent)] uppercase tracking-wider">
-          <span>{t.nextMatch.watchLive}</span>
-        </a>
+      <p class="text-xs uppercase tracking-wider text-[var(--color-accent-2)]">
+        {t.nextMatch.eyebrow(tournament)}
       </p>
-    )}
-  </section>
-) : (
-  <section
-    class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 sm:p-8"
-    aria-label="Next match"
-  >
-    <p class="text-xs uppercase tracking-wider text-[var(--color-accent-2)]">{t.nextMatch.eyebrowEmpty}</p>
-    <p class="font-display text-2xl sm:text-3xl mt-2 tracking-wide">
-      {t.nextMatch.placeholderHeadline}
-    </p>
-    <p class="text-[var(--color-text-dim)] text-sm mt-2">
-      {t.nextMatch.placeholderBody}
-    </p>
-  </section>
-)}
+      <p class="font-display text-3xl sm:text-4xl mt-2 tracking-wide">
+        {t.nextMatch.vs(match.opponent)}
+      </p>
+
+      <div class="mt-5 grid grid-cols-4 gap-3 max-w-md" data-countdown data-target={match.date}>
+        {countdownLabels.map((u, i) => (
+          <div class="bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-sm py-3 text-center">
+            <p class="font-display text-2xl sm:text-3xl tabular-nums" data-slot={i}>
+              --
+            </p>
+            <p class="text-[0.6rem] uppercase tracking-widest text-[var(--color-text-dim)] mt-1">
+              {u.label}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {match.streamUrl && (
+        <p class="mt-4 text-sm">
+          <a
+            href={match.streamUrl}
+            target="_blank"
+            rel="noopener"
+            class="link-arrow has-glyph text-[var(--color-accent-2)] hover:text-[var(--color-accent)] uppercase tracking-wider"
+          >
+            <span>{t.nextMatch.watchLive}</span>
+          </a>
+        </p>
+      )}
+    </section>
+  ) : (
+    <section
+      class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 sm:p-8"
+      aria-label="Next match"
+    >
+      <p class="text-xs uppercase tracking-wider text-[var(--color-accent-2)]">
+        {t.nextMatch.eyebrowEmpty}
+      </p>
+      <p class="font-display text-2xl sm:text-3xl mt-2 tracking-wide">
+        {t.nextMatch.placeholderHeadline}
+      </p>
+      <p class="text-[var(--color-text-dim)] text-sm mt-2">{t.nextMatch.placeholderBody}</p>
+    </section>
+  )
+}
 
 <script is:inline>
   // Runs on initial load AND on every ClientRouter navigation. Each call

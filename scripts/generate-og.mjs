@@ -49,8 +49,7 @@ function ogSvg({ eyebrow, title, tone = 'primary' }, bishopUri) {
   const TITLE_BAND_BOTTOM = 558; // just above the domain line (y=585)
   const blockHeight = lines.length * lineHeight;
   const blockTop =
-    TITLE_BAND_TOP +
-    Math.max(0, (TITLE_BAND_BOTTOM - TITLE_BAND_TOP - blockHeight) / 2);
+    TITLE_BAND_TOP + Math.max(0, (TITLE_BAND_BOTTOM - TITLE_BAND_TOP - blockHeight) / 2);
   const firstBaselineY = Math.round(blockTop + fontSize * 0.8);
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -92,9 +91,12 @@ function ogSvg({ eyebrow, title, tone = 'primary' }, bishopUri) {
   </text>
 
   <!-- Title, sized so it stays inside the column at any sans fallback width. -->
-  ${lines.map((line, i) =>
-    `<text x="240" y="${firstBaselineY + i * lineHeight}" font-family="Anton, Oswald, Impact, Arial Narrow, sans-serif" font-size="${fontSize}" font-weight="700" letter-spacing="4" fill="#E9ECF1">${escapeXml(line)}</text>`,
-  ).join('\n  ')}
+  ${lines
+    .map(
+      (line, i) =>
+        `<text x="240" y="${firstBaselineY + i * lineHeight}" font-family="Anton, Oswald, Impact, Arial Narrow, sans-serif" font-size="${fontSize}" font-weight="700" letter-spacing="4" fill="#E9ECF1">${escapeXml(line)}</text>`,
+    )
+    .join('\n  ')}
 
   <!-- Domain, bottom-anchored, clear of even a 3-line title. -->
   <text x="240" y="585" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="400" fill="#9CA3AF">
@@ -259,15 +261,69 @@ async function deriveBishopAssets() {
 const STATIC_ROUTES = [
   // The default ships at the top-level branding folder so existing
   // BaseLayout fallback paths keep working without changes.
-  { slug: '__default',  out: 'branding/og-default.png',  eyebrow: 'OWCS PACIFIC 2026', title: 'NAJDORF ESPORTS', tone: 'primary'   },
-  { slug: 'home',       out: 'branding/og/home.png',     eyebrow: 'OWCS PACIFIC 2026', title: 'Najdorf Esports', tone: 'primary'   },
-  { slug: 'roster',     out: 'branding/og/roster.png',   eyebrow: 'Active roster',     title: 'The Lineup',      tone: 'secondary' },
-  { slug: 'matches',    out: 'branding/og/matches.png',  eyebrow: 'OWCS Pacific 2026', title: 'Matches',         tone: 'primary'   },
-  { slug: 'news',       out: 'branding/og/news.png',     eyebrow: 'News',              title: 'From the team',   tone: 'split'     },
-  { slug: 'about',      out: 'branding/og/about.png',    eyebrow: 'About',             title: 'Najdorf Esports', tone: 'secondary' },
-  { slug: 'shop',       out: 'branding/og/shop.png',     eyebrow: 'Shop',              title: 'Drops with the LAN', tone: 'secondary' },
-  { slug: 'privacy',    out: 'branding/og/privacy.png',  eyebrow: 'Legal',             title: 'Privacy Policy',  tone: 'primary'   },
-  { slug: 'terms',      out: 'branding/og/terms.png',    eyebrow: 'Legal',             title: 'Terms of Use',    tone: 'primary'   },
+  {
+    slug: '__default',
+    out: 'branding/og-default.png',
+    eyebrow: 'OWCS PACIFIC 2026',
+    title: 'NAJDORF ESPORTS',
+    tone: 'primary',
+  },
+  {
+    slug: 'home',
+    out: 'branding/og/home.png',
+    eyebrow: 'OWCS PACIFIC 2026',
+    title: 'Najdorf Esports',
+    tone: 'primary',
+  },
+  {
+    slug: 'roster',
+    out: 'branding/og/roster.png',
+    eyebrow: 'Active roster',
+    title: 'The Lineup',
+    tone: 'secondary',
+  },
+  {
+    slug: 'matches',
+    out: 'branding/og/matches.png',
+    eyebrow: 'OWCS Pacific 2026',
+    title: 'Matches',
+    tone: 'primary',
+  },
+  {
+    slug: 'news',
+    out: 'branding/og/news.png',
+    eyebrow: 'News',
+    title: 'From the team',
+    tone: 'split',
+  },
+  {
+    slug: 'about',
+    out: 'branding/og/about.png',
+    eyebrow: 'About',
+    title: 'Najdorf Esports',
+    tone: 'secondary',
+  },
+  {
+    slug: 'shop',
+    out: 'branding/og/shop.png',
+    eyebrow: 'Shop',
+    title: 'Drops with the LAN',
+    tone: 'secondary',
+  },
+  {
+    slug: 'privacy',
+    out: 'branding/og/privacy.png',
+    eyebrow: 'Legal',
+    title: 'Privacy Policy',
+    tone: 'primary',
+  },
+  {
+    slug: 'terms',
+    out: 'branding/og/terms.png',
+    eyebrow: 'Legal',
+    title: 'Terms of Use',
+    tone: 'primary',
+  },
 ];
 
 /** Parse the YAML-ish frontmatter of a markdown post just well enough to
@@ -310,7 +366,7 @@ async function newsRoutes() {
       out: `branding/og/news-${slug}.png`,
       eyebrow: fm.eyebrow || 'News',
       title: fm.title,
-      tone: (fm.tone === 'secondary' || fm.tone === 'split') ? fm.tone : 'primary',
+      tone: fm.tone === 'secondary' || fm.tone === 'split' ? fm.tone : 'primary',
     });
   }
   return out;

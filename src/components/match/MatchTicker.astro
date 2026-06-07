@@ -25,7 +25,11 @@ const items: TickerItem[] = [];
 for (const m of matches) {
   const ts = +new Date(m.date);
   const isPast = ts < now;
-  const dateStr = formatDate(m.date, locale, { month: 'short', day: 'numeric', timeZone: MATCH_TIME_ZONE });
+  const dateStr = formatDate(m.date, locale, {
+    month: 'short',
+    day: 'numeric',
+    timeZone: MATCH_TIME_ZONE,
+  });
   const tournament = translateTournament(m.tournament, locale);
   const href = m.liquipediaUrl;
   if (!isPast) {
@@ -66,33 +70,36 @@ if (items.length === 0) {
 // Duplicate the item list so the CSS marquee can translate -50% for a seamless loop.
 const duplicated = [...items, ...items];
 ---
+
 <div class="ticker" aria-label={t.ticker.ariaLabel} role="region">
   <div class="ticker__edge ticker__edge--left" aria-hidden="true"></div>
   <ul class="ticker__track">
-    {duplicated.map((item, i) => {
-      const isDuplicate = i >= items.length;
-      return (
-        <li
-          class:list={['ticker__item', `ticker__item--${item.variant}`]}
-          data-half={isDuplicate ? 'b' : 'a'}
-          {...(isDuplicate ? { 'aria-hidden': 'true' } : {})}
-        >
-          {item.href ? (
-            <a
-              href={item.href}
-              target="_blank"
-              rel="noopener"
-              class="ticker__link"
-              {...(isDuplicate ? { tabindex: -1 } : {})}
-            >
-              {item.label}
-            </a>
-          ) : (
-            <span>{item.label}</span>
-          )}
-        </li>
-      );
-    })}
+    {
+      duplicated.map((item, i) => {
+        const isDuplicate = i >= items.length;
+        return (
+          <li
+            class:list={['ticker__item', `ticker__item--${item.variant}`]}
+            data-half={isDuplicate ? 'b' : 'a'}
+            {...(isDuplicate ? { 'aria-hidden': 'true' } : {})}
+          >
+            {item.href ? (
+              <a
+                href={item.href}
+                target="_blank"
+                rel="noopener"
+                class="ticker__link"
+                {...(isDuplicate ? { tabindex: -1 } : {})}
+              >
+                {item.label}
+              </a>
+            ) : (
+              <span>{item.label}</span>
+            )}
+          </li>
+        );
+      })
+    }
   </ul>
   <div class="ticker__edge ticker__edge--right" aria-hidden="true"></div>
 </div>
@@ -142,17 +149,27 @@ const duplicated = [...items, ...items];
     flex-shrink: 0;
   }
 
-  .ticker__item--live { color: var(--color-accent); }
+  .ticker__item--live {
+    color: var(--color-accent);
+  }
   .ticker__item--live::before {
     background: var(--color-accent);
     box-shadow: 0 0 0 0 var(--color-accent);
     animation: live-pulse 1.6s ease-in-out infinite;
   }
-  .ticker__item--upcoming { color: var(--color-accent-2); }
-  .ticker__item--win { color: var(--color-win); }
-  .ticker__item--loss { color: var(--color-loss); }
+  .ticker__item--upcoming {
+    color: var(--color-accent-2);
+  }
+  .ticker__item--win {
+    color: var(--color-win);
+  }
+  .ticker__item--loss {
+    color: var(--color-loss);
+  }
   .ticker__item--tbd,
-  .ticker__item--neutral { color: var(--color-text-dim); }
+  .ticker__item--neutral {
+    color: var(--color-text-dim);
+  }
 
   .ticker__link {
     color: inherit;
@@ -182,13 +199,22 @@ const duplicated = [...items, ...items];
   }
 
   @keyframes ticker-marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
   }
 
   @keyframes live-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-accent) 60%, transparent); }
-    50%      { box-shadow: 0 0 0 6px transparent; }
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-accent) 60%, transparent);
+    }
+    50% {
+      box-shadow: 0 0 0 6px transparent;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

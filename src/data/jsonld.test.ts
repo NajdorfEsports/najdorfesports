@@ -65,10 +65,9 @@ describe('buildMatchesJsonLd', () => {
     for (const ev of buildMatchesJsonLd()) {
       expect(ev['@type']).toBe('SportsEvent');
       expect(Number.isNaN(Date.parse(ev.startDate as string))).toBe(false);
-      expect([
-        'https://schema.org/EventCompleted',
-        'https://schema.org/EventScheduled',
-      ]).toContain(ev.eventStatus);
+      expect(['https://schema.org/EventCompleted', 'https://schema.org/EventScheduled']).toContain(
+        ev.eventStatus,
+      );
       const competitors = ev.competitor as Array<Record<string, unknown>>;
       expect(competitors[0]['@id']).toBe(ORG_ID);
     }

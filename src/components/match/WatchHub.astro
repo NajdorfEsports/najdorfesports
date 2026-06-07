@@ -23,53 +23,61 @@ const platformLabel: Record<WatchChannel['platform'], string> = {
   other: 'Watch',
 };
 ---
-{visible.length > 0 && (
-  <section class="watch-hub mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10" aria-label={t.watch.eyebrow}>
-    <div class="flex items-end justify-between mb-4 gap-4">
-      <div>
-        <p class="text-[0.65rem] uppercase tracking-[0.25em] text-[var(--color-accent-2)]">{t.watch.eyebrow}</p>
-        <h2 class="font-display text-2xl sm:text-3xl mt-1 tracking-wide">{t.watch.heading}</h2>
-      </div>
-    </div>
 
-    <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      {visible.map((c) => (
-        <li>
-          <a
-            href={c.url}
-            target="_blank"
-            rel="noopener"
-            class="watch-card group flex items-center justify-between gap-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md px-4 py-3 transition-colors"
-            aria-label={t.watch.cardAriaLabel(c.name, c.language, platformLabel[c.platform])}
-          >
-            <div class="min-w-0">
-              <p class="font-display text-base tracking-wide truncate">{c.name}</p>
-              <p class="text-[0.65rem] uppercase tracking-wider text-[var(--color-text-dim)] mt-0.5">
-                {platformLabel[c.platform]} · {c.language}
-              </p>
-            </div>
-            {/* Tiny play-glyph chip, role-coloured per platform. Brand
+{
+  visible.length > 0 && (
+    <section
+      class="watch-hub mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10"
+      aria-label={t.watch.eyebrow}
+    >
+      <div class="flex items-end justify-between mb-4 gap-4">
+        <div>
+          <p class="text-[0.65rem] uppercase tracking-[0.25em] text-[var(--color-accent-2)]">
+            {t.watch.eyebrow}
+          </p>
+          <h2 class="font-display text-2xl sm:text-3xl mt-1 tracking-wide">{t.watch.heading}</h2>
+        </div>
+      </div>
+
+      <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {visible.map((c) => (
+          <li>
+            <a
+              href={c.url}
+              target="_blank"
+              rel="noopener"
+              class="watch-card group flex items-center justify-between gap-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md px-4 py-3 transition-colors"
+              aria-label={t.watch.cardAriaLabel(c.name, c.language, platformLabel[c.platform])}
+            >
+              <div class="min-w-0">
+                <p class="font-display text-base tracking-wide truncate">{c.name}</p>
+                <p class="text-[0.65rem] uppercase tracking-wider text-[var(--color-text-dim)] mt-0.5">
+                  {platformLabel[c.platform]} · {c.language}
+                </p>
+              </div>
+              {/* Tiny play-glyph chip, role-coloured per platform. Brand
                 colors live in tokens.css; the modifier classes below
                 pull them in. */}
-            <span
-              class:list={[
-                'watch-card__chip inline-flex items-center justify-center w-9 h-9 rounded-full shrink-0',
-                c.platform === 'twitch'  ? 'watch-card__chip--twitch'  : '',
-                c.platform === 'youtube' ? 'watch-card__chip--youtube' : '',
-                c.platform === 'other'   ? 'watch-card__chip--other'   : '',
-              ]}
-              aria-hidden="true"
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
-                <polygon points="3,2 12,7 3,12" />
-              </svg>
-            </span>
-          </a>
-        </li>
-      ))}
-    </ul>
-  </section>
-)}
+              <span
+                class:list={[
+                  'watch-card__chip inline-flex items-center justify-center w-9 h-9 rounded-full shrink-0',
+                  c.platform === 'twitch' ? 'watch-card__chip--twitch' : '',
+                  c.platform === 'youtube' ? 'watch-card__chip--youtube' : '',
+                  c.platform === 'other' ? 'watch-card__chip--other' : '',
+                ]}
+                aria-hidden="true"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                  <polygon points="3,2 12,7 3,12" />
+                </svg>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
 
 <style>
   .watch-card {

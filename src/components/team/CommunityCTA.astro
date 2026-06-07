@@ -24,11 +24,15 @@ const t = useT(locale);
 const visible = communitySocials();
 
 const ctaFor = (name: string) =>
-  name === 'Discord'  ? t.community.discordCta
-  : name === 'X'       ? t.community.xCta
-  : name === 'Twitch'  ? t.community.twitchCta
-  : name === 'YouTube' ? t.community.youtubeCta
-  : `Follow on ${name}`;
+  name === 'Discord'
+    ? t.community.discordCta
+    : name === 'X'
+      ? t.community.xCta
+      : name === 'Twitch'
+        ? t.community.twitchCta
+        : name === 'YouTube'
+          ? t.community.youtubeCta
+          : `Follow on ${name}`;
 
 // Live counts (Discord members, X followers), surfaced only when the
 // social-stats feature is on AND the channel has a real number. When it's off
@@ -43,85 +47,82 @@ const countMeta: Record<string, { platform: 'discord' | 'x'; label: string }> = 
 const countFor = (name: string) => {
   const meta = countMeta[name];
   const stat = meta ? statByPlatform.get(meta.platform) : undefined;
-  return stat && typeof stat.count === 'number'
-    ? { value: stat.count, label: meta!.label }
-    : null;
+  return stat && typeof stat.count === 'number' ? { value: stat.count, label: meta!.label } : null;
 };
 ---
-{visible.length > 0 && (
-  <section
-    class="community mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-20"
-    aria-label="Join the community"
-  >
-    <div class="max-w-2xl">
-      <p class="text-[0.65rem] uppercase tracking-[0.25em] text-[var(--color-accent-2)]">
-        {t.community.eyebrow}
-      </p>
-      <h2 class="font-display text-3xl sm:text-4xl mt-1 tracking-wide">
-        {t.community.headline}
-      </h2>
-      <p class="mt-3 text-[var(--color-text-dim)] leading-relaxed">
-        {t.community.body}
-      </p>
-    </div>
 
-    <ul class="mt-8 grid gap-4 sm:grid-cols-2">
-      {visible.map((s) => {
-        const count = countFor(s.name);
-        return (
-          <li>
-            <a
-              href={s.url}
-              target="_blank"
-              rel="me noopener"
-              class:list={[
-                'community-card group relative flex items-start gap-4 bg-[var(--color-surface)]',
-                'border border-[var(--color-border)] rounded-md p-5 sm:p-6',
-                s.name === 'Discord' ? 'community-card--discord' : '',
-                s.name === 'X'       ? 'community-card--x'       : '',
-                s.name === 'Twitch'  ? 'community-card--twitch'  : '',
-                s.name === 'YouTube' ? 'community-card--youtube' : '',
-              ]}
-              aria-label={`Najdorf Esports on ${s.name}${s.handle ? ` (${s.handle})` : ''}`}
-            >
-              <span
-                class="community-card__chip inline-flex items-center justify-center w-12 h-12 rounded-full shrink-0"
-                aria-hidden="true"
+{
+  visible.length > 0 && (
+    <section
+      class="community mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-20"
+      aria-label="Join the community"
+    >
+      <div class="max-w-2xl">
+        <p class="text-[0.65rem] uppercase tracking-[0.25em] text-[var(--color-accent-2)]">
+          {t.community.eyebrow}
+        </p>
+        <h2 class="font-display text-3xl sm:text-4xl mt-1 tracking-wide">{t.community.headline}</h2>
+        <p class="mt-3 text-[var(--color-text-dim)] leading-relaxed">{t.community.body}</p>
+      </div>
+
+      <ul class="mt-8 grid gap-4 sm:grid-cols-2">
+        {visible.map((s) => {
+          const count = countFor(s.name);
+          return (
+            <li>
+              <a
+                href={s.url}
+                target="_blank"
+                rel="me noopener"
+                class:list={[
+                  'community-card group relative flex items-start gap-4 bg-[var(--color-surface)]',
+                  'border border-[var(--color-border)] rounded-md p-5 sm:p-6',
+                  s.name === 'Discord' ? 'community-card--discord' : '',
+                  s.name === 'X' ? 'community-card--x' : '',
+                  s.name === 'Twitch' ? 'community-card--twitch' : '',
+                  s.name === 'YouTube' ? 'community-card--youtube' : '',
+                ]}
+                aria-label={`Najdorf Esports on ${s.name}${s.handle ? ` (${s.handle})` : ''}`}
               >
-                <PlatformIcon platform={s.name} size={s.name === 'Discord' ? 22 : 20} />
-              </span>
+                <span
+                  class="community-card__chip inline-flex items-center justify-center w-12 h-12 rounded-full shrink-0"
+                  aria-hidden="true"
+                >
+                  <PlatformIcon platform={s.name} size={s.name === 'Discord' ? 22 : 20} />
+                </span>
 
-              <div class="min-w-0 flex-1">
-                <div class="flex items-baseline justify-between gap-3">
-                  <p class="font-display text-xl tracking-wide">{s.name}</p>
-                  {s.handle && (
-                    <span class="text-[0.7rem] uppercase tracking-wider text-[var(--color-text-dim)] truncate">
-                      {s.handle}
-                    </span>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-baseline justify-between gap-3">
+                    <p class="font-display text-xl tracking-wide">{s.name}</p>
+                    {s.handle && (
+                      <span class="text-[0.7rem] uppercase tracking-wider text-[var(--color-text-dim)] truncate">
+                        {s.handle}
+                      </span>
+                    )}
+                  </div>
+                  {count && (
+                    <p class="community-card__stat" aria-label={`${count.value} ${count.label}`}>
+                      <span class="community-card__stat-num">{formatCount(count.value)}</span>
+                      <span class="community-card__stat-label">{count.label}</span>
+                    </p>
                   )}
+                  {s.blurb && (
+                    <p class="mt-2 text-sm text-[var(--color-text-dim)] leading-relaxed">
+                      {s.blurb}
+                    </p>
+                  )}
+                  <p class="link-arrow has-glyph mt-3 text-xs uppercase tracking-wider text-[var(--color-accent-2)] group-hover:text-[var(--color-accent)]">
+                    <span>{ctaFor(s.name)}</span>
+                  </p>
                 </div>
-                {count && (
-                  <p class="community-card__stat" aria-label={`${count.value} ${count.label}`}>
-                    <span class="community-card__stat-num">{formatCount(count.value)}</span>
-                    <span class="community-card__stat-label">{count.label}</span>
-                  </p>
-                )}
-                {s.blurb && (
-                  <p class="mt-2 text-sm text-[var(--color-text-dim)] leading-relaxed">
-                    {s.blurb}
-                  </p>
-                )}
-                <p class="link-arrow has-glyph mt-3 text-xs uppercase tracking-wider text-[var(--color-accent-2)] group-hover:text-[var(--color-accent)]">
-                  <span>{ctaFor(s.name)}</span>
-                </p>
-              </div>
-            </a>
-          </li>
-        );
-      })}
-    </ul>
-  </section>
-)}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  )
+}
 
 <style>
   .community-card {

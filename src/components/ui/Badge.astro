@@ -7,14 +7,17 @@ const { tone = 'neutral', size = 'sm' } = Astro.props;
 
 const tones = {
   neutral: 'bg-[var(--color-surface-2)] text-[var(--color-text-dim)] border-[var(--color-border)]',
-  accent:  'bg-[var(--color-accent)] text-white border-[var(--color-accent)]',
-  gold:    'bg-transparent text-[var(--color-accent-2)] border-[var(--color-accent-2)]',
-  win:     'bg-transparent text-[var(--color-win)] border-[var(--color-win)]',
-  loss:    'bg-transparent text-[var(--color-loss)] border-[var(--color-loss)]',
+  accent: 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]',
+  gold: 'bg-transparent text-[var(--color-accent-2)] border-[var(--color-accent-2)]',
+  win: 'bg-transparent text-[var(--color-win)] border-[var(--color-win)]',
+  loss: 'bg-transparent text-[var(--color-loss)] border-[var(--color-loss)]',
 }[tone];
 
 const sizes = size === 'md' ? 'px-3 py-1 text-xs' : 'px-2 py-0.5 text-[0.65rem]';
 ---
-<span class={`inline-flex items-center font-semibold uppercase tracking-wider border rounded-sm ${tones} ${sizes}`}>
+
+<span
+  class={`inline-flex items-center font-semibold uppercase tracking-wider border rounded-sm ${tones} ${sizes}`}
+>
   <slot />
 </span>

@@ -36,8 +36,7 @@ const OUT = join(__dirname, '..', 'src', 'data', 'social-stats.json');
 
 // Descriptive User-Agent with site + contact, matching the Liquipedia fetcher
 // convention. Default fetch UAs get blocked by some of these endpoints.
-const UA =
-  'NajdorfEsports-StatsBot/1.0 (+https://najdorfesports.gg; owner@najdorfesports.gg)';
+const UA = 'NajdorfEsports-StatsBot/1.0 (+https://najdorfesports.gg; owner@najdorfesports.gg)';
 
 const byPlatform = Object.fromEntries(channels.map((c) => [c.platform, c]));
 const CONFIG = {
@@ -61,9 +60,7 @@ async function getJson(url, headers = {}) {
 async function fetchDiscord() {
   const code = CONFIG.discordInvite;
   if (!code) return null;
-  const d = await getJson(
-    `https://discord.com/api/v10/invites/${code}?with_counts=true`,
-  );
+  const d = await getJson(`https://discord.com/api/v10/invites/${code}?with_counts=true`);
   const members = d.approximate_member_count ?? d.profile?.member_count ?? null;
   const online = d.approximate_presence_count ?? d.profile?.online_count ?? null;
   if (typeof members !== 'number') {
@@ -152,10 +149,10 @@ async function fetchTwitchLive() {
   });
   const token = (await tokenRes.json()).access_token;
   if (!token) throw new Error('no twitch app token');
-  const d = await getJson(
-    `https://api.twitch.tv/helix/streams?user_login=${login}`,
-    { 'Client-Id': cid, Authorization: `Bearer ${token}` },
-  );
+  const d = await getJson(`https://api.twitch.tv/helix/streams?user_login=${login}`, {
+    'Client-Id': cid,
+    Authorization: `Bearer ${token}`,
+  });
   const stream = d.data?.[0];
   return {
     platform: 'twitch',
@@ -207,7 +204,10 @@ async function main() {
   const result = Array.from(out.values());
   const parsed = SocialStatSchema.array().safeParse(result);
   if (!parsed.success) {
-    console.error('[social] output failed validation, leaving file untouched:', parsed.error.issues);
+    console.error(
+      '[social] output failed validation, leaving file untouched:',
+      parsed.error.issues,
+    );
     return;
   }
   const next = JSON.stringify(result, null, 2) + '\n';

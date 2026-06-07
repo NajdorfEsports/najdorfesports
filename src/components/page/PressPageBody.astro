@@ -42,9 +42,7 @@ const rosterValue =
     ? `${playerHandles.join(', ')} (${t.roles.Coach}: ${coachHandles.join(', ')})`
     : playerHandles.join(', ');
 
-const topAch = [...loadAchievements()].sort(
-  (a, b) => +new Date(b.date) - +new Date(a.date),
-)[0];
+const topAch = [...loadAchievements()].sort((a, b) => +new Date(b.date) - +new Date(a.date))[0];
 const achTag = topAch ? competedAsFor(topAch.event) : null;
 
 const stage2Played = loadMatches().filter(
@@ -55,9 +53,7 @@ const s2l = stage2Played.filter((m) => m.result === 'loss').length;
 
 const results: string[] = [];
 if (topAch) {
-  results.push(
-    `${topAch.placement}, ${topAch.event}${achTag ? ` (${t.competedAs(achTag)})` : ''}`,
-  );
+  results.push(`${topAch.placement}, ${topAch.event}${achTag ? ` (${t.competedAs(achTag)})` : ''}`);
 }
 if (stage2Played.length > 0) {
   results.push(`OWCS Pacific 2026 · Stage 2: ${t.matches.record(s2w, s2l)}`);
@@ -71,6 +67,7 @@ const facts: Array<{ label: string; value: string }> = [
   { label: t.press.factRoster, value: rosterValue },
 ];
 ---
+
 <section class="mx-auto max-w-3xl px-4 sm:px-6 pt-12 pb-16">
   <p class="text-sm uppercase tracking-wider text-[var(--color-accent-2)]">{t.press.eyebrow}</p>
   <h1 class="font-display text-4xl sm:text-5xl mt-2 tracking-wide">{t.press.title}</h1>
@@ -80,7 +77,8 @@ const facts: Array<{ label: string; value: string }> = [
     <a
       href={`mailto:${site.contactEmail}`}
       class="text-[var(--color-accent-2)] hover:text-[var(--color-accent)] underline underline-offset-4"
-    >{site.contactEmail}</a>
+      >{site.contactEmail}</a
+    >
     <Fragment set:html={'<!--/email_off-->'} />.
   </p>
 
@@ -89,37 +87,49 @@ const facts: Array<{ label: string; value: string }> = [
     <h2 class="font-display text-2xl tracking-wide">{t.press.assetsHeading}</h2>
     <p class="text-sm text-[var(--color-text-dim)] mt-2 leading-relaxed">{t.press.assetsNote}</p>
 
-    <h3 class="text-[0.7rem] uppercase tracking-[0.25em] text-[var(--color-accent-2)] mt-6">{t.press.downloadHeading}</h3>
+    <h3 class="text-[0.7rem] uppercase tracking-[0.25em] text-[var(--color-accent-2)] mt-6">
+      {t.press.downloadHeading}
+    </h3>
     <ul class="mt-3 grid gap-3 sm:grid-cols-2" role="list">
-      {logoFiles.map((f) => (
-        <li>
-          <a
-            href={f.href}
-            download
-            class="flex items-center justify-between gap-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md px-4 py-3 text-sm hover:border-[var(--color-accent-2)] transition-colors"
-          >
-            <span>{f.label}</span>
-            <span class="text-[var(--color-accent-2)]" aria-hidden="true">↓</span>
-          </a>
-        </li>
-      ))}
+      {
+        logoFiles.map((f) => (
+          <li>
+            <a
+              href={f.href}
+              download
+              class="flex items-center justify-between gap-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md px-4 py-3 text-sm hover:border-[var(--color-accent-2)] transition-colors"
+            >
+              <span>{f.label}</span>
+              <span class="text-[var(--color-accent-2)]" aria-hidden="true">
+                ↓
+              </span>
+            </a>
+          </li>
+        ))
+      }
     </ul>
 
-    <h3 class="text-[0.7rem] uppercase tracking-[0.25em] text-[var(--color-accent-2)] mt-8">{t.press.colorsHeading}</h3>
+    <h3 class="text-[0.7rem] uppercase tracking-[0.25em] text-[var(--color-accent-2)] mt-8">
+      {t.press.colorsHeading}
+    </h3>
     <ul class="mt-3 flex flex-wrap gap-4" role="list">
-      {brandColors.map((c) => (
-        <li class="flex items-center gap-3">
-          <span
-            class="inline-block w-9 h-9 rounded-md border border-[var(--color-border)]"
-            style={`background:${c.hex};`}
-            aria-hidden="true"
-          ></span>
-          <span class="text-sm">
-            <span class="block text-[var(--color-text-dim)] text-xs uppercase tracking-wider">{c.label}</span>
-            <span class="font-display tracking-wide tabular-nums">{c.hex}</span>
-          </span>
-        </li>
-      ))}
+      {
+        brandColors.map((c) => (
+          <li class="flex items-center gap-3">
+            <span
+              class="inline-block w-9 h-9 rounded-md border border-[var(--color-border)]"
+              style={`background:${c.hex};`}
+              aria-hidden="true"
+            />
+            <span class="text-sm">
+              <span class="block text-[var(--color-text-dim)] text-xs uppercase tracking-wider">
+                {c.label}
+              </span>
+              <span class="font-display tracking-wide tabular-nums">{c.hex}</span>
+            </span>
+          </li>
+        ))
+      }
     </ul>
   </section>
 
@@ -127,20 +137,30 @@ const facts: Array<{ label: string; value: string }> = [
   <section class="mt-12">
     <h2 class="font-display text-2xl tracking-wide">{t.press.factHeading}</h2>
     <dl class="mt-4 divide-y divide-[var(--color-border)] border-y border-[var(--color-border)]">
-      {facts.map((f) => (
-        <div class="grid grid-cols-[8rem_1fr] gap-4 py-3">
-          <dt class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] pt-0.5">{f.label}</dt>
-          <dd class="text-[var(--color-text)]">{f.value}</dd>
-        </div>
-      ))}
-      {results.length > 0 && (
-        <div class="grid grid-cols-[8rem_1fr] gap-4 py-3">
-          <dt class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] pt-0.5">{t.press.factResults}</dt>
-          <dd class="text-[var(--color-text)] space-y-1">
-            {results.map((r) => <p>{r}</p>)}
-          </dd>
-        </div>
-      )}
+      {
+        facts.map((f) => (
+          <div class="grid grid-cols-[8rem_1fr] gap-4 py-3">
+            <dt class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] pt-0.5">
+              {f.label}
+            </dt>
+            <dd class="text-[var(--color-text)]">{f.value}</dd>
+          </div>
+        ))
+      }
+      {
+        results.length > 0 && (
+          <div class="grid grid-cols-[8rem_1fr] gap-4 py-3">
+            <dt class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] pt-0.5">
+              {t.press.factResults}
+            </dt>
+            <dd class="text-[var(--color-text)] space-y-1">
+              {results.map((r) => (
+                <p>{r}</p>
+              ))}
+            </dd>
+          </div>
+        )
+      }
     </dl>
   </section>
 
@@ -148,7 +168,9 @@ const facts: Array<{ label: string; value: string }> = [
   <section class="mt-12">
     <h2 class="font-display text-2xl tracking-wide">{t.press.teamHeading}</h2>
     <div class="mt-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5">
-      <p class="font-display text-lg tracking-wide text-[var(--color-accent-2)]">{t.press.ownerRole}</p>
+      <p class="font-display text-lg tracking-wide text-[var(--color-accent-2)]">
+        {t.press.ownerRole}
+      </p>
       <p class="text-sm text-[var(--color-text-dim)] mt-2 leading-relaxed">{t.press.ownerBody}</p>
     </div>
   </section>

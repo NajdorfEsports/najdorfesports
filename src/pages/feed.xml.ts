@@ -17,8 +17,7 @@ export const GET: APIRoute = async () => {
     await getCollection('news', ({ data }) => !data.draft && data.locale === 'en')
   ).sort((a, b) => +b.data.date - +a.data.date);
 
-  const lastBuild =
-    posts[0]?.data.date.toUTCString() ?? new Date().toUTCString();
+  const lastBuild = posts[0]?.data.date.toUTCString() ?? new Date().toUTCString();
 
   const items = posts
     .map((post) => {

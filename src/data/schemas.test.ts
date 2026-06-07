@@ -30,9 +30,9 @@ describe('parseData', () => {
   });
 
   it('throws on a missing required field', () => {
-    expect(() => parseData(MatchEntrySchema, [{ id: '1', opponent: 'Y' }], [], 'matches')).toThrowError(
-      /matches\.json/,
-    );
+    expect(() =>
+      parseData(MatchEntrySchema, [{ id: '1', opponent: 'Y' }], [], 'matches'),
+    ).toThrowError(/matches\.json/);
   });
 
   it('throws on a malformed date', () => {

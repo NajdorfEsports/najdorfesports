@@ -18,11 +18,12 @@ const footerLinks = [
 // Legal links demoted to the meta row, they don't need primary-nav weight.
 const legalLinks = [
   { href: '/privacy/', label: 'Privacy' },
-  { href: '/terms/',   label: 'Terms'   },
+  { href: '/terms/', label: 'Terms' },
 ];
 
 const year = new Date().getFullYear();
 ---
+
 <footer class="border-t border-[var(--color-border)] mt-24">
   <div class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 py-7">
     {/* Row 1, brand + horizontal nav, single row on desktop, stacked on mobile. */}
@@ -50,36 +51,46 @@ const year = new Date().getFullYear();
       </div>
 
       <nav aria-label="Footer">
-        <ul class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[var(--color-text-dim)]">
-          {footerLinks.map((l) => (
-            <li>
-              <a
-                href={l.href}
-                class="link-slide hover:text-[var(--color-text)] transition-colors"
-              >
-                {l.label}
-              </a>
-            </li>
-          ))}
+        <ul
+          class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[var(--color-text-dim)]"
+        >
+          {
+            footerLinks.map((l) => (
+              <li>
+                <a
+                  href={l.href}
+                  class="link-slide hover:text-[var(--color-text)] transition-colors"
+                >
+                  {l.label}
+                </a>
+              </li>
+            ))
+          }
         </ul>
       </nav>
     </div>
 
-    {/* Row 2, one wrapping legal line; everything that used to be three
+    {
+      /* Row 2, one wrapping legal line; everything that used to be three
         separate rows now sits inline with · separators. Smaller font + a
-        thin top border keeps it visually subordinate. */}
+        thin top border keeps it visually subordinate. */
+    }
     <div
       class="mt-5 pt-4 border-t border-[var(--color-border)]/60 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.7rem] text-[var(--color-text-dim)]"
     >
       <span>{t.footer.copyright(year, site.name)}</span>
-      {legalLinks.map((l) => (
-        <>
-          <span aria-hidden="true" class="opacity-50">·</span>
-          <a href={l.href} class="hover:text-[var(--color-text)] transition-colors">
-            {l.label}
-          </a>
-        </>
-      ))}
+      {
+        legalLinks.map((l) => (
+          <>
+            <span aria-hidden="true" class="opacity-50">
+              ·
+            </span>
+            <a href={l.href} class="hover:text-[var(--color-text)] transition-colors">
+              {l.label}
+            </a>
+          </>
+        ))
+      }
       <span aria-hidden="true" class="opacity-50">·</span>
       <span class="opacity-90">{t.footer.trademark}</span>
       <span aria-hidden="true" class="opacity-50">·</span>

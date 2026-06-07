@@ -16,9 +16,7 @@ const { achievements } = Astro.props;
 const locale = getLocale(Astro);
 const t = useT(locale);
 
-const sorted = [...achievements].sort(
-  (a, b) => +new Date(b.date) - +new Date(a.date),
-);
+const sorted = [...achievements].sort((a, b) => +new Date(b.date) - +new Date(a.date));
 
 /** Map a placement string to its medal tier, drives the trophy-plate
  *  gradient and ring color. Falls back to a neutral tier for non-podium. */
@@ -29,63 +27,81 @@ function placementTier(placement: string): 'gold' | 'silver' | 'bronze' | 'neutr
   return 'neutral';
 }
 ---
-{sorted.length > 0 && (
-  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10" aria-label={t.achievement.ariaLabel}>
-    <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] mb-3">{t.achievement.recentResults}</p>
-    <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {sorted.map((a) => {
-        const tier = placementTier(a.placement);
-        const competedAs = competedAsFor(a.event);
-        return (
-          <li class:list={['achievement', `achievement--${tier}`, 'bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-4 flex items-center gap-4']}>
-            <span
-              class:list={['placement-plate', `placement-plate--${tier}`]}
-              aria-label={t.achievement.placementLabel(translatePlacement(a.placement, locale))}
+
+{
+  sorted.length > 0 && (
+    <section
+      class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10"
+      aria-label={t.achievement.ariaLabel}
+    >
+      <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] mb-3">
+        {t.achievement.recentResults}
+      </p>
+      <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {sorted.map((a) => {
+          const tier = placementTier(a.placement);
+          const competedAs = competedAsFor(a.event);
+          return (
+            <li
+              class:list={[
+                'achievement',
+                `achievement--${tier}`,
+                'bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-4 flex items-center gap-4',
+              ]}
             >
-              <span class="placement-plate__value">{translatePlacement(a.placement, locale)}</span>
-            </span>
-            <div class="min-w-0 flex-1">
-              <p class="font-display text-base sm:text-lg tracking-wide truncate">
-                {a.url ? (
-                  <a
-                    href={a.url}
-                    target="_blank"
-                    rel="noopener"
-                    class="hover:text-[var(--color-accent-2)] hover:underline underline-offset-4"
-                  >
-                    {translateTournament(a.event, locale)}
-                  </a>
-                ) : (
-                  translateTournament(a.event, locale)
-                )}
-              </p>
-              {competedAs && (
-                <p class="text-[0.7rem] uppercase tracking-wider text-[var(--color-accent-2)] mt-0.5">
-                  {t.competedAs(competedAs)}
+              <span
+                class:list={['placement-plate', `placement-plate--${tier}`]}
+                aria-label={t.achievement.placementLabel(translatePlacement(a.placement, locale))}
+              >
+                <span class="placement-plate__value">
+                  {translatePlacement(a.placement, locale)}
+                </span>
+              </span>
+              <div class="min-w-0 flex-1">
+                <p class="font-display text-base sm:text-lg tracking-wide truncate">
+                  {a.url ? (
+                    <a
+                      href={a.url}
+                      target="_blank"
+                      rel="noopener"
+                      class="hover:text-[var(--color-accent-2)] hover:underline underline-offset-4"
+                    >
+                      {translateTournament(a.event, locale)}
+                    </a>
+                  ) : (
+                    translateTournament(a.event, locale)
+                  )}
                 </p>
-              )}
-              <p class="text-xs text-[var(--color-text-dim)] mt-0.5">
-                {formatDate(a.date, locale, { month: 'long', year: 'numeric' })}
-                {typeof a.prizeUsd === 'number' && a.prizeUsd > 0 && (
-                  <>
-                    {' · '}
-                    <span class="text-[var(--color-accent-2)]">
-                      {formatCurrencyUSD(a.prizeUsd, locale)}
-                    </span>
-                  </>
+                {competedAs && (
+                  <p class="text-[0.7rem] uppercase tracking-wider text-[var(--color-accent-2)] mt-0.5">
+                    {t.competedAs(competedAs)}
+                  </p>
                 )}
-              </p>
-            </div>
-          </li>
-        );
-      })}
-    </ul>
-  </section>
-)}
+                <p class="text-xs text-[var(--color-text-dim)] mt-0.5">
+                  {formatDate(a.date, locale, { month: 'long', year: 'numeric' })}
+                  {typeof a.prizeUsd === 'number' && a.prizeUsd > 0 && (
+                    <>
+                      {' · '}
+                      <span class="text-[var(--color-accent-2)]">
+                        {formatCurrencyUSD(a.prizeUsd, locale)}
+                      </span>
+                    </>
+                  )}
+                </p>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  )
+}
 
 <style>
   .achievement {
-    transition: border-color 0.2s ease-out, transform 0.2s ease-out;
+    transition:
+      border-color 0.2s ease-out,
+      transform 0.2s ease-out;
   }
   .achievement:hover {
     border-color: var(--color-accent-2);
@@ -100,7 +116,7 @@ function placementTier(placement: string): 'gold' | 'silver' | 'bronze' | 'neutr
    */
   .placement-plate {
     --plate-from: var(--color-surface-2);
-    --plate-to:   var(--color-surface);
+    --plate-to: var(--color-surface);
     --plate-edge: var(--color-border);
     --plate-text: var(--color-text-dim);
     position: relative;
@@ -110,15 +126,16 @@ function placementTier(placement: string): 'gold' | 'silver' | 'bronze' | 'neutr
     width: 3.25rem;
     height: 3.25rem;
     border-radius: 9999px;
-    background:
-      radial-gradient(circle at 30% 25%, var(--plate-from) 0%, var(--plate-to) 70%);
+    background: radial-gradient(circle at 30% 25%, var(--plate-from) 0%, var(--plate-to) 70%);
     box-shadow:
       inset 0 1.5px 0 0 rgba(255, 255, 255, 0.18),
       inset 0 -2px 4px 0 rgba(0, 0, 0, 0.4),
       0 0 0 1.5px var(--plate-edge),
       0 6px 14px -8px rgba(0, 0, 0, 0.6);
     flex-shrink: 0;
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease-out;
+    transition:
+      transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.25s ease-out;
   }
   .placement-plate__value {
     font-family: var(--font-display);
@@ -134,22 +151,22 @@ function placementTier(placement: string): 'gold' | 'silver' | 'bronze' | 'neutr
   }
 
   .placement-plate--gold {
-    --plate-from: #F0D67A;
-    --plate-to:   #8C6B1F;
-    --plate-edge: color-mix(in oklab, #F0D67A 75%, transparent);
-    --plate-text: #1A1206;
+    --plate-from: #f0d67a;
+    --plate-to: #8c6b1f;
+    --plate-edge: color-mix(in oklab, #f0d67a 75%, transparent);
+    --plate-text: #1a1206;
   }
   .placement-plate--silver {
-    --plate-from: #E6E8EC;
-    --plate-to:   #7B7F88;
-    --plate-edge: color-mix(in oklab, #C0C0C8 70%, transparent);
-    --plate-text: #15171A;
+    --plate-from: #e6e8ec;
+    --plate-to: #7b7f88;
+    --plate-edge: color-mix(in oklab, #c0c0c8 70%, transparent);
+    --plate-text: #15171a;
   }
   .placement-plate--bronze {
-    --plate-from: #E29A66;
-    --plate-to:   #6B3618;
-    --plate-edge: color-mix(in oklab, #CD7F32 75%, transparent);
-    --plate-text: #1A0E04;
+    --plate-from: #e29a66;
+    --plate-to: #6b3618;
+    --plate-edge: color-mix(in oklab, #cd7f32 75%, transparent);
+    --plate-text: #1a0e04;
   }
 
   /* Hover: the plate sits up a touch and gains an outer halo in its tier color. */

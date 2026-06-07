@@ -6,15 +6,15 @@ surface `--color-surface` #15151C where relevant). WCAG AA thresholds: 4.5:1 for
 normal text, 3:1 for large text (>= 24 px, or >= 18.66 px bold) and for
 non-text UI/graphics (SC 1.4.11).
 
-| Foreground | Hex | On | Ratio | Verdict |
-|---|---|---|:---:|---|
-| `--color-text`     | #E9ECF1 | #0B0B0F | ~15.8:1 | Pass (normal + large) |
-| `--color-text-dim` | #9CA3AF | #0B0B0F | ~8.0:1  | Pass (normal + large) |
-| `--color-accent-2` | #6B8DFF | #0B0B0F | ~6.7:1  | Pass (normal + large) |
+| Foreground         | Hex     | On      |  Ratio  | Verdict                                        |
+| ------------------ | ------- | ------- | :-----: | ---------------------------------------------- |
+| `--color-text`     | #E9ECF1 | #0B0B0F | ~15.8:1 | Pass (normal + large)                          |
+| `--color-text-dim` | #9CA3AF | #0B0B0F | ~8.0:1  | Pass (normal + large)                          |
+| `--color-accent-2` | #6B8DFF | #0B0B0F | ~6.7:1  | Pass (normal + large)                          |
 | `--color-accent`   | #215BFF | #0B0B0F | ~3.8:1  | Pass large text / UI only (fails 4.5:1 normal) |
-| `--color-accent`   | #215BFF | #15151C | ~3.5:1  | Pass large text / UI only |
-| `--color-win`      | #4ADE80 | #0B0B0F | ~11:1   | Pass (normal + large) |
-| `--color-loss`     | #F87171 | #0B0B0F | ~6.1:1  | Pass (normal + large) |
+| `--color-accent`   | #215BFF | #15151C | ~3.5:1  | Pass large text / UI only                      |
+| `--color-win`      | #4ADE80 | #0B0B0F |  ~11:1  | Pass (normal + large)                          |
+| `--color-loss`     | #F87171 | #0B0B0F | ~6.1:1  | Pass (normal + large)                          |
 
 ## Usage rules that follow from this
 

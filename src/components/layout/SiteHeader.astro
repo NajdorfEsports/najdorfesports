@@ -16,16 +16,27 @@ const isActive = (href: string) => {
 
 const homeHref = pathFor(locale, '/');
 ---
-<header class="border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur sticky top-0 z-50">
-  <div class="mx-auto max-w-[var(--max-content)] flex items-center justify-between px-4 sm:px-6 h-16">
-    <a href={homeHref} class="wordmark-hover flex items-center gap-3" aria-label="Najdorf Esports home">
-      {/*
+
+<header
+  class="border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur sticky top-0 z-50"
+>
+  <div
+    class="mx-auto max-w-[var(--max-content)] flex items-center justify-between px-4 sm:px-6 h-16"
+  >
+    <a
+      href={homeHref}
+      class="wordmark-hover flex items-center gap-3"
+      aria-label="Najdorf Esports home"
+    >
+      {
+        /*
         Full bishop + X-chess mark, sourced from the owner's artwork. The
         white-on-transparent variant (negated in generate-og.mjs) lets the
         dark site bg show through the chess board's "white" squares so the
         pattern reads as a real chess alternation without a solid bg.
         Sized to fill the header's 4rem row with a touch of breathing room.
-      */}
+      */
+      }
       <span class="inline-block shrink-0" transition:name="bishop-mark">
         <img
           src="/branding/bishop-logo-dark.png"
@@ -45,20 +56,22 @@ const homeHref = pathFor(locale, '/');
 
     <div class="hidden md:flex items-center gap-6">
       <nav class="flex items-center gap-6" aria-label="Primary">
-        {nav.map((item) => (
-          <a
-            href={item.href}
-            class:list={[
-              'link-slide text-sm font-medium tracking-wide uppercase transition-colors',
-              isActive(item.href)
-                ? 'text-[var(--color-accent-2)]'
-                : 'text-[var(--color-text-dim)] hover:text-[var(--color-text)]',
-            ]}
-            aria-current={isActive(item.href) ? 'page' : undefined}
-          >
-            {item.label}
-          </a>
-        ))}
+        {
+          nav.map((item) => (
+            <a
+              href={item.href}
+              class:list={[
+                'link-slide text-sm font-medium tracking-wide uppercase transition-colors',
+                isActive(item.href)
+                  ? 'text-[var(--color-accent-2)]'
+                  : 'text-[var(--color-text-dim)] hover:text-[var(--color-text)]',
+              ]}
+              aria-current={isActive(item.href) ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          ))
+        }
       </nav>
       <span class="h-5 w-px bg-[var(--color-border)]" aria-hidden="true"></span>
       <LanguageSwitcher />
@@ -72,8 +85,16 @@ const homeHref = pathFor(locale, '/');
       data-mobile-toggle
     >
       <span class="sr-only">Toggle menu</span>
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <path d="M3 5h14M3 10h14M3 15h14" stroke-linecap="round" />
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        aria-hidden="true"
+      >
+        <path d="M3 5h14M3 10h14M3 15h14" stroke-linecap="round"></path>
       </svg>
     </button>
   </div>
@@ -84,22 +105,24 @@ const homeHref = pathFor(locale, '/');
     aria-label="Mobile"
   >
     <ul class="flex flex-col gap-2">
-      {nav.map((item) => (
-        <li>
-          <a
-            href={item.href}
-            class:list={[
-              'block py-2 text-sm font-medium uppercase tracking-wide',
-              isActive(item.href)
-                ? 'text-[var(--color-accent-2)]'
-                : 'text-[var(--color-text-dim)] hover:text-[var(--color-text)]',
-            ]}
-            aria-current={isActive(item.href) ? 'page' : undefined}
-          >
-            {item.label}
-          </a>
-        </li>
-      ))}
+      {
+        nav.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              class:list={[
+                'block py-2 text-sm font-medium uppercase tracking-wide',
+                isActive(item.href)
+                  ? 'text-[var(--color-accent-2)]'
+                  : 'text-[var(--color-text-dim)] hover:text-[var(--color-text)]',
+              ]}
+              aria-current={isActive(item.href) ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
     </ul>
     <div class="mt-4 pt-4 border-t border-[var(--color-border)]">
       <LanguageSwitcher />

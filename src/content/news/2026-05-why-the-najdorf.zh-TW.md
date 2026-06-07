@@ -3,7 +3,7 @@ title: '為什麼是 Najdorf？'
 date: 2026-05-23
 slug: '2026-05-why-the-najdorf'
 locale: 'zh-TW'
-description: "一篇短文，談談為什麼 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 這串棋步，是一支《鬥陣特攻》戰隊最合適的隊名。"
+description: '一篇短文，談談為什麼 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 這串棋步，是一支《鬥陣特攻》戰隊最合適的隊名。'
 eyebrow: '隨筆'
 tone: 'secondary'
 ---

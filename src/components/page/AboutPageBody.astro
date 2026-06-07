@@ -10,6 +10,7 @@ import { getLocale, useT } from '../../i18n';
 const locale = getLocale(Astro);
 const t = useT(locale);
 ---
+
 <section class="mx-auto max-w-3xl px-4 sm:px-6 pt-12 pb-16">
   <p class="text-sm uppercase tracking-wider text-[var(--color-accent-2)]">{t.about.eyebrow}</p>
   <h1 class="font-display text-4xl sm:text-5xl mt-2 tracking-wide">{site.name}</h1>

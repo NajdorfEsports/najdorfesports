@@ -200,7 +200,7 @@ export const en = {
     /** Facade button: Twitch iframe only loads after a deliberate click,
      *  so visitors who never click never trigger Twitch's cookies. */
     loadPlayer: 'Load Twitch player',
-    loadPlayerNote: 'Loading sets Twitch\'s own cookies on your device.',
+    loadPlayerNote: "Loading sets Twitch's own cookies on your device.",
   },
 
   /** Display names for roles. Kept short, used on player cards and roster strip. */
@@ -264,8 +264,7 @@ export const en = {
     vs: (opponent: string) => `vs ${opponent}`,
     eyebrowEmpty: 'Next match',
     placeholderHeadline: 'OWCS Pacific Stage 2 · June 4, 2026',
-    placeholderBody:
-      'Match schedule will be published here as soon as the bracket is finalized.',
+    placeholderBody: 'Match schedule will be published here as soon as the bracket is finalized.',
     watchLive: 'Watch live',
     days: 'Days',
     hours: 'Hours',
@@ -292,8 +291,7 @@ export const en = {
   reach: {
     eyebrow: 'Broadcast reach',
     peakLabel: 'peak concurrent viewers',
-    context: (opponent: string) =>
-      `On the OWCS Pacific broadcast of our match vs ${opponent}.`,
+    context: (opponent: string) => `On the OWCS Pacific broadcast of our match vs ${opponent}.`,
     cta: 'See the match',
   },
 

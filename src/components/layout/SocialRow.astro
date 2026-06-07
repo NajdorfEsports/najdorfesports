@@ -24,38 +24,39 @@ const { size = 'md' } = Astro.props;
 // sameAs-only (display:false) so it does not appear here.
 const visible = displaySocials();
 
-const dims = size === 'sm'
-  ? { box: 'w-8 h-8',  icon: 14 }
-  : { box: 'w-10 h-10', icon: 16 };
+const dims = size === 'sm' ? { box: 'w-8 h-8', icon: 14 } : { box: 'w-10 h-10', icon: 16 };
 ---
-{visible.length > 0 && (
-  <ul class="flex items-center gap-2.5" role="list">
-    {visible.map((s) => (
-      <li>
-        <a
-          href={s.url}
-          rel="me noopener"
-          target="_blank"
-          title={s.handle ? `${s.name} · ${s.handle}` : s.name}
-          aria-label={`Najdorf Esports on ${s.name}`}
-          class:list={[
-            'social-chip group inline-flex items-center justify-center rounded-full',
-            'border border-[var(--color-border)] bg-[var(--color-surface)]',
-            'text-[var(--color-text-dim)] transition-colors',
-            dims.box,
-            s.name === 'Discord' ? 'social-chip--discord' : '',
-            s.name === 'X'       ? 'social-chip--x'       : '',
-            s.name === 'Twitch'  ? 'social-chip--twitch'  : '',
-            s.name === 'YouTube' ? 'social-chip--youtube' : '',
-          ]}
-        >
-          <span class="sr-only">{s.name}</span>
-          <PlatformIcon platform={s.name} size={dims.icon} />
-        </a>
-      </li>
-    ))}
-  </ul>
-)}
+
+{
+  visible.length > 0 && (
+    <ul class="flex items-center gap-2.5" role="list">
+      {visible.map((s) => (
+        <li>
+          <a
+            href={s.url}
+            rel="me noopener"
+            target="_blank"
+            title={s.handle ? `${s.name} · ${s.handle}` : s.name}
+            aria-label={`Najdorf Esports on ${s.name}`}
+            class:list={[
+              'social-chip group inline-flex items-center justify-center rounded-full',
+              'border border-[var(--color-border)] bg-[var(--color-surface)]',
+              'text-[var(--color-text-dim)] transition-colors',
+              dims.box,
+              s.name === 'Discord' ? 'social-chip--discord' : '',
+              s.name === 'X' ? 'social-chip--x' : '',
+              s.name === 'Twitch' ? 'social-chip--twitch' : '',
+              s.name === 'YouTube' ? 'social-chip--youtube' : '',
+            ]}
+          >
+            <span class="sr-only">{s.name}</span>
+            <PlatformIcon platform={s.name} size={dims.icon} />
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}
 
 <style>
   .social-chip--discord:hover {

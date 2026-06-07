@@ -6,13 +6,7 @@ import SiteFooter from '../components/layout/SiteFooter.astro';
 import { site } from '../data/site';
 import { buildOrgJsonLd } from '../data/org-jsonld';
 import { serializeJsonLd } from '../lib/jsonld';
-import {
-  SUPPORTED_LOCALES,
-  getLocale,
-  pathFor,
-  unlocalizedPath,
-  useT,
-} from '../i18n';
+import { SUPPORTED_LOCALES, getLocale, pathFor, unlocalizedPath, useT } from '../i18n';
 
 interface Props {
   title: string;
@@ -51,11 +45,7 @@ const {
   noindex = false,
 } = Astro.props;
 
-const fullTitle = exactTitle
-  ? title
-  : title === site.name
-    ? title
-    : `${title} · ${site.name}`;
+const fullTitle = exactTitle ? title : title === site.name ? title : `${title} · ${site.name}`;
 const canonicalUrl = canonical ?? new URL(Astro.url.pathname, site.url).toString();
 
 // Cache-bust the og:image URL so Discord / Slack / X / Facebook stop
@@ -131,6 +121,7 @@ if (crumbSegments.length > 0) {
   };
 }
 ---
+
 <!doctype html>
 <html lang={htmlLang}>
   <head>
@@ -142,18 +133,20 @@ if (crumbSegments.length > 0) {
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex, follow" />}
     <link rel="canonical" href={canonicalUrl} />
-    {localized && (
-      <Fragment>
-        {alternates.map((alt) => (
-          <link rel="alternate" hreflang={alt.locale} href={alt.href} />
-        ))}
-        <link
-          rel="alternate"
-          hreflang="x-default"
-          href={new URL(pathFor('en', basePath), site.url).toString()}
-        />
-      </Fragment>
-    )}
+    {
+      localized && (
+        <Fragment>
+          {alternates.map((alt) => (
+            <link rel="alternate" hreflang={alt.locale} href={alt.href} />
+          ))}
+          <link
+            rel="alternate"
+            hreflang="x-default"
+            href={new URL(pathFor('en', basePath), site.url).toString()}
+          />
+        </Fragment>
+      )
+    }
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
@@ -166,13 +159,15 @@ if (crumbSegments.length > 0) {
     />
     <meta name="theme-color" content="#0B0B0F" />
 
-    {/*
+    {
+      /*
       Fonts self-hosted (see global.css @font-face) instead of loaded from
       fonts.googleapis.com / fonts.gstatic.com, hot-linking those sends
       visitor IPs to Google and has been ruled a GDPR violation in some
       EU jurisdictions (Landgericht München, 2022). Preloading the two
       latin woff2 files keeps first-paint snappy.
-    */}
+    */
+    }
     <link rel="preload" as="font" type="font/woff2" href="/fonts/anton-latin.woff2" crossorigin />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-latin.woff2" crossorigin />
 
@@ -191,27 +186,16 @@ if (crumbSegments.length > 0) {
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
 
-    <script
-      is:inline
-      type="application/ld+json"
-      set:html={serializeJsonLd(orgJsonLd)}
-    />
-    {breadcrumbJsonLd && (
-      <script
-        is:inline
-        type="application/ld+json"
-        set:html={serializeJsonLd(breadcrumbJsonLd)}
-      />
-    )}
-    {jsonLd && (
-      <script
-        is:inline
-        type="application/ld+json"
-        set:html={serializeJsonLd(jsonLd)}
-      />
-    )}
+    <script is:inline type="application/ld+json" set:html={serializeJsonLd(orgJsonLd)} />
+    {
+      breadcrumbJsonLd && (
+        <script is:inline type="application/ld+json" set:html={serializeJsonLd(breadcrumbJsonLd)} />
+      )
+    }
+    {jsonLd && <script is:inline type="application/ld+json" set:html={serializeJsonLd(jsonLd)} />}
 
-    {/*
+    {
+      /*
       Astro 5 client-side router. Replaces full-page navigations with a
       View-Transitions-API crossfade, persisting <header> / <footer> across
       page changes. ~3 KB inlined first-party JS, no cookies, no network
@@ -219,7 +203,8 @@ if (crumbSegments.length > 0) {
       support the View Transitions API. Reduced-motion preference is
       respected automatically. Per-element transition names live on the
       wordmark and the OWCS badge below so they morph between routes.
-    */}
+    */
+    }
     <ClientRouter />
   </head>
   <body>

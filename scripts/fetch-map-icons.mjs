@@ -49,19 +49,42 @@ const TARGET_WIDTH = 600;
  *  work, just not pre-fetched. */
 const OWCS_MAP_POOL = [
   // Control
-  'Antarctic Peninsula', 'Busan', 'Ilios', 'Lijiang Tower', 'Nepal', 'Oasis', 'Samoa',
+  'Antarctic Peninsula',
+  'Busan',
+  'Ilios',
+  'Lijiang Tower',
+  'Nepal',
+  'Oasis',
+  'Samoa',
   // Push
-  'Colosseo', 'Esperança', 'New Queen Street', 'Runasapi',
+  'Colosseo',
+  'Esperança',
+  'New Queen Street',
+  'Runasapi',
   // Hybrid
-  'Blizzard World', 'Eichenwalde', 'Hollywood', "King's Row",
-  'Midtown', 'Numbani', 'Paraíso',
+  'Blizzard World',
+  'Eichenwalde',
+  'Hollywood',
+  "King's Row",
+  'Midtown',
+  'Numbani',
+  'Paraíso',
   // Escort
-  'Circuit Royal', 'Dorado', 'Havana', 'Junkertown',
-  'Rialto', 'Route 66', 'Shambali Monastery', 'Watchpoint: Gibraltar',
+  'Circuit Royal',
+  'Dorado',
+  'Havana',
+  'Junkertown',
+  'Rialto',
+  'Route 66',
+  'Shambali Monastery',
+  'Watchpoint: Gibraltar',
   // Flashpoint
-  'New Junk City', 'Suravasa', 'Aatlis',
+  'New Junk City',
+  'Suravasa',
+  'Aatlis',
   // Clash
-  'Hanaoka', 'Throne of Anubis',
+  'Hanaoka',
+  'Throne of Anubis',
 ];
 
 /** Liquipedia files several maps under their real-world LOCATION name
@@ -70,13 +93,13 @@ const OWCS_MAP_POOL = [
  *  the location filename first. Append new entries here as Blizzard
  *  adds more "named-after-a-city" maps. */
 const MAP_FILENAME_OVERRIDES = {
-  'Circuit Royal':         'Monte_Carlo',
-  'Colosseo':              'Rome',
-  'Midtown':               'New_York_City',
-  'New Queen Street':      'Toronto',
-  'Paraíso':               'Rio_de_Janeiro',
-  'Shambali Monastery':    'Shambali',
-  "King's Row":            'Kings_row_map',
+  'Circuit Royal': 'Monte_Carlo',
+  Colosseo: 'Rome',
+  Midtown: 'New_York_City',
+  'New Queen Street': 'Toronto',
+  Paraíso: 'Rio_de_Janeiro',
+  'Shambali Monastery': 'Shambali',
+  "King's Row": 'Kings_row_map',
   'Watchpoint: Gibraltar': 'Gibraltar',
 };
 

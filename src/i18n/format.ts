@@ -81,7 +81,7 @@ export function displayCountry(
   if (!code) return fallbackName ?? '';
   try {
     const dn = new Intl.DisplayNames([locale], { type: 'region' });
-    return dn.of(code.toUpperCase()) ?? (fallbackName ?? code.toUpperCase());
+    return dn.of(code.toUpperCase()) ?? fallbackName ?? code.toUpperCase();
   } catch {
     return fallbackName ?? code.toUpperCase();
   }
@@ -101,26 +101,26 @@ const TOURNAMENT_TERMS: Record<Exclude<Locale, 'en'>, Array<[string, string]>> =
   // contain a shorter term ("Regional Playoffs" vs "Playoffs") must come
   // first or the shorter rule would fire inside the longer phrase.
   'zh-TW': [
-    ['Open Qualifier',    '公開預選賽'],
-    ['Main Event',        '主賽事'],
+    ['Open Qualifier', '公開預選賽'],
+    ['Main Event', '主賽事'],
     ['Regional Playoffs', '區域季後賽'],
-    ['Regular Season',    '例行賽'],
-    ['Playoffs',          '季後賽'],
+    ['Regular Season', '例行賽'],
+    ['Playoffs', '季後賽'],
     ['Midseason Championship', '季中錦標賽'],
-    ['Stage 1',           '第一階段'],
-    ['Stage 2',           '第二階段'],
-    ['Stage 3',           '第三階段'],
+    ['Stage 1', '第一階段'],
+    ['Stage 2', '第二階段'],
+    ['Stage 3', '第三階段'],
   ],
   'zh-CN': [
-    ['Open Qualifier',    '公开预选赛'],
-    ['Main Event',        '主赛事'],
+    ['Open Qualifier', '公开预选赛'],
+    ['Main Event', '主赛事'],
     ['Regional Playoffs', '区域季后赛'],
-    ['Regular Season',    '常规赛'],
-    ['Playoffs',          '季后赛'],
+    ['Regular Season', '常规赛'],
+    ['Playoffs', '季后赛'],
     ['Midseason Championship', '季中锦标赛'],
-    ['Stage 1',           '第一阶段'],
-    ['Stage 2',           '第二阶段'],
-    ['Stage 3',           '第三阶段'],
+    ['Stage 1', '第一阶段'],
+    ['Stage 2', '第二阶段'],
+    ['Stage 3', '第三阶段'],
   ],
 };
 

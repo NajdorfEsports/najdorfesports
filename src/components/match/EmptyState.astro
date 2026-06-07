@@ -23,6 +23,9 @@ const message =
     ? t.matchEmpty.past(stage)
     : t.matchEmpty.upcoming(owcs.league, stage, startPretty);
 ---
-<div class="border border-dashed border-[var(--color-border)] rounded-md p-8 text-center text-[var(--color-text-dim)]">
+
+<div
+  class="border border-dashed border-[var(--color-border)] rounded-md p-8 text-center text-[var(--color-text-dim)]"
+>
   <p class="text-sm sm:text-base">{message}</p>
 </div>

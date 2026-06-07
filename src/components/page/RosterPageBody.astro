@@ -39,6 +39,7 @@ const headcount = roster.filter(
 // confuse Astro's parser into seeing an HTML tag.
 const regionLabel: string = (t.regions as Record<string, string>)[site.region] ?? site.region;
 ---
+
 <MatchTicker matches={matches} />
 
 <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12">
@@ -60,13 +61,17 @@ const regionLabel: string = (t.regions as Record<string, string>)[site.region] ?
           class="font-display text-3xl mt-1 leading-none tabular-nums text-[var(--color-accent-2)]"
           data-count-up
           data-target={headcount}
-        >{headcount}</dd>
+        >
+          {headcount}
+        </dd>
       </div>
       <div>
         <dt class="text-[var(--color-text-dim)] uppercase tracking-wider text-[0.65rem]">
           {t.roster.regionLabel}
         </dt>
-        <dd class="font-display text-3xl mt-1 leading-none text-[var(--color-accent-2)]">{regionLabel}</dd>
+        <dd class="font-display text-3xl mt-1 leading-none text-[var(--color-accent-2)]">
+          {regionLabel}
+        </dd>
       </div>
     </dl>
   </div>
@@ -75,25 +80,29 @@ const regionLabel: string = (t.regions as Record<string, string>)[site.region] ?
 <AchievementStrip achievements={achievements} />
 
 <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12 space-y-10">
-  {sections.map((section) => (
-    <div>
-      <div class="flex items-center gap-3 mb-5">
-        <h2 class="font-display text-2xl tracking-wide">{t.roles[section.role] ?? section.role}</h2>
-        {/* Gold-leading divider: first 4rem gold accent then fades into the
+  {
+    sections.map((section) => (
+      <div>
+        <div class="flex items-center gap-3 mb-5">
+          <h2 class="font-display text-2xl tracking-wide">
+            {t.roles[section.role] ?? section.role}
+          </h2>
+          {/* Gold-leading divider: first 4rem gold accent then fades into the
             standard border colour. Pulls the eye across the role label. */}
-        <span
-          class="flex-1 h-px"
-          style="background: linear-gradient(to right, var(--color-accent-2) 0, var(--color-accent-2) 4rem, var(--color-border) 12rem);"
-        ></span>
-        <span class="text-xs uppercase tracking-wider text-[var(--color-accent-2)] tabular-nums">
-          {section.players.length}
-        </span>
+          <span
+            class="flex-1 h-px"
+            style="background: linear-gradient(to right, var(--color-accent-2) 0, var(--color-accent-2) 4rem, var(--color-border) 12rem);"
+          />
+          <span class="text-xs uppercase tracking-wider text-[var(--color-accent-2)] tabular-nums">
+            {section.players.length}
+          </span>
+        </div>
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {section.players.map((p, i) => (
+            <PlayerCard player={p} index={i} />
+          ))}
+        </div>
       </div>
-      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {section.players.map((p, i) => (
-          <PlayerCard player={p} index={i} />
-        ))}
-      </div>
-    </div>
-  ))}
+    ))
+  }
 </section>

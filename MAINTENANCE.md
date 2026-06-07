@@ -80,18 +80,20 @@ News is English-only, one Markdown file per post.
    (`2026-06-recap.md` -> `/news/2026-06-recap/`), so name it carefully:
    renaming it later changes the URL and the OG image path.
 2. Front matter:
+
    ```markdown
    ---
-   title: "Your headline"
+   title: 'Your headline'
    date: 2026-06-01
-   description: "One-line summary for cards and search."
-   eyebrow: "Match Report"        # optional small label on the cover
-   tone: primary                  # primary | secondary | split
-   draft: false                   # true hides it from the build
+   description: 'One-line summary for cards and search.'
+   eyebrow: 'Match Report' # optional small label on the cover
+   tone: primary # primary | secondary | split
+   draft: false # true hides it from the build
    ---
 
    Body in Markdown.
    ```
+
 3. **Generate the share card** (the gotcha): each post needs an OG image at
    `public/branding/og/news-<slug>.png`. Run:
    ```bash
@@ -123,6 +125,7 @@ roster move or match result sooner, open the repo's **Actions** tab ->
 npm run fetch:heroes   # signature-hero portraits -> public/heroes/
 npm run fetch:maps     # map artwork -> public/maps/ (full OW2 pool)
 ```
+
 Run `fetch:heroes` after adding a player with a new signature hero. New OW maps
 get appended to the `OWCS_MAP_POOL` constant in `scripts/fetch-map-icons.mjs`.
 

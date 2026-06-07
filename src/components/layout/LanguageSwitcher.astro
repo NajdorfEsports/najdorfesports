@@ -19,7 +19,12 @@ const base = unlocalizedPath(Astro.url.pathname);
 // path that has no translated counterpart. Stops "I'm on /privacy/, switch to
 // zh-CN" from landing on a 404 at /zh-CN/privacy/.
 const LOCALIZED_ROUTES = new Set([
-  '/', '/roster/', '/matches/', '/about/', '/partners/', '/press/',
+  '/',
+  '/roster/',
+  '/matches/',
+  '/about/',
+  '/partners/',
+  '/press/',
 ]);
 
 // Player detail pages (/roster/<handle>/) exist in all three locales, so a
@@ -37,18 +42,14 @@ let localesForSlug: Set<Locale> | null = null;
 if (articleSlug) {
   const posts = await getCollection('news', ({ data }) => !data.draft);
   localesForSlug = new Set(
-    posts
-      .filter((p) => p.data.slug === articleSlug)
-      .map((p) => p.data.locale as Locale),
+    posts.filter((p) => p.data.slug === articleSlug).map((p) => p.data.locale as Locale),
   );
 }
 
 function hrefFor(locale: Locale): string {
   if (base === NEWS_INDEX) return pathFor(locale, NEWS_INDEX);
   if (articleSlug) {
-    return localesForSlug?.has(locale)
-      ? pathFor(locale, base)
-      : pathFor(locale, NEWS_INDEX);
+    return localesForSlug?.has(locale) ? pathFor(locale, base) : pathFor(locale, NEWS_INDEX);
   }
   if (locale === DEFAULT_LOCALE) return pathFor(locale, base);
   return LOCALIZED_ROUTES.has(base) || isPlayerDetail
@@ -56,9 +57,12 @@ function hrefFor(locale: Locale): string {
     : pathFor(locale, '/');
 }
 ---
+
 <nav class="language-switcher flex items-center gap-2" aria-label="Language">
-  {/* Globe affordance: makes the switcher recognizable at a glance without
-      redesigning it. Decorative; the nav already has an accessible label. */}
+  {
+    /* Globe affordance: makes the switcher recognizable at a glance without
+      redesigning it. Decorative; the nav already has an accessible label. */
+  }
   <svg
     width="15"
     height="15"
@@ -69,28 +73,29 @@ function hrefFor(locale: Locale): string {
     class="text-[var(--color-text-dim)] shrink-0"
     aria-hidden="true"
   >
-    <circle cx="12" cy="12" r="9" />
-    <path d="M3 12h18" stroke-linecap="round" />
-    <path d="M12 3c2.5 2.4 3.8 5.6 3.8 9s-1.3 6.6-3.8 9c-2.5-2.4-3.8-5.6-3.8-9S9.5 5.4 12 3Z" />
+    <circle cx="12" cy="12" r="9"></circle>
+    <path d="M3 12h18" stroke-linecap="round"></path>
+    <path d="M12 3c2.5 2.4 3.8 5.6 3.8 9s-1.3 6.6-3.8 9c-2.5-2.4-3.8-5.6-3.8-9S9.5 5.4 12 3Z"
+    ></path>
   </svg>
   <ul class="flex items-center gap-2.5 text-[0.78rem] font-medium uppercase tracking-wider">
-    {SUPPORTED_LOCALES.map((locale) => (
-      <li>
-        <a
-          href={hrefFor(locale)}
-          hreflang={locale}
-          lang={locale}
-          aria-current={locale === current ? 'true' : undefined}
-          class:list={[
-            'inline-block py-1 transition-colors hover:text-[var(--color-accent-2)]',
-            locale === current
-              ? 'text-[var(--color-accent-2)]'
-              : 'text-[var(--color-text-dim)]',
-          ]}
-        >
-          {LOCALE_LABEL[locale]}
-        </a>
-      </li>
-    ))}
+    {
+      SUPPORTED_LOCALES.map((locale) => (
+        <li>
+          <a
+            href={hrefFor(locale)}
+            hreflang={locale}
+            lang={locale}
+            aria-current={locale === current ? 'true' : undefined}
+            class:list={[
+              'inline-block py-1 transition-colors hover:text-[var(--color-accent-2)]',
+              locale === current ? 'text-[var(--color-accent-2)]' : 'text-[var(--color-text-dim)]',
+            ]}
+          >
+            {LOCALE_LABEL[locale]}
+          </a>
+        </li>
+      ))
+    }
   </ul>
 </nav>

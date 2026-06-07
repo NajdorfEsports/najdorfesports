@@ -2,7 +2,12 @@
 import Badge from '../ui/Badge.astro';
 import type { MatchEntry } from '../../data/site';
 import { getLocale, useT } from '../../i18n';
-import { formatDate, formatMatchTime, translateTournament, MATCH_TIME_ZONE } from '../../i18n/format';
+import {
+  formatDate,
+  formatMatchTime,
+  translateTournament,
+  MATCH_TIME_ZONE,
+} from '../../i18n/format';
 import { formatCount } from '../../data/social';
 import mapIcons from '../../data/maps.json';
 
@@ -20,7 +25,8 @@ const dayNum = formatDate(date, locale, { day: 'numeric', timeZone: MATCH_TIME_Z
 const monthShort = formatDate(date, locale, { month: 'short', timeZone: MATCH_TIME_ZONE });
 const timePretty = formatMatchTime(date, locale);
 
-const resultLabel = match.result === 'win' ? t.match.win : match.result === 'loss' ? t.match.loss : '·';
+const resultLabel =
+  match.result === 'win' ? t.match.win : match.result === 'loss' ? t.match.loss : '·';
 const aggregate = match.mapScores?.reduce(
   (acc, m) => {
     if (m.ourScore > m.theirScore) acc.ours += 1;
@@ -95,23 +101,26 @@ if (!backdropUrl) {
   }
 }
 ---
+
 <article
   class:list={[
     'match-card relative overflow-hidden isolate bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-4 sm:p-5 grid grid-cols-[auto_1fr_auto] gap-4 items-center',
     backdropUrl ? 'match-card--has-backdrop' : '',
   ]}
 >
-  {backdropUrl && (
-    <>
-      <div
-        class="match-card__backdrop"
-        style={`background-image: url('${backdropUrl}');`}
-        aria-hidden="true"
-        data-map={heroMap}
-      ></div>
-      <div class="match-card__overlay" aria-hidden="true"></div>
-    </>
-  )}
+  {
+    backdropUrl && (
+      <>
+        <div
+          class="match-card__backdrop"
+          style={`background-image: url('${backdropUrl}');`}
+          aria-hidden="true"
+          data-map={heroMap}
+        />
+        <div class="match-card__overlay" aria-hidden="true" />
+      </>
+    )
+  }
 
   <div class="match-card__content relative z-10 text-center w-16">
     <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
@@ -132,45 +141,49 @@ if (!backdropUrl) {
     </p>
     <p class="text-xs text-[var(--color-text-dim)] mt-1">
       {timePretty} · {match.format}
-      {watchUrl && (
-        <>
-          {' · '}
-          <a
-            href={watchUrl}
-            target="_blank"
-            rel="noopener"
-            class="link-arrow has-glyph text-[var(--color-accent-2)] hover:text-[var(--color-accent)]"
-          >
-            <span>{watchLabel}</span>
-          </a>
-        </>
-      )}
+      {
+        watchUrl && (
+          <>
+            {' · '}
+            <a
+              href={watchUrl}
+              target="_blank"
+              rel="noopener"
+              class="link-arrow has-glyph text-[var(--color-accent-2)] hover:text-[var(--color-accent)]"
+            >
+              <span>{watchLabel}</span>
+            </a>
+          </>
+        )
+      }
     </p>
-    {match.broadcastPeakViewers && (
-      <p
-        class="text-[0.7rem] text-[var(--color-text-dim)] mt-1"
-        aria-label={`Peak concurrent viewers on the OWCS Pacific broadcast: ${match.broadcastPeakViewers}`}
-      >
-        {t.match.broadcastPeak(formatCount(match.broadcastPeakViewers))}
-      </p>
-    )}
+    {
+      match.broadcastPeakViewers && (
+        <p
+          class="text-[0.7rem] text-[var(--color-text-dim)] mt-1"
+          aria-label={`Peak concurrent viewers on the OWCS Pacific broadcast: ${match.broadcastPeakViewers}`}
+        >
+          {t.match.broadcastPeak(formatCount(match.broadcastPeakViewers))}
+        </p>
+      )
+    }
   </div>
 
   <div class="match-card__content relative z-10 text-right">
-    {match.result === 'tbd' ? (
-      <Badge tone="neutral">{t.match.tbd}</Badge>
-    ) : (
-      <div class="flex flex-col items-end gap-1">
-        <Badge tone={match.result === 'win' ? 'win' : 'loss'}>
-          {resultLabel}
-        </Badge>
-        {aggregate && (
-          <p class="font-display text-lg leading-none">
-            {aggregate.ours}–{aggregate.theirs}
-          </p>
-        )}
-      </div>
-    )}
+    {
+      match.result === 'tbd' ? (
+        <Badge tone="neutral">{t.match.tbd}</Badge>
+      ) : (
+        <div class="flex flex-col items-end gap-1">
+          <Badge tone={match.result === 'win' ? 'win' : 'loss'}>{resultLabel}</Badge>
+          {aggregate && (
+            <p class="font-display text-lg leading-none">
+              {aggregate.ours}–{aggregate.theirs}
+            </p>
+          )}
+        </div>
+      )
+    }
   </div>
 </article>
 
@@ -219,15 +232,14 @@ if (!backdropUrl) {
     z-index: 1;
     border-radius: inherit;
     pointer-events: none;
-    background:
-      linear-gradient(
-        90deg,
-        rgba(11, 11, 15, 0.92) 0%,
-        rgba(11, 11, 15, 0.74) 18%,
-        rgba(11, 11, 15, 0.62) 50%,
-        rgba(11, 11, 15, 0.74) 82%,
-        rgba(11, 11, 15, 0.92) 100%
-      );
+    background: linear-gradient(
+      90deg,
+      rgba(11, 11, 15, 0.92) 0%,
+      rgba(11, 11, 15, 0.74) 18%,
+      rgba(11, 11, 15, 0.62) 50%,
+      rgba(11, 11, 15, 0.74) 82%,
+      rgba(11, 11, 15, 0.92) 100%
+    );
     transition: opacity 450ms cubic-bezier(0.16, 1, 0.3, 1);
   }
   .match-card--has-backdrop:hover .match-card__overlay {

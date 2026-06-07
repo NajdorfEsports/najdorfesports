@@ -18,24 +18,23 @@ const sizes = {
 }[size];
 
 const variants = {
-  primary:
-    'bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent)]/90',
+  primary: 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent)]/90',
   secondary:
     'bg-transparent border border-[var(--color-accent-2)] text-[var(--color-accent-2)] hover:bg-[var(--color-accent-2)] hover:text-[var(--color-bg)]',
-  ghost:
-    'bg-[var(--color-surface-2)] text-[var(--color-text)] hover:bg-[var(--color-surface)]',
+  ghost: 'bg-[var(--color-surface-2)] text-[var(--color-text)] hover:bg-[var(--color-surface)]',
 }[variant];
 
 const cls = `${base} ${sizes} ${variants}`;
 ---
-{href ? (
-  <a
-    href={href}
-    class={cls}
-    {...external ? { target: '_blank', rel: 'noopener' } : {}}
-  >
-    <slot />
-  </a>
-) : (
-  <button type="button" class={cls}><slot /></button>
-)}
+
+{
+  href ? (
+    <a href={href} class={cls} {...(external ? { target: '_blank', rel: 'noopener' } : {})}>
+      <slot />
+    </a>
+  ) : (
+    <button type="button" class={cls}>
+      <slot />
+    </button>
+  )
+}

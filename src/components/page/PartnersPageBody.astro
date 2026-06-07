@@ -19,6 +19,7 @@ const offers = [
   t.partners.offerSocial,
 ];
 ---
+
 <section class="mx-auto max-w-3xl px-4 sm:px-6 pt-12 pb-16">
   <p class="text-sm uppercase tracking-wider text-[var(--color-accent-2)]">{t.partners.eyebrow}</p>
   <h1 class="font-display text-4xl sm:text-5xl mt-2 tracking-wide">{t.partners.title}</h1>
@@ -30,16 +31,20 @@ const offers = [
     <h2 class="font-display text-2xl tracking-wide">{t.partners.offerHeading}</h2>
     <p class="text-sm text-[var(--color-text-dim)] mt-2 leading-relaxed">{t.partners.offerNote}</p>
     <ul class="mt-6 grid gap-4 sm:grid-cols-2" role="list">
-      {offers.map((o) => (
-        <li class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5">
-          <h3 class="font-display text-lg tracking-wide text-[var(--color-text)]">{o.title}</h3>
-          <p class="text-sm text-[var(--color-text-dim)] mt-2 leading-relaxed">{o.body}</p>
-        </li>
-      ))}
+      {
+        offers.map((o) => (
+          <li class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5">
+            <h3 class="font-display text-lg tracking-wide text-[var(--color-text)]">{o.title}</h3>
+            <p class="text-sm text-[var(--color-text-dim)] mt-2 leading-relaxed">{o.body}</p>
+          </li>
+        ))
+      }
     </ul>
   </section>
 
-  <section class="mt-12 border-l-4 border-[var(--color-accent)] bg-[var(--color-surface)] px-5 py-5 rounded-r-md">
+  <section
+    class="mt-12 border-l-4 border-[var(--color-accent)] bg-[var(--color-surface)] px-5 py-5 rounded-r-md"
+  >
     <h2 class="font-display text-xl tracking-wide">{t.partners.foundingHeading}</h2>
     <p class="text-[var(--color-text-dim)] mt-2 leading-relaxed">{t.partners.foundingBody}</p>
   </section>

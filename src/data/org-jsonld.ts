@@ -59,9 +59,7 @@ const PLAYER_ROLES = new Set(['Tank', 'DPS', 'Support', 'Flex']);
  * embedded as Person objects. Managers are intentionally excluded from the
  * athlete/coach fields (no schema.org slot fits them cleanly).
  */
-export function buildOrgJsonLd(
-  opts: { withRoster?: boolean } = {},
-): Record<string, unknown> {
+export function buildOrgJsonLd(opts: { withRoster?: boolean } = {}): Record<string, unknown> {
   const sameAs = sameAsUrls();
   const base: Record<string, unknown> = {
     '@context': 'https://schema.org',
@@ -79,9 +77,7 @@ export function buildOrgJsonLd(
   if (!opts.withRoster) return base;
 
   const roster = loadRoster().filter((p) => p.status !== 'inactive');
-  const athletes = roster
-    .filter((p) => PLAYER_ROLES.has(p.role))
-    .map((p) => personNode(p));
+  const athletes = roster.filter((p) => PLAYER_ROLES.has(p.role)).map((p) => personNode(p));
   const coaches = roster.filter((p) => p.role === 'Coach').map((p) => personNode(p));
 
   return {

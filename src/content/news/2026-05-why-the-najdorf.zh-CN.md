@@ -3,7 +3,7 @@ title: '为什么是 Najdorf？'
 date: 2026-05-23
 slug: '2026-05-why-the-najdorf'
 locale: 'zh-CN'
-description: "一篇短文，聊聊为什么 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 这串棋步，是一支《守望先锋》战队最合适的队名。"
+description: '一篇短文，聊聊为什么 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 这串棋步，是一支《守望先锋》战队最合适的队名。'
 eyebrow: '随笔'
 tone: 'secondary'
 ---

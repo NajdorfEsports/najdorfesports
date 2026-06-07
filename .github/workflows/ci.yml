@@ -51,6 +51,9 @@ jobs:
       - name: Type-check
         run: npx astro check
 
+      - name: Format check
+        run: npm run format:check
+
       - name: Test
         run: npm test
 

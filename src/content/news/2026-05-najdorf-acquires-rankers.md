@@ -3,7 +3,7 @@ title: 'Najdorf Esports: A New Org, Some Familiar Faces'
 date: 2026-05-23
 slug: '2026-05-najdorf-acquires-rankers'
 locale: 'en'
-description: "Najdorf Esports is a new Pacific-region Overwatch organization. The Stage 2 roster brings together several players from the Rankers Stage 1 lineup alongside new signings."
+description: 'Najdorf Esports is a new Pacific-region Overwatch organization. The Stage 2 roster brings together several players from the Rankers Stage 1 lineup alongside new signings.'
 eyebrow: 'Announcement'
 tone: 'primary'
 ---

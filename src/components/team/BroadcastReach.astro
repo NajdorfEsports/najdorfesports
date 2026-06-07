@@ -27,26 +27,29 @@ const peakDisplay = peakMatch
   : null;
 const matchesHref = pathFor(locale, '/matches/');
 ---
-{peakMatch && (
-  <section
-    class="reach mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-20"
-    aria-label={t.reach.eyebrow}
-  >
-    <a href={matchesHref} class="reach-card group">
-      <div class="reach-card__num">
-        <span class="reach-card__value">{peakDisplay}</span>
-        <span class="reach-card__label">{t.reach.peakLabel}</span>
-      </div>
-      <div class="reach-card__body">
-        <p class="reach-card__eyebrow">{t.reach.eyebrow}</p>
-        <p class="reach-card__context">{t.reach.context(peakMatch.opponent)}</p>
-        <p class="reach-card__cta link-arrow has-glyph">
-          <span>{t.reach.cta}</span>
-        </p>
-      </div>
-    </a>
-  </section>
-)}
+
+{
+  peakMatch && (
+    <section
+      class="reach mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-20"
+      aria-label={t.reach.eyebrow}
+    >
+      <a href={matchesHref} class="reach-card group">
+        <div class="reach-card__num">
+          <span class="reach-card__value">{peakDisplay}</span>
+          <span class="reach-card__label">{t.reach.peakLabel}</span>
+        </div>
+        <div class="reach-card__body">
+          <p class="reach-card__eyebrow">{t.reach.eyebrow}</p>
+          <p class="reach-card__context">{t.reach.context(peakMatch.opponent)}</p>
+          <p class="reach-card__cta link-arrow has-glyph">
+            <span>{t.reach.cta}</span>
+          </p>
+        </div>
+      </a>
+    </section>
+  )
+}
 
 <style>
   .reach-card {

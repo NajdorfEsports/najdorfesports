@@ -33,61 +33,63 @@ const ROOT = resolve(__dirname, '..');
 // ---------------------------------------------------------------------------
 
 const PLAIN = {
-  'nav.home':    'Home',
-  'nav.roster':  'Roster',
+  'nav.home': 'Home',
+  'nav.roster': 'Roster',
   'nav.matches': 'Matches',
-  'nav.news':    'News',
-  'nav.about':   'About',
+  'nav.news': 'News',
+  'nav.about': 'About',
 
-  'footer.site':      'Site',
-  'footer.follow':    'Follow',
-  'footer.trademark': 'Overwatch and the Overwatch Champions Series are trademarks of Blizzard Entertainment, Inc.',
+  'footer.site': 'Site',
+  'footer.follow': 'Follow',
+  'footer.trademark':
+    'Overwatch and the Overwatch Champions Series are trademarks of Blizzard Entertainment, Inc.',
 
-  'hero.subhead':       'OWCS PACIFIC 2026',
-  'hero.tagline':       'Headed to OWCS Pacific Stage 2 on June 4.',
+  'hero.subhead': 'OWCS PACIFIC 2026',
+  'hero.tagline': 'Headed to OWCS Pacific Stage 2 on June 4.',
   'hero.matchSchedule': 'Match schedule',
-  'hero.meetRoster':    'Meet the roster',
+  'hero.meetRoster': 'Meet the roster',
 
-  'home.recentResults':  'Recent results',
-  'home.recentEmpty':    'No completed matches yet. Stage 2 begins June 4.',
-  'home.allMatches':     'All matches',
+  'home.recentResults': 'Recent results',
+  'home.recentEmpty': 'No completed matches yet. Stage 2 begins June 4.',
+  'home.allMatches': 'All matches',
   'home.nextMatchLabel': 'Next match',
-  'home.latest':         'Latest',
-  'home.allNews':        'All news',
-  'home.read':           'Read',
+  'home.latest': 'Latest',
+  'home.allNews': 'All news',
+  'home.read': 'Read',
 
-  'roster.eyebrow':            'Active roster · OWCS Pacific 2026',
-  'roster.h1':                 'The Lineup',
-  'roster.playersLabel':       'Players',
-  'roster.regionLabel':        'Region',
-  'roster.fullRoster':         'Full roster',
+  'roster.eyebrow': 'Active roster · OWCS Pacific 2026',
+  'roster.h1': 'The Lineup',
+  'roster.playersLabel': 'Players',
+  'roster.regionLabel': 'Region',
+  'roster.fullRoster': 'Full roster',
 
-  'about.eyebrow':        'About',
-  'about.previously':     'Previously competing as Rankers in OWCS Pacific.',
+  'about.eyebrow': 'About',
+  'about.previously': 'Previously competing as Rankers in OWCS Pacific.',
   'about.contactHeading': 'Contact',
-  'about.contactNote':    'For partnerships, press, or player inquiries, email the address above.',
+  'about.contactNote': 'For partnerships, press, or player inquiries, email the address above.',
 
-  'live.liveNow':      'LIVE NOW',
-  'live.startsIn':     'Starts in',
-  'live.vs':           'vs',
-  'live.watchNow':     'WATCH NOW',
+  'live.liveNow': 'LIVE NOW',
+  'live.startsIn': 'Starts in',
+  'live.vs': 'vs',
+  'live.watchNow': 'WATCH NOW',
   'live.openOnTwitch': 'Open on Twitch',
 
-  'skipLink': 'Skip to main content',
+  skipLink: 'Skip to main content',
 };
 
 // Template strings. Interpolation tokens like ${year} are tokenized before
 // translation and restored after, so the translator sees stable sentinels.
 const TEMPLATES = {
   'footer.foundedLine': 'Founded ${year} · ${region}',
-  'footer.copyright':   '© ${year} ${name}. All rights reserved.',
+  'footer.copyright': '© ${year} ${name}. All rights reserved.',
   // Plural branching in hero.stats is preserved in code; we only translate
   // the "plural" form here. Singular vs plural English nuance doesn't carry
   // cleanly into Chinese anyway (it uses the same word for both).
-  'hero.stats':         '${players} players across ${countries} countries.',
-  'hero.record':        '${line} in Stage 1.',
-  'hero.achievement':   '${placement} at ${event}.',
-  'about.body':         'Najdorf Esports is a competitive Overwatch organization based in the ${region} region. We founded the org in ${year} and currently compete in OWCS Pacific. The Stage 2 main event runs June 4 through July 9, 2026. The name comes from the Najdorf Variation of the Sicilian Defence, an opening that wins by preparing one line deeper than the other side.',
+  'hero.stats': '${players} players across ${countries} countries.',
+  'hero.record': '${line} in Stage 1.',
+  'hero.achievement': '${placement} at ${event}.',
+  'about.body':
+    'Najdorf Esports is a competitive Overwatch organization based in the ${region} region. We founded the org in ${year} and currently compete in OWCS Pacific. The Stage 2 main event runs June 4 through July 9, 2026. The name comes from the Najdorf Variation of the Sicilian Defence, an opening that wins by preparing one line deeper than the other side.',
 };
 
 // Terms preserved verbatim in the output (replaced with sentinels before the
@@ -278,8 +280,18 @@ export const ${label}: Strings = {
 // ---------------------------------------------------------------------------
 
 const LANGS = [
-  { langpair: 'en|zh-TW', file: 'src/i18n/zh-TW.ts', label: 'zhTW', banner: 'Traditional Chinese (zh-TW).' },
-  { langpair: 'en|zh-CN', file: 'src/i18n/zh-CN.ts', label: 'zhCN', banner: 'Simplified Chinese (zh-CN).' },
+  {
+    langpair: 'en|zh-TW',
+    file: 'src/i18n/zh-TW.ts',
+    label: 'zhTW',
+    banner: 'Traditional Chinese (zh-TW).',
+  },
+  {
+    langpair: 'en|zh-CN',
+    file: 'src/i18n/zh-CN.ts',
+    label: 'zhCN',
+    banner: 'Simplified Chinese (zh-CN).',
+  },
 ];
 
 async function buildDict(langpair) {
@@ -299,7 +311,7 @@ async function buildDict(langpair) {
       dict[k] = v; // fall back to English so the file still compiles
     }
     // MyMemory anonymous tier: stay polite, ~5 req/s
-    await new Promise(r => setTimeout(r, 250));
+    await new Promise((r) => setTimeout(r, 250));
   }
   return dict;
 }

@@ -47,43 +47,46 @@ const METRIC_LABEL: Record<SocialMetric, string> = {
 
 const channelByPlatform = new Map(statsChannels.map((c) => [c.platform, c]));
 ---
-{stats.length > 0 && (
-  <section class="social-stats" aria-label="Community by the numbers">
-    <ul class="social-stats__row">
-      {stats.map((s) => {
-        const channel = channelByPlatform.get(s.platform as SocialPlatform);
-        const name = DISPLAY_NAME[s.platform as SocialPlatform] ?? s.platform;
-        const metric = channel?.primaryMetric ?? 'followers';
-        const Tag = channel?.url && channel.url !== 'TODO' ? 'a' : 'div';
-        return (
-          <li>
-            <Tag
-              class="social-stats__card"
-              {...(Tag === 'a'
-                ? { href: channel!.url, target: '_blank', rel: 'noopener noreferrer me' }
-                : {})}
-            >
-              <span class="social-stats__icon" aria-hidden="true">
-                <PlatformIcon platform={name} size={18} />
-              </span>
-              <span class="social-stats__count">{formatCount(s.count)}</span>
-              <span class="social-stats__label">{METRIC_LABEL[metric]}</span>
-              <span class="social-stats__net">{name}</span>
-            </Tag>
-          </li>
-        );
-      })}
-    </ul>
 
-    {live && (
-      <p class="social-stats__live">
-        <span class="social-stats__dot" aria-hidden="true"></span>
-        <span class="social-stats__live-count">{formatCount(live.liveViewers)}</span>
-        watching now
-      </p>
-    )}
-  </section>
-)}
+{
+  stats.length > 0 && (
+    <section class="social-stats" aria-label="Community by the numbers">
+      <ul class="social-stats__row">
+        {stats.map((s) => {
+          const channel = channelByPlatform.get(s.platform as SocialPlatform);
+          const name = DISPLAY_NAME[s.platform as SocialPlatform] ?? s.platform;
+          const metric = channel?.primaryMetric ?? 'followers';
+          const Tag = channel?.url && channel.url !== 'TODO' ? 'a' : 'div';
+          return (
+            <li>
+              <Tag
+                class="social-stats__card"
+                {...(Tag === 'a'
+                  ? { href: channel!.url, target: '_blank', rel: 'noopener noreferrer me' }
+                  : {})}
+              >
+                <span class="social-stats__icon" aria-hidden="true">
+                  <PlatformIcon platform={name} size={18} />
+                </span>
+                <span class="social-stats__count">{formatCount(s.count)}</span>
+                <span class="social-stats__label">{METRIC_LABEL[metric]}</span>
+                <span class="social-stats__net">{name}</span>
+              </Tag>
+            </li>
+          );
+        })}
+      </ul>
+
+      {live && (
+        <p class="social-stats__live">
+          <span class="social-stats__dot" aria-hidden="true" />
+          <span class="social-stats__live-count">{formatCount(live.liveViewers)}</span>
+          watching now
+        </p>
+      )}
+    </section>
+  )
+}
 
 <style>
   .social-stats {
@@ -174,11 +177,19 @@ const channelByPlatform = new Map(statsChannels.map((c) => [c.platform, c]));
     animation: social-stats-pulse 1.8s ease-out infinite;
   }
   @keyframes social-stats-pulse {
-    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
-    100% { box-shadow: 0 0 0 0.6rem rgba(239, 68, 68, 0); }
+    0% {
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
+    }
+    100% {
+      box-shadow: 0 0 0 0.6rem rgba(239, 68, 68, 0);
+    }
   }
   @media (prefers-reduced-motion: reduce) {
-    .social-stats__card { transition: none; }
-    .social-stats__dot { animation: none; }
+    .social-stats__card {
+      transition: none;
+    }
+    .social-stats__dot {
+      animation: none;
+    }
   }
 </style>

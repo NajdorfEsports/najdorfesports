@@ -3,7 +3,7 @@ title: 'Najdorf Esports：全新戰隊，熟悉面孔'
 date: 2026-05-23
 slug: '2026-05-najdorf-acquires-rankers'
 locale: 'zh-TW'
-description: "Najdorf Esports 是一支全新成立的太平洋賽區《鬥陣特攻》戰隊。第二階段名單集結了多位來自 Rankers 第一階段陣容的選手，並加入了新簽下的成員。"
+description: 'Najdorf Esports 是一支全新成立的太平洋賽區《鬥陣特攻》戰隊。第二階段名單集結了多位來自 Rankers 第一階段陣容的選手，並加入了新簽下的成員。'
 eyebrow: '公告'
 tone: 'primary'
 ---

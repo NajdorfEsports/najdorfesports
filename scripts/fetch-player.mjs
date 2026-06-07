@@ -131,10 +131,30 @@ function parseTemplateFields(templateBlock) {
   for (let i = 0; i < inner.length; i++) {
     const ch = inner[i];
     const next = inner[i + 1];
-    if (ch === '{' && next === '{') { depth += 1; buf += '{{'; i += 1; continue; }
-    if (ch === '}' && next === '}') { depth -= 1; buf += '}}'; i += 1; continue; }
-    if (ch === '[' && next === '[') { depth += 1; buf += '[['; i += 1; continue; }
-    if (ch === ']' && next === ']') { depth -= 1; buf += ']]'; i += 1; continue; }
+    if (ch === '{' && next === '{') {
+      depth += 1;
+      buf += '{{';
+      i += 1;
+      continue;
+    }
+    if (ch === '}' && next === '}') {
+      depth -= 1;
+      buf += '}}';
+      i += 1;
+      continue;
+    }
+    if (ch === '[' && next === '[') {
+      depth += 1;
+      buf += '[[';
+      i += 1;
+      continue;
+    }
+    if (ch === ']' && next === ']') {
+      depth -= 1;
+      buf += ']]';
+      i += 1;
+      continue;
+    }
     if (ch === '|' && depth === 0) {
       parts.push(buf);
       buf = '';
@@ -148,7 +168,10 @@ function parseTemplateFields(templateBlock) {
     const eq = part.indexOf('=');
     if (eq < 0) continue;
     const key = part.slice(0, eq).trim().toLowerCase();
-    const value = part.slice(eq + 1).replace(/<!--[\s\S]*?-->/g, '').trim();
+    const value = part
+      .slice(eq + 1)
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .trim();
     if (key) params[key] = value;
   }
   return params;
@@ -160,23 +183,23 @@ function parseTemplateFields(templateBlock) {
 
 /** Liquipedia uses "Korea" for South Korea; map common aliases to ISO. */
 const COUNTRY_BY_NAME = {
-  'taiwan': { country: 'Taiwan', countryCode: 'tw' },
+  taiwan: { country: 'Taiwan', countryCode: 'tw' },
   'hong kong': { country: 'Hong Kong', countryCode: 'hk' },
-  'china': { country: 'China', countryCode: 'cn' },
-  'japan': { country: 'Japan', countryCode: 'jp' },
+  china: { country: 'China', countryCode: 'cn' },
+  japan: { country: 'Japan', countryCode: 'jp' },
   'south korea': { country: 'South Korea', countryCode: 'kr' },
-  'korea': { country: 'South Korea', countryCode: 'kr' },
+  korea: { country: 'South Korea', countryCode: 'kr' },
   'korea, republic of': { country: 'South Korea', countryCode: 'kr' },
-  'thailand': { country: 'Thailand', countryCode: 'th' },
-  'vietnam': { country: 'Vietnam', countryCode: 'vn' },
-  'singapore': { country: 'Singapore', countryCode: 'sg' },
-  'malaysia': { country: 'Malaysia', countryCode: 'my' },
-  'philippines': { country: 'Philippines', countryCode: 'ph' },
-  'indonesia': { country: 'Indonesia', countryCode: 'id' },
-  'australia': { country: 'Australia', countryCode: 'au' },
+  thailand: { country: 'Thailand', countryCode: 'th' },
+  vietnam: { country: 'Vietnam', countryCode: 'vn' },
+  singapore: { country: 'Singapore', countryCode: 'sg' },
+  malaysia: { country: 'Malaysia', countryCode: 'my' },
+  philippines: { country: 'Philippines', countryCode: 'ph' },
+  indonesia: { country: 'Indonesia', countryCode: 'id' },
+  australia: { country: 'Australia', countryCode: 'au' },
   'new zealand': { country: 'New Zealand', countryCode: 'nz' },
   'united states': { country: 'United States', countryCode: 'us' },
-  'canada': { country: 'Canada', countryCode: 'ca' },
+  canada: { country: 'Canada', countryCode: 'ca' },
 };
 
 function normalizeCountry(raw) {
@@ -198,7 +221,10 @@ function normalizeCountry(raw) {
  *  delimiters so "Tank, Flex" gives role=Tank + altRoles=[Flex]. */
 function normalizeRoles(raw) {
   if (!raw) return {};
-  const tokens = raw.split(/[,/]+/).map((t) => t.trim()).filter(Boolean);
+  const tokens = raw
+    .split(/[,/]+/)
+    .map((t) => t.trim())
+    .filter(Boolean);
   const mapped = tokens
     .map((t) => {
       const lc = t.toLowerCase();
@@ -213,9 +239,7 @@ function normalizeRoles(raw) {
     .filter(Boolean);
   if (mapped.length === 0) return {};
   const [primary, ...rest] = Array.from(new Set(mapped));
-  return rest.length > 0
-    ? { role: primary, altRoles: rest }
-    : { role: primary };
+  return rest.length > 0 ? { role: primary, altRoles: rest } : { role: primary };
 }
 
 /** Title-case a hero name in the way heroes.json keys are written. */
@@ -225,15 +249,15 @@ function normalizeHero(raw) {
   if (!cleaned) return null;
   // Special cases for heroes with non-standard capitalization or punctuation.
   const overrides = {
-    'd.va':           'D.Va',
-    'dva':            'D.Va',
-    'wrecking ball':  'Wrecking Ball',
-    'soldier: 76':    'Soldier: 76',
-    'soldier 76':     'Soldier: 76',
-    'lucio':          'Lucio',
-    'lúcio':          'Lucio',
-    'torbjorn':       'Torbjörn',
-    'torbjörn':       'Torbjörn',
+    'd.va': 'D.Va',
+    dva: 'D.Va',
+    'wrecking ball': 'Wrecking Ball',
+    'soldier: 76': 'Soldier: 76',
+    'soldier 76': 'Soldier: 76',
+    lucio: 'Lucio',
+    lúcio: 'Lucio',
+    torbjorn: 'Torbjörn',
+    torbjörn: 'Torbjörn',
   };
   const key = cleaned.toLowerCase();
   if (overrides[key]) return overrides[key];
@@ -249,7 +273,10 @@ function buildSocial(template, raw) {
   if (!raw) return null;
   // Strip whitespace and any wiki markup; Liquipedia sometimes wraps
   // social values in {{Twitter|...}} templates.
-  const stripped = raw.replace(/\{\{[^}|]+\|([^}]+)\}\}/g, '$1').trim().replace(/^@/, '');
+  const stripped = raw
+    .replace(/\{\{[^}|]+\|([^}]+)\}\}/g, '$1')
+    .trim()
+    .replace(/^@/, '');
   if (!stripped) return null;
   return template.replace('{handle}', stripped);
 }
@@ -280,9 +307,9 @@ function buildEntry(fields, handle) {
   }
 
   // Real name: prefer romanized form (Latin script for the card label).
-  const realName = fields.romanized_name || (
-    fields.name && /^[\p{Script=Latin}\s.'-]+$/u.test(fields.name) ? fields.name : null
-  );
+  const realName =
+    fields.romanized_name ||
+    (fields.name && /^[\p{Script=Latin}\s.'-]+$/u.test(fields.name) ? fields.name : null);
   if (realName) out.realName = realName;
 
   if (fields.birth_date && /^\d{4}-\d{2}-\d{2}$/.test(fields.birth_date)) {
@@ -323,9 +350,7 @@ async function mergeIntoManual(entry) {
   } catch {
     // file may not exist
   }
-  const idx = existing.findIndex(
-    (p) => p.handle?.toLowerCase() === entry.handle.toLowerCase(),
-  );
+  const idx = existing.findIndex((p) => p.handle?.toLowerCase() === entry.handle.toLowerCase());
   if (idx >= 0) {
     existing[idx] = { ...existing[idx], ...entry };
   } else {

@@ -20,7 +20,7 @@ I adapted the engagement to that reality rather than guessing:
   validated by JSON parsing and an `npm ci` sync-equality check in Python,
   documentation files (which Astro never imports, so they cannot break a build),
   and a JSONC comment validated by re-parsing the file.
-- Every change that genuinely needs a build to verify (dependency *upgrades*
+- Every change that genuinely needs a build to verify (dependency _upgrades_
   that regenerate the lockfile, adapter/output changes, runtime data
   validation) is escalated to **Owner action items** with exact commands rather
   than committed blind. The repo's CI workflow (`.github/workflows/ci.yml`)
@@ -127,7 +127,7 @@ and **live**. HSTS is live with `max-age=31536000; includeSubDomains; preload`.
    `ClientRouter`. Removing it cleanly means per-script hashes/nonces, which on
    Astro means the experimental CSP feature (`experimental.csp`) or moving the
    scripts to external files, both of which need a build to verify. `style-src
-   'unsafe-inline'` is likewise needed by Astro's scoped/inline styles.
+'unsafe-inline'` is likewise needed by Astro's scoped/inline styles.
 2. Every response carries `Access-Control-Allow-Origin: *`. It is **not** in
    `_headers` and **not** in app code (no `functions/`, no middleware); it is
    injected by the Cloudflare asset layer (it is even baked into the cached
@@ -238,11 +238,11 @@ below.
 - **Real CSP string (served live on HTML):**
   `default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; frame-src https://player.twitch.tv; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests`
 - **Other live response headers (apex):** `Strict-Transport-Security:
-  max-age=31536000; includeSubDomains; preload`, `X-Content-Type-Options:
-  nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy:
-  strict-origin-when-cross-origin`, `Permissions-Policy: accelerometer=(),
-  camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(),
-  payment=(), usb=()`, `Cross-Origin-Opener-Policy: same-origin`,
+max-age=31536000; includeSubDomains; preload`, `X-Content-Type-Options:
+nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy:
+strict-origin-when-cross-origin`, `Permissions-Policy: accelerometer=(),
+camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(),
+payment=(), usb=()`, `Cross-Origin-Opener-Policy: same-origin`,
   `Cross-Origin-Resource-Policy: same-site`, `X-XSS-Protection: 0`, and a stray
   `Access-Control-Allow-Origin: *` (platform-injected; see Task 3).
 - **`_worker.js` exposure:** none (`/_worker.js` -> 404).
@@ -257,10 +257,12 @@ below.
 1. **Refresh the dependency tree when convenient (optional, low priority).**
    The locked versions are already patched. To pull the newest 5.x patch and
    regenerate the lockfile cleanly, on a machine with Node:
+
    ```bash
    npm install astro@^5.18.0 @astrojs/cloudflare@^12.6.13
    npm audit
    ```
+
    Do **not** jump to astro 6 / adapter 13 (drops Pages support; that is the
    separate planned migration). I could not run `npm audit` here; CI will.
 
@@ -288,9 +290,11 @@ below.
 
 5. **Git-history secret scan.** `gitleaks` is not installed locally and I did
    not scan history. Recommended one-off on a Node/Docker machine:
+
    ```bash
    gitleaks detect --source . --redact
    ```
+
    The working-tree scan was clean. If history ever shows a hit, rotate the
    credential rather than rewriting history blindly.
 
@@ -304,14 +308,14 @@ below.
 `npm audit` / `npm outdated` **could not be run** (no Node on this machine).
 Substitute evidence from the committed lockfile and the npm registry:
 
-| Package | Declared before | Declared after | Resolved (lockfile) | Latest published |
-| --- | --- | --- | --- | --- |
-| astro | `^5.13.0` | `^5.18.0` | **5.18.1** | 5.18.2 (5.x); 6.4.2 (latest) |
-| @astrojs/cloudflare | `12` | `^12.6.13` | **12.6.13** | 12.6.13 (12.x); 13.6.0 (latest) |
-| @astrojs/sitemap | `^3.4.0` | `^3.4.0` | 3.x | unchanged |
-| tailwindcss / @tailwindcss/vite | `^4.1.0` | `^4.1.0` | 4.3.0 | unchanged |
-| sharp (dev) | `^0.34.0` | `^0.34.0` | 0.34.x | unchanged (devDep) |
-| wrangler (dev) | `^4.94.0` | `^4.94.0` | 4.94.0 | unchanged |
+| Package                         | Declared before | Declared after | Resolved (lockfile) | Latest published                |
+| ------------------------------- | --------------- | -------------- | ------------------- | ------------------------------- |
+| astro                           | `^5.13.0`       | `^5.18.0`      | **5.18.1**          | 5.18.2 (5.x); 6.4.2 (latest)    |
+| @astrojs/cloudflare             | `12`            | `^12.6.13`     | **12.6.13**         | 12.6.13 (12.x); 13.6.0 (latest) |
+| @astrojs/sitemap                | `^3.4.0`        | `^3.4.0`       | 3.x                 | unchanged                       |
+| tailwindcss / @tailwindcss/vite | `^4.1.0`        | `^4.1.0`       | 4.3.0               | unchanged                       |
+| sharp (dev)                     | `^0.34.0`       | `^0.34.0`      | 0.34.x              | unchanged (devDep)              |
+| wrangler (dev)                  | `^4.94.0`       | `^4.94.0`      | 4.94.0              | unchanged                       |
 
 Resolved versions are unchanged by this pass; only the declared floors for
 astro and the adapter moved up to the already-installed, patched line. No

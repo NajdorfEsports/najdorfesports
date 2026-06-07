@@ -17,6 +17,7 @@ interface Props {
 }
 const { width, height, strokeWidth = 1.6 } = Astro.props;
 ---
+
 <svg
   width={width}
   height={height}
@@ -25,11 +26,14 @@ const { width, height, strokeWidth = 1.6 } = Astro.props;
   stroke="currentColor"
   stroke-width={strokeWidth}
 >
-  <path fill-rule="evenodd" d="M32 6 C 40 18, 44 30, 44 38 C 44 46, 38 50, 32 50 C 26 50, 20 46, 20 38 C 20 30, 24 18, 32 6 Z"/>
-  <path d="M28 12 L 38 22 L 36 24 L 26 14 Z"/>
-  <rect x="26" y="46" width="12" height="12"/>
-  <rect x="20" y="56" width="24" height="6" rx="1"/>
-  <path d="M22 60 L 42 60 L 46 78 L 18 78 Z"/>
-  <path d="M14 78 L 50 78 L 52 88 L 12 88 Z"/>
-  <ellipse cx="32" cy="90" rx="22" ry="3.5"/>
+  <path
+    fill-rule="evenodd"
+    d="M32 6 C 40 18, 44 30, 44 38 C 44 46, 38 50, 32 50 C 26 50, 20 46, 20 38 C 20 30, 24 18, 32 6 Z"
+  ></path>
+  <path d="M28 12 L 38 22 L 36 24 L 26 14 Z"></path>
+  <rect x="26" y="46" width="12" height="12"></rect>
+  <rect x="20" y="56" width="24" height="6" rx="1"></rect>
+  <path d="M22 60 L 42 60 L 46 78 L 18 78 Z"></path>
+  <path d="M14 78 L 50 78 L 52 88 L 12 88 Z"></path>
+  <ellipse cx="32" cy="90" rx="22" ry="3.5"></ellipse>
 </svg>

@@ -8,10 +8,7 @@ import { pathFor, type Locale } from '../../i18n';
 const LOCALE: Locale = 'en';
 
 export async function getStaticPaths() {
-  const posts = await getCollection(
-    'news',
-    ({ data }) => !data.draft && data.locale === 'en',
-  );
+  const posts = await getCollection('news', ({ data }) => !data.draft && data.locale === 'en');
   return posts.map((post) => ({
     params: { slug: post.data.slug },
     props: { post },
@@ -40,6 +37,7 @@ const jsonLd = {
   ...(post.data.description ? { description: post.data.description } : {}),
 };
 ---
+
 <BaseLayout
   title={post.data.title}
   description={post.data.description}

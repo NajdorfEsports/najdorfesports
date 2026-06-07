@@ -63,10 +63,15 @@ export interface WatchChannel {
 }
 
 export const watchChannels: ReadonlyArray<WatchChannel> = [
-  { name: 'OWCS Pacific (TH)', url: 'https://twitch.tv/ow_esports_th', language: 'Thai',     platform: 'twitch'  },
-  { name: 'OWCS Pacific',      url: 'TODO',                            language: 'English',  platform: 'twitch'  },
-  { name: 'OWCS Pacific',      url: 'TODO',                            language: 'Japanese', platform: 'twitch'  },
-  { name: 'Overwatch Esports', url: 'TODO',                            language: 'VOD',      platform: 'youtube' },
+  {
+    name: 'OWCS Pacific (TH)',
+    url: 'https://twitch.tv/ow_esports_th',
+    language: 'Thai',
+    platform: 'twitch',
+  },
+  { name: 'OWCS Pacific', url: 'TODO', language: 'English', platform: 'twitch' },
+  { name: 'OWCS Pacific', url: 'TODO', language: 'Japanese', platform: 'twitch' },
+  { name: 'Overwatch Esports', url: 'TODO', language: 'VOD', platform: 'youtube' },
 ];
 
 /**

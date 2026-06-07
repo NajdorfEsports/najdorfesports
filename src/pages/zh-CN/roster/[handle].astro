@@ -12,7 +12,9 @@ export function getStaticPaths() {
     .map((player) => ({ params: { handle: playerSlug(player.handle) }, props: { player } }));
 }
 
-interface Props { player: RosterEntry }
+interface Props {
+  player: RosterEntry;
+}
 const { player } = Astro.props;
 const locale = getLocale(Astro);
 const t = useT(locale);
@@ -20,6 +22,7 @@ const t = useT(locale);
 const jsonLd = buildPlayerJsonLd(player);
 const roleName = t.roles[player.role] ?? player.role;
 ---
+
 <BaseLayout
   title={player.handle}
   description={t.playerPage.metaDescription(player.handle, roleName)}

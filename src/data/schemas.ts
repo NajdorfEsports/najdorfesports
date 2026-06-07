@@ -42,7 +42,10 @@ export const RosterEntrySchema = z
     role: RoleSchema,
     altRoles: z.array(RoleSchema).optional(),
     country: z.string().min(1),
-    countryCode: z.string().regex(/^[a-z]{2}$/, 'ISO 3166-1 alpha-2, lowercase').optional(),
+    countryCode: z
+      .string()
+      .regex(/^[a-z]{2}$/, 'ISO 3166-1 alpha-2, lowercase')
+      .optional(),
     realName: z.string().optional(),
     birthDate: isoDate.optional(),
     photo: z.string().optional(),
