@@ -40,6 +40,19 @@ export const en = {
     read: 'Read',
   },
 
+  /** Per-page <title> / meta description, localized. The home page uses
+   *  `exactTitle` in BaseLayout, so homeTitle is the full <title> with no
+   *  site-name suffix. */
+  pageMeta: {
+    homeTitle: 'Najdorf Esports | OWCS Pacific Overwatch Team',
+    homeDescription:
+      'Najdorf Esports is an Overwatch organization based in the Pacific region. Competing in OWCS Pacific.',
+    aboutDescription:
+      'Najdorf Esports acquired the Rankers roster ahead of OWCS Pacific Stage 2. Meet the active roster and coach, read our story, and learn how to partner with us.',
+    rosterDescription: (headcount: number, countries: string[]) =>
+      `The Najdorf Esports active OWCS Pacific roster. ${headcount} players across ${countries.join(', ')}.`,
+  },
+
   /** News index + article chrome. Article bodies are per-locale markdown
    *  in src/content/news; these are the surrounding labels. */
   news: {

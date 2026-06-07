@@ -1,13 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HomePageBody from '../components/page/HomePageBody.astro';
-import { site } from '../data/site';
-// SportsOrganization is emitted by BaseLayout. `enrichedOrg` upgrades it to
-// the form that embeds the athlete roster + coach (Task E).
+import { useT, getLocale } from '../i18n';
+
+const t = useT(getLocale(Astro));
+// SportsOrganization is emitted by BaseLayout; `enrichedOrg` embeds the roster.
 ---
 <BaseLayout
-  title="Najdorf Esports | OWCS Pacific Overwatch Team"
-  description={site.description}
+  title={t.pageMeta.homeTitle}
+  description={t.pageMeta.homeDescription}
   ogImage="/branding/og/home.png"
   exactTitle
   enrichedOrg

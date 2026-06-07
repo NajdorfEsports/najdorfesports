@@ -1,12 +1,14 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import HomePageBody from '../../components/page/HomePageBody.astro';
-import { site } from '../../data/site';
+import { useT, getLocale } from '../../i18n';
+
+const t = useT(getLocale(Astro));
 // SportsOrganization is emitted by BaseLayout; `enrichedOrg` embeds the roster.
 ---
 <BaseLayout
-  title="Najdorf Esports | OWCS Pacific Overwatch 戰隊"
-  description={`${site.name} 是一支位於太平洋區的 Overwatch 戰隊，目前征戰 OWCS Pacific。`}
+  title={t.pageMeta.homeTitle}
+  description={t.pageMeta.homeDescription}
   ogImage="/branding/og/home.png"
   exactTitle
   enrichedOrg

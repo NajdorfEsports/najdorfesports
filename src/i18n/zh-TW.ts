@@ -46,6 +46,15 @@ export const zhTW: Strings = {
     read:            '閱讀',
   },
 
+  pageMeta: {
+    homeTitle: 'Najdorf Esports | OWCS Pacific Overwatch 戰隊',
+    homeDescription: 'Najdorf Esports 是一支位於太平洋區的 Overwatch 戰隊，目前征戰 OWCS Pacific。',
+    aboutDescription:
+      'Najdorf Esports 在 OWCS Pacific 第二階段前收購了 Rankers 的陣容。認識現役《鬥陣特攻》選手與教練、了解我們的故事，並看看如何與我們合作。',
+    rosterDescription: (headcount, countries) =>
+      `Najdorf Esports 現役 OWCS Pacific 名單，共 ${headcount} 名選手，來自 ${countries.join('、')}。`,
+  },
+
   news: {
     eyebrow:         '新聞',
     heading:         '來自戰隊',

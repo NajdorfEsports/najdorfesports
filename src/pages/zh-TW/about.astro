@@ -2,14 +2,13 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import AboutPageBody from '../../components/page/AboutPageBody.astro';
 import { useT, getLocale } from '../../i18n';
-import { site } from '../../data/site';
 
 const locale = getLocale(Astro);
 const t = useT(locale);
 ---
 <BaseLayout
   title={t.nav.about}
-  description={`${site.name} 在 OWCS Pacific 第二階段前收購了 Rankers 的陣容。認識現役《鬥陣特攻》選手與教練、了解我們的故事，並看看如何與我們合作。`}
+  description={t.pageMeta.aboutDescription}
   ogImage="/branding/og/about.png"
 >
   <AboutPageBody />

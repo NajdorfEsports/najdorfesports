@@ -2,14 +2,13 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import AboutPageBody from '../components/page/AboutPageBody.astro';
 import { useT, getLocale } from '../i18n';
-import { site } from '../data/site';
 
 const locale = getLocale(Astro);
 const t = useT(locale);
 ---
 <BaseLayout
   title={t.nav.about}
-  description={`${site.name} acquired the Rankers roster ahead of OWCS Pacific Stage 2. Meet the active roster and coach, read our story, and learn how to partner with us.`}
+  description={t.pageMeta.aboutDescription}
   ogImage="/branding/og/about.png"
 >
   <AboutPageBody />

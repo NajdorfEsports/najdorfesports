@@ -2,7 +2,6 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import RosterPageBody from '../../components/page/RosterPageBody.astro';
 import { useT, getLocale } from '../../i18n';
-import { site } from '../../data/site';
 import { rosterMetaCounts } from '../../data/roster-jsonld';
 
 const locale = getLocale(Astro);
@@ -12,7 +11,7 @@ const { headcount, countries } = rosterMetaCounts();
 ---
 <BaseLayout
   title={t.nav.roster}
-  description={`${site.name} 现役 OWCS Pacific 名单，共 ${headcount} 名选手，来自 ${countries.join('、')}。`}
+  description={t.pageMeta.rosterDescription(headcount, countries)}
   ogImage="/branding/og/roster.png"
   enrichedOrg
 >
