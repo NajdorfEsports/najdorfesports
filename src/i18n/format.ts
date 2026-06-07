@@ -11,6 +11,10 @@ export function formatDate(
   opts: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' },
 ): string {
   const d = typeof date === 'string' ? new Date(date) : date;
+  // Guard invalid dates up front: the catch below calls d.toISOString(), which
+  // itself throws on an Invalid Date. Upstream Zod validation makes this
+  // unreachable in practice, but a formatter should never throw.
+  if (Number.isNaN(d.getTime())) return typeof date === 'string' ? date : '';
   try {
     // timeZone: 'UTC' so a 2026-05-23 ISO date doesn't slide a day backward
     // for US viewers, the same fix we applied to the news dates earlier.
@@ -137,10 +141,12 @@ export function translatePlacement(placement: string, locale: Locale): string {
   if (locale === 'en') return placement;
   const isTW = locale === 'zh-TW';
 
-  // Exact-podium shortcuts read more naturally.
-  if (/^1(st)?\b/i.test(placement)) return isTW ? '冠軍' : '冠军';
-  if (/^2(nd)?\b/i.test(placement)) return isTW ? '亞軍' : '亚军';
-  if (/^3(rd)?\b/i.test(placement)) return isTW ? '季軍' : '季军';
+  // Exact-podium shortcuts read more naturally. Anchored with $ so a RANGE like
+  // "3rd-4th" is NOT swallowed by the bare "3rd" shortcut (it falls through to
+  // the range branch below).
+  if (/^1(st)?$/i.test(placement)) return isTW ? '冠軍' : '冠军';
+  if (/^2(nd)?$/i.test(placement)) return isTW ? '亞軍' : '亚军';
+  if (/^3(rd)?$/i.test(placement)) return isTW ? '季軍' : '季军';
 
   // "Top 8" → "前 8 名". Same characters in zh-TW and zh-CN, no branch.
   const top = placement.match(/^Top\s+(\d+)$/i);
