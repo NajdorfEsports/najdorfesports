@@ -1,8 +1,9 @@
 ---
 /**
- * Home-page highlights strip. Surfaces the most recent match highlights as
- * vertical (9:16) click-to-load players. Hides itself entirely when there are
- * no (non-draft) highlights, so the feature is invisible until content exists.
+ * Home-page highlights strip. The latest match highlight renders as a centered
+ * click-to-load player sized to its own shape; any older ones fill the grid
+ * below. Hides itself entirely when there are no (non-draft) highlights, so the
+ * feature is invisible until content exists.
  *
  * Highlights are authored once (English title) and shown on all locales; the
  * surrounding chrome is localized. Titles are short match labels (proper
@@ -19,14 +20,18 @@ const t = useT(locale);
 const all = (await getCollection('highlights', ({ data }) => !data.draft))
   .sort((a, b) => +b.data.date - +a.data.date);
 
-// Landscape (16:9) match highlights render as a centered featured player;
-// vertical Shorts (9:16) fill the grid below. CSS aspect-ratio wants the
-// spaced form ("16 / 9"); the stored value is compact ("16/9").
-const featured = all.filter((h) => h.data.aspect === '16/9');
-const shorts = all.filter((h) => h.data.aspect !== '16/9').slice(0, 4);
+// The latest highlight is the hero: a centered player sized to its own shape,
+// so the frame hugs the clip instead of letterboxing it (a 9:16 Short sits in
+// a compact vertical column, a 16:9 clip goes wide). Older highlights fill the
+// grid below. CSS aspect-ratio wants the spaced form ("9 / 16"); the stored
+// value is compact ("9/16").
+const featured = all[0];
+const shorts = all.slice(1, 5);
 const cssAspect = (a: string) => (a === '16/9' ? '16 / 9' : '9 / 16');
+// Portrait heroes sit in a narrow column; landscape ones go wide.
+const featuredMaxW = (a: string) => (a === '16/9' ? 'max-w-3xl' : 'max-w-xs');
 ---
-{(featured.length > 0 || shorts.length > 0) && (
+{(featured || shorts.length > 0) && (
   <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16" aria-label="Match highlights">
     <div class="flex items-end justify-between mb-5">
       <div>
@@ -39,27 +44,23 @@ const cssAspect = (a: string) => (a === '16/9' ? '16 / 9' : '9 / 16');
       </div>
     </div>
 
-    {featured.length > 0 && (
-      <div class="mx-auto max-w-3xl space-y-6">
-        {featured.map((h) => (
-          <div>
-            <HighlightPlayer
-              videoId={h.data.videoId}
-              title={h.data.title}
-              poster={h.data.poster}
-              aspect={cssAspect(h.data.aspect)}
-            />
-            <p class="mt-2 text-xs text-[var(--color-text-dim)]">
-              {formatDate(h.data.date, locale, { month: 'short', day: 'numeric', year: 'numeric' })}
-              {h.data.opponent ? ` · ${t.match.vs(h.data.opponent)}` : ''}
-            </p>
-          </div>
-        ))}
-      </div>
+    {featured && (
+      <figure class:list={['mx-auto w-full', featuredMaxW(featured.data.aspect)]}>
+        <HighlightPlayer
+          videoId={featured.data.videoId}
+          title={featured.data.title}
+          poster={featured.data.poster}
+          aspect={cssAspect(featured.data.aspect)}
+        />
+        <figcaption class="mt-3 text-xs text-[var(--color-text-dim)] text-center">
+          {formatDate(featured.data.date, locale, { month: 'short', day: 'numeric', year: 'numeric' })}
+          {featured.data.opponent ? ` · ${t.match.vs(featured.data.opponent)}` : ''}
+        </figcaption>
+      </figure>
     )}
 
     {shorts.length > 0 && (
-      <ul class:list={['grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5', featured.length > 0 ? 'mt-8' : '']} role="list">
+      <ul class:list={['grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5', featured ? 'mt-8' : '']} role="list">
         {shorts.map((h) => (
           <li>
             <HighlightPlayer videoId={h.data.videoId} title={h.data.title} poster={h.data.poster} aspect={cssAspect(h.data.aspect)} />
