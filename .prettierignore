@@ -1,0 +1,7 @@
+dist
+.astro
+node_modules
+public
+package-lock.json
+# Generated / fetched data; the fetch scripts own this formatting.
+src/data/*.json
