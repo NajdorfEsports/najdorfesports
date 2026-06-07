@@ -6,16 +6,26 @@
 # hook and keep this to the em-dash + format checks.
 set -e
 
-# 1. Em-dash guard (U+2014) on staged src/ + public/ files: the owner bans them
-#    in all shipped copy. grep -F on the literal bytes so it works on both BSD
-#    (macOS) and GNU (CI) grep, which differ on the -P flag.
+# 1. Em-dash guard (U+2014). The owner bans em-dashes anywhere in the repo, so
+#    the literal character is checked on EVERY staged file; the HTML-entity
+#    forms (&mdash; etc) are checked on staged src/ + public/ only (scanning all
+#    staged files for those strings would match this hook itself). grep -F on
+#    the literal bytes so it works on both BSD (macOS) and GNU (CI) grep, which
+#    differ on the -P flag. -I skips binary files (images, fonts).
 emdash=$(printf '\342\200\224')
-src_files=$(git diff --cached --name-only --diff-filter=ACM -- src public)
-if [ -n "$src_files" ]; then
-  if printf '%s\n' "$src_files" |
-    xargs grep -lF -e "$emdash" -e '&mdash;' -e '&#8212;' -e '&#x2014;' 2>/dev/null; then
+all_staged=$(git diff --cached --name-only --diff-filter=ACM)
+if [ -n "$all_staged" ]; then
+  if printf '%s\n' "$all_staged" | xargs grep -lFI -e "$emdash" 2>/dev/null; then
     echo "pre-commit: em-dash (U+2014) found in the file(s) above. Replace it with a" >&2
     echo "period, comma, colon, semicolon, parentheses, or restructure the sentence." >&2
+    exit 1
+  fi
+fi
+entity_files=$(git diff --cached --name-only --diff-filter=ACM -- src public)
+if [ -n "$entity_files" ]; then
+  if printf '%s\n' "$entity_files" | xargs grep -lFI -e '&mdash;' -e '&#8212;' -e '&#x2014;' 2>/dev/null; then
+    echo "pre-commit: HTML-entity em-dash found in the file(s) above. Use plain text" >&2
+    echo "with no em-dash." >&2
     exit 1
   fi
 fi

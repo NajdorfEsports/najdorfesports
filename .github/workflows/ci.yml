@@ -28,17 +28,32 @@ jobs:
       # in the trailing comment, matching the convention in update-matches.yml.
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-      # Em-dash guard. The owner bans em-dashes (U+2014) anywhere in shipped
-      # copy, content, JSON-LD, or alt text. Scan the source + public surfaces
-      # only; CLAUDE.md is intentionally excluded because it documents the rule
-      # by quoting the character. En-dashes (U+2013) in numeric ranges are fine.
+      # Em-dash guard. The owner bans em-dashes (U+2014) anywhere in the repo,
+      # not just shipped copy. Two checks:
+      #   1) the literal U+2014 character in ANY tracked file. CLAUDE.md names
+      #      the code point instead of printing it, so this whole-repo scan
+      #      stays green unless a real em-dash slips in.
+      #   2) HTML-entity em-dash forms on the shipped surfaces (src/ + public/)
+      #      only: scanning the whole repo for those strings would match this
+      #      guard's own pattern below.
+      # En-dashes (U+2013) in numeric ranges are fine.
       - name: Em-dash guard
         run: |
-          if grep -rInP '\x{2014}|&mdash;|&#8212;|&#x2014;' src public; then
+          # Build the literal U+2014 bytes with printf (writing the character
+          # into this file would make the guard match itself) and search every
+          # tracked file with a fixed-string git grep. PCRE \x{} escapes are not
+          # portable across git's PCRE builds (some reject \x{2014} as "too
+          # large" in 8-bit mode), so avoid grep -P for the literal scan.
+          emdash=$(printf '\342\200\224')
+          if git grep -nFI "$emdash"; then
             echo "::error::Em-dash (U+2014) found above. Replace with a period, comma, colon, semicolon, parentheses, or restructure the sentence."
             exit 1
           fi
-          echo "No em-dashes found in src/ or public/."
+          if grep -rInE '&mdash;|&#8212;|&#x2014;' src public; then
+            echo "::error::HTML-entity em-dash found above. Use plain text with no em-dash."
+            exit 1
+          fi
+          echo "No em-dashes found in the repo."
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:

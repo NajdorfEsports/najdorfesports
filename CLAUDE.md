@@ -5,11 +5,14 @@ already obvious from the file tree or `package.json` are not repeated here.
 
 ## Writing rules
 
-- **NEVER use em-dashes (`—`) anywhere.** Not in user-facing copy, not in code
-  comments, not in commit messages, not in PR descriptions. Em-dashes are a
-  notorious AI tell and the owner is allergic to them. Use a period, a comma,
-  a colon, a semicolon, parentheses, or restructure the sentence instead.
-  En-dashes (`–`) are fine in numeric ranges. Hyphens (`-`) are fine.
+- **NEVER use em-dashes anywhere.** (An em-dash is the long dash at Unicode
+  code point U+2014. This file names the code point instead of printing the
+  character so the repo-wide em-dash guard can scan every file, this one
+  included.) Not in user-facing copy, not in code comments, not in commit
+  messages, not in PR descriptions. Em-dashes are a notorious AI tell and the
+  owner is allergic to them. Use a period, a comma, a colon, a semicolon,
+  parentheses, or restructure the sentence instead. En-dashes (`–`) are fine
+  in numeric ranges. Hyphens (`-`) are fine.
 - No "owner's name", real-life identity, or personal handles anywhere in
   copy, commits, JSON-LD, or meta tags. The org is the only identity. Player
   handles on the roster are fine; the rule is about the org's owner.
