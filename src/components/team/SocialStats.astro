@@ -8,7 +8,7 @@
  * safe to place anywhere ahead of launch. To surface it:
  *   1. Set `SHOW_SOCIAL_STATS = true` (and `SHOW_LIVE_VIEWERS = true` for the
  *      live pill) in src/data/social.ts.
- *   2. Set `display: true` on the channels you want in `socialChannels`.
+ *   2. Give the channels you want a `primaryMetric` in `src/data/channels.ts`.
  *   3. Render `<SocialStats />` where it belongs.
  *
  * Numbers come from build-time fetches (scripts/fetch-social-stats.mjs), so
@@ -18,7 +18,7 @@
 import {
   loadSocialStats,
   loadLiveViewers,
-  socialChannels,
+  statsChannels,
   formatCount,
   type SocialPlatform,
   type SocialMetric,
@@ -45,7 +45,7 @@ const METRIC_LABEL: Record<SocialMetric, string> = {
   likes: 'likes',
 };
 
-const channelByPlatform = new Map(socialChannels.map((c) => [c.platform, c]));
+const channelByPlatform = new Map(statsChannels.map((c) => [c.platform, c]));
 ---
 {stats.length > 0 && (
   <section class="social-stats" aria-label="Community by the numbers">

@@ -1,3 +1,5 @@
+import { channels } from './channels';
+
 export const site = {
   name: 'Najdorf Esports',
   shortName: 'Najdorf',
@@ -39,69 +41,9 @@ export function competedAsFor(eventOrTournament: string | undefined): string | n
   return /\bStage 1\b/.test(eventOrTournament) ? FORMER_ROSTER_NAME : null;
 }
 
-// Fill these in as accounts are confirmed. Any URL left as 'TODO' will be
-// filtered out by <SocialRow>, <CommunityCTA>, the footer, and the JSON-LD
-// `sameAs` so nothing broken ships. `blurb` is the optional one-line CTA copy
-// used by <CommunityCTA>.
-//
-// Three orthogonal flags decide where a channel surfaces. They default to the
-// most common case so existing entries (Discord, X) need none of them:
-//   - `display`   (default true): render as a chip in <SocialRow> (footer +
-//                 About). Set false for a channel we want in structured-data
-//                 sameAs but NOT shown as a visible link yet (the org Twitch).
-//   - `community` (default false): include in the home "Join the community"
-//                 band. Only Discord + X belong there (its copy says "two
-//                 channels"), so they opt in explicitly.
-//   - `sameAs`    (default true): feed the org JSON-LD `sameAs` identity list.
-// A `url: 'TODO'` entry is dormant everywhere until its URL is filled in (e.g.
-// YouTube): the moment a real URL lands, the footer link + sameAs entry appear
-// automatically with no other change.
-export const socials: ReadonlyArray<{
-  name: 'Discord' | 'X' | 'Instagram' | 'Twitch' | 'YouTube';
-  url: string;
-  handle?: string;
-  blurb?: string;
-  display?: boolean;
-  community?: boolean;
-  sameAs?: boolean;
-}> = [
-  {
-    name: 'Discord',
-    url: 'https://discord.gg/7X2QbvUW3z',
-    // Visible label MUST match the href: the discord.gg/najdorf vanity does not
-    // resolve to our server, so we show the permanent invite code instead.
-    handle: 'discord.gg/7X2QbvUW3z',
-    blurb: 'Hang with the squad. Match chat, watch parties, and roster updates first.',
-    community: true,
-  },
-  {
-    name: 'X',
-    url: 'https://x.com/najdorfesports',
-    handle: '@najdorfesports',
-    blurb: 'Roster moves, match results, and OWCS Pacific posts, straight from the org.',
-    community: true,
-  },
-  {
-    // Org-owned Twitch channel. Surfaced in the footer + About "Follow along"
-    // chip row (display defaults true), the home "Join the community" band
-    // (community: true), and the JSON-LD sameAs identity list.
-    name: 'Twitch',
-    url: 'https://www.twitch.tv/najdorfesports',
-    handle: 'twitch.tv/najdorfesports',
-    blurb: 'Live on match days, with co-streams and scrim VODs between fixtures.',
-    community: true,
-  },
-  {
-    // Org YouTube channel for match highlights and recaps. Same surfaces as
-    // Twitch: footer + About chip row, the community band, and JSON-LD sameAs.
-    name: 'YouTube',
-    url: 'https://www.youtube.com/@NajdorfEsportsOW',
-    handle: 'youtube.com/@NajdorfEsportsOW',
-    blurb: 'Match highlights, recaps, and the squad\'s best plays.',
-    community: true,
-  },
-  // Instagram intentionally omitted (out of scope per brand guidance).
-];
+// The social channel registry is the single source of truth in ./channels.
+// The displaySocials / communitySocials / sameAsUrls helpers below derive every
+// social UI surface (footer, About row, community band, JSON-LD sameAs) from it.
 
 /**
  * Official OWCS Pacific broadcast channels. Pulls into the <WatchHub />
@@ -129,7 +71,7 @@ export const watchChannels: ReadonlyArray<WatchChannel> = [
 
 /**
  * Keep only entries with a confirmed URL, dropping the `url: 'TODO'`
- * placeholders used by `socials` and `watchChannels`. Centralizes the filter
+ * placeholders used by the social `channels` and `watchChannels`. Centralizes the filter
  * so every consumer (SocialRow, CommunityCTA, WatchHub, and the JSON-LD
  * `sameAs` in BaseLayout) hides unconfirmed channels identically.
  */
@@ -142,12 +84,12 @@ export function confirmed<T extends { url: string }>(items: ReadonlyArray<T>): T
  * any `display: false` channel (the org Twitch, sameAs-only for now).
  */
 export function displaySocials() {
-  return confirmed(socials).filter((s) => s.display !== false);
+  return confirmed(channels).filter((s) => s.display !== false);
 }
 
 /** Channels surfaced in the home "Join the community" band (Discord + X). */
 export function communitySocials() {
-  return confirmed(socials).filter((s) => s.community === true);
+  return confirmed(channels).filter((s) => s.community === true);
 }
 
 /**
@@ -157,7 +99,7 @@ export function communitySocials() {
  * Liquipedia page can be appended here when one is created.
  */
 export function sameAsUrls(): string[] {
-  return confirmed(socials)
+  return confirmed(channels)
     .filter((s) => s.sameAs !== false)
     .map((s) => s.url);
 }
