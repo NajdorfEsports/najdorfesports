@@ -220,9 +220,16 @@ These are deliberate stances. Don't undo without flagging.
 - `public/_headers` defines a tight CSP. `frame-src` allows **only**
   `https://player.twitch.tv`. Adding a new third-party embed requires
   updating this header.
-- `public/_redirects` handles www→apex, pages.dev→apex, and
-  lowercase-locale fixups (`/zh-tw/*` → `/zh-TW/*`). Locale prefixes are
-  case-sensitive on disk.
+- `public/_redirects` handles **path-based** redirects only: the news-slug
+  rename and the lowercase-locale fixups (`/zh-tw/*` → `/zh-TW/*`). Locale
+  prefixes are case-sensitive on disk. **Host** redirects do NOT work in
+  `_redirects`: Cloudflare Pages matches the source on path only, so a
+  `https://www.../*` source never fires (it is dead weight). `www` → apex is
+  a Cloudflare zone-level **Single Redirect** in the dashboard (match
+  `https://www.*` → `https://${1}`, 301, verified live).
+  `najdorfesports.pages.dev` still serves 200 (it cannot be redirected from
+  this zone), but every page's canonical points at the apex. Don't re-add a
+  `https://.../*` host line to `_redirects`.
 - Email addresses are wrapped in `<!--email_off--> ... <!--/email_off-->`
   HTML comments (rendered via `<Fragment set:html=...>`) to opt out of
   Cloudflare's automatic Email Obfuscation. If you add a new mailto link

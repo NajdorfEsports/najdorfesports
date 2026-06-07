@@ -1,13 +1,20 @@
 # Cloudflare Pages, redirects
 # Format: <from> <to> <status>
 # https://developers.cloudflare.com/pages/configuration/redirects/
-
-# www → apex (activates when www.najdorfesports.gg is added as a Pages custom domain
-# or routed through this project via a Cloudflare zone record).
-https://www.najdorfesports.gg/*  https://najdorfesports.gg/:splat  301!
-
-# Forward bare pages.dev hits to the canonical domain (preserve any path).
-https://najdorfesports.pages.dev/*  https://najdorfesports.gg/:splat  301!
+#
+# IMPORTANT: Cloudflare Pages matches `_redirects` SOURCES on the PATH ONLY,
+# never the host or scheme. A host-based source like
+# `https://www.najdorfesports.gg/*` never matches a real request path, so it
+# silently does nothing (a path-only apex rule would also just loop). Host
+# redirects therefore live as Cloudflare zone-level Single Redirects in the
+# dashboard, NOT in this file:
+#   - www -> apex: Single Redirect on the najdorfesports.gg zone
+#     (match `https://www.*`, target `https://${1}`, 301). Verified live:
+#     www/ and www/<path>?<query> 301 to the apex with path + query preserved.
+# `najdorfesports.pages.dev` still serves 200 (it cannot be redirected from
+# this zone), but every page's <link rel="canonical"> points at the apex, so
+# search engines treat the apex as canonical. Do NOT re-add a
+# `https://.../*` source line here: it is dead weight.
 
 # News slug rename: the launch announcement moved off the "rebrand" slug
 # (the org acquired the Rankers roster, it is not a rebrand) to an
