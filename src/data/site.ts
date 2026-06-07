@@ -162,104 +162,21 @@ export function sameAsUrls(): string[] {
     .map((s) => s.url);
 }
 
-export type Role = 'Tank' | 'DPS' | 'Support' | 'Flex' | 'Coach' | 'Manager';
-
-export type RosterStatus = 'active' | 'dnp' | 'inactive';
-
-export interface RosterEntry {
-  handle: string;
-  role: Role;
-  /** Additional roles for flex players (e.g., Tank + DPS). */
-  altRoles?: Role[];
-  /** Human-readable country name (e.g., "Hong Kong"). */
-  country: string;
-  /** ISO 3166-1 alpha-2 (lowercase). Drives the flag rendering. */
-  countryCode?: string;
-  /** Display name. Prefer the romanized Latin form over native script. */
-  realName?: string;
-  /** ISO date "YYYY-MM-DD". Drives the age display. */
-  birthDate?: string;
-  /** Local path under /roster/ or an absolute URL. Wins over hero collage. */
-  photo?: string;
-  /**
-   * Signature heroes in priority order. When `photo` is absent, the avatar
-   * renders a collage of these hero icons. Hero names use the canonical
-   * Liquipedia spelling (e.g., "Soldier: 76", "Wrecking Ball").
-   */
-  signatureHeroes?: string[];
-  twitter?: string;
-  twitch?: string;
-  /** Bilibili channel URL. Common for CN/TW players; rendered on the player
-   *  detail page only when present. No player has one listed today. */
-  bilibili?: string;
-  liquipediaUrl?: string;
-  status?: RosterStatus;
-  /** Free-form note shown as a small badge ("DNP · Stage 1", "Sub", etc.). */
-  statusNote?: string;
-  /** ISO date string. */
-  joinedDate?: string;
-}
-
-export interface Achievement {
-  id: string;
-  /** ISO date of the event (use the start date if multi-day). */
-  date: string;
-  /** Tournament or event name. */
-  event: string;
-  /** "1st", "2nd", "3rd-4th", "Top 8", etc. */
-  placement: string;
-  /** Optional prize money in USD. */
-  prizeUsd?: number;
-  /** Optional outbound link (Liquipedia tournament page). */
-  url?: string;
-}
-
-export type MatchResult = 'win' | 'loss' | 'tbd';
-
-export interface MapScore {
-  map: string;
-  ourScore: number;
-  theirScore: number;
-}
-
-export interface MatchEntry {
-  id: string;
-  date: string;
-  opponent: string;
-  opponentLogo?: string;
-  tournament: string;
-  format: string;
-  /** Live broadcast channel for upcoming matches (e.g., twitch.tv/foo). */
-  streamUrl?: string;
-  /**
-   * Direct link to the saved VOD of this specific match (Twitch /videos/N,
-   * YouTube watch URL, etc.). Optional. When set, past-match cards prefer
-   * this over the channel link. When absent, past matches fall back to
-   * the channel's /videos page so the user lands on the VOD list rather
-   * than the (potentially live) channel root.
-   */
-  vodUrl?: string;
-  /** Liquipedia tournament/bracket page that lists this match. */
-  liquipediaUrl?: string;
-  /**
-   * Peak CONCURRENT viewers of the official OWCS Pacific broadcast during this
-   * match (observed from the VOD). This is the BROADCAST's audience, not the
-   * org's own channel, so every surface that renders it must attribute it to
-   * the OWCS Pacific broadcast. Manual data point (no API for a channel we
-   * don't own); set it by hand in matches.manual.json when known.
-   */
-  broadcastPeakViewers?: number;
-  result: MatchResult;
-  mapScores?: MapScore[];
-  notes?: string;
-}
-
-export interface Sponsor {
-  name: string;
-  logo: string;
-  url: string;
-  tier?: 'primary' | 'partner' | 'community';
-}
+// Data-layer types live in ./schemas (Zod-inferred: the single source of truth
+// for both runtime validation and these types). Re-exported here so existing
+// `import { type RosterEntry } from '.../site'` consumers keep working.
+export type {
+  Role,
+  RosterStatus,
+  MatchResult,
+  RosterEntry,
+  MapScore,
+  MatchEntry,
+  Achievement,
+  Sponsor,
+} from './schemas';
+// Imported for this module's own use (ROLE_ORDER, hasDetailPage).
+import type { Role, RosterStatus } from './schemas';
 
 /**
  * Merge automatic (Liquipedia) data with manual overrides keyed by `idKey`.
