@@ -32,15 +32,14 @@
 import { rename, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { USER_AGENT, sleep } from './lib/net.mjs';
+import { RosterEntrySchema, MatchEntrySchema, AchievementSchema } from '../src/data/schemas.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA = join(__dirname, '..', 'src', 'data');
 const MATCHES_PATH = join(DATA, 'matches.json');
 const ROSTER_PATH = join(DATA, 'roster.json');
 const ACHIEVEMENTS_PATH = join(DATA, 'achievements.json');
-
-const USER_AGENT =
-  'NajdorfEsportsSite/1.0 (https://najdorfesports.gg; owner@najdorfesports.gg)';
 
 // Liquipedia identifiers used to find OUR team inside the tournament pages.
 // When the team page on Liquipedia is renamed from "Rankers" to "Najdorf
@@ -61,8 +60,6 @@ const TOURNAMENT_PAGES = [
 ];
 const API = 'https://liquipedia.net/overwatch/api.php';
 const PARSE_INTERVAL_MS = 30_000; // Liquipedia: parse rate-limited to 1 per 30 s.
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function fetchParse(page) {
   const url = `${API}?action=parse&page=${encodeURIComponent(page)}&prop=wikitext&format=json`;
@@ -482,10 +479,24 @@ function extractMatches(wikitext, teamName, defaultTournament, sourcePage) {
 
 // ----- Output helpers -------------------------------------------------------
 
-async function safeWrite(path, label, data) {
+async function safeWrite(path, label, data, schema) {
   if (!Array.isArray(data) || data.length === 0) {
     console.warn(`[liquipedia] ${label}: no entries found, preserving existing ${path}.`);
     return;
+  }
+  // Validate against the same Zod schema the site build uses. A malformed fetch
+  // (a Liquipedia layout change introducing a bad/extra field) is treated like
+  // an empty fetch: log and PRESERVE the last-good file, so the auto-commit job
+  // never commits data that would then fail the deploy build.
+  if (schema) {
+    const parsed = schema.array().safeParse(data);
+    if (!parsed.success) {
+      console.error(
+        `[liquipedia] ${label}: output failed validation, preserving existing ${path}:`,
+        parsed.error.issues,
+      );
+      return;
+    }
   }
   // Atomic write: stage to ${path}.tmp, then rename. Prevents a runner
   // crash mid-write from truncating the JSON file. Rename is atomic on
@@ -659,11 +670,11 @@ function labelFromPage(pageSlug) {
       }
     }
 
-    await safeWrite(ROSTER_PATH, 'roster', roster);
+    await safeWrite(ROSTER_PATH, 'roster', roster, RosterEntrySchema);
 
     const achievements = extractAchievements(primaryWikitext);
     achievements.sort((a, b) => +new Date(b.date) - +new Date(a.date));
-    await safeWrite(ACHIEVEMENTS_PATH, 'achievements', achievements);
+    await safeWrite(ACHIEVEMENTS_PATH, 'achievements', achievements, AchievementSchema);
   } else {
     console.warn('[liquipedia] no roster source page found, preserving existing roster.json.');
   }
@@ -674,7 +685,7 @@ function labelFromPage(pageSlug) {
   const merged = Array.from(byId.values()).sort(
     (a, b) => +new Date(a.date) - +new Date(b.date),
   );
-  await safeWrite(MATCHES_PATH, 'matches', merged);
+  await safeWrite(MATCHES_PATH, 'matches', merged, MatchEntrySchema);
 
   process.exit(0);
 })();

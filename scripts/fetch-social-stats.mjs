@@ -21,12 +21,15 @@
 // (their official APIs require an approved app + OAuth), so they are left to
 // the manual override in social-stats.manual.json until that is set up.
 //
-// IDENTIFIERS that are not secret live in CONFIG below. Keep them in sync with
-// `socialChannels` in src/data/social.ts.
+// IDENTIFIERS that are not secret are derived from the single channel registry
+// in src/data/channels.ts (no third copy to keep in sync).
 
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { writeJsonAtomic } from './lib/io.mjs';
+import { channels } from '../src/data/channels.ts';
+import { SocialStatSchema } from '../src/data/schemas.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT = join(__dirname, '..', 'src', 'data', 'social-stats.json');
@@ -36,10 +39,11 @@ const OUT = join(__dirname, '..', 'src', 'data', 'social-stats.json');
 const UA =
   'NajdorfEsports-StatsBot/1.0 (+https://najdorfesports.gg; owner@najdorfesports.gg)';
 
+const byPlatform = Object.fromEntries(channels.map((c) => [c.platform, c]));
 const CONFIG = {
-  discordInvite: '7X2QbvUW3z',
-  xUsername: 'najdorfesports',
-  youtubeChannelId: process.env.YOUTUBE_CHANNEL_ID || '',
+  discordInvite: byPlatform.discord?.discordInvite || '',
+  xUsername: byPlatform.x?.xUsername || '',
+  youtubeChannelId: byPlatform.youtube?.youtubeChannelId || process.env.YOUTUBE_CHANNEL_ID || '',
   twitchLogin: process.env.TWITCH_LOGIN || '',
 };
 
@@ -201,6 +205,11 @@ async function main() {
   }
 
   const result = Array.from(out.values());
+  const parsed = SocialStatSchema.array().safeParse(result);
+  if (!parsed.success) {
+    console.error('[social] output failed validation, leaving file untouched:', parsed.error.issues);
+    return;
+  }
   const next = JSON.stringify(result, null, 2) + '\n';
   let current = '';
   try {
@@ -212,7 +221,7 @@ async function main() {
     console.log('[social] no change');
     return;
   }
-  await writeFile(OUT, next);
+  await writeJsonAtomic(OUT, result, { label: 'social-stats' });
   console.log(`[social] wrote ${OUT} (${result.length} platform rows)`);
 }
 

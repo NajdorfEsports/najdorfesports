@@ -21,10 +21,14 @@
  * site footer + /matches page.
  */
 
-import { readFile, rename, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import sharp from 'sharp';
+import { sleep, fetchJson, fetchBuffer } from './lib/net.mjs';
+import { writeJsonAtomic } from './lib/io.mjs';
+import { slugify, stripAccents } from './lib/slug.mjs';
+import { IconMapSchema } from '../src/data/schemas.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const MAPS_DIR = join(__dirname, '..', 'public', 'maps');
@@ -32,14 +36,9 @@ const MAPS_JSON = join(__dirname, '..', 'src', 'data', 'maps.json');
 const MATCHES_AUTO = join(__dirname, '..', 'src', 'data', 'matches.json');
 const MATCHES_MANUAL = join(__dirname, '..', 'src', 'data', 'matches.manual.json');
 
-const USER_AGENT =
-  'NajdorfEsportsSite/1.0 (https://najdorfesports.gg; owner@najdorfesports.gg)';
-
 const API = 'https://liquipedia.net/overwatch/api.php';
 const QUERY_INTERVAL_MS = 2_000;
 const TARGET_WIDTH = 600;
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /** Baseline pool of OW2 competitive maps. Pre-fetching the whole pool
  *  once means a future match on any of these maps automatically picks
@@ -64,21 +63,6 @@ const OWCS_MAP_POOL = [
   // Clash
   'Hanaoka', 'Throne of Anubis',
 ];
-
-/** Strip non-ASCII diacritics so 'Esperança' becomes 'Esperanca'
- *  (Liquipedia's older file uploads frequently used the plain-Latin
- *  transliteration for filenames). */
-function stripAccents(s) {
-  return s.normalize('NFD').replace(/[̀-ͯ]/g, '');
-}
-
-function slugify(name) {
-  return stripAccents(name)
-    .toLowerCase()
-    .replace(/[:.]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '');
-}
 
 /** Liquipedia files several maps under their real-world LOCATION name
  *  rather than the in-game map name (Circuit Royal lives at Monte_Carlo,
@@ -124,15 +108,7 @@ function fileTitleCandidates(mapName) {
 
 async function fetchOneImageInfo(title) {
   const url = `${API}?action=query&titles=${encodeURIComponent(title)}&prop=imageinfo&iiprop=url&iiurlwidth=${TARGET_WIDTH}&format=json`;
-  const res = await fetch(url, {
-    headers: {
-      'User-Agent': USER_AGENT,
-      'Accept-Encoding': 'gzip',
-      Accept: 'application/json',
-    },
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const j = await res.json();
+  const j = await fetchJson(url);
   const pages = j.query?.pages ?? {};
   const page = Object.values(pages)[0];
   // Same lpcommons quirk as fetch-hero-icons: file may live on the
@@ -153,11 +129,7 @@ async function fetchMapIconUrl(mapName) {
 }
 
 async function downloadTo(filePath, url) {
-  const res = await fetch(url, {
-    headers: { 'User-Agent': USER_AGENT, 'Accept-Encoding': 'gzip' },
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-  const buf = Buffer.from(await res.arrayBuffer());
+  const buf = await fetchBuffer(url);
   // Map backdrops display at card-width (~700px max). WebP q=82 keeps
   // them sharp while cutting bytes ~60-70% vs the source JPG.
   const webp = await sharp(buf).webp({ quality: 82 }).toBuffer();
@@ -226,10 +198,19 @@ async function collectMapNames() {
     }
   }
 
-  // Atomic write: same rationale as scripts/fetch-liquipedia.mjs.
-  const tmp = `${MAPS_JSON}.tmp`;
-  await writeFile(tmp, JSON.stringify(out, null, 2) + '\n', 'utf8');
-  await rename(tmp, MAPS_JSON);
-  console.log(`[map-icons] Wrote ${Object.keys(out).length} mappings to ${MAPS_JSON}`);
+  // Validate + atomic write with a never-write-empty guard: if every map fetch
+  // failed, `out` is empty and must NOT overwrite a good maps.json with `{}`.
+  const parsed = IconMapSchema.safeParse(out);
+  if (!parsed.success) {
+    console.error(
+      '[map-icons] output failed schema validation, preserving existing maps.json:',
+      parsed.error.issues,
+    );
+    process.exit(0);
+  }
+  const wrote = await writeJsonAtomic(MAPS_JSON, out, { label: 'map-icons' });
+  if (wrote) {
+    console.log(`[map-icons] Wrote ${Object.keys(out).length} mappings to ${MAPS_JSON}`);
+  }
   process.exit(0);
 })();

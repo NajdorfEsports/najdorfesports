@@ -30,15 +30,15 @@
  * needed for a single fetch.
  */
 
-import { readFile, rename, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { USER_AGENT } from './lib/net.mjs';
+import { writeJsonAtomic } from './lib/io.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROSTER_MANUAL = join(__dirname, '..', 'src', 'data', 'roster.manual.json');
 
-const USER_AGENT =
-  'NajdorfEsportsSite/1.0 (https://najdorfesports.gg; owner@najdorfesports.gg)';
 const API = 'https://liquipedia.net/overwatch/api.php';
 const BASE_PAGE_URL = 'https://liquipedia.net/overwatch/';
 
@@ -331,10 +331,8 @@ async function mergeIntoManual(entry) {
   } else {
     existing.push(entry);
   }
-  // Atomic write: same rationale as scripts/fetch-liquipedia.mjs.
-  const tmp = `${ROSTER_MANUAL}.tmp`;
-  await writeFile(tmp, JSON.stringify(existing, null, 2) + '\n', 'utf8');
-  await rename(tmp, ROSTER_MANUAL);
+  // Atomic write (never-write-empty guard); same rationale as the other fetchers.
+  await writeJsonAtomic(ROSTER_MANUAL, existing, { label: 'roster.manual' });
 }
 
 // ---------------------------------------------------------------------------
