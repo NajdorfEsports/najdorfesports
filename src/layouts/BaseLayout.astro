@@ -15,6 +15,10 @@ import {
 
 interface Props {
   title: string;
+  // When true, use `title` verbatim as the document <title>, with no
+  // " · {site name}" suffix. The home page sets this so it can carry a full
+  // SEO title ("Najdorf Esports | OWCS Pacific Overwatch Team").
+  exactTitle?: boolean;
   description?: string;
   ogImage?: string;
   jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
@@ -36,6 +40,7 @@ interface Props {
 
 const {
   title,
+  exactTitle = false,
   description = site.description,
   ogImage = '/branding/og-default.png',
   jsonLd,
@@ -45,7 +50,11 @@ const {
   noindex = false,
 } = Astro.props;
 
-const fullTitle = title === site.name ? title : `${title} · ${site.name}`;
+const fullTitle = exactTitle
+  ? title
+  : title === site.name
+    ? title
+    : `${title} · ${site.name}`;
 const canonicalUrl = canonical ?? new URL(Astro.url.pathname, site.url).toString();
 
 // Cache-bust the og:image URL so Discord / Slack / X / Facebook stop
@@ -263,14 +272,32 @@ if (crumbSegments.length > 0) {
     </script>
 
     <script is:inline>
-      // Count-up on intersect. Opt in by adding `data-count-up` and
-      // `data-target="<integer>"` to any element. The element's textContent
-      // is overwritten with values from 0 → target across COUNT_DURATION_MS
-      // using ease-out cubic. Reduced-motion + non-IO browsers + already-
-      // animated elements all snap straight to the final value.
+      // Count-up enhancement. Opt in with `data-count-up` + `data-target`.
+      // The SERVER renders the final value as the element's text, so the right
+      // number shows on first paint, with no JS, and on slow JS. This driver
+      // only ENHANCES from there, it never shows a "0" state:
+      //   - prefers-reduced-motion / no IntersectionObserver: keep the final
+      //     value in place (snap), never animate.
+      //   - elements already on screen at load (the hero / roster stat boxes):
+      //     keep the final value. Counting them up from 0 now would flash the
+      //     real number down to "0" first, which is the broken-looking state.
+      //   - off-screen elements: count up 0 → target when scrolled into view.
       (() => {
         const DURATION_MS = 700;
         const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+        function finalText(el) {
+          const target = parseInt(el.getAttribute('data-target') || '0', 10);
+          const prefix = el.dataset.countPrefix || '';
+          const suffix = el.dataset.countSuffix || '';
+          return prefix + (isNaN(target) ? 0 : target) + suffix;
+        }
+
+        // Lock in the server-rendered final value, no animation.
+        function snap(el) {
+          el.textContent = finalText(el);
+          el.dataset.countDone = '1';
+        }
 
         function animate(el, target) {
           if (el.dataset.countDone === '1') return;
@@ -290,20 +317,20 @@ if (crumbSegments.length > 0) {
           requestAnimationFrame(frame);
         }
 
+        function inViewport(el) {
+          const r = el.getBoundingClientRect();
+          const vh = window.innerHeight || document.documentElement.clientHeight;
+          const vw = window.innerWidth || document.documentElement.clientWidth;
+          return r.bottom > 0 && r.right > 0 && r.top < vh && r.left < vw;
+        }
+
         function init() {
           const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
           const els = document.querySelectorAll('[data-count-up]:not([data-count-done="1"])');
           if (els.length === 0) return;
 
           if (reduced || !('IntersectionObserver' in window)) {
-            // Snap straight to final value, no animation.
-            for (const el of els) {
-              const target = parseInt(el.getAttribute('data-target') || '0', 10);
-              const prefix = el.dataset.countPrefix || '';
-              const suffix = el.dataset.countSuffix || '';
-              el.textContent = prefix + target + suffix;
-              el.dataset.countDone = '1';
-            }
+            for (const el of els) snap(el);
             return;
           }
 
@@ -319,7 +346,13 @@ if (crumbSegments.length > 0) {
             },
             { threshold: 0.4 },
           );
-          for (const el of els) io.observe(el);
+
+          for (const el of els) {
+            // Already visible at load: keep the final value (no 0 flash). Only
+            // count up the stats a visitor actually scrolls down to.
+            if (inViewport(el)) snap(el);
+            else io.observe(el);
+          }
         }
 
         init();

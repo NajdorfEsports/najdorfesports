@@ -5,9 +5,10 @@ import { site } from '../../data/site';
 // SportsOrganization is emitted by BaseLayout; `enrichedOrg` embeds the roster.
 ---
 <BaseLayout
-  title={site.name}
+  title="Najdorf Esports | OWCS Pacific Overwatch 戰隊"
   description={`${site.name} 是一支位於太平洋區的 Overwatch 戰隊，目前征戰 OWCS Pacific。`}
   ogImage="/branding/og/home.png"
+  exactTitle
   enrichedOrg
 >
   <HomePageBody />

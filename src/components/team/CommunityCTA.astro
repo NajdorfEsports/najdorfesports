@@ -24,8 +24,10 @@ const t = useT(locale);
 const visible = communitySocials();
 
 const ctaFor = (name: string) =>
-  name === 'Discord' ? t.community.discordCta
-  : name === 'X'     ? t.community.xCta
+  name === 'Discord'  ? t.community.discordCta
+  : name === 'X'       ? t.community.xCta
+  : name === 'Twitch'  ? t.community.twitchCta
+  : name === 'YouTube' ? t.community.youtubeCta
   : `Follow on ${name}`;
 
 // Live counts (Discord members, X followers), surfaced only when the
@@ -77,6 +79,8 @@ const countFor = (name: string) => {
                 'border border-[var(--color-border)] rounded-md p-5 sm:p-6',
                 s.name === 'Discord' ? 'community-card--discord' : '',
                 s.name === 'X'       ? 'community-card--x'       : '',
+                s.name === 'Twitch'  ? 'community-card--twitch'  : '',
+                s.name === 'YouTube' ? 'community-card--youtube' : '',
               ]}
               aria-label={`Najdorf Esports on ${s.name}${s.handle ? ` (${s.handle})` : ''}`}
             >
@@ -181,6 +185,24 @@ const countFor = (name: string) => {
   .community-card--x:hover .community-card__chip {
     background-color: var(--color-text);
     color: var(--color-bg);
+  }
+
+  .community-card--twitch .community-card__chip {
+    background-color: color-mix(in oklab, var(--color-twitch) 14%, transparent);
+    color: var(--color-twitch-fg);
+  }
+  .community-card--twitch:hover .community-card__chip {
+    background-color: var(--color-twitch);
+    color: #fff;
+  }
+
+  .community-card--youtube .community-card__chip {
+    background-color: color-mix(in oklab, var(--color-youtube) 14%, transparent);
+    color: var(--color-youtube-fg);
+  }
+  .community-card--youtube:hover .community-card__chip {
+    background-color: var(--color-youtube);
+    color: #fff;
   }
 
   @media (prefers-reduced-motion: reduce) {

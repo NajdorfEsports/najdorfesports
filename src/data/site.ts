@@ -68,7 +68,9 @@ export const socials: ReadonlyArray<{
   {
     name: 'Discord',
     url: 'https://discord.gg/7X2QbvUW3z',
-    handle: 'discord.gg/najdorf',
+    // Visible label MUST match the href: the discord.gg/najdorf vanity does not
+    // resolve to our server, so we show the permanent invite code instead.
+    handle: 'discord.gg/7X2QbvUW3z',
     blurb: 'Hang with the squad. Match chat, watch parties, and roster updates first.',
     community: true,
   },
@@ -80,22 +82,23 @@ export const socials: ReadonlyArray<{
     community: true,
   },
   {
-    // Org-owned Twitch. Wired into structured-data sameAs so search engines
-    // associate it with the org, but `display: false` keeps it out of the
-    // visible footer/About chip row for now (the audit brief scoped the footer
-    // to YouTube). Flip `display` to true to surface it as a footer link.
+    // Org-owned Twitch channel. Surfaced in the footer + About "Follow along"
+    // chip row (display defaults true), the home "Join the community" band
+    // (community: true), and the JSON-LD sameAs identity list.
     name: 'Twitch',
     url: 'https://www.twitch.tv/najdorfesports',
     handle: 'twitch.tv/najdorfesports',
-    display: false,
+    blurb: 'Live on match days, with co-streams and scrim VODs between fixtures.',
+    community: true,
   },
   {
-    // YouTube channel for match highlights. DORMANT until the channel URL is
-    // filled in. Replace 'TODO' with the real channel URL (e.g.
-    // 'https://www.youtube.com/@najdorfesports') and the footer link + the
-    // JSON-LD sameAs entry light up automatically. Do not invent a URL.
+    // Org YouTube channel for match highlights and recaps. Same surfaces as
+    // Twitch: footer + About chip row, the community band, and JSON-LD sameAs.
     name: 'YouTube',
-    url: 'TODO',
+    url: 'https://www.youtube.com/@NajdorfEsportsOW',
+    handle: 'youtube.com/@NajdorfEsportsOW',
+    blurb: 'Match highlights, recaps, and the squad\'s best plays.',
+    community: true,
   },
   // Instagram intentionally omitted (out of scope per brand guidance).
 ];

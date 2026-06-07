@@ -76,7 +76,6 @@ export const zhCN: Strings = {
       '本组织背后的法律实体正在设立中；待注册完成后，本声明将更新以载明运营公司名称。',
     contactHeading: '联系我们',
     contactNote:    '合作、媒体与选手相关咨询，请发送至上方邮箱。',
-    partnerNote:    '联盟营销与赞助合作通过 impact.com 进行。',
     followHeading:  '关注我们',
   },
 
@@ -113,7 +112,6 @@ export const zhCN: Strings = {
     foundingHeading: '创始伙伴名额开放中',
     foundingBody:
       '我们目前尚无任何伙伴，而这是刻意为之：创始名额正开放中。我们不会放上占位用的标志或虚构品牌。如果您想成为球衣上的第一个名字，欢迎与我们联系。',
-    affiliateNote: '联盟营销与赞助合作通过 impact.com 进行。',
     contactHeading: '联系我们',
     contactResponse: '我们会在 24 至 48 小时内回复。',
     metaDescription:
@@ -153,9 +151,11 @@ export const zhCN: Strings = {
   community: {
     eyebrow:    '加入社群',
     headline:   '与战队同行。',
-    body:       '两个官方频道，没有算法干扰。Discord 是赛间与队伍同乐的地方，X 则是抢先看到公告的渠道。',
+    body:       '没有算法干扰，只有战队本身。赛间在 Discord 同乐，在 X 抢先看到公告，并在 Twitch 与 YouTube 观看比赛与集锦。',
     discordCta: '加入 Discord',
     xCta:       '在 X 上关注',
+    twitchCta:  '在 Twitch 观看',
+    youtubeCta: '在 YouTube 订阅',
     members:    '位成员',
     followers:  '位粉丝',
   },

@@ -45,6 +45,7 @@ const dims = size === 'sm'
             dims.box,
             s.name === 'Discord' ? 'social-chip--discord' : '',
             s.name === 'X'       ? 'social-chip--x'       : '',
+            s.name === 'Twitch'  ? 'social-chip--twitch'  : '',
             s.name === 'YouTube' ? 'social-chip--youtube' : '',
           ]}
         >
@@ -64,6 +65,10 @@ const dims = size === 'sm'
   .social-chip--x:hover {
     border-color: var(--color-text);
     color: var(--color-text);
+  }
+  .social-chip--twitch:hover {
+    border-color: var(--color-twitch);
+    color: var(--color-twitch-fg);
   }
   .social-chip--youtube:hover {
     border-color: #ff0000;

@@ -78,7 +78,6 @@ export const en = {
       'The legal entity behind the organization is being formalized; this notice will be updated to name the operating company once registration is complete.',
     contactHeading: 'Contact',
     contactNote: 'For partnerships, press, or player inquiries, email the address above.',
-    partnerNote: 'Affiliate and sponsorship partnerships are managed through impact.com.',
     followHeading: 'Follow along',
   },
 
@@ -117,8 +116,6 @@ export const en = {
     foundingHeading: 'Founding partner slots are open',
     foundingBody:
       'We have no partners yet, and that is deliberate: the founding slots are open. We will not show placeholder logos or invented brands. If you want to be the first name on the jersey, talk to us.',
-    affiliateNote:
-      'Affiliate and sponsorship partnerships are managed through impact.com.',
     contactHeading: 'Get in touch',
     contactResponse: 'We aim to reply within 24 to 48 hours.',
     metaDescription:
@@ -160,9 +157,11 @@ export const en = {
   community: {
     eyebrow: 'Join the community',
     headline: 'Travel with the team.',
-    body: 'Two channels, no algorithm games. The Discord is where the squad hangs out between matches. X is where you catch the announcements first.',
+    body: 'No algorithm games, just the squad. Hang out in Discord between matches, catch announcements first on X, and watch the games and highlights on Twitch and YouTube.',
     discordCta: 'Join the Discord',
     xCta: 'Follow on X',
+    twitchCta: 'Watch on Twitch',
+    youtubeCta: 'Subscribe on YouTube',
     /** Count labels shown next to a channel's live number (e.g. "15 members").
      *  Currently unused (counts are hidden) but kept for the optional toggle. */
     members: 'members',

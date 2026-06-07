@@ -91,7 +91,7 @@ export const socialChannels: ReadonlyArray<SocialChannel> = [
   {
     platform: 'discord',
     url: 'https://discord.gg/7X2QbvUW3z',
-    handle: 'discord.gg/najdorf',
+    handle: 'discord.gg/7X2QbvUW3z',
     primaryMetric: 'members',
     discordInvite: '7X2QbvUW3z',
     display: true,

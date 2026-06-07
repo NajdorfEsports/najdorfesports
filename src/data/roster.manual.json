@@ -40,6 +40,9 @@
     "country": "China",
     "countryCode": "cn",
     "status": "active",
+    "realName": "Zhao Yijie",
+    "birthDate": "2002-11-13",
+    "signatureHeroes": ["Ana", "Kiriko", "Mizuki"],
     "liquipediaUrl": "https://liquipedia.net/overwatch/Tom4to"
   },
   {

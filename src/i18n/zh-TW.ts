@@ -77,7 +77,6 @@ export const zhTW: Strings = {
       '本組織背後的法律實體正在設立中；待註冊完成後，本聲明將更新以載明營運公司名稱。',
     contactHeading: '聯絡我們',
     contactNote:    '合作、媒體與選手相關洽詢，請寄送至上方信箱。',
-    partnerNote:    '聯盟行銷與贊助合作透過 impact.com 進行。',
     followHeading:  '追蹤我們',
   },
 
@@ -114,7 +113,6 @@ export const zhTW: Strings = {
     foundingHeading: '創始夥伴名額開放中',
     foundingBody:
       '我們目前尚無任何夥伴，而這是刻意為之：創始名額正開放中。我們不會放上佔位用的標誌或虛構品牌。如果您想成為球衣上的第一個名字，歡迎與我們聯繫。',
-    affiliateNote: '聯盟行銷與贊助合作透過 impact.com 進行。',
     contactHeading: '聯絡我們',
     contactResponse: '我們會在 24 至 48 小時內回覆。',
     metaDescription:
@@ -154,9 +152,11 @@ export const zhTW: Strings = {
   community: {
     eyebrow:    '加入社群',
     headline:   '與戰隊同行。',
-    body:       '兩個官方頻道，沒有演算法。Discord 是賽間與隊伍同樂的地方，X 則是搶先看到公告的管道。',
+    body:       '沒有演算法，只有戰隊本身。賽間在 Discord 同樂，在 X 搶先看到公告，並在 Twitch 與 YouTube 觀看比賽與精華。',
     discordCta: '加入 Discord',
     xCta:       '在 X 上追蹤',
+    twitchCta:  '在 Twitch 觀看',
+    youtubeCta: '在 YouTube 訂閱',
     members:    '位成員',
     followers:  '位追蹤者',
   },
