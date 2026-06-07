@@ -5,6 +5,7 @@ import SiteHeader from '../components/layout/SiteHeader.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
 import { site } from '../data/site';
 import { buildOrgJsonLd } from '../data/org-jsonld';
+import { serializeJsonLd } from '../lib/jsonld';
 import {
   SUPPORTED_LOCALES,
   getLocale,
@@ -83,18 +84,8 @@ const alternates = SUPPORTED_LOCALES.map((l) => ({
   href: new URL(pathFor(l, basePath), site.url).toString(),
 }));
 
-// JSON-LD is injected with `set:html`, which does NOT HTML-escape. Some of
-// the values that reach these blocks are Liquipedia-sourced (player handles,
-// real names, opponent and tournament names) and so are not fully trusted.
-// JSON.stringify leaves `<` intact, so a value containing `</script>` could
-// close the script element early and inject markup. Escaping `<`, `>`, `&`
-// to their \uXXXX forms keeps the output valid JSON while making a
-// script-context breakout impossible.
-const serializeJsonLd = (data: unknown): string =>
-  JSON.stringify(data).replace(
-    /[<>&]/g,
-    (c) => '\\u00' + c.charCodeAt(0).toString(16),
-  );
+// serializeJsonLd (escapes <>& so a Liquipedia-sourced "</script>" cannot break
+// out of the JSON-LD block) is shared from ../lib/jsonld, imported above.
 
 // SportsOrganization Schema.org block, emitted on every page so the org
 // identity is discoverable wherever a crawler lands. Stable @id lets Person

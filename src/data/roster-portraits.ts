@@ -1,3 +1,5 @@
+import { playerSlug } from './site';
+
 /**
  * Manifest of roster handles that have a REAL portrait photo (not a stub) at
  * `public/roster/{handle}.webp`. Add a lowercase handle to this array as you
@@ -29,5 +31,7 @@ export function hasPortrait(handle: string): boolean {
 }
 
 export function portraitPath(handle: string): string {
-  return `/roster/${handle.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '')}.webp`;
+  // Reuse playerSlug so a handle maps to one stable slug everywhere (this was
+  // a hand-duplicated copy of that normalization; a test guards their equality).
+  return `/roster/${playerSlug(handle)}.webp`;
 }

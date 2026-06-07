@@ -1,6 +1,6 @@
 ---
 import { hasPortrait, portraitPath } from '../../data/roster-portraits';
-import heroIcons from '../../data/heroes.json';
+import { firstHeroIcon } from '../../lib/heroes';
 
 interface Props {
   handle: string;
@@ -29,10 +29,7 @@ const px = size;
 // Fallback chain: real headshot -> first signature hero with an icon ->
 // monogram. The hero art is the single source of truth shared with the card
 // backdrop, so an avatar and its card always show the same character.
-const heroMap = heroIcons as Record<string, string>;
-const heroIconUrl = heroes
-  .map((name) => heroMap[name])
-  .find((url): url is string => !!url);
+const heroIconUrl = firstHeroIcon(heroes);
 
 function hashHue(s: string) {
   let h = 0;

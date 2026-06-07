@@ -13,8 +13,9 @@
  */
 import CountryFlag from '../player/CountryFlag.astro';
 import BishopMark from '../ui/BishopMark.astro';
-import heroIcons from '../../data/heroes.json';
 import { type RosterEntry, type Role } from '../../data/site';
+import { roleAccent, ageFromBirth } from '../../lib/player';
+import { resolveHeroIcons } from '../../lib/heroes';
 import { getLocale, pathFor, useT } from '../../i18n';
 import { displayCountry } from '../../i18n/format';
 
@@ -26,10 +27,7 @@ const { player } = Astro.props;
 const locale = getLocale(Astro);
 const t = useT(locale);
 
-const heroMap = heroIcons as Record<string, string>;
-const heroes = (player.signatureHeroes ?? [])
-  .map((name) => ({ name, iconUrl: heroMap[name] }))
-  .filter((h): h is { name: string; iconUrl: string } => !!h.iconUrl);
+const heroes = resolveHeroIcons(player.signatureHeroes);
 const bannerHero = heroes[0];
 
 const hasCountry = !!(player.country && player.country !== 'TBD');
@@ -39,28 +37,8 @@ const roles = [player.role, ...(player.altRoles ?? [])].filter(
   (r, i, a) => a.indexOf(r) === i,
 );
 
-const roleAccent: Record<string, string> = {
-  Tank: 'var(--color-accent)',
-  DPS: 'var(--color-accent-2)',
-  Support: '#4ADE80',
-  Flex: '#A78BFA',
-  Coach: '#60A5FA',
-  Manager: '#60A5FA',
-};
-const accent = roleAccent[player.role] ?? 'var(--color-accent-2)';
+const accent = roleAccent(player.role);
 
-function ageFromBirth(iso?: string): number | null {
-  if (!iso) return null;
-  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!m) return null;
-  const [, y, mo, d] = m;
-  const now = new Date();
-  let age = now.getUTCFullYear() - Number(y);
-  const todayMD = now.getUTCMonth() * 100 + now.getUTCDate();
-  const birthMD = (Number(mo) - 1) * 100 + Number(d);
-  if (todayMD < birthMD) age -= 1;
-  return age >= 0 && age < 100 ? age : null;
-}
 const age = ageFromBirth(player.birthDate);
 
 // Outbound links, each rendered only when present. Liquipedia stays (kept per
@@ -109,7 +87,7 @@ const avatarAlt = t.player.avatarAlt(
 
       <div class="mt-4 flex items-center gap-2 flex-wrap text-xs uppercase tracking-wider">
         {roles.map((r) => {
-          const a = roleAccent[r] ?? accent;
+          const a = roleAccent(r);
           return (
             <span
               class="px-2.5 py-1 rounded-sm border font-semibold"
