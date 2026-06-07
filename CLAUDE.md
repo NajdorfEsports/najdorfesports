@@ -49,6 +49,32 @@ already obvious from the file tree or `package.json` are not repeated here.
   `requestIdleCallback` (see `LiveHero.astro`) cover client-side needs.
 - `sharp` is a devDep for the OG image script only. Keep it that way.
 
+## Dev tooling and quality gates
+
+- **After clone:** run `npm install` (the `prepare` script auto-points
+  `core.hooksPath` at `.githooks`; or run `npm run hooks:install`). Use Node 22
+  (`.nvmrc`); `engines` requires >= 22.18 because the `fetch:*` scripts import
+  the TypeScript schema module (`src/data/schemas.ts`) directly via Node's
+  native type-stripping.
+- **Commands:** `npm run check` (= `astro check`, the typecheck), `npm test`
+  (Vitest; the pure-logic suite under `src/**/*.test.ts`), `npm run format` /
+  `npm run format:check` (Prettier). All dev-only; nothing ships to the browser.
+- **CI** (`.github/workflows/ci.yml`) runs the em-dash guard, `astro check`,
+  `format:check`, `npm test`, and the build on every push. The **pre-commit
+  hook** (`.githooks/pre-commit`) mirrors those on staged files so a slip is
+  caught locally first. If it feels slow, move the typecheck/tests into a
+  `.githooks/pre-push` hook.
+- **Data validation:** `src/data/schemas.ts` is the single source of truth for
+  both the data-layer types (`z.infer`) and build-time validation. `loaders.ts`
+  and `social.ts` validate every `data/*.json` against it, so a malformed
+  Liquipedia fetch fails the build with a precise message instead of shipping
+  broken; the fetch scripts validate their output against the same schemas
+  before writing. Import zod from `'zod'` (the explicit v4 devDep), NOT
+  `'astro/zod'` (Astro's bundled v3, a different major). Content collections
+  keep their isolated `astro:content` `z`; do not unify the two.
+- `LiveHero.astro` is in `.prettierignore`: prettier-plugin-astro 0.14 cannot
+  parse its inline countdown script. Leave it hand-formatted.
+
 ## i18n
 
 - Astro built-in i18n, `prefixDefaultLocale: false`. English at `/`,
