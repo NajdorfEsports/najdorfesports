@@ -17,15 +17,18 @@ interface Props {
   videoId?: string;
   title: string;
   poster?: string;
+  /** CSS aspect-ratio for the frame. Vertical Shorts use "9 / 16" (default);
+   *  landscape match highlights pass "16 / 9". */
+  aspect?: string;
 }
-const { videoId = '', title, poster } = Astro.props;
+const { videoId = '', title, poster, aspect = '9 / 16' } = Astro.props;
 const locale = getLocale(Astro);
 const t = useT(locale);
 const hasVideo = videoId.trim().length > 0;
 ---
 <div
   class="yt-facade relative w-full overflow-hidden rounded-md border border-[var(--color-border)] bg-[var(--color-surface-2)]"
-  style="aspect-ratio: 9 / 16;"
+  style={`aspect-ratio: ${aspect};`}
   data-yt-facade
 >
   {/* Self-hosted poster, or a branded placeholder. NEVER a remote YouTube

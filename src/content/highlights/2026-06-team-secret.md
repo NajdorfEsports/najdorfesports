@@ -9,4 +9,8 @@ opponent: 'Team Secret'
 # video ID below (the part after watch?v= or youtu.be/). That single step
 # swaps the placeholder for the click-to-load nocookie player.
 videoId: ''
+# Hidden until the Short is published, so it does not show a lonely
+# "coming soon" card next to the live featured highlight. Flip to false
+# (and fill in videoId + poster above) when the Team Secret Short lands.
+draft: true
 ---

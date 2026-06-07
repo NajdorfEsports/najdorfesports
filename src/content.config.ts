@@ -72,6 +72,9 @@ const highlights = defineCollection({
     /** YouTube video ID only (the part after watch?v= or youtu.be/), NOT a
      *  full URL. EMPTY until the Short is published -> "coming soon" state. */
     videoId: z.string().default(''),
+    /** Frame shape. Vertical Shorts are "9/16" (default); landscape match
+     *  highlights are "16/9" and render as a featured player above the grid. */
+    aspect: z.enum(['9/16', '16/9']).default('9/16'),
     draft: z.boolean().default(false),
   }),
 });
