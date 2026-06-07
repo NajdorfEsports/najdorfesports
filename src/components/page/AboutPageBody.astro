@@ -1,40 +1,48 @@
 ---
 /**
  * About page body. Rendered at `/about/`, `/zh-TW/about/`, `/zh-CN/about/`.
- * Per-URL locale comes from Astro.currentLocale.
+ * Per-URL locale comes from Astro.currentLocale; all copy lives in i18n
+ * (t.about). The roster CTA points at the data-driven roster route via
+ * pathFor, so no player names are hardcoded here.
  */
-import SocialRow from '../layout/SocialRow.astro';
+import Button from '../ui/Button.astro';
 import { site } from '../../data/site';
-import { getLocale, useT } from '../../i18n';
+import { getLocale, pathFor, useT } from '../../i18n';
 
 const locale = getLocale(Astro);
 const t = useT(locale);
+const rosterHref = pathFor(locale, '/roster/');
 ---
 
 <section class="mx-auto max-w-3xl px-4 sm:px-6 pt-12 pb-16">
   <p class="text-sm uppercase tracking-wider text-[var(--color-accent-2)]">{t.about.eyebrow}</p>
   <h1 class="font-display text-4xl sm:text-5xl mt-2 tracking-wide">{site.name}</h1>
-
-  <p class="text-lg text-[var(--color-text)] mt-6 leading-relaxed">
-    {t.about.body(site.yearFounded, site.region)}
-  </p>
-
-  <hr class="border-[var(--color-border)] my-8" />
-
-  <p class="text-[var(--color-text-dim)] italic">
-    {t.about.previously}
-  </p>
+  <p class="text-lg text-[var(--color-text)] mt-4 leading-relaxed">{t.about.heroTagline}</p>
 
   <section class="mt-12">
-    <h2 class="font-display text-2xl tracking-wide">{t.about.historyHeading}</h2>
-    <p class="mt-4 text-[var(--color-text-dim)] leading-relaxed">{t.about.history1}</p>
-    <p class="mt-3 text-[var(--color-text-dim)] leading-relaxed">{t.about.history2}</p>
-    <p class="mt-4 text-xs text-[var(--color-text-dim)]">{t.about.incorporationNote}</p>
+    <h2 class="font-display text-2xl tracking-wide">{t.about.storyHeading}</h2>
+    <p class="mt-4 text-[var(--color-text-dim)] leading-relaxed">{t.about.story1}</p>
+    <p class="mt-3 text-[var(--color-text-dim)] leading-relaxed">{t.about.story2}</p>
+  </section>
+
+  <section class="mt-12">
+    <h2 class="font-display text-2xl tracking-wide">{t.about.teamHeading}</h2>
+    <p class="mt-4 text-[var(--color-text-dim)] leading-relaxed">{t.about.teamBody}</p>
+    <div class="mt-6">
+      <Button href={rosterHref} variant="secondary">{t.about.rosterLink}</Button>
+    </div>
+  </section>
+
+  <section class="mt-12">
+    <h2 class="font-display text-2xl tracking-wide">{t.about.partnersHeading}</h2>
+    <p class="mt-4 text-[var(--color-text-dim)] leading-relaxed">{t.about.partners1}</p>
+    <p class="mt-3 text-[var(--color-text-dim)] leading-relaxed">{t.about.partners2}</p>
   </section>
 
   <section class="mt-12">
     <h2 class="font-display text-2xl tracking-wide">{t.about.contactHeading}</h2>
-    <p class="mt-3">
+    <p class="mt-3 text-[var(--color-text-dim)]">
+      {t.about.contactLabel}
       <Fragment set:html={'<!--email_off-->'} />
       <a
         href={`mailto:${site.contactEmail}`}
@@ -44,15 +52,5 @@ const t = useT(locale);
       </a>
       <Fragment set:html={'<!--/email_off-->'} />
     </p>
-    <p class="text-sm text-[var(--color-text-dim)] mt-2">
-      {t.about.contactNote}
-    </p>
-
-    <div class="mt-8">
-      <p class="text-[0.65rem] uppercase tracking-[0.25em] text-[var(--color-accent-2)] mb-3">
-        {t.about.followHeading}
-      </p>
-      <SocialRow />
-    </div>
   </section>
 </section>

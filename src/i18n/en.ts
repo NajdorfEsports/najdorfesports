@@ -40,15 +40,16 @@ export const en = {
     read: 'Read',
   },
 
-  /** Per-page <title> / meta description, localized. The home page uses
-   *  `exactTitle` in BaseLayout, so homeTitle is the full <title> with no
-   *  site-name suffix. */
+  /** Per-page <title> / meta description, localized. The home and about pages
+   *  use `exactTitle` in BaseLayout, so homeTitle / aboutTitle are the full
+   *  <title> with no site-name suffix. */
   pageMeta: {
     homeTitle: 'Najdorf Esports | OWCS Pacific Overwatch Team',
     homeDescription:
       'Najdorf Esports is an Overwatch organization based in the Pacific region. Competing in OWCS Pacific.',
+    aboutTitle: 'About Najdorf Esports',
     aboutDescription:
-      'Najdorf Esports acquired the Rankers roster ahead of OWCS Pacific Stage 2. Meet the active roster and coach, read our story, and learn how to partner with us.',
+      'Najdorf Esports is an Overwatch organization competing in OWCS Asia Pacific. Read our story and partner with us.',
     rosterDescription: (headcount: number, countries: string[]) =>
       `The Najdorf Esports active OWCS Pacific roster. ${headcount} players across ${countries.join(', ')}.`,
   },
@@ -76,22 +77,27 @@ export const en = {
   },
   about: {
     eyebrow: 'About',
-    body: (year: number, region: string) =>
-      `Najdorf Esports is a competitive Overwatch organization based in the ${region} region. We founded the org in ${year} and currently compete in OWCS Pacific. The Stage 2 main event runs June 4 through July 9, 2026. The name comes from the Najdorf Variation of the Sicilian Defence, an opening that wins by preparing one line deeper than the other side.`,
-    previously: 'Several of our Stage 2 players competed for Rankers in OWCS Pacific Stage 1.',
-    /** "Our story" history subsection. Drawn from the rebrand + founder's-note
-     *  news posts; factual, coexists with the voice-y Founder's Note. */
-    historyHeading: 'Our story',
-    history1:
-      'Najdorf Esports is a new organization, not a rebrand of Rankers. On May 5, 2026, the org acquired the Rankers roster, carrying the core of the Stage 1 lineup forward into Stage 2 under new ownership and a new identity.',
-    history2:
-      'That Stage 1 run, a 3rd-place finish, was earned as Rankers, and we credit it that way. The coaching staff continued from Stage 1, joined by new signings for the Stage 2 main event, which runs June 4 through July 9, 2026.',
-    /** Low-key legal disclosure, mirroring the Privacy Policy wording. */
-    incorporationNote:
-      'The legal entity behind the organization is being formalized; this notice will be updated to name the operating company once registration is complete.',
+    /** Hero line under the wordmark H1 (which renders site.name). */
+    heroTagline: 'Disciplined aggression in OWCS Pacific.',
+    storyHeading: 'Our story',
+    story1:
+      "Najdorf Esports is an Overwatch esports organization competing in the Overwatch Champions Series (OWCS) Asia Pacific. We take our name from the Najdorf Variation of the Sicilian Defense, one of chess's sharpest openings: built on deep preparation, always seeking the initiative, and willing to attack from a position most players would only defend. That is how we approach Overwatch.",
+    story2:
+      "We entered OWCS Pacific by acquiring the roster that had competed as Rankers, ahead of Stage 2 of the 2026 season. Competing as Rankers, that roster won the OWCS 2026 Pacific Stage 1 Open Qualifier. Stage 2 is the team's first competition under the Najdorf name, and the start of a long-term presence we intend to build one stage at a time.",
+    teamHeading: 'The team',
+    teamBody:
+      'Our roster brings together players from across the region, including Hong Kong, Taiwan, Korea, and China, backed by dedicated coaching and management.',
+    /** CTA into the data-driven roster route; no player names are hardcoded here. */
+    rosterLink: 'See the current roster',
+    partnersHeading: 'Partnerships',
+    partners1:
+      'Najdorf Esports is building a lasting presence in OWCS Pacific, and we welcome partners who want to grow with us. Our core players come from Hong Kong, Taiwan, and mainland China, which positions us to reach Cantonese and Mandarin speaking Overwatch fans, an audience the regional broadcast does not currently serve in their own language. For a brand that wants to connect with Chinese speaking esports communities in Asia Pacific, that is an opportunity few organizations can offer.',
+    partners2:
+      'We can work with partners on brand visibility across our channels, content collaboration with our players, and activations built around the OWCS season. If you would like to explore a partnership, we would be glad to talk.',
     contactHeading: 'Contact',
-    contactNote: 'For partnerships, press, or player inquiries, email the address above.',
-    followHeading: 'Follow along',
+    /** Rendered as "{contactLabel} {email}"; the colon lives in the string so
+     *  each locale controls its own punctuation (full-width in zh). */
+    contactLabel: 'Partnerships & Press:',
   },
 
   /** Partners / Business inquiries page (/partners/). Honest, no inflation,

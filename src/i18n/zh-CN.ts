@@ -48,8 +48,9 @@ export const zhCN: Strings = {
     homeTitle: 'Najdorf Esports | OWCS Pacific Overwatch 战队',
     homeDescription:
       'Najdorf Esports 是一支位于太平洋赛区的 Overwatch 战队，目前征战 OWCS Pacific。',
+    aboutTitle: '关于 Najdorf Esports',
     aboutDescription:
-      'Najdorf Esports 在 OWCS Pacific 第二阶段前收购了 Rankers 的阵容。认识现役《守望先锋》选手与教练、了解我们的故事，并看看如何与我们合作。',
+      'Najdorf Esports 是一支征战 OWCS 亚太赛区的《守望先锋》电竞组织。了解我们的故事，并与我们合作。',
     rosterDescription: (headcount, countries) =>
       `Najdorf Esports 现役 OWCS Pacific 名单，共 ${headcount} 名选手，来自 ${countries.join('、')}。`,
   },
@@ -73,19 +74,23 @@ export const zhCN: Strings = {
   },
   about: {
     eyebrow: '关于',
-    body: (year, region) =>
-      `Najdorf Esports 是一支以${region}赛区为据点的竞技型《守望先锋》战队。战队于 ${year} 年成立，目前征战 OWCS Pacific。第二阶段主赛事将于 2026 年 6 月 4 日至 7 月 9 日进行。队名取自西西里防御的 Najdorf 变例，一个比对手多算一步而胜出的开局。`,
-    previously: '我们第二阶段阵容中部分选手，曾于 OWCS Pacific 第一阶段代表 Rankers 出战。',
-    historyHeading: '我们的故事',
-    history1:
-      'Najdorf Esports 是一支全新的组织，而非 Rankers 的更名。2026 年 5 月 5 日，本组织收购了 Rankers 的阵容，将第一阶段的核心班底带入第二阶段，并以全新的所有权与身份征战。',
-    history2:
-      '第一阶段的第 3 名成绩是以 Rankers 之名取得，我们也如实标注。教练组自第一阶段延续，并在第二阶段主赛事前加入新签选手；主赛事将于 2026 年 6 月 4 日至 7 月 9 日进行。',
-    incorporationNote:
-      '本组织背后的法律实体正在设立中；待注册完成后，本声明将更新以载明运营公司名称。',
-    contactHeading: '联系我们',
-    contactNote: '合作、媒体与选手相关咨询，请发送至上方邮箱。',
-    followHeading: '关注我们',
+    heroTagline: '在 OWCS Pacific，以纪律驾驭进攻。',
+    storyHeading: '故事',
+    story1:
+      'Najdorf Esports 是一支征战《守望先锋》冠军系列赛（OWCS）亚太赛区的电竞组织。我们的队名取自国际象棋西西里防御中的纳道夫变例，这是国际象棋最锋利的开局之一：建立在深厚的准备之上，始终争取主动，并敢于从多数人只会选择防守的局面发动进攻。这正是我们对待《守望先锋》的方式。',
+    story2:
+      '我们在 2026 赛季第二阶段前，收购了原本以 Rankers 名义征战的选手阵容，正式进入 OWCS Pacific。该阵容曾以 Rankers 之名赢得 2026 OWCS Pacific 第一阶段公开预选赛。第二阶段是这支队伍以 Najdorf 名义征战的首个阶段，也是我们计划一个阶段接着一个阶段稳步建立的长期征程的起点。',
+    teamHeading: '队伍',
+    teamBody:
+      '我们的阵容汇聚了来自香港、台湾、韩国与中国等地的选手，并由专职的教练与管理团队提供支持。',
+    rosterLink: '查看当前的选手阵容',
+    partnersHeading: '合作',
+    partners1:
+      'Najdorf Esports 正在 OWCS Pacific 建立长久的存在感，我们欢迎愿意与我们共同成长的合作伙伴。我们的核心选手来自香港、台湾与中国大陆，这使我们能够触及粤语与普通话的《守望先锋》观众，而这正是目前赛区转播尚未以其母语服务的一群人。对于希望与亚太地区中文电竞社区建立联系的品牌而言，这是少有电竞组织能够提供的机会。',
+    partners2:
+      '我们可以与合作伙伴在多方面合作：在各个频道上的品牌曝光、与选手共同创作内容，以及围绕 OWCS 赛季打造的品牌活动。若您有意洽谈合作，我们很乐意交流。',
+    contactHeading: '联系',
+    contactLabel: '合作与媒体：',
   },
 
   partners: {

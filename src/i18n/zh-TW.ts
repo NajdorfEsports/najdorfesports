@@ -48,8 +48,9 @@ export const zhTW: Strings = {
   pageMeta: {
     homeTitle: 'Najdorf Esports | OWCS Pacific Overwatch 戰隊',
     homeDescription: 'Najdorf Esports 是一支位於太平洋區的 Overwatch 戰隊，目前征戰 OWCS Pacific。',
+    aboutTitle: '關於 Najdorf Esports',
     aboutDescription:
-      'Najdorf Esports 在 OWCS Pacific 第二階段前收購了 Rankers 的陣容。認識現役《鬥陣特攻》選手與教練、了解我們的故事，並看看如何與我們合作。',
+      'Najdorf Esports 是一支征戰 OWCS 亞太賽區的《鬥陣特攻》電競組織。了解我們的故事，並與我們合作。',
     rosterDescription: (headcount, countries) =>
       `Najdorf Esports 現役 OWCS Pacific 名單，共 ${headcount} 名選手，來自 ${countries.join('、')}。`,
   },
@@ -73,19 +74,23 @@ export const zhTW: Strings = {
   },
   about: {
     eyebrow: '關於',
-    body: (year, region) =>
-      `Najdorf Esports 是一支以${region}賽區為據點的競技型《鬥陣特攻》戰隊。隊伍於 ${year} 年成立，目前征戰 OWCS Pacific。第二階段主賽事將於 2026 年 6 月 4 日至 7 月 9 日進行。隊名取自西西里防禦的 Najdorf 變例，一個比對手多算一步而勝出的開局。`,
-    previously: '我們第二階段陣容中部分選手，曾於 OWCS Pacific 第一階段代表 Rankers 出戰。',
-    historyHeading: '我們的故事',
-    history1:
-      'Najdorf Esports 是一支全新的組織，而非 Rankers 的更名。2026 年 5 月 5 日，本組織收購了 Rankers 的陣容，將第一階段的核心班底帶入第二階段，並以全新的所有權與身分征戰。',
-    history2:
-      '第一階段的第 3 名成績是以 Rankers 之名取得，我們也如實標註。教練團自第一階段延續，並在第二階段主賽事前加入新簽選手；主賽事將於 2026 年 6 月 4 日至 7 月 9 日進行。',
-    incorporationNote:
-      '本組織背後的法律實體正在設立中；待註冊完成後，本聲明將更新以載明營運公司名稱。',
-    contactHeading: '聯絡我們',
-    contactNote: '合作、媒體與選手相關洽詢，請寄送至上方信箱。',
-    followHeading: '追蹤我們',
+    heroTagline: '在 OWCS Pacific，以紀律駕馭進攻。',
+    storyHeading: '故事',
+    story1:
+      'Najdorf Esports 是一支征戰《鬥陣特攻》冠軍系列賽（OWCS）亞太賽區的電競組織。我們的隊名取自西洋棋西西里防禦中的納道夫變例，這是西洋棋最鋒利的開局之一：建立在深厚的準備之上，始終爭取主動，並敢於從多數人只會選擇防守的局面發動進攻。這正是我們面對《鬥陣特攻》的方式。',
+    story2:
+      '我們在 2026 賽季第二階段前，收購了原本以 Rankers 名義征戰的選手陣容，正式進入 OWCS Pacific。該陣容曾以 Rankers 之名贏得 2026 OWCS Pacific 第一階段公開預選賽。第二階段是這支隊伍以 Najdorf 名義征戰的首個階段，也是我們打算一個階段接著一個階段穩步建立的長期征程的起點。',
+    teamHeading: '隊伍',
+    teamBody:
+      '我們的陣容匯聚了來自香港、台灣、韓國與中國等地的選手，並由專責的教練與管理團隊支援。',
+    rosterLink: '查看目前的選手陣容',
+    partnersHeading: '合作',
+    partners1:
+      'Najdorf Esports 正在 OWCS Pacific 建立長久的存在感，我們歡迎願意與我們一同成長的合作夥伴。我們的核心選手來自香港、台灣與中國大陸，這讓我們能夠觸及粵語與華語的《鬥陣特攻》觀眾，而這正是目前賽區轉播尚未以其母語服務的一群人。對於希望與亞太地區華語電競社群建立連結的品牌而言，這是少有電競組織能提供的機會。',
+    partners2:
+      '我們可以與合作夥伴在多方面合作：在各個頻道上的品牌曝光、與選手共同創作內容，以及圍繞 OWCS 賽季規劃的品牌活動。若您有意洽談合作，我們很樂意交流。',
+    contactHeading: '聯絡',
+    contactLabel: '合作與媒體：',
   },
 
   partners: {
