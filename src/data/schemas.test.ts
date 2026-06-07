@@ -26,25 +26,25 @@ describe('parseData', () => {
   it('throws an actionable error naming the file, field, and reason on a bad role', () => {
     expect(() =>
       parseData(RosterEntrySchema, [{ handle: 'X', role: 'TANK', country: 'K' }], [], 'roster'),
-    ).toThrowError(/roster\.json[\s\S]*role[\s\S]*Invalid option/);
+    ).toThrow(/roster\.json[\s\S]*role[\s\S]*Invalid option/);
   });
 
   it('throws on a missing required field', () => {
-    expect(() =>
-      parseData(MatchEntrySchema, [{ id: '1', opponent: 'Y' }], [], 'matches'),
-    ).toThrowError(/matches\.json/);
+    expect(() => parseData(MatchEntrySchema, [{ id: '1', opponent: 'Y' }], [], 'matches')).toThrow(
+      /matches\.json/,
+    );
   });
 
   it('throws on a malformed date', () => {
     expect(() =>
       parseData(MatchEntrySchema, [{ ...goodMatch, date: '2026-13-40' }], [], 'matches'),
-    ).toThrowError(/date/);
+    ).toThrow(/date/);
   });
 
   it('rejects an unknown field (.strict catches Liquipedia layout drift)', () => {
     expect(() =>
       parseData(RosterEntrySchema, [{ ...goodRoster[0], bogus: 1 }], [], 'roster'),
-    ).toThrowError(/Unrecognized key|bogus/);
+    ).toThrow(/Unrecognized key|bogus/);
   });
 });
 
