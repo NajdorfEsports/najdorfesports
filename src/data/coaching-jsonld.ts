@@ -47,7 +47,7 @@ export function buildCoachingJsonLd(): Array<Record<string, unknown>> {
     jobTitle: 'Overwatch Coach',
     worksFor: { '@id': ORG_ID },
     nationality: 'Hong Kong',
-    knowsLanguage: ['English', 'Cantonese', 'Mandarin Chinese'],
+    knowsLanguage: ['Cantonese', 'Mandarin Chinese'],
   };
 
   return [service, coach];

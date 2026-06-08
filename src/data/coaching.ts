@@ -33,7 +33,7 @@ export const CAL_BRAND_COLOR = '#215BFF';
 /** Community Discord invite, reused from the shop CTA. */
 export const COACHING_DISCORD_INVITE = 'https://discord.gg/7X2QbvUW3z';
 
-export type OfferingId = 'intro' | 'single' | 'pack2' | 'pack4';
+export type OfferingId = 'single' | 'pack2' | 'pack4';
 
 export interface Offering {
   id: OfferingId;
@@ -41,30 +41,20 @@ export interface Offering {
   calLink: string;
   /** Static display price, must match Cal.com. Localized copy never overrides it. */
   priceLabel: string;
-  /** Numeric USD price for the Offer JSON-LD only (0 for the free intro). */
+  /** Numeric USD price for the Offer JSON-LD only. */
   priceUsd: number;
   /** Sessions included in the offering. */
   sessions: number;
   /** Minutes per session. */
   minutesPerSession: number;
-  /** True for the free intro call (drives the "Free" styling). */
-  free?: boolean;
 }
 
 /**
- * Display order on the page: free intro first (lowest commitment), then the
- * paid ladder ascending. Badges and blurbs live in t.coaching.offerings.items.
+ * The paid ladder, ascending. Badges and blurbs live in
+ * t.coaching.offerings.items (single carries no badge, the packs show savings).
+ * The free intro call event still exists in Cal.com but is not surfaced here.
  */
 export const OFFERINGS: ReadonlyArray<Offering> = [
-  {
-    id: 'intro',
-    calLink: `${CAL_ACCOUNT}/brysonbtw-free-intro-call`,
-    priceLabel: 'Free',
-    priceUsd: 0,
-    sessions: 1,
-    minutesPerSession: 15,
-    free: true,
-  },
   {
     id: 'single',
     calLink: `${CAL_ACCOUNT}/overwatch-coaching-1h`,
@@ -84,8 +74,8 @@ export const OFFERINGS: ReadonlyArray<Offering> = [
   {
     id: 'pack4',
     calLink: `${CAL_ACCOUNT}/brysonbtw-4-session-pack`,
-    priceLabel: '$40 USD',
-    priceUsd: 40,
+    priceLabel: '$50 USD',
+    priceUsd: 50,
     sessions: 4,
     minutesPerSession: 60,
   },
@@ -102,7 +92,18 @@ export const COACH = {
   handle: 'brysonbtw',
   /** Role key into t.roles. */
   role: 'DPS',
+  /** ISO code for the flag shown next to the localized country label. */
   countryCode: 'hk',
-  country: 'Hong Kong',
   signatureHeroes: ['Reaper', 'Echo'],
+  /** Map art faded behind the coach card. Any slug under public/maps/. */
+  backdropMap: 'kings-row',
+  /**
+   * Spoken languages, each with the flag(s) shown beside it. Labels are
+   * localized (t.coaching.coach.lang*); `flags` are ISO codes for CountryFlag.
+   * Mandarin shows both Taiwan and mainland China per the owner's choice.
+   */
+  languages: [
+    { id: 'cantonese', flags: ['hk'] },
+    { id: 'mandarin', flags: ['tw', 'cn'] },
+  ],
 } as const;
