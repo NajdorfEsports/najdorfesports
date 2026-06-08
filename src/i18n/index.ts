@@ -48,6 +48,7 @@ export function primaryNav(locale: Locale, t: Strings): Array<{ href: string; la
     { href: pathFor(locale, '/roster/'), label: t.nav.roster },
     { href: pathFor(locale, '/matches/'), label: t.nav.matches },
     { href: pathFor(locale, '/news/'), label: t.nav.news },
+    { href: pathFor(locale, '/coaching/'), label: t.nav.coaching },
     { href: pathFor(locale, '/about/'), label: t.nav.about },
   ];
 }

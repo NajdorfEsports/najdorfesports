@@ -1,0 +1,280 @@
+---
+/**
+ * Coaching page body. Rendered at /coaching/, /zh-TW/coaching/, /zh-CN/coaching/.
+ * Per-URL locale comes from Astro.currentLocale; all copy lives in i18n
+ * (t.coaching). Offering facts (Cal links, prices, durations) come from
+ * src/data/coaching.ts and are joined to the localized copy by id.
+ *
+ * Booking is handled entirely by embedded Cal.com bookers: each card's Book
+ * button opens the Cal popup overlay for that event (no accounts, no backend,
+ * no database). The single inline init script at the bottom wires every button.
+ */
+import Button from '../ui/Button.astro';
+import Badge from '../ui/Badge.astro';
+import BookButton from '../coaching/BookButton.astro';
+import PlayerAvatar from '../player/PlayerAvatar.astro';
+import { OFFERINGS, COACH, COACHING_DISCORD_INVITE } from '../../data/coaching';
+import type { Role } from '../../data/site';
+import { getLocale, useT } from '../../i18n';
+import { displayCountry } from '../../i18n/format';
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+const c = t.coaching;
+
+const role = t.roles[COACH.role as Role] ?? COACH.role;
+const country = displayCountry(COACH.countryCode, COACH.country, locale);
+
+const steps = [
+  { title: c.how.step1Title, body: c.how.step1Body },
+  { title: c.how.step2Title, body: c.how.step2Body },
+  { title: c.how.step3Title, body: c.how.step3Body },
+];
+
+const faqs = [
+  { q: c.faq.q1, a: c.faq.a1 },
+  { q: c.faq.q2, a: c.faq.a2 },
+  { q: c.faq.q3, a: c.faq.a3 },
+  { q: c.faq.q4, a: c.faq.a4 },
+  { q: c.faq.q5, a: c.faq.a5 },
+  { q: c.faq.q6, a: c.faq.a6 },
+];
+---
+
+<article>
+  {/* Hero */}
+  <section class="mx-auto max-w-3xl px-4 sm:px-6 pt-12 pb-8">
+    <p class="text-sm uppercase tracking-wider text-[var(--color-accent-2)]">{c.hero.eyebrow}</p>
+    <h1 class="font-display text-4xl sm:text-5xl mt-2 tracking-wide">{c.hero.heading}</h1>
+    <p class="text-lg text-[var(--color-text)] mt-4 leading-relaxed">{c.hero.subheading}</p>
+    <div class="mt-6">
+      <Button href="#offerings">{c.hero.cta}</Button>
+    </div>
+  </section>
+
+  {/* Coach */}
+  <section class="mx-auto max-w-3xl px-4 sm:px-6 py-8">
+    <p class="text-sm uppercase tracking-wider text-[var(--color-accent-2)]">{c.coach.eyebrow}</p>
+    <div
+      class="mt-4 flex flex-col sm:flex-row sm:items-center gap-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5 shadow-[var(--shadow-card)]"
+    >
+      <div class="shrink-0">
+        <PlayerAvatar
+          handle={COACH.handle}
+          heroes={COACH.signatureHeroes}
+          size={120}
+          label={`${COACH.handle}, ${role}`}
+        />
+      </div>
+      <div>
+        <h2 class="font-display text-3xl tracking-wide leading-none">{COACH.handle}</h2>
+        <div class="mt-2.5 flex flex-wrap items-center gap-2 text-xs uppercase tracking-wider">
+          <span
+            class="px-2 py-0.5 rounded-sm border font-semibold text-[var(--color-accent-2)] border-[var(--color-accent-2)]"
+            >{role}</span
+          >
+          <span class="text-[var(--color-text-dim)]">OWCS Pacific</span>
+          <span class="text-[var(--color-text-dim)]" aria-hidden="true">·</span>
+          <span class="text-[var(--color-text-dim)]">{country}</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="mt-4 text-[var(--color-text-dim)] leading-relaxed">{c.coach.bio}</p>
+
+    <dl class="mt-5 grid gap-4 sm:grid-cols-2">
+      <div>
+        <dt class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
+          {c.coach.specialtiesLabel}
+        </dt>
+        <dd class="mt-1 text-[var(--color-text)]">{COACH.signatureHeroes.join(' · ')}</dd>
+      </div>
+      <div>
+        <dt class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
+          {c.coach.languagesLabel}
+        </dt>
+        <dd class="mt-1 text-[var(--color-text)]">{c.coach.languages}</dd>
+      </div>
+    </dl>
+  </section>
+
+  {/* Offerings */}
+  <section
+    id="offerings"
+    class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 py-10 scroll-mt-20"
+  >
+    <h2 class="font-display text-2xl sm:text-3xl tracking-wide">{c.offerings.heading}</h2>
+    <p class="mt-2 max-w-2xl text-[var(--color-text-dim)] leading-relaxed">{c.offerings.lede}</p>
+
+    <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" role="list">
+      {
+        OFFERINGS.map((o) => {
+          const item = c.offerings.items[o.id];
+          const duration = c.offerings.durationLabel(o.sessions, o.minutesPerSession);
+          return (
+            <li class="surface-hover flex flex-col bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5 shadow-[var(--shadow-card)]">
+              <div class="flex items-start justify-between gap-2">
+                <h3 class="font-display text-xl tracking-wide text-[var(--color-text)]">
+                  {item.title}
+                </h3>
+                <Badge tone={o.free ? 'accent' : 'gold'}>{item.badge}</Badge>
+              </div>
+              <div class="mt-2 flex items-baseline gap-2">
+                <span class="font-display text-2xl text-[var(--color-text)]">
+                  {o.free ? c.offerings.freeLabel : o.priceLabel}
+                </span>
+                <span class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
+                  {duration}
+                </span>
+              </div>
+              <p class="mt-3 flex-1 text-sm text-[var(--color-text-dim)] leading-relaxed">
+                {item.blurb}
+              </p>
+              <div class="mt-4">
+                <BookButton
+                  calLink={o.calLink}
+                  label={c.offerings.book}
+                  ariaLabel={`${c.offerings.book}: ${item.title}`}
+                  variant={o.free ? 'secondary' : 'primary'}
+                />
+              </div>
+            </li>
+          );
+        })
+      }
+    </ul>
+    <p class="mt-3 text-xs text-[var(--color-text-dim)]">{c.offerings.securedNote}</p>
+  </section>
+
+  {/* How it works */}
+  <section class="mx-auto max-w-3xl px-4 sm:px-6 py-10">
+    <h2 class="font-display text-2xl tracking-wide">{c.how.heading}</h2>
+    <ol class="mt-6 grid gap-4 sm:grid-cols-3" role="list">
+      {
+        steps.map((s, i) => (
+          <li class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5">
+            <span class="font-display text-3xl text-[var(--color-accent)]">{i + 1}</span>
+            <h3 class="font-display text-lg tracking-wide mt-2">{s.title}</h3>
+            <p class="mt-2 text-sm text-[var(--color-text-dim)] leading-relaxed">{s.body}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  {/* FAQ (native details, no JS) */}
+  <section class="mx-auto max-w-3xl px-4 sm:px-6 py-10">
+    <h2 class="font-display text-2xl tracking-wide">{c.faq.heading}</h2>
+    <div class="mt-6 border-y border-[var(--color-border)]">
+      {
+        faqs.map((f) => (
+          <details class="coaching-faq border-b border-[var(--color-border)] last:border-b-0">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-4">
+              <span class="font-semibold text-[var(--color-text)]">{f.q}</span>
+              <svg
+                class="coaching-faq__chevron shrink-0 text-[var(--color-text-dim)]"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </summary>
+            <p class="pb-4 text-[var(--color-text-dim)] leading-relaxed">{f.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+
+  {/* Help / Discord */}
+  <section class="mx-auto max-w-3xl px-4 sm:px-6 pb-16">
+    <div
+      class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-l-4 border-[var(--color-accent)] bg-[var(--color-surface)] px-5 py-5 rounded-r-md"
+    >
+      <p class="text-[var(--color-text)]">{c.help.text}</p>
+      <Button href={COACHING_DISCORD_INVITE} external variant="secondary">
+        {c.help.discordCta}
+      </Button>
+    </div>
+  </section>
+</article>
+
+<script is:inline>
+  // Cal.com popup embed loader (vanilla, no React island). Keep the origin and
+  // brand color in sync with CAL_ORIGIN / CAL_BRAND_COLOR in src/data/coaching.ts
+  // and --color-accent in src/styles/global.css. The booker is forced to dark,
+  // and re-init runs on astro:page-load so the client-router SPA navigations
+  // keep the buttons live without reloading embed.js (window.Cal persists).
+  (function (C, A, L) {
+    let p = function (a, ar) {
+      a.q.push(ar);
+    };
+    let d = C.document;
+    C.Cal =
+      C.Cal ||
+      function () {
+        let cal = C.Cal;
+        let ar = arguments;
+        if (!cal.loaded) {
+          cal.ns = {};
+          cal.q = cal.q || [];
+          d.head.appendChild(d.createElement('script')).src = A;
+          cal.loaded = true;
+        }
+        if (ar[0] === L) {
+          const api = function () {
+            p(api, arguments);
+          };
+          const namespace = ar[1];
+          api.q = api.q || [];
+          if (typeof namespace === 'string') {
+            cal.ns[namespace] = cal.ns[namespace] || api;
+            p(cal.ns[namespace], ar);
+            p(cal, ['initNamespace', namespace]);
+          } else p(cal, ar);
+          return;
+        }
+        p(cal, ar);
+      };
+  })(window, 'https://app.cal.com/embed/embed.js', 'init');
+
+  function najdorfCalSetup() {
+    if (typeof window.Cal !== 'function') return;
+    window.Cal('init', { origin: 'https://app.cal.com' });
+    window.Cal('ui', {
+      cssVarsPerTheme: { light: { 'cal-brand': '#215BFF' }, dark: { 'cal-brand': '#215BFF' } },
+      hideEventTypeDetails: false,
+      theme: 'dark',
+      layout: 'month_view',
+    });
+  }
+
+  najdorfCalSetup();
+  if (!window.__najdorfCalBound) {
+    window.__najdorfCalBound = true;
+    document.addEventListener('astro:page-load', najdorfCalSetup);
+  }
+</script>
+
+<style>
+  /* FAQ accordion chrome. Native <details>, zero JS. */
+  .coaching-faq summary::-webkit-details-marker {
+    display: none;
+  }
+  .coaching-faq__chevron {
+    transition: transform 0.2s ease-out;
+  }
+  .coaching-faq[open] .coaching-faq__chevron {
+    transform: rotate(180deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .coaching-faq__chevron {
+      transition: none;
+    }
+  }
+</style>

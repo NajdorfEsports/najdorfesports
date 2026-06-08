@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CoachingPageBody from '../../components/page/CoachingPageBody.astro';
+import { buildCoachingJsonLd } from '../../data/coaching-jsonld';
+import { useT, getLocale } from '../../i18n';
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+---
+
+<BaseLayout
+  title={t.pageMeta.coachingTitle}
+  description={t.pageMeta.coachingDescription}
+  jsonLd={buildCoachingJsonLd()}
+>
+  <CoachingPageBody />
+</BaseLayout>

@@ -18,6 +18,7 @@ export const zhTW: Strings = {
     roster: '名單',
     matches: '賽程',
     news: '新聞',
+    coaching: '教練課程',
     about: '關於',
   },
   footer: {
@@ -51,6 +52,9 @@ export const zhTW: Strings = {
     aboutTitle: '關於 Najdorf Esports',
     aboutDescription:
       'Najdorf Esports 是一支征戰 OWCS 亞太賽區的《鬥陣特攻》電競組織。了解我們的故事，並與我們合作。',
+    coachingTitle: 'Overwatch 教練課程',
+    coachingDescription:
+      '與 Najdorf Esports OWCS Pacific 名單選手 brysonbtw 進行一對一《鬥陣特攻》教學。提供單堂與多堂課程方案，預約時即以 Stripe 安全付款。',
     rosterDescription: (headcount, countries) =>
       `Najdorf Esports 現役 OWCS Pacific 名單，共 ${headcount} 名選手，來自 ${countries.join('、')}。`,
   },
@@ -91,6 +95,84 @@ export const zhTW: Strings = {
       '我們可以與合作夥伴在多方面合作：在各個頻道上的品牌曝光、與選手共同創作內容，以及圍繞 OWCS 賽季規劃的品牌活動。若您有意洽談合作，我們很樂意交流。',
     contactHeading: '聯絡',
     contactLabel: '合作與媒體：',
+  },
+
+  coaching: {
+    hero: {
+      eyebrow: '教練課程',
+      heading: 'Najdorf Esports Overwatch 教練課程',
+      subheading: '與我們 OWCS 亞太名單的選手進行一對一訓練。學會贏得比賽所需的站位、習慣與判斷。',
+      cta: '查看課程方案',
+    },
+    coach: {
+      eyebrow: '你的教練',
+      specialtiesLabel: '代表英雄',
+      languagesLabel: '語言',
+      languages: '英文、粵語、國語',
+      bio: 'brysonbtw 是 Najdorf Esports OWCS Pacific 名單上的輸出選手。他以 Reaper 與 Echo 為核心，打法快速而具侵略性；在教學中，他著重於將紮實的基本功，轉化為決定勝負的站位、目標選擇與臨場判斷。每一堂課都注重實作，並依你的錄影與目標量身打造。',
+    },
+    offerings: {
+      heading: '課程方案',
+      lede: '先從免費的入門通話開始，或直接預約一堂課。每個課程包在預約時一次付清全額，並可立即預約你的第一堂課。',
+      book: '預約',
+      freeLabel: '免費',
+      securedNote: '預約時由 Stripe 處理付款。',
+      durationLabel: (sessions, minutes) =>
+        sessions === 1 ? `${minutes} 分鐘` : `${sessions} 堂 x ${minutes} 分鐘`,
+      items: {
+        intro: {
+          title: '免費入門通話',
+          blurb: '免費 15 分鐘通話，認識教練並了解課程是否適合你。',
+          badge: '免費',
+        },
+        single: {
+          title: '單堂課程',
+          blurb: '一堂 60 分鐘的教學課程。預約時段並支付 $15。',
+          badge: '單堂付費',
+        },
+        pack2: {
+          title: '2 堂課程包',
+          blurb:
+            '兩堂 60 分鐘課程，共 $25（每堂 $12.50）。你現在先預約第一堂，第二堂由我們直接與你安排。',
+          badge: '省 $5',
+        },
+        pack4: {
+          title: '4 堂課程包',
+          blurb:
+            '四堂 60 分鐘課程，共 $40（每堂 $10）。你現在先預約第一堂，其餘各堂由我們直接與你安排。',
+          badge: '省 $20',
+        },
+      },
+    },
+    how: {
+      heading: '流程說明',
+      step1Title: '選擇並預約',
+      step1Body: '選擇一個方案，並為你的第一堂課挑選一個開放的時段。',
+      step2Title: '安全付款',
+      step2Body: '安全付款。款項由 Stripe 處理。課程包於預約時一次付清全額。',
+      step3Title: '在 Discord 聯繫',
+      step3Body:
+        '在結帳時填寫你的 Discord 帳號。預約確認後，Najdorf Esports 會在 Discord 上傳送你的上課細節。課程包的其餘堂數，我們也會在那裡與你安排。',
+    },
+    faq: {
+      heading: '常見問題',
+      q1: '課程包的堂數如何運作？',
+      a1: '你在預約時一次付清整個課程包的費用。第一堂課透過行事曆預約，之後其餘堂數由我們在 Discord 上直接與你安排。',
+      q2: '我要如何進入課程？',
+      a2: '預約確認後，我們會在 Discord 上傳送你的上課細節。請在結帳時填寫你的 Discord 帳號，以便我們聯繫你。',
+      q3: '付款安全嗎？',
+      a3: '安全。款項由 Stripe 處理，我們不會看到你的卡片資料。',
+      q4: '我需要準備什麼？',
+      a4: '一個 Overwatch 帳號與一個 Discord 帳號。',
+      q5: '我可以改期嗎？',
+      a5: '可以。請使用預約確認信中的連結改期或取消。請至少提前 24 小時通知，讓該時段可以重新開放。',
+      q6: '有哪些語言可選？',
+      a6: '課程提供英文、粵語與國語。',
+    },
+    help: {
+      text: '預約前還有疑問嗎？',
+      discordCta: '在 Discord 詢問我們',
+    },
   },
 
   partners: {

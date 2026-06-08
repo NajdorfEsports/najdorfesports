@@ -11,6 +11,7 @@ export const en = {
     roster: 'Roster',
     matches: 'Matches',
     news: 'News',
+    coaching: 'Coaching',
     about: 'About',
   },
   footer: {
@@ -50,6 +51,9 @@ export const en = {
     aboutTitle: 'About Najdorf Esports',
     aboutDescription:
       'Najdorf Esports is an Overwatch organization competing in OWCS Asia Pacific. Read our story and partner with us.',
+    coachingTitle: 'Overwatch Coaching',
+    coachingDescription:
+      'Book one-on-one Overwatch coaching with brysonbtw from the Najdorf Esports OWCS Pacific roster. Single sessions and multi-session packs, paid securely at booking.',
     rosterDescription: (headcount: number, countries: string[]) =>
       `The Najdorf Esports active OWCS Pacific roster. ${headcount} players across ${countries.join(', ')}.`,
   },
@@ -98,6 +102,91 @@ export const en = {
     /** Rendered as "{contactLabel} {email}"; the colon lives in the string so
      *  each locale controls its own punctuation (full-width in zh). */
     contactLabel: 'Partnerships & Press:',
+  },
+
+  /** Coaching page (/coaching/). Offerings data (prices, Cal links, durations)
+   *  lives in src/data/coaching.ts; this is the localized prose joined by id.
+   *  Booking is handled by embedded Cal.com bookers (no accounts, no backend). */
+  coaching: {
+    hero: {
+      eyebrow: 'Coaching',
+      heading: 'Overwatch Coaching with Najdorf Esports',
+      subheading:
+        'Train one-on-one with a competitor from our OWCS Asia Pacific roster. Learn the positioning, habits, and decisions that win games.',
+      cta: 'See coaching options',
+    },
+    coach: {
+      eyebrow: 'Your coach',
+      specialtiesLabel: 'Signature heroes',
+      languagesLabel: 'Languages',
+      languages: 'English, Cantonese, Mandarin',
+      bio: 'brysonbtw is a DPS on the Najdorf Esports OWCS Pacific roster. He plays a fast, aggressive style built around Reaper and Echo, and in coaching he focuses on the positioning, target priority, and split-second decisions that turn solid mechanics into wins. Every session is hands-on and shaped around your replays and your goals.',
+    },
+    offerings: {
+      heading: 'Coaching options',
+      lede: 'Start with a free intro call, or go straight into a session. Each pack is paid once, in full, at booking, and you book your first session right away.',
+      book: 'Book',
+      /** Price word shown on the free intro card (the numeric priceLabels in
+       *  coaching.ts stay as-is; only this word is localized). */
+      freeLabel: 'Free',
+      securedNote: 'Payment is processed by Stripe at booking.',
+      durationLabel: (sessions: number, minutes: number) =>
+        sessions === 1 ? `${minutes} min` : `${sessions} x ${minutes} min`,
+      items: {
+        intro: {
+          title: 'Free Intro Call',
+          blurb: 'A free 15-minute call to meet the coach and see if coaching is a fit.',
+          badge: 'Free',
+        },
+        single: {
+          title: 'Single Session',
+          blurb: 'One 60-minute coaching session. Book a time and pay $15.',
+          badge: 'Pay as you go',
+        },
+        pack2: {
+          title: '2-Session Pack',
+          blurb:
+            'Two 60-minute sessions for $25 ($12.50 each). You book your first session now and we arrange the second with you directly.',
+          badge: 'Save $5',
+        },
+        pack4: {
+          title: '4-Session Pack',
+          blurb:
+            'Four 60-minute sessions for $40 ($10 each). You book your first session now and we arrange the rest with you directly.',
+          badge: 'Save $20',
+        },
+      },
+    },
+    how: {
+      heading: 'How it works',
+      step1Title: 'Choose and book',
+      step1Body: 'Choose an option and pick an open time for your first session.',
+      step2Title: 'Pay securely',
+      step2Body:
+        'Pay securely. Payments are processed by Stripe. A pack is paid once, in full, at booking.',
+      step3Title: 'Connect on Discord',
+      step3Body:
+        'Enter your Discord handle at checkout. After your booking is confirmed, Najdorf Esports sends your coaching details on Discord. For packs, we also arrange your remaining sessions with you there.',
+    },
+    faq: {
+      heading: 'FAQ',
+      q1: 'How do pack sessions work?',
+      a1: 'You pay once for the full pack at booking. You schedule your first session through the calendar. After that, we arrange your remaining sessions with you directly on Discord.',
+      q2: 'How do I join my session?',
+      a2: 'After your booking is confirmed, we send your coaching details on Discord. Enter your Discord handle at checkout so we can reach you.',
+      q3: 'Is payment secure?',
+      a3: 'Yes. Payments are processed by Stripe. We never see your card details.',
+      q4: 'What do I need?',
+      a4: 'An Overwatch account and a Discord account.',
+      q5: 'Can I reschedule?',
+      a5: 'Yes. Use the link in your booking confirmation email to reschedule or cancel. Please give at least 24 hours notice so the time can be reused.',
+      q6: 'What languages are available?',
+      a6: 'Coaching is available in English, Cantonese, and Mandarin.',
+    },
+    help: {
+      text: 'Questions before you book?',
+      discordCta: 'Ask us on Discord',
+    },
   },
 
   /** Partners / Business inquiries page (/partners/). Honest, no inflation,
