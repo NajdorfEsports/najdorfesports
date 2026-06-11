@@ -1,6 +1,5 @@
 ---
 import { Image } from 'astro:assets';
-import PlayerAvatar from './PlayerAvatar.astro';
 import CountryFlag from './CountryFlag.astro';
 import Badge from '../ui/Badge.astro';
 import { playerSlug, hasDetailPage, type RosterEntry, type Role } from '../../data/site';
@@ -43,19 +42,11 @@ const allRoles = [player.role, ...(player.altRoles ?? [])].filter((r, i, a) => a
 // Signature heroes that have an icon, capped at 4 for the card backdrop.
 const backdropHeroes = resolveHeroIcons(player.signatureHeroes, 4);
 const hasBackdrop = backdropHeroes.length > 0;
-
-// Meaningful avatar alt text derived from data (Task I): handle, localized
-// role, and the signature hero the avatar actually shows (first with an icon).
-const avatarAlt = t.player.avatarAlt(
-  player.handle,
-  t.roles[player.role] ?? player.role,
-  backdropHeroes[0]?.name,
-);
 ---
 
 <article
   class:list={[
-    'player-card relative bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5 flex flex-col items-center text-center shadow-[var(--shadow-card)] isolate overflow-hidden',
+    'player-card relative bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5 flex flex-col shadow-[var(--shadow-card)] isolate overflow-hidden',
     isDnp || isInactive ? 'player-card--muted' : '',
     hasBackdrop ? 'player-card--has-backdrop' : '',
   ]}
@@ -74,10 +65,11 @@ const avatarAlt = t.player.avatarAlt(
                 densities={[1, 2]}
                 loading="lazy"
                 decoding="async"
-                class="player-card__hero-img"
+                class="player-card__hero-img ink-img"
               />
             </span>
           ))}
+          <div class="ink-wash" aria-hidden="true" />
         </div>
         <div class="player-card__overlay" aria-hidden="true" />
       </>
@@ -96,15 +88,22 @@ const avatarAlt = t.player.avatarAlt(
     )
   }
 
-  <div class="player-card__content relative z-10 flex flex-col items-center w-full">
-    <PlayerAvatar
-      handle={player.handle}
-      heroes={player.signatureHeroes}
-      size={96}
-      label={avatarAlt}
-    />
+  {
+    /* Nameplate anchored bottom-left, scoresheet style: the art carries the
+      top of the card, the type carries the bottom. */
+  }
+  <div
+    class="player-card__content relative z-10 mt-auto flex flex-col items-start text-left w-full"
+  >
+    {
+      hasBackdrop && (
+        <p class="text-[0.6rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)] mb-2">
+          {backdropHeroes.map((h) => h.name).join(' · ')}
+        </p>
+      )
+    }
 
-    <h3 class="font-display text-2xl sm:text-3xl mt-4 tracking-wide leading-none">
+    <h3 class="font-display text-3xl sm:text-4xl tracking-wide leading-none">
       {
         handleHref ? (
           <a
@@ -123,7 +122,7 @@ const avatarAlt = t.player.avatarAlt(
 
     {
       (player.realName || age !== null) && (
-        <p class="text-sm text-[var(--color-text-dim)] mt-1.5">
+        <p class="text-sm text-[var(--color-text-dim)] mt-2">
           {player.realName}
           {player.realName && age !== null && ' · '}
           {age !== null && <span class="tabular-nums">{age}</span>}
@@ -131,9 +130,7 @@ const avatarAlt = t.player.avatarAlt(
       )
     }
 
-    <div
-      class="mt-3 flex items-center gap-2 text-xs uppercase tracking-wider flex-wrap justify-center"
-    >
+    <div class="mt-3 flex items-center gap-2 text-xs uppercase tracking-wider flex-wrap">
       {
         allRoles.map((r) => {
           const a = roleAccent(r);
@@ -156,14 +153,6 @@ const avatarAlt = t.player.avatarAlt(
         )
       }
     </div>
-
-    {
-      hasBackdrop && (
-        <p class="mt-3 text-[0.6rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)]">
-          {backdropHeroes.map((h) => h.name).join(' · ')}
-        </p>
-      )
-    }
 
     {
       (player.twitter || player.twitch) && (
@@ -202,6 +191,7 @@ const avatarAlt = t.player.avatarAlt(
       box-shadow 0.2s ease-out;
     animation: card-rise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
     animation-delay: calc(var(--stagger, 0) * 70ms);
+    aspect-ratio: 4 / 4.4;
     min-height: 320px;
   }
 
@@ -258,11 +248,11 @@ const avatarAlt = t.player.avatarAlt(
   }
 
   .player-card:hover .player-card__hero :global(.player-card__hero-img) {
-    transform: scale(1.08);
+    transform: scale(1.05);
   }
   .player-card:hover .player-card__hero:nth-child(2) :global(.player-card__hero-img) {
-    /* Middle hero leads with a hair more zoom + a touch of vertical drift */
-    transform: scale(1.1) translateY(-2px);
+    /* Middle hero leads with a touch of vertical drift */
+    transform: scale(1.05) translateY(-2px);
   }
   /* Outer edges of the strip stay solid against the card edge */
   .player-card__hero:first-child {
@@ -275,17 +265,19 @@ const avatarAlt = t.player.avatarAlt(
     mask-image: none;
   }
 
-  /* Dark gradient overlay: lighter at top so faces show, darker at bottom for text */
+  /* Bottom-weighted scrim: the art breathes up top, the nameplate sits on
+     solid ground below. */
   .player-card__overlay {
     position: absolute;
     inset: 0;
     z-index: 1;
     border-radius: inherit;
-    background: radial-gradient(
-      ellipse 80% 50% at 50% 28%,
-      rgba(11, 11, 15, 0.35) 0%,
-      rgba(11, 11, 15, 0.78) 60%,
-      rgba(11, 11, 15, 0.95) 100%
+    background: linear-gradient(
+      to top,
+      rgba(11, 11, 15, 0.96) 0%,
+      rgba(11, 11, 15, 0.72) 32%,
+      rgba(11, 11, 15, 0.28) 62%,
+      rgba(11, 11, 15, 0.08) 100%
     );
     pointer-events: none;
     /* Smooth dimming via opacity rather than the un-animatable bg property */
@@ -295,37 +287,6 @@ const avatarAlt = t.player.avatarAlt(
   /* On hover the overlay dims slightly so the hero backdrop "breathes" */
   .player-card--has-backdrop:hover .player-card__overlay {
     opacity: 0.82;
-  }
-
-  /* Diagonal shine sweep, one-shot streak from upper-left to lower-right
-     when the cursor enters. Inspired by Apple product card hovers. */
-  .player-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    border-radius: inherit;
-    background: linear-gradient(
-      115deg,
-      transparent 30%,
-      rgba(255, 255, 255, 0.06) 48%,
-      rgba(255, 255, 255, 0.12) 50%,
-      rgba(255, 255, 255, 0.06) 52%,
-      transparent 70%
-    );
-    pointer-events: none;
-    opacity: 0;
-    transform: translateX(-110%);
-    transition:
-      transform 0s linear,
-      opacity 0s linear;
-  }
-  .player-card:hover::before {
-    opacity: 1;
-    transform: translateX(110%);
-    transition:
-      transform 1.4s cubic-bezier(0.16, 1, 0.3, 1),
-      opacity 0.3s ease-out;
   }
 
   .player-card__rail {
@@ -380,8 +341,7 @@ const avatarAlt = t.player.avatarAlt(
     .player-card,
     .player-card__hero :global(.player-card__hero-img),
     .player-card__overlay,
-    .player-card__handle,
-    .player-card::before {
+    .player-card__handle {
       animation: none !important;
       transition: border-color 0.2s ease-out !important;
     }
@@ -391,10 +351,6 @@ const avatarAlt = t.player.avatarAlt(
     .player-card:hover .player-card__hero :global(.player-card__hero-img),
     .player-card:hover .player-card__hero:nth-child(2) :global(.player-card__hero-img) {
       transform: none !important;
-    }
-    .player-card:hover::before {
-      opacity: 0;
-      transform: translateX(-110%);
     }
     .player-card:hover .player-card__handle {
       text-shadow: none;

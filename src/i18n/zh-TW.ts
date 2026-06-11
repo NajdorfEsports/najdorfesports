@@ -72,6 +72,8 @@ export const zhTW: Strings = {
   roster: {
     eyebrow: '現役名單 · OWCS Pacific 2026',
     h1: '出戰陣容',
+    // DRAFT PENDING RIRI NATIVE REVIEW
+    staffHeading: '教練與經理',
     playersLabel: '選手',
     regionLabel: '賽區',
     fullRoster: '完整名單',

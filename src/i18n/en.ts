@@ -71,6 +71,8 @@ export const en = {
   roster: {
     eyebrow: 'Active roster · OWCS Pacific 2026',
     h1: 'The Lineup',
+    /** Heading for the coach + manager section at the foot of /roster/. */
+    staffHeading: 'Staff',
     playersLabel: 'Players',
     regionLabel: 'Region',
     fullRoster: 'Full roster',
