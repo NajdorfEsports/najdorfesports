@@ -1,14 +1,16 @@
 ---
 /**
- * Home-page highlights strip. Match highlights render as a left-aligned row of
- * vertical click-to-load cards (YouTube Playables style): each card is a fixed
- * width and they flow side by side, wrapping to the next line. A single
- * highlight simply sits at the left. Hides itself entirely when there are no
- * (non-draft) highlights, so the feature is invisible until content exists.
+ * Home-page highlights band, built for 9:16 Shorts as the primary medium.
+ * One entry renders as a featured frame with a meta column beside it (a
+ * lone vertical card floating in a wide band reads as broken); several
+ * entries render as a horizontal scroll-snap rail of fixed-width vertical
+ * frames. A 16:9 clip, when one exists, takes the featured slot. Hides
+ * itself entirely when there are no (non-draft) highlights, so the feature
+ * is invisible until content exists.
  *
- * Highlights are authored once (English title) and shown on all locales; the
- * surrounding chrome is localized. Titles are short match labels (proper
- * nouns), so they are not triple-authored like news articles.
+ * Highlights are authored once (English title) and shown on all locales;
+ * the surrounding chrome is localized. Titles are short match labels
+ * (proper nouns), so they are not triple-authored like news articles.
  */
 import { getCollection } from 'astro:content';
 import HighlightPlayer from '../highlight/HighlightPlayer.astro';
@@ -22,9 +24,22 @@ const all = (await getCollection('highlights', ({ data }) => !data.draft)).sort(
   (a, b) => +b.data.date - +a.data.date,
 );
 
+// Featured slot: a widescreen clip if one exists, else the lone entry when
+// there is only one. Everything else flows into the rail.
+const featured = all.find((h) => h.data.aspect === '16/9') ?? (all.length === 1 ? all[0] : null);
+const rail = featured ? all.filter((h) => h.id !== featured.id) : all;
+
 // CSS aspect-ratio wants the spaced form ("9 / 16"); the stored value is the
 // compact "9/16". Vertical Shorts default to 9:16; a 16:9 clip passes through.
 const cssAspect = (a: string) => (a === '16/9' ? '16 / 9' : '9 / 16');
+
+const metaLine = (h: (typeof all)[number]) =>
+  [
+    formatDate(h.data.date, locale, { month: 'short', day: 'numeric', year: 'numeric' }),
+    h.data.opponent ? t.match.vs(h.data.opponent) : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 ---
 
 {
@@ -44,28 +59,48 @@ const cssAspect = (a: string) => (a === '16/9' ? '16 / 9' : '9 / 16');
         </div>
       </div>
 
-      {/* Fixed-width vertical cards, left-aligned. auto-fill (not auto-fit) keeps
-        a lone card at its natural ~20rem width instead of stretching it across
-        the row; extra cards flow side by side and wrap. */}
-      <ul
-        class="grid gap-5 sm:gap-6 [grid-template-columns:repeat(auto-fill,minmax(0,20rem))]"
-        role="list"
-      >
-        {all.map((h) => (
-          <li>
+      {featured && (
+        <div class="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-end">
+          <div class:list={[featured.data.aspect === '16/9' ? 'w-full max-w-2xl' : 'w-64 sm:w-72']}>
             <HighlightPlayer
-              videoId={h.data.videoId}
-              title={h.data.title}
-              poster={h.data.poster}
-              aspect={cssAspect(h.data.aspect)}
+              videoId={featured.data.videoId}
+              title={featured.data.title}
+              poster={featured.data.poster}
+              aspect={cssAspect(featured.data.aspect)}
             />
-            <p class="mt-3 text-xs text-[var(--color-text-dim)]">
-              {formatDate(h.data.date, locale, { month: 'short', day: 'numeric', year: 'numeric' })}
-              {h.data.opponent ? ` · ${t.match.vs(h.data.opponent)}` : ''}
+          </div>
+          <div class="min-w-0 sm:pb-2">
+            <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
+              {metaLine(featured)}
             </p>
-          </li>
-        ))}
-      </ul>
+            <h3 class="font-display text-2xl sm:text-3xl mt-2 tracking-wide">
+              {featured.data.title}
+            </h3>
+          </div>
+        </div>
+      )}
+
+      {rail.length > 0 && (
+        <ul
+          class:list={[
+            'flex gap-5 sm:gap-6 overflow-x-auto snap-x snap-mandatory pb-2',
+            featured ? 'mt-8' : '',
+          ]}
+          role="list"
+        >
+          {rail.map((h) => (
+            <li class="snap-start shrink-0 w-64 sm:w-72">
+              <HighlightPlayer
+                videoId={h.data.videoId}
+                title={h.data.title}
+                poster={h.data.poster}
+                aspect={cssAspect(h.data.aspect)}
+              />
+              <p class="mt-3 text-xs text-[var(--color-text-dim)]">{metaLine(h)}</p>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   )
 }
