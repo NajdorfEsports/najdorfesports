@@ -1,0 +1,75 @@
+---
+/**
+ * Shared section header for the 2026-06 design system. Composition, top
+ * to bottom: an optional move index from the Najdorf line (aria-hidden,
+ * locale-neutral, see src/lib/notation.ts), an optional eyebrow, the
+ * heading, then a hairline rule that leads accent and fades into the
+ * border color. The default slot renders flush right (counts, "All x"
+ * links, attribution chips).
+ */
+interface Props {
+  heading: string;
+  eyebrow?: string;
+  /** Scoresheet index, e.g. "2. Nf3". Decorative; never translated. */
+  move?: string | null;
+  level?: 'h1' | 'h2';
+  /** Drop the rule when the section provides its own divider. */
+  rule?: boolean;
+}
+const { heading, eyebrow, move, level = 'h2', rule = true } = Astro.props;
+const Tag = level;
+---
+
+<div class="section-header">
+  <div class="flex items-end justify-between gap-x-6 gap-y-2 flex-wrap">
+    <div class="min-w-0">
+      {
+        move && (
+          <p class="section-header__move" aria-hidden="true">
+            {move}
+          </p>
+        )
+      }
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+      <Tag
+        class:list={[
+          'font-display tracking-wide leading-none',
+          level === 'h1' ? 'text-(length:--text-h1) mt-2' : 'text-3xl sm:text-4xl mt-1.5',
+        ]}
+      >
+        {heading}
+      </Tag>
+    </div>
+    {
+      Astro.slots.has('default') && (
+        <div class="shrink-0 pb-1">
+          <slot />
+        </div>
+      )
+    }
+  </div>
+  {rule && <span class="section-header__rule" aria-hidden="true" />}
+</div>
+
+<style>
+  .section-header__move {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+    color: color-mix(in oklab, var(--color-accent-2) 60%, var(--color-text-dim));
+    margin-bottom: 0.375rem;
+  }
+  .section-header__rule {
+    display: block;
+    height: 1px;
+    margin-top: 0.875rem;
+    background: linear-gradient(
+      90deg,
+      var(--color-accent) 0,
+      color-mix(in oklab, var(--color-accent) 35%, var(--color-border)) 4rem,
+      var(--color-border) 14rem,
+      var(--color-border) 100%
+    );
+  }
+</style>

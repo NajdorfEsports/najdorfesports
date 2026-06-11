@@ -97,6 +97,16 @@
 
   --font-display: 'Anton', 'Oswald', 'Impact', system-ui, sans-serif;
   --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Type scale (2026-06 redesign). One hero size per page, two heading
+     tiers below it; consumed via text-(length:--text-hero) etc. */
+  --text-hero: clamp(3.5rem, 9vw, 7.5rem);
+  --text-h1: clamp(2.5rem, 6vw, 4.25rem);
+  --text-h2: clamp(1.625rem, 3vw, 2.25rem);
+
+  /* Section rhythm + prose measure. */
+  --space-section: clamp(4.5rem, 10vh, 7.5rem);
+  --max-prose: 65ch;
 }
 
 /*
@@ -339,6 +349,88 @@
   }
   .wordmark-hover:hover {
     filter: drop-shadow(0 0 12px color-mix(in oklab, var(--color-accent) 40%, transparent));
+  }
+
+  /* One section rhythm for the whole site: container width, gutters, and
+     the vertical beat between sections, replacing ad-hoc mt-12/mt-16. */
+  .section {
+    max-width: var(--max-content);
+    margin-inline: auto;
+    padding-inline: 1rem;
+    margin-top: var(--space-section);
+  }
+  @media (min-width: 40rem) {
+    .section {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  /* Codified eyebrow: the small annotation line above headings. */
+  .eyebrow {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: var(--color-accent-2);
+  }
+
+  /* Board texture: a rank-and-file grid in faint accent ink, masked so it
+     fades instead of tiling forever. Drop in as an absolutely positioned
+     aria-hidden child of a relative container. */
+  .texture-board {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        color-mix(in oklab, var(--color-accent) 6%, transparent) 0 1px,
+        transparent 1px 12.5%
+      ),
+      repeating-linear-gradient(
+        90deg,
+        color-mix(in oklab, var(--color-accent) 6%, transparent) 0 1px,
+        transparent 1px 12.5%
+      );
+    mask-image: radial-gradient(ellipse 100% 90% at 50% 0%, black 0%, transparent 78%);
+  }
+
+  /* Diagonal hatch (the bishop's move), generalized from the news covers.
+     Same drop-in contract as .texture-board. Set --hatch-ink to retint. */
+  .texture-diag {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      135deg,
+      transparent 0,
+      transparent 14px,
+      var(--hatch-ink, color-mix(in oklab, var(--color-accent) 14%, transparent)) 14px,
+      var(--hatch-ink, color-mix(in oklab, var(--color-accent) 14%, transparent)) 15px
+    );
+    mix-blend-mode: overlay;
+    opacity: 0.55;
+  }
+
+  /* The ink treatment: ONE consistent look for all Blizzard hero/map art
+     so borrowed art reads as printed in our ink rather than pasted in.
+     `.ink-img` goes on the art img itself; `.ink-wash` is a sibling layer
+     above it (each component places it below its own scrim/content).
+     Small portrait chips (36-96px) use `.chip-ink` instead: a full duotone
+     at that size reads as a blob. The bishop mark is NEVER inked (B/W
+     doctrine). */
+  .ink-img {
+    filter: grayscale(1) contrast(1.06) brightness(0.84);
+  }
+  .ink-wash {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(160deg, var(--color-accent) 0%, var(--color-bg) 92%);
+    mix-blend-mode: color;
+    opacity: 0.5;
+  }
+  .chip-ink {
+    filter: saturate(0.65);
   }
 }
 
