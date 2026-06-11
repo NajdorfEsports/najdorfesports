@@ -247,8 +247,14 @@ These are deliberate stances. Don't undo without flagging.
 - Twitch player is **click-to-load** (`LiveHero.astro` facade). The
   iframe is only injected after the user clicks. Don't auto-embed.
 - `public/_headers` defines a tight CSP. `frame-src` allows **only**
-  `https://player.twitch.tv`. Adding a new third-party embed requires
-  updating this header.
+  `https://player.twitch.tv`, `https://www.youtube-nocookie.com`, and
+  `https://app.cal.com`; `script-src` and `connect-src` additionally allow
+  `https://app.cal.com` for the coaching embed. Adding any other third-party
+  embed requires updating this header.
+- The Cal.com coaching embed is **lazy** (same doctrine as the Twitch
+  facade): `embed.js` is fetched only on the first hover/focus/touch/click
+  of a Book button, never at page load. Do not convert it to an eager embed.
+  See the Coaching section.
 - `public/_redirects` handles **path-based** redirects only: the news-slug
   rename and the lowercase-locale fixups (`/zh-tw/*` → `/zh-TW/*`). Locale
   prefixes are case-sensitive on disk. **Host** redirects do NOT work in
@@ -263,6 +269,31 @@ These are deliberate stances. Don't undo without flagging.
   HTML comments (rendered via `<Fragment set:html=...>`) to opt out of
   Cloudflare's automatic Email Obfuscation. If you add a new mailto link
   or visible email in a page or component, wrap it the same way.
+
+## Coaching
+
+- `/coaching/` (all three locales) is a thin wrapper over
+  `CoachingPageBody.astro`. Locale-independent facts (Cal.com links, prices,
+  durations, the coach record) live in `src/data/coaching.ts`; all prose is
+  in `t.coaching.*` in the i18n dicts, joined by offering/coach id.
+- Booking is Cal.com popup embeds. Buttons carry `data-cal-link`
+  (`account/event-slug` under the `najdorfesports` Cal account) and
+  `data-cal-config`; the inline script in `CoachingPageBody.astro` loads
+  `embed.js` lazily on first interaction with a Book button (see the Privacy
+  section) and replays a too-early first click once the embed is live.
+- Prices in `coaching.ts` are display-only and MUST match the Cal.com event
+  settings; when a price changes there, update `priceLabel`/`priceUsd` and
+  the matching "Save $X" badge strings in all three i18n files.
+- Payment is processed by the processor wired to the Cal.com event (PayPal
+  at launch). If an in-iframe checkout is ever blocked, the fix is extending
+  `frame-src` with the processor redirect origins or relaxing the
+  `payment=()` entry in the Permissions-Policy in `public/_headers` for the
+  embed, NOT removing the popup or opening a second tab.
+- There is deliberately NO free/intro tier anywhere; the owner ordered it
+  scrubbed. Do not reintroduce it.
+- No Service/Product/FAQPage JSON-LD on the coaching page; the org node +
+  breadcrumbs from `BaseLayout` are the deliberate scope. The page uses the
+  default OG card on purpose.
 
 ## Out of scope (don't add unless asked)
 

@@ -239,11 +239,14 @@ const faqs = [
 </article>
 
 <script is:inline>
-  // Cal.com popup embed loader (vanilla, no React island). Keep the origin and
-  // brand color in sync with CAL_ORIGIN / CAL_BRAND_COLOR in src/data/coaching.ts
-  // and --color-accent in src/styles/global.css. The booker is forced to dark,
-  // and re-init runs on astro:page-load so the client-router SPA navigations
-  // keep the buttons live without reloading embed.js (window.Cal persists).
+  // Cal.com popup embed loader (vanilla, no React island), LAZY by doctrine:
+  // the site ships zero third-party scripts at page load, so embed.js is
+  // fetched from app.cal.com only on the first hover/focus/touch/click of a
+  // Book button (the stub below queues every Cal() call until then). Keep the
+  // origin and brand color in sync with CAL_ORIGIN / CAL_BRAND_COLOR in
+  // src/data/coaching.ts and --color-accent in src/styles/global.css. The
+  // booker is forced to dark. Delegated listeners live on `document`, so SPA
+  // navigations via the client router keep working without re-binding.
   (function (C, A, L) {
     let p = function (a, ar) {
       a.q.push(ar);
@@ -277,8 +280,11 @@ const faqs = [
       };
   })(window, 'https://app.cal.com/embed/embed.js', 'init');
 
-  function najdorfCalSetup() {
-    if (typeof window.Cal !== 'function') return;
+  // First interaction with a Book button: load embed.js and apply the UI
+  // config. Idempotent; everything before the script arrives is queued.
+  function najdorfCalArm() {
+    if (window.__najdorfCalArmed || typeof window.Cal !== 'function') return;
+    window.__najdorfCalArmed = true;
     window.Cal('init', { origin: 'https://app.cal.com' });
     window.Cal('ui', {
       cssVarsPerTheme: { light: { 'cal-brand': '#215BFF' }, dark: { 'cal-brand': '#215BFF' } },
@@ -286,12 +292,44 @@ const faqs = [
       theme: 'dark',
       layout: 'month_view',
     });
+    // Once embed.js has registered its custom elements, its own data-cal-link
+    // click binding is live and the re-click fallback below can stand down.
+    if (window.customElements && window.customElements.whenDefined) {
+      window.customElements.whenDefined('cal-modal-box').then(function () {
+        window.__najdorfCalReady = true;
+      });
+    }
   }
 
-  najdorfCalSetup();
   if (!window.__najdorfCalBound) {
     window.__najdorfCalBound = true;
-    document.addEventListener('astro:page-load', najdorfCalSetup);
+    // Preload on intent: hovering, focusing, or touching a Book button fetches
+    // embed.js so the popup is usually ready before the click lands.
+    ['pointerover', 'focusin', 'touchstart'].forEach(function (evt) {
+      document.addEventListener(
+        evt,
+        function (e) {
+          if (e.target.closest && e.target.closest('[data-cal-link]')) najdorfCalArm();
+        },
+        { passive: true },
+      );
+    });
+    // First-click race: if a Book button is clicked before embed.js has bound
+    // its own data-cal-link handler, arm and replay the click once it has.
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest && e.target.closest('[data-cal-link]');
+      if (!btn || window.__najdorfCalReady || window.__najdorfCalReplay) return;
+      najdorfCalArm();
+      window.__najdorfCalReplay = true;
+      if (window.customElements && window.customElements.whenDefined) {
+        window.customElements.whenDefined('cal-modal-box').then(function () {
+          setTimeout(function () {
+            window.__najdorfCalReplay = false;
+            btn.click();
+          }, 80);
+        });
+      }
+    });
     // Smooth-scroll the hero "See coaching options" link to the offerings,
     // honoring reduced-motion. Delegated so it survives SPA navigations.
     document.addEventListener('click', function (e) {
