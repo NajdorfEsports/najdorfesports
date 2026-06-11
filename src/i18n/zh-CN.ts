@@ -54,7 +54,7 @@ export const zhCN: Strings = {
       'Najdorf Esports 是一支征战 OWCS 亚太赛区的《守望先锋》电竞组织。了解我们的故事，并与我们合作。',
     coachingTitle: 'Overwatch 教练课程',
     coachingDescription:
-      '与 Najdorf Esports OWCS Pacific 名单选手 brysonbtw 进行一对一《守望先锋》教学。提供单节与多节课程方案，预约时即通过 Stripe 安全付款。',
+      '与 Najdorf Esports OWCS Pacific 名单选手 brysonbtw 进行一对一《守望先锋》教学。提供单节与多节课程方案，预约时即安全完成付款。',
     rosterDescription: (headcount, countries) =>
       `Najdorf Esports 现役 OWCS Pacific 名单，共 ${headcount} 名选手，来自 ${countries.join('、')}。`,
   },

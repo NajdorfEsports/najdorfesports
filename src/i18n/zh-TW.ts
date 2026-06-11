@@ -54,7 +54,7 @@ export const zhTW: Strings = {
       'Najdorf Esports 是一支征戰 OWCS 亞太賽區的《鬥陣特攻》電競組織。了解我們的故事，並與我們合作。',
     coachingTitle: 'Overwatch 教練課程',
     coachingDescription:
-      '與 Najdorf Esports OWCS Pacific 名單選手 brysonbtw 進行一對一《鬥陣特攻》教學。提供單堂與多堂課程方案，預約時即以 Stripe 安全付款。',
+      '與 Najdorf Esports OWCS Pacific 名單選手 brysonbtw 進行一對一《鬥陣特攻》教學。提供單堂與多堂課程方案，預約時即安全完成付款。',
     rosterDescription: (headcount, countries) =>
       `Najdorf Esports 現役 OWCS Pacific 名單，共 ${headcount} 名選手，來自 ${countries.join('、')}。`,
   },
