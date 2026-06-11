@@ -104,31 +104,56 @@ export const en = {
     contactLabel: 'Partnerships & Press:',
   },
 
-  /** Coaching page (/coaching/). Offerings data (prices, Cal links, durations)
-   *  lives in src/data/coaching.ts; this is the localized prose joined by id.
-   *  Booking is handled by embedded Cal.com bookers (no accounts, no backend). */
+  /** Coaching page (/coaching/). Per-coach facts and prose (bio, region note)
+   *  live in src/data/coaching.ts and regions in src/data/regions.ts; this is
+   *  the shared page chrome. Booking is handled by embedded Cal.com bookers
+   *  (no accounts, no backend). */
   coaching: {
     hero: {
       eyebrow: 'Coaching',
       heading: 'Overwatch Coaching with Najdorf Esports',
       subheading:
         'Train one-on-one with a competitor from our OWCS Asia Pacific roster. Learn the positioning, habits, and decisions that win games.',
-      cta: 'See coaching options',
+      cta: 'Meet the coaches',
+    },
+    browse: {
+      heading: 'Meet the coaches',
+      lede: 'Pick a coach, choose your region and how you want to pay, then book your first session.',
+      viewSessions: 'View sessions',
+      filtersLabel: 'Filter coaches',
+      filterRole: 'Role',
+      filterLanguage: 'Language',
+      filterHero: 'Hero',
+      allRoles: 'All roles',
+      allLanguages: 'All languages',
+      allHeroes: 'All heroes',
+      noMatch: 'No coaches match these filters yet. More coaches are joining.',
+      coachAria: (name: string, role: string) => `${name}, ${role}`,
     },
     coach: {
-      eyebrow: 'Your coach',
-      country: 'Hong Kong',
       specialtiesLabel: 'Signature heroes',
       languagesLabel: 'Languages',
       langCantonese: 'Cantonese',
       langMandarin: 'Mandarin',
-      bio: 'brysonbtw is a DPS on the Najdorf Esports OWCS Pacific roster. He plays a fast, aggressive style built around Reaper and Echo, and in coaching he focuses on the positioning, target priority, and split-second decisions that turn solid mechanics into wins. Every session is hands-on and shaped around your replays and your goals.',
+    },
+    booking: {
+      heading: (name: string) => `Book with ${name}`,
+      regionHeading: 'Where are you located?',
+      regionStep: 'Step 1',
+      paymentHeading: 'How do you want to pay?',
+      paymentStep: 'Step 2',
+      sessionsHeading: 'Choose your sessions',
+      sessionsStep: 'Step 3',
+      payCard: 'Pay by card',
+      payPaypal: 'Pay with PayPal',
+      comingSoon: 'Coming soon',
     },
     offerings: {
-      heading: 'Coaching options',
-      lede: 'Book a single session, or save with a pack. Each pack is paid once, in full, at booking, and you book your first session right away.',
       book: 'Book',
-      securedNote: 'Payment is processed by PayPal at booking.',
+      securedNote:
+        'Payment is processed securely by card or PayPal at booking. We never see your payment details.',
+      packNote:
+        'Packs are paid once at booking. You book the first session now. You arrange the remaining sessions with your coach on Discord.',
       durationLabel: (sessions: number, minutes: number) =>
         sessions === 1 ? `${minutes} min` : `${sessions} x ${minutes} min`,
       items: {
@@ -139,14 +164,12 @@ export const en = {
         },
         pack2: {
           title: '2-Session Pack',
-          blurb:
-            'Two 60-minute sessions for $25 ($12.50 each). You book your first session now and we arrange the second with you directly.',
+          blurb: 'Two 60-minute sessions for $25 ($12.50 each).',
           badge: 'Save $5',
         },
         pack4: {
           title: '4-Session Pack',
-          blurb:
-            'Four 60-minute sessions for $50 ($12.50 each). You book your first session now and we arrange the rest with you directly.',
+          blurb: 'Four 60-minute sessions for $50 ($12.50 each).',
           badge: 'Save $10',
         },
       },
@@ -154,13 +177,16 @@ export const en = {
     how: {
       heading: 'How it works',
       step1Title: 'Choose and book',
-      step1Body: 'Choose an option and pick an open time for your first session.',
+      step1Body:
+        'Pick a coach, your region, and how you want to pay, then choose an open time for your first session.',
       step2Title: 'Pay securely',
-      step2Body:
-        'Pay securely. Payments are processed by PayPal. A pack is paid once, in full, at booking.',
+      step2Body: 'Pay securely by card or PayPal. A pack is paid once, in full, at booking.',
       step3Title: 'Connect on Discord',
       step3Body:
         'Enter your Discord handle at checkout. We pass it to your coach, who adds you on Discord to set up your session. For packs, you arrange your remaining sessions, and any rescheduling, directly with your coach there.',
+      step4Title: 'Share feedback',
+      step4Body:
+        'After your session, we send a short private feedback request by email so we can keep improving the coaching.',
     },
     faq: {
       heading: 'FAQ',
@@ -168,18 +194,21 @@ export const en = {
       a1: 'You pay once for the full pack at booking. You book your first session through the calendar. After that, you arrange your remaining sessions directly with your coach on Discord.',
       q2: 'How do I join my session?',
       a2: 'After your booking is confirmed, we pass your Discord handle to your coach, who adds you on Discord to arrange the session. Enter your Discord handle at checkout so your coach can reach you.',
-      q3: 'Is payment secure?',
-      a3: 'Yes. Payments are processed by PayPal, with more payment options coming in the future. We never see your payment details.',
+      q3: 'How do I pay, and is it secure?',
+      a3: 'You can pay by card or with PayPal at booking. Payment is processed securely by the provider, and we never see your payment details.',
       q4: 'What do I need?',
       a4: 'An Overwatch account and a Discord account. It also helps to bring a recent replay of a close loss, since those are the best games to learn from.',
       q5: 'Can I reschedule?',
       a5: 'Yes. Rescheduling is arranged directly between you and your coach on Discord, so just give your coach as much notice as you can.',
       q6: 'What languages are available?',
       a6: 'Coaching is available in Cantonese and Mandarin.',
+      q7: 'What is your refund policy?',
+      a7: 'Sessions are prepaid and non-refundable. If you cannot make your time, you can reschedule at no cost: just give your coach as much notice as you can on Discord.',
     },
     help: {
       text: 'Questions before you book?',
       discordCta: 'Ask us on Discord',
+      emailIntro: 'Prefer email? Reach us at',
     },
   },
 

@@ -1,45 +1,34 @@
 ---
 /**
  * Coaching page body. Rendered at /coaching/, /zh-TW/coaching/, /zh-CN/coaching/.
- * Per-URL locale comes from Astro.currentLocale; all copy lives in i18n
- * (t.coaching). Offering facts (Cal links, prices, durations) come from
- * src/data/coaching.ts and are joined to the localized copy by id.
+ * Per-URL locale comes from Astro.currentLocale; shared chrome lives in i18n
+ * (t.coaching). Per-coach facts and prose come from src/data/coaching.ts and
+ * region options from src/data/regions.ts.
  *
- * Booking is handled entirely by embedded Cal.com bookers: each card's Book
- * button opens the Cal popup overlay for that event (no accounts, no backend,
- * no database). The single inline init script at the bottom wires every button
- * and smooth-scrolls the hero CTA to the offerings.
+ * Flow: hero, coach browser (filters + card grid), one booking section per coach
+ * (region then payment then tier), how it works, FAQ, help. Booking is handled
+ * by embedded Cal.com bookers: each Book control is a real anchor to the public
+ * Cal.com page that the inline init script upgrades to a popup (so booking works
+ * with JS off). The inline script also drives the filters and the region and
+ * payment selectors (vanilla, no framework).
  */
 import Button from '../ui/Button.astro';
-import Badge from '../ui/Badge.astro';
-import BookButton from '../coaching/BookButton.astro';
-import PlayerAvatar from '../player/PlayerAvatar.astro';
-import CountryFlag from '../player/CountryFlag.astro';
-import { OFFERINGS, COACH, COACHING_DISCORD_INVITE } from '../../data/coaching';
-import type { Role } from '../../data/site';
+import CoachCard from '../coaching/CoachCard.astro';
+import CoachFilters from '../coaching/CoachFilters.astro';
+import BookingFlow from '../coaching/BookingFlow.astro';
+import { COACHES, COACHING_DISCORD_INVITE } from '../../data/coaching';
+import { site } from '../../data/site';
 import { getLocale, useT } from '../../i18n';
 
 const locale = getLocale(Astro);
 const t = useT(locale);
 const c = t.coaching;
 
-const role = t.roles[COACH.role as Role] ?? COACH.role;
-
-// Languages join localized labels (t.coaching.coach.lang*) to the flag codes in
-// the COACH data. Mandarin carries both Taiwan and mainland China flags.
-const langLabels: Record<string, string> = {
-  cantonese: c.coach.langCantonese,
-  mandarin: c.coach.langMandarin,
-};
-const languages = COACH.languages.map((l) => ({
-  label: langLabels[l.id] ?? l.id,
-  flags: l.flags,
-}));
-
 const steps = [
   { title: c.how.step1Title, body: c.how.step1Body },
   { title: c.how.step2Title, body: c.how.step2Body },
   { title: c.how.step3Title, body: c.how.step3Body },
+  { title: c.how.step4Title, body: c.how.step4Body },
 ];
 
 const faqs = [
@@ -49,6 +38,7 @@ const faqs = [
   { q: c.faq.q4, a: c.faq.a4 },
   { q: c.faq.q5, a: c.faq.a5 },
   { q: c.faq.q6, a: c.faq.a6 },
+  { q: c.faq.q7, a: c.faq.a7 },
 ];
 ---
 
@@ -61,129 +51,34 @@ const faqs = [
       {c.hero.subheading}
     </p>
     <div class="mt-6">
-      <Button href="#offerings">{c.hero.cta}</Button>
+      <Button href="#coaches">{c.hero.cta}</Button>
     </div>
   </section>
 
-  {/* Coach */}
-  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 py-8">
-    <p class="text-sm uppercase tracking-wider text-[var(--color-accent-2)]">{c.coach.eyebrow}</p>
-    <div
-      class="coach-card relative isolate overflow-hidden mt-4 flex flex-col sm:flex-row sm:items-center gap-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5 shadow-[var(--shadow-card)]"
-    >
-      <div
-        class="coach-card__bg"
-        style={`background-image:url('/maps/${COACH.backdropMap}.webp')`}
-        aria-hidden="true"
-      >
-      </div>
-      <div class="coach-card__scrim" aria-hidden="true"></div>
+  {/* Coach browser */}
+  <section id="coaches" class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 py-8 scroll-mt-20">
+    <h2 class="font-display text-2xl sm:text-3xl tracking-wide">{c.browse.heading}</h2>
+    <p class="mt-2 max-w-2xl text-[var(--color-text-dim)] leading-relaxed">{c.browse.lede}</p>
 
-      <div class="relative z-10 shrink-0">
-        <PlayerAvatar
-          handle={COACH.handle}
-          heroes={COACH.signatureHeroes}
-          size={120}
-          label={`${COACH.handle}, ${role}`}
-        />
-      </div>
-      <div class="relative z-10">
-        <h2 class="font-display text-3xl tracking-wide leading-none">{COACH.handle}</h2>
-        <div class="mt-2.5 flex flex-wrap items-center gap-2 text-xs uppercase tracking-wider">
-          <span
-            class="px-2 py-0.5 rounded-sm border font-semibold text-[var(--color-accent-2)] border-[var(--color-accent-2)] bg-[var(--color-bg)]/40 backdrop-blur-sm"
-            >{role}</span
-          >
-          <span class="text-[var(--color-text-dim)]">OWCS Pacific</span>
-          <span class="text-[var(--color-text-dim)]" aria-hidden="true">·</span>
-          <span class="inline-flex items-center gap-1.5 text-[var(--color-text-dim)]">
-            <CountryFlag code={COACH.countryCode} size="sm" />
-            {c.coach.country}
-          </span>
-        </div>
-      </div>
+    <div class="mt-6">
+      <CoachFilters />
     </div>
-
-    <p class="mt-4 max-w-3xl text-[var(--color-text-dim)] leading-relaxed">{c.coach.bio}</p>
-
-    <dl class="mt-5 grid gap-4 sm:grid-cols-2 max-w-2xl">
-      <div>
-        <dt class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
-          {c.coach.specialtiesLabel}
-        </dt>
-        <dd class="mt-1 text-[var(--color-text)]">{COACH.signatureHeroes.join(' · ')}</dd>
-      </div>
-      <div>
-        <dt class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
-          {c.coach.languagesLabel}
-        </dt>
-        <dd class="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[var(--color-text)]">
-          {
-            languages.map((lang) => (
-              <span class="inline-flex items-center gap-1.5">
-                <span class="inline-flex items-center gap-1 leading-none">
-                  {lang.flags.map((code) => (
-                    <CountryFlag code={code} size="sm" />
-                  ))}
-                </span>
-                <span>{lang.label}</span>
-              </span>
-            ))
-          }
-        </dd>
-      </div>
-    </dl>
-  </section>
-
-  {/* Offerings */}
-  <section
-    id="offerings"
-    class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 py-10 scroll-mt-20"
-  >
-    <h2 class="font-display text-2xl sm:text-3xl tracking-wide">{c.offerings.heading}</h2>
-    <p class="mt-2 max-w-2xl text-[var(--color-text-dim)] leading-relaxed">{c.offerings.lede}</p>
 
     <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="list">
-      {
-        OFFERINGS.map((o) => {
-          const item = c.offerings.items[o.id];
-          const duration = c.offerings.durationLabel(o.sessions, o.minutesPerSession);
-          return (
-            <li class="surface-hover flex flex-col bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5 shadow-[var(--shadow-card)]">
-              <div class="flex items-start justify-between gap-2">
-                <h3 class="font-display text-xl tracking-wide text-[var(--color-text)]">
-                  {item.title}
-                </h3>
-                {item.badge && <Badge tone="gold">{item.badge}</Badge>}
-              </div>
-              <div class="mt-2 flex items-baseline gap-2">
-                <span class="font-display text-2xl text-[var(--color-text)]">{o.priceLabel}</span>
-                <span class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
-                  {duration}
-                </span>
-              </div>
-              <p class="mt-3 flex-1 text-sm text-[var(--color-text-dim)] leading-relaxed">
-                {item.blurb}
-              </p>
-              <div class="mt-4">
-                <BookButton
-                  calLink={o.calLink}
-                  label={c.offerings.book}
-                  ariaLabel={`${c.offerings.book}: ${item.title}`}
-                />
-              </div>
-            </li>
-          );
-        })
-      }
+      {COACHES.map((coach) => <CoachCard coach={coach} />)}
     </ul>
-    <p class="mt-3 text-xs text-[var(--color-text-dim)]">{c.offerings.securedNote}</p>
+    <p data-no-match hidden class="mt-6 text-[var(--color-text-dim)]">
+      {c.browse.noMatch}
+    </p>
   </section>
+
+  {/* Booking sections, one per coach */}
+  {COACHES.map((coach) => <BookingFlow coach={coach} />)}
 
   {/* How it works */}
   <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 py-10">
     <h2 class="font-display text-2xl tracking-wide">{c.how.heading}</h2>
-    <ol class="mt-6 grid gap-4 sm:grid-cols-3" role="list">
+    <ol class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" role="list">
       {
         steps.map((s, i) => (
           <li class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5">
@@ -225,12 +120,21 @@ const faqs = [
     </div>
   </section>
 
-  {/* Help / Discord */}
+  {/* Help / Discord + email */}
   <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pb-16">
     <div
       class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-l-4 border-[var(--color-accent)] bg-[var(--color-surface)] px-5 py-5 rounded-r-md"
     >
-      <p class="text-[var(--color-text)]">{c.help.text}</p>
+      <div>
+        <p class="text-[var(--color-text)]">{c.help.text}</p>
+        <p class="mt-1 text-sm text-[var(--color-text-dim)]">
+          {c.help.emailIntro}{' '}
+          <Fragment set:html={'<!--email_off-->'} /><a
+            class="text-[var(--color-accent-2)] underline underline-offset-2"
+            href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a
+          ><Fragment set:html={'<!--/email_off-->'} />
+        </p>
+      </div>
       <Button href={COACHING_DISCORD_INVITE} external variant="secondary">
         {c.help.discordCta}
       </Button>
@@ -242,8 +146,8 @@ const faqs = [
   // Cal.com popup embed loader (vanilla, no React island). Keep the origin and
   // brand color in sync with CAL_ORIGIN / CAL_BRAND_COLOR in src/data/coaching.ts
   // and --color-accent in src/styles/global.css. The booker is forced to dark,
-  // and re-init runs on astro:page-load so the client-router SPA navigations
-  // keep the buttons live without reloading embed.js (window.Cal persists).
+  // and re-init runs on astro:page-load so client-router SPA navigations keep the
+  // controls live without reloading embed.js (window.Cal persists).
   (function (C, A, L) {
     let p = function (a, ar) {
       a.q.push(ar);
@@ -288,48 +192,124 @@ const faqs = [
     });
   }
 
-  najdorfCalSetup();
-  if (!window.__najdorfCalBound) {
-    window.__najdorfCalBound = true;
-    document.addEventListener('astro:page-load', najdorfCalSetup);
-    // Smooth-scroll the hero "See coaching options" link to the offerings,
-    // honoring reduced-motion. Delegated so it survives SPA navigations.
+  // Coach browser filters + per-coach region/payment selectors. All client-side,
+  // no cookies, no geolocation, nothing persisted. Visibility uses inline
+  // display so Tailwind's display utilities cannot override it.
+  function najdorfShowMethod(section, method) {
+    section.querySelectorAll('[data-method-btn]').forEach(function (b) {
+      b.setAttribute(
+        'aria-pressed',
+        b.getAttribute('data-method-btn') === method ? 'true' : 'false',
+      );
+    });
+    section.querySelectorAll('.book-control').forEach(function (el) {
+      el.style.display = el.getAttribute('data-method') === method ? '' : 'none';
+    });
+  }
+
+  function najdorfCurrentMethod(section) {
+    var pressed = section.querySelector('[data-method-btn][aria-pressed="true"]');
+    return pressed ? pressed.getAttribute('data-method-btn') : 'stripe';
+  }
+
+  function najdorfShowRegion(section, regionBtn) {
+    section.querySelectorAll('[data-region]').forEach(function (b) {
+      b.setAttribute('aria-pressed', b === regionBtn ? 'true' : 'false');
+    });
+    var methods = (regionBtn.getAttribute('data-methods') || '').split(',').filter(Boolean);
+    var active = najdorfCurrentMethod(section);
+    var available = [];
+    section.querySelectorAll('[data-method-btn]').forEach(function (b) {
+      var m = b.getAttribute('data-method-btn');
+      var ok = methods.indexOf(m) !== -1;
+      b.style.display = ok ? '' : 'none';
+      if (ok) available.push(m);
+    });
+    if (available.indexOf(active) === -1) active = available[0] || active;
+    najdorfShowMethod(section, active);
+  }
+
+  function najdorfApplyFilters() {
+    var role = najdorfVal('filter-role');
+    var lang = najdorfVal('filter-language');
+    var hero = najdorfVal('filter-hero');
+    var visible = 0;
+    document.querySelectorAll('[data-coach-card]').forEach(function (card) {
+      var slug = card.getAttribute('data-coach-card');
+      var okRole = !role || card.getAttribute('data-role') === role;
+      var okLang = !lang || (card.getAttribute('data-langs') || '').split(',').indexOf(lang) !== -1;
+      var okHero =
+        !hero || (card.getAttribute('data-heroes') || '').split(',').indexOf(hero) !== -1;
+      var show = okRole && okLang && okHero;
+      card.hidden = !show;
+      var booking = document.querySelector('[data-booking="' + slug + '"]');
+      if (booking) booking.hidden = !show;
+      if (show) visible++;
+    });
+    var empty = document.querySelector('[data-no-match]');
+    if (empty) empty.hidden = visible !== 0;
+  }
+
+  function najdorfVal(id) {
+    var el = document.getElementById(id);
+    return el ? el.value : '';
+  }
+
+  function najdorfCoachingSetup() {
+    najdorfCalSetup();
+    document.querySelectorAll('[data-booking]').forEach(function (section) {
+      var pressed =
+        section.querySelector('[data-region][aria-pressed="true"]') ||
+        section.querySelector('[data-region]');
+      if (pressed) najdorfShowRegion(section, pressed);
+    });
+    najdorfApplyFilters();
+  }
+
+  if (!window.__najdorfCoachingBound) {
+    window.__najdorfCoachingBound = true;
+
     document.addEventListener('click', function (e) {
-      var a = e.target.closest && e.target.closest('a[href="#offerings"]');
+      var regionBtn = e.target.closest && e.target.closest('[data-region]');
+      if (regionBtn) {
+        var rs = regionBtn.closest('[data-booking]');
+        if (rs) najdorfShowRegion(rs, regionBtn);
+        return;
+      }
+      var methodBtn = e.target.closest && e.target.closest('[data-method-btn]');
+      if (methodBtn) {
+        var ms = methodBtn.closest('[data-booking]');
+        if (ms) najdorfShowMethod(ms, methodBtn.getAttribute('data-method-btn'));
+        return;
+      }
+    });
+
+    document.addEventListener('change', function (e) {
+      if (e.target.closest && e.target.closest('#coach-filters')) najdorfApplyFilters();
+    });
+
+    // Smooth-scroll in-page anchors (hero CTA, "View sessions"), honoring
+    // reduced-motion. Acts only when the target exists on the page.
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
       if (!a) return;
-      var target = document.getElementById('offerings');
+      var id = a.getAttribute('href').slice(1);
+      if (!id) return;
+      var target = document.getElementById(id);
       if (!target) return;
       e.preventDefault();
       var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
-      if (history.replaceState) history.replaceState(null, '', '#offerings');
+      if (history.replaceState) history.replaceState(null, '', '#' + id);
     });
+
+    document.addEventListener('astro:page-load', najdorfCoachingSetup);
   }
+
+  najdorfCoachingSetup();
 </script>
 
 <style>
-  /* Map art faded behind the coach identity card; a left-weighted scrim keeps
-     the avatar, handle, and chips readable over it. */
-  .coach-card__bg {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    background-size: cover;
-    background-position: center 25%;
-    opacity: 0.65;
-  }
-  .coach-card__scrim {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: linear-gradient(
-      to right,
-      color-mix(in oklab, var(--color-surface) 90%, transparent) 0%,
-      color-mix(in oklab, var(--color-surface) 65%, transparent) 55%,
-      color-mix(in oklab, var(--color-surface) 42%, transparent) 100%
-    );
-  }
-
   /* FAQ accordion chrome. Native <details>, zero JS. */
   .coaching-faq summary::-webkit-details-marker {
     display: none;

@@ -1,41 +1,85 @@
 ---
 /**
- * Cal.com popup trigger, styled to match Button.astro (primary / secondary).
+ * Cal.com booking control, styled to match Button.astro (primary / secondary).
  *
- * Button.astro has no arbitrary-attribute passthrough, so this dedicated
- * component carries the `data-cal-*` attributes the embed binds to on click.
- * The page's single Cal init script (in CoachingPageBody) wires every button;
- * `data-cal-config` forces the booker into dark theme regardless of the
- * visitor's system setting.
+ * Progressive enhancement: when enabled, this is a real anchor to the public
+ * Cal.com booking page (new tab). The page's Cal init script (in
+ * CoachingPageBody) upgrades any element carrying `data-cal-link` to a popup on
+ * click, so booking works even if embed.js fails or JS is off. `data-cal-config`
+ * forces the booker into dark theme regardless of the visitor's system setting.
+ *
+ * When the processor's twin event does not exist yet (enabled: false), this
+ * renders a non-interactive "Coming soon" element instead of a dead anchor.
+ *
+ * `data-method` lets the booking flow show only the control for the currently
+ * selected payment method; `active` sets the initial visibility.
  */
+import { bookingUrl, type Processor } from '../../data/coaching';
+
 interface Props {
   /** Cal.com event link "account/event-slug". */
   calLink: string;
+  /** Payment processor this control books through. */
+  method: Processor;
+  /** Whether the underlying event type exists and is bookable. */
+  enabled: boolean;
+  /** Initial visibility (true for the default selected method). */
+  active: boolean;
   label: string;
+  comingSoonLabel: string;
   ariaLabel?: string;
   variant?: 'primary' | 'secondary';
 }
-const { calLink, label, ariaLabel, variant = 'primary' } = Astro.props;
+const {
+  calLink,
+  method,
+  enabled,
+  active,
+  label,
+  comingSoonLabel,
+  ariaLabel,
+  variant = 'primary',
+} = Astro.props;
 
 const calConfig = JSON.stringify({ theme: 'dark' });
 
 // Mirrors Button.astro's class tokens (md size) so the two read identically,
-// plus w-full so the button fills the offering card footer.
+// plus w-full so the control fills the tier card footer.
 const base =
-  'btn-lift inline-flex w-full items-center justify-center font-semibold uppercase tracking-wider rounded-sm px-5 py-2.5 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]';
+  'book-control inline-flex w-full items-center justify-center font-semibold uppercase tracking-wider rounded-sm px-5 py-2.5 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]';
 const variants = {
-  primary: 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent)]/90',
+  primary: 'btn-lift bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent)]/90',
   secondary:
-    'bg-transparent border border-[var(--color-accent-2)] text-[var(--color-accent-2)] hover:bg-[var(--color-accent-2)] hover:text-[var(--color-bg)]',
+    'btn-lift bg-transparent border border-[var(--color-accent-2)] text-[var(--color-accent-2)] hover:bg-[var(--color-accent-2)] hover:text-[var(--color-bg)]',
 }[variant];
+const disabledClass =
+  'cursor-not-allowed border border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--color-text-dim)]';
 ---
 
-<button
-  type="button"
-  class={`${base} ${variants}`}
-  data-cal-link={calLink}
-  data-cal-config={calConfig}
-  aria-label={ariaLabel ?? label}
->
-  {label}
-</button>
+{
+  enabled ? (
+    <a
+      href={bookingUrl(calLink)}
+      target="_blank"
+      rel="noopener"
+      class={`${base} ${variants}`}
+      data-cal-link={calLink}
+      data-cal-config={calConfig}
+      data-method={method}
+      aria-label={ariaLabel ?? label}
+      style={active ? undefined : 'display:none'}
+    >
+      {label}
+    </a>
+  ) : (
+    <span
+      class={`${base} ${disabledClass}`}
+      data-method={method}
+      role="note"
+      aria-label={`${ariaLabel ?? label}: ${comingSoonLabel}`}
+      style={active ? undefined : 'display:none'}
+    >
+      {comingSoonLabel}
+    </span>
+  )
+}

@@ -53,8 +53,9 @@ export const zhTW: Strings = {
     aboutDescription:
       'Najdorf Esports 是一支征戰 OWCS 亞太賽區的《鬥陣特攻》電競組織。了解我們的故事，並與我們合作。',
     coachingTitle: 'Overwatch 教練課程',
+    // DRAFT PENDING RIRI NATIVE REVIEW
     coachingDescription:
-      '與 Najdorf Esports OWCS Pacific 名單選手 brysonbtw 進行一對一《鬥陣特攻》教學。提供單堂與多堂課程方案，預約時即以 Stripe 安全付款。',
+      '與 Najdorf Esports OWCS Pacific 名單選手 brysonbtw 進行一對一《鬥陣特攻》教學。提供單堂與多堂課程方案，預約時可以信用卡或 PayPal 安全付款。',
     rosterDescription: (headcount, countries) =>
       `Najdorf Esports 現役 OWCS Pacific 名單，共 ${headcount} 名選手，來自 ${countries.join('、')}。`,
   },
@@ -97,27 +98,50 @@ export const zhTW: Strings = {
     contactLabel: '合作與媒體：',
   },
 
+  // DRAFT PENDING RIRI NATIVE REVIEW (entire coaching block below)
   coaching: {
     hero: {
       eyebrow: '教練課程',
       heading: 'Najdorf Esports Overwatch 教練課程',
       subheading: '與我們 OWCS 亞太名單的選手進行一對一訓練。學會贏得比賽所需的站位、習慣與判斷。',
-      cta: '查看課程方案',
+      cta: '認識教練',
+    },
+    browse: {
+      heading: '認識教練',
+      lede: '選擇一位教練，挑選你的地區與付款方式，然後預約你的第一堂課。',
+      viewSessions: '查看課程',
+      filtersLabel: '篩選教練',
+      filterRole: '位置',
+      filterLanguage: '語言',
+      filterHero: '英雄',
+      allRoles: '所有位置',
+      allLanguages: '所有語言',
+      allHeroes: '所有英雄',
+      noMatch: '目前沒有符合這些篩選條件的教練。更多教練即將加入。',
+      coachAria: (name, role) => `${name}，${role}`,
     },
     coach: {
-      eyebrow: '你的教練',
-      country: '香港',
       specialtiesLabel: '代表英雄',
       languagesLabel: '語言',
       langCantonese: '粵語',
       langMandarin: '國語',
-      bio: 'brysonbtw 是 Najdorf Esports OWCS Pacific 名單上的輸出選手。他以 Reaper 與 Echo 為核心，打法快速而具侵略性；在教學中，他著重於將紮實的基本功，轉化為決定勝負的站位、目標選擇與臨場判斷。每一堂課都注重實作，並依你的錄影與目標量身打造。',
+    },
+    booking: {
+      heading: (name) => `預約 ${name} 的課程`,
+      regionHeading: '你在哪個地區？',
+      regionStep: '步驟 1',
+      paymentHeading: '你想如何付款？',
+      paymentStep: '步驟 2',
+      sessionsHeading: '選擇課程',
+      sessionsStep: '步驟 3',
+      payCard: '信用卡付款',
+      payPaypal: '以 PayPal 付款',
+      comingSoon: '即將推出',
     },
     offerings: {
-      heading: '課程方案',
-      lede: '預約單堂課程，或以課程包省下費用。每個課程包在預約時一次付清全額，並可立即預約你的第一堂課。',
       book: '預約',
-      securedNote: '預約時由 PayPal 處理付款。',
+      securedNote: '預約時可以信用卡或 PayPal 安全付款。我們不會看到你的付款資料。',
+      packNote: '課程包在預約時一次付清。你現在先預約第一堂，其餘堂數與你的教練在 Discord 上安排。',
       durationLabel: (sessions, minutes) =>
         sessions === 1 ? `${minutes} 分鐘` : `${sessions} 堂 x ${minutes} 分鐘`,
       items: {
@@ -128,14 +152,12 @@ export const zhTW: Strings = {
         },
         pack2: {
           title: '2 堂課程包',
-          blurb:
-            '兩堂 60 分鐘課程，共 $25（每堂 $12.50）。你現在先預約第一堂，第二堂由我們直接與你安排。',
+          blurb: '兩堂 60 分鐘課程，共 $25（每堂 $12.50）。',
           badge: '省 $5',
         },
         pack4: {
           title: '4 堂課程包',
-          blurb:
-            '四堂 60 分鐘課程，共 $50（每堂 $12.50）。你現在先預約第一堂，其餘各堂由我們直接與你安排。',
+          blurb: '四堂 60 分鐘課程，共 $50（每堂 $12.50）。',
           badge: '省 $10',
         },
       },
@@ -143,12 +165,14 @@ export const zhTW: Strings = {
     how: {
       heading: '流程說明',
       step1Title: '選擇並預約',
-      step1Body: '選擇一個方案，並為你的第一堂課挑選一個開放的時段。',
+      step1Body: '選擇一位教練、你的地區與付款方式，再為你的第一堂課挑選一個開放的時段。',
       step2Title: '安全付款',
-      step2Body: '安全付款。款項由 PayPal 處理。課程包於預約時一次付清全額。',
+      step2Body: '以信用卡或 PayPal 安全付款。課程包於預約時一次付清全額。',
       step3Title: '在 Discord 聯繫',
       step3Body:
         '在結帳時填寫你的 Discord 帳號。我們會將它轉交給你的教練，教練會在 Discord 上加你，安排上課。課程包的其餘堂數與任何改期，都直接在 Discord 上與你的教練安排。',
+      step4Title: '分享回饋',
+      step4Body: '課程結束後，我們會以電子郵件寄出一份簡短的私下回饋邀請，讓我們持續改進教學。',
     },
     faq: {
       heading: '常見問題',
@@ -156,18 +180,21 @@ export const zhTW: Strings = {
       a1: '你在預約時一次付清整個課程包的費用。第一堂課透過行事曆預約，之後其餘堂數由你直接在 Discord 上與教練安排。',
       q2: '我要如何進入課程？',
       a2: '預約確認後，我們會把你的 Discord 帳號轉交給你的教練，教練會在 Discord 上加你以安排課程。請在結帳時填寫你的 Discord 帳號，以便教練聯繫你。',
-      q3: '付款安全嗎？',
-      a3: '安全。款項由 PayPal 處理，未來會再加入更多付款方式。我們不會看到你的付款資料。',
+      q3: '我要如何付款？付款安全嗎？',
+      a3: '你可以在預約時以信用卡或 PayPal 付款。款項由付款服務商安全處理，我們不會看到你的付款資料。',
       q4: '我需要準備什麼？',
       a4: '一個 Overwatch 帳號與一個 Discord 帳號。最好也帶上一場近期惜敗的錄影，因為這類比賽最適合用來學習。',
       q5: '我可以改期嗎？',
       a5: '可以。改期由你與教練直接在 Discord 上安排，請盡量提前通知你的教練。',
       q6: '有哪些語言可選？',
       a6: '課程提供粵語與國語。',
+      q7: '你們的退款政策是什麼？',
+      a7: '課程採預先付款，恕不退款。若你無法出席，可免費改期：請盡量提前在 Discord 上通知你的教練。',
     },
     help: {
       text: '預約前還有疑問嗎？',
       discordCta: '在 Discord 詢問我們',
+      emailIntro: '想用電子郵件嗎？來信至',
     },
   },
 

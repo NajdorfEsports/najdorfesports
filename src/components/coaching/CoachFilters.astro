@@ -1,0 +1,56 @@
+---
+/**
+ * Coach browser filters: role, language, hero. Native selects (keyboard and
+ * screen-reader friendly). The page script reads `data-filter` on change and
+ * shows or hides coach cards and their booking sections. With one coach the
+ * filters still render; a non-matching choice shows the localized empty state.
+ */
+import { getLocale, useT } from '../../i18n';
+import { coachRoles, coachLanguageIds, coachHeroes } from '../../data/coaching';
+import type { Role } from '../../data/site';
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+const c = t.coaching;
+
+const roles = coachRoles();
+const langs = coachLanguageIds();
+const heroes = coachHeroes();
+const langLabels: Record<string, string> = {
+  cantonese: c.coach.langCantonese,
+  mandarin: c.coach.langMandarin,
+};
+
+const selectClass =
+  'mt-1 w-full rounded-sm border border-[var(--color-border)] bg-[var(--color-surface-2)] px-3 py-2 text-sm text-[var(--color-text)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]';
+const labelClass = 'text-xs uppercase tracking-wider text-[var(--color-text-dim)]';
+---
+
+<div
+  id="coach-filters"
+  role="group"
+  aria-label={c.browse.filtersLabel}
+  class="grid gap-3 sm:grid-cols-3 max-w-2xl"
+>
+  <div>
+    <label class={labelClass} for="filter-role">{c.browse.filterRole}</label>
+    <select id="filter-role" data-filter="role" class={selectClass}>
+      <option value="">{c.browse.allRoles}</option>
+      {roles.map((r) => <option value={r}>{t.roles[r as Role] ?? r}</option>)}
+    </select>
+  </div>
+  <div>
+    <label class={labelClass} for="filter-language">{c.browse.filterLanguage}</label>
+    <select id="filter-language" data-filter="language" class={selectClass}>
+      <option value="">{c.browse.allLanguages}</option>
+      {langs.map((l) => <option value={l}>{langLabels[l] ?? l}</option>)}
+    </select>
+  </div>
+  <div>
+    <label class={labelClass} for="filter-hero">{c.browse.filterHero}</label>
+    <select id="filter-hero" data-filter="hero" class={selectClass}>
+      <option value="">{c.browse.allHeroes}</option>
+      {heroes.map((h) => <option value={h}>{h}</option>)}
+    </select>
+  </div>
+</div>

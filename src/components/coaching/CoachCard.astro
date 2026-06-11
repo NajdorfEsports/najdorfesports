@@ -1,0 +1,142 @@
+---
+/**
+ * Coach card in the browser grid. Carries data-* attributes (role, languages,
+ * heroes) that the filter script reads to show or hide the card. The matching
+ * booking section (BookingFlow, id book-<slug>) is toggled in lockstep by the
+ * same script. "View sessions" is an in-page anchor that the page script
+ * smooth-scrolls.
+ */
+import Badge from '../ui/Badge.astro';
+import Button from '../ui/Button.astro';
+import PlayerAvatar from '../player/PlayerAvatar.astro';
+import CountryFlag from '../player/CountryFlag.astro';
+import { getLocale, useT } from '../../i18n';
+import type { Coach } from '../../data/coaching';
+import type { Role } from '../../data/site';
+
+interface Props {
+  coach: Coach;
+}
+const { coach } = Astro.props;
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+const c = t.coaching;
+const role = t.roles[coach.role as Role] ?? coach.role;
+
+const langLabels: Record<string, string> = {
+  cantonese: c.coach.langCantonese,
+  mandarin: c.coach.langMandarin,
+};
+const languages = coach.languages.map((l) => ({
+  label: langLabels[l.id] ?? l.id,
+  flags: l.flags,
+}));
+const bio = coach.bio[locale] ?? coach.bio.en;
+const regionNote = coach.regionNote[locale] ?? coach.regionNote.en;
+
+const langIds = coach.languages.map((l) => l.id).join(',');
+const heroList = coach.heroes.join(',');
+---
+
+<li
+  class="coach-card surface-hover relative isolate flex flex-col overflow-hidden bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5 shadow-[var(--shadow-card)]"
+  data-coach-card={coach.slug}
+  data-role={coach.role}
+  data-langs={langIds}
+  data-heroes={heroList}
+  aria-label={c.browse.coachAria(coach.displayName, role)}
+>
+  <div
+    class="coach-card__bg"
+    style={`background-image:url('/maps/${coach.backdropMap}.webp')`}
+    aria-hidden="true"
+  >
+  </div>
+  <div class="coach-card__scrim" aria-hidden="true"></div>
+
+  <div class="relative z-10 flex items-center gap-4">
+    <div class="shrink-0">
+      <PlayerAvatar
+        handle={coach.slug}
+        heroes={coach.heroes}
+        size={84}
+        label={`${coach.displayName}, ${role}`}
+      />
+    </div>
+    <div class="min-w-0">
+      <h3 class="font-display text-2xl tracking-wide leading-none">{coach.displayName}</h3>
+      <div class="mt-2 flex flex-wrap items-center gap-2 text-xs uppercase tracking-wider">
+        <Badge tone="accent" size="sm">{role}</Badge>
+        <span class="inline-flex items-center gap-1.5 text-[var(--color-text-dim)]">
+          <CountryFlag code={coach.countryCode} size="sm" />
+          {regionNote}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <p class="relative z-10 mt-4 text-sm text-[var(--color-text-dim)] leading-relaxed">{bio}</p>
+
+  <dl class="relative z-10 mt-4 grid gap-3 sm:grid-cols-2">
+    <div>
+      <dt class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
+        {c.coach.specialtiesLabel}
+      </dt>
+      <dd class="mt-1 text-[var(--color-text)]">{coach.heroes.join(' · ')}</dd>
+    </div>
+    <div>
+      <dt class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
+        {c.coach.languagesLabel}
+      </dt>
+      <dd class="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[var(--color-text)]">
+        {
+          languages.map((lang) => (
+            <span class="inline-flex items-center gap-1.5">
+              <span class="inline-flex items-center gap-1 leading-none">
+                {lang.flags.map((code) => (
+                  <CountryFlag code={code} size="sm" />
+                ))}
+              </span>
+              <span>{lang.label}</span>
+            </span>
+          ))
+        }
+      </dd>
+    </div>
+  </dl>
+
+  <div class="relative z-10 mt-5">
+    <Button href={`#book-${coach.slug}`} variant="secondary" size="sm">
+      {c.browse.viewSessions}
+    </Button>
+  </div>
+</li>
+
+<style>
+  /* Map art faded behind the coach card; a left-weighted scrim keeps the
+     avatar, handle, and text readable over it. */
+  .coach-card__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-size: cover;
+    background-position: center 25%;
+    opacity: 0.5;
+  }
+  .coach-card__scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(
+      to right,
+      color-mix(in oklab, var(--color-surface) 92%, transparent) 0%,
+      color-mix(in oklab, var(--color-surface) 72%, transparent) 60%,
+      color-mix(in oklab, var(--color-surface) 55%, transparent) 100%
+    );
+  }
+  /* Hidden by the filter script when the card does not match. */
+  .coach-card[hidden] {
+    display: none;
+  }
+</style>

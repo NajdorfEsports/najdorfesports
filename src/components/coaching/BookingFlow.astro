@@ -1,0 +1,162 @@
+---
+/**
+ * Per-coach booking flow: three-step progressive disclosure (region, payment
+ * method, session tier). Plain client-side buttons with aria-pressed; the page
+ * script tracks the selection (no cookies, no geolocation, nothing persisted).
+ *
+ * Step 3 renders both processor controls per tier; the script shows only the
+ * one matching the selected method. Disabled links render "Coming soon" via
+ * BookButton, never a dead anchor. Defaults: Global region and card, so the
+ * flow is never empty and the default controls are the live (Stripe) links.
+ */
+import Badge from '../ui/Badge.astro';
+import BookButton from './BookButton.astro';
+import { getLocale, useT } from '../../i18n';
+import { liveRegions, DEFAULT_REGION_ID, DEFAULT_PROCESSOR } from '../../data/regions';
+import { linkFor, type Coach, type Processor } from '../../data/coaching';
+
+interface Props {
+  coach: Coach;
+}
+const { coach } = Astro.props;
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+const c = t.coaching;
+
+const regions = liveRegions();
+const processors: { id: Processor; label: string }[] = [
+  { id: 'stripe', label: c.booking.payCard },
+  { id: 'paypal', label: c.booking.payPaypal },
+];
+
+const stepEyebrow = 'text-xs uppercase tracking-wider text-[var(--color-accent-2)]';
+const stepHeading = 'font-display text-xl tracking-wide mt-1';
+const toggleBase =
+  'rounded-sm border px-3.5 py-2 text-sm font-medium transition-colors border-[var(--color-border)] text-[var(--color-text)] bg-[var(--color-surface-2)] hover:border-[var(--color-accent-2)] aria-pressed:bg-[var(--color-accent)] aria-pressed:text-white aria-pressed:border-[var(--color-accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]';
+---
+
+<section
+  id={`book-${coach.slug}`}
+  data-booking={coach.slug}
+  class="coach-booking mx-auto max-w-[var(--max-content)] px-4 sm:px-6 py-10 scroll-mt-20"
+>
+  <h2 class="font-display text-2xl sm:text-3xl tracking-wide">
+    {c.booking.heading(coach.displayName)}
+  </h2>
+
+  {/* Step 1: region */}
+  <div class="mt-6">
+    <p class={stepEyebrow}>{c.booking.regionStep}</p>
+    <h3 class={stepHeading} id={`region-h-${coach.slug}`}>{c.booking.regionHeading}</h3>
+    <div
+      class="mt-3 flex flex-wrap gap-2"
+      role="group"
+      aria-labelledby={`region-h-${coach.slug}`}
+      data-region-group
+    >
+      {
+        regions.map((r) => (
+          <button
+            type="button"
+            class={toggleBase}
+            data-region={r.id}
+            data-methods={r.methods.join(',')}
+            aria-pressed={r.id === DEFAULT_REGION_ID ? 'true' : 'false'}
+          >
+            {r.label[locale] ?? r.label.en}
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  {/* Step 2: payment method */}
+  <div class="mt-6">
+    <p class={stepEyebrow}>{c.booking.paymentStep}</p>
+    <h3 class={stepHeading} id={`pay-h-${coach.slug}`}>{c.booking.paymentHeading}</h3>
+    <div
+      class="mt-3 flex flex-wrap gap-2"
+      role="group"
+      aria-labelledby={`pay-h-${coach.slug}`}
+      data-method-group
+    >
+      {
+        processors.map((p) => (
+          <button
+            type="button"
+            class={toggleBase}
+            data-method-btn={p.id}
+            aria-pressed={p.id === DEFAULT_PROCESSOR ? 'true' : 'false'}
+          >
+            {p.label}
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  {/* Step 3: sessions */}
+  <div class="mt-6">
+    <p class={stepEyebrow}>{c.booking.sessionsStep}</p>
+    <h3 class={stepHeading}>{c.booking.sessionsHeading}</h3>
+    <ul class="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="list">
+      {
+        coach.offerings.map((o) => {
+          const item = c.offerings.items[o.tier];
+          const duration = c.offerings.durationLabel(o.sessions, o.durationMin);
+          const isPack = o.tier !== 'single';
+          return (
+            <li class="flex flex-col bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5 shadow-[var(--shadow-card)]">
+              <div class="flex items-start justify-between gap-2">
+                <h4 class="font-display text-lg tracking-wide text-[var(--color-text)]">
+                  {item.title}
+                </h4>
+                {item.badge && <Badge tone="gold">{item.badge}</Badge>}
+              </div>
+              <div class="mt-2 flex items-baseline gap-2">
+                <span class="font-display text-2xl text-[var(--color-text)]">
+                  ${o.priceUsd} USD
+                </span>
+                <span class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
+                  {duration}
+                </span>
+              </div>
+              <p class="mt-3 text-sm text-[var(--color-text-dim)] leading-relaxed">{item.blurb}</p>
+              {isPack && (
+                <p class="mt-2 flex-1 text-xs text-[var(--color-text-dim)] leading-relaxed">
+                  {c.offerings.packNote}
+                </p>
+              )}
+              <div class="mt-4">
+                {processors.map((p) => {
+                  const link = linkFor(o, p.id);
+                  if (!link) return null;
+                  return (
+                    <BookButton
+                      calLink={link.calLink}
+                      method={p.id}
+                      enabled={link.enabled}
+                      active={p.id === DEFAULT_PROCESSOR}
+                      label={c.offerings.book}
+                      comingSoonLabel={c.booking.comingSoon}
+                      ariaLabel={`${c.offerings.book}: ${item.title}`}
+                    />
+                  );
+                })}
+              </div>
+            </li>
+          );
+        })
+      }
+    </ul>
+    <p class="mt-3 text-xs text-[var(--color-text-dim)]">{c.offerings.securedNote}</p>
+  </div>
+</section>
+
+<style>
+  /* Hidden by the filter script when the matching coach card is filtered out. */
+  .coach-booking[hidden] {
+    display: none;
+  }
+</style>
