@@ -22,6 +22,26 @@ const legalLinks = [
 ];
 
 const year = new Date().getFullYear();
+
+// The Liquipedia attribution must carry real links to the source and the
+// CC BY-SA 3.0 license (compliance, same as /matches and /roster). The
+// localized credit strings all contain these two locale-independent
+// tokens; splitting around them adds the links without touching the
+// strings themselves. Falls back to plain text if a future string drops
+// a token.
+const credit = t.footer.dataCredit;
+const lpToken = 'Liquipedia';
+const ccToken = 'CC BY-SA 3.0';
+const lpIdx = credit.indexOf(lpToken);
+const ccIdx = credit.indexOf(ccToken);
+const creditParts =
+  lpIdx !== -1 && ccIdx > lpIdx
+    ? {
+        before: credit.slice(0, lpIdx),
+        between: credit.slice(lpIdx + lpToken.length, ccIdx),
+        after: credit.slice(ccIdx + ccToken.length),
+      }
+    : null;
 ---
 
 <footer class="border-t border-[var(--color-border)] mt-24">
@@ -94,7 +114,35 @@ const year = new Date().getFullYear();
       <span aria-hidden="true" class="opacity-50">·</span>
       <span class="opacity-90">{t.footer.trademark}</span>
       <span aria-hidden="true" class="opacity-50">·</span>
-      <span class="opacity-90">{t.footer.dataCredit}</span>
+      <span class="opacity-90">
+        {
+          creditParts ? (
+            <>
+              {creditParts.before}
+              <a
+                href="https://liquipedia.net/overwatch/"
+                target="_blank"
+                rel="noopener"
+                class="hover:text-[var(--color-text)] transition-colors underline decoration-[var(--color-border)] underline-offset-2"
+              >
+                {lpToken}
+              </a>
+              {creditParts.between}
+              <a
+                href="https://creativecommons.org/licenses/by-sa/3.0/"
+                target="_blank"
+                rel="noopener"
+                class="hover:text-[var(--color-text)] transition-colors underline decoration-[var(--color-border)] underline-offset-2"
+              >
+                {ccToken}
+              </a>
+              {creditParts.after}
+            </>
+          ) : (
+            t.footer.dataCredit
+          )
+        }
+      </span>
     </div>
   </div>
 </footer>
