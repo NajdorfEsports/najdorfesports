@@ -14,7 +14,16 @@
   # browsing-topics=() opts the site (and any embed) out of Google's Topics
   # advertising API, consistent with the no-tracking privacy stance.
   Permissions-Policy: accelerometer=(), browsing-topics=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://app.cal.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://app.cal.com; frame-src https://player.twitch.tv https://www.youtube-nocookie.com https://app.cal.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests
+  # script-src has NO 'unsafe-inline': every script is an Astro-bundled
+  # /_astro/*.js module (scripts/check-no-inline-scripts.mjs enforces this
+  # in CI; vite assetsInlineLimit 0 stops re-inlining). app.cal.com stays
+  # for the lazily loaded booking embed. style-src keeps 'unsafe-inline'
+  # deliberately: build.inlineStylesheets emits <style> elements, inline
+  # style attributes (CSS-var plumbing, aspect ratios) fall back to
+  # style-src, and the Cal embed injects runtime styles. Style injection
+  # without script injection is low-impact on a static site with no inline
+  # handlers.
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://app.cal.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://app.cal.com; frame-src https://player.twitch.tv https://www.youtube-nocookie.com https://app.cal.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests
   X-XSS-Protection: 0
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Resource-Policy: same-site
