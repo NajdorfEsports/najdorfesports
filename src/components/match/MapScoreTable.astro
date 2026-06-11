@@ -1,0 +1,123 @@
+---
+/**
+ * Per-map score table inside a match card, behind a native <details>
+ * disclosure: zero JS, works without scripting, no CSP surface. Renders
+ * only when the match has map data. Map thumbs resolve through the same
+ * normalized lookup as the card backdrop and fail soft to a plain chip.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import type { MatchEntry } from '../../data/site';
+import { mapImagesByName } from '../../lib/assetImages';
+import { getLocale, useT } from '../../i18n';
+
+interface Props {
+  match: MatchEntry;
+}
+const { match } = Astro.props;
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+
+const normalizeMapKey = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '');
+function lookupMap(name: string): ImageMetadata | null {
+  if (mapImagesByName[name]) return mapImagesByName[name];
+  const target = normalizeMapKey(name);
+  for (const k of Object.keys(mapImagesByName)) {
+    if (normalizeMapKey(k) === target) return mapImagesByName[k] ?? null;
+  }
+  return null;
+}
+
+const rows = (match.mapScores ?? []).map((s) => ({
+  ...s,
+  art: lookupMap(s.map),
+  outcome: s.ourScore > s.theirScore ? 'win' : s.theirScore > s.ourScore ? 'loss' : 'draw',
+}));
+---
+
+{
+  rows.length > 0 && (
+    <details class="map-scores group/details">
+      <summary class="inline-flex items-center gap-1.5 cursor-pointer select-none text-[0.65rem] uppercase tracking-wider text-(--color-text-dim) hover:text-(--color-accent-2) transition-colors">
+        <svg
+          class="map-scores__chevron"
+          width="10"
+          height="10"
+          viewBox="0 0 10 10"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          aria-hidden="true"
+        >
+          <path d="M3 2 L7 5 L3 8" />
+        </svg>
+        {t.match.mapByMap}
+      </summary>
+      <ol class="mt-3 space-y-1.5" role="list">
+        {rows.map((r, i) => (
+          <li class="flex items-center gap-3 text-sm">
+            <span
+              class="text-[0.6rem] tabular-nums text-(--color-text-dim) w-4 text-right shrink-0"
+              aria-hidden="true"
+            >
+              {i + 1}
+            </span>
+            {r.art ? (
+              <Image
+                src={r.art}
+                alt=""
+                width={48}
+                densities={[1, 2]}
+                loading="lazy"
+                decoding="async"
+                class="chip-ink w-12 h-7 object-cover rounded-sm border border-(--color-border) shrink-0"
+                aria-hidden="true"
+              />
+            ) : (
+              <span
+                class="w-12 h-7 rounded-sm border border-(--color-border) bg-(--color-surface-2) shrink-0"
+                aria-hidden="true"
+              />
+            )}
+            <span class="min-w-0 flex-1 truncate">{r.map}</span>
+            <span class="font-display tabular-nums shrink-0">
+              {r.ourScore}–{r.theirScore}
+            </span>
+            <span
+              class:list={[
+                'inline-flex items-center justify-center w-5 h-5 rounded-sm border font-display text-xs font-bold shrink-0',
+                r.outcome === 'win' ? 'text-(--color-win) border-(--color-win)' : '',
+                r.outcome === 'loss' ? 'text-(--color-loss) border-(--color-loss)' : '',
+                r.outcome === 'draw' ? 'text-(--color-text-dim) border-(--color-border)' : '',
+              ]}
+            >
+              {r.outcome === 'win' ? t.match.win : r.outcome === 'loss' ? t.match.loss : '·'}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </details>
+  )
+}
+
+<style>
+  .map-scores__chevron {
+    transition: transform 0.2s ease-out;
+  }
+  details[open] .map-scores__chevron {
+    transform: rotate(90deg);
+  }
+  /* Hide the UA marker; the chevron is the affordance. */
+  .map-scores summary {
+    list-style: none;
+  }
+  .map-scores summary::-webkit-details-marker {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .map-scores__chevron {
+      transition: none;
+    }
+  }
+</style>

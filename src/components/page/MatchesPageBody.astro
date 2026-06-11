@@ -9,6 +9,7 @@
 import MatchCard from '../match/MatchCard.astro';
 import MatchEmptyState from '../match/EmptyState.astro';
 import MatchTicker from '../match/MatchTicker.astro';
+import SectionHeader from '../ui/SectionHeader.astro';
 import { owcs, competedAsFor, type MatchEntry } from '../../data/site';
 import { loadMatches } from '../../data/loaders';
 import { splitMatches, recordOf } from '../../lib/matches';
@@ -50,60 +51,61 @@ const pastSections = Array.from(pastByTournament.entries()).map(([tournament, ma
 
 <MatchTicker matches={allMatches} />
 
-<section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12">
-  <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-    <div>
-      <p class="text-xs uppercase tracking-[0.25em] text-[var(--color-accent-2)]">
-        {t.matches.eyebrow(owcs.league, owcs.year)}
-      </p>
-      <h1 class="font-display text-5xl sm:text-6xl mt-2 tracking-tight leading-none">
-        {t.nav.matches}
-      </h1>
+<section class="relative isolate overflow-hidden border-b border-(--color-border)">
+  <div class="texture-board" aria-hidden="true"></div>
+  <div class="mx-auto max-w-(--max-content) px-4 sm:px-6 pt-12 pb-10">
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+      <div>
+        <p class="eyebrow">{t.matches.eyebrow(owcs.league, owcs.year)}</p>
+        <h1 class="font-display text-(length:--text-h1) mt-2 tracking-tight leading-none">
+          {t.nav.matches}
+        </h1>
+      </div>
+      {
+        (recordLine || upcoming.length > 0) && (
+          <dl class="flex items-center gap-8 text-sm">
+            {upcoming.length > 0 && (
+              <div>
+                <dt class="text-(--color-text-dim) uppercase tracking-wider text-[0.65rem]">
+                  {t.matches.upcoming}
+                </dt>
+                <dd class="font-display text-3xl mt-1 leading-none tabular-nums">
+                  {upcoming.length}
+                </dd>
+              </div>
+            )}
+            {recordLine && (
+              <div>
+                <dt class="text-(--color-text-dim) uppercase tracking-wider text-[0.65rem]">
+                  {t.matches.recordLabel}
+                </dt>
+                <dd class="font-display text-3xl mt-1 leading-none tabular-nums">{recordLine}</dd>
+              </div>
+            )}
+          </dl>
+        )
+      }
     </div>
-    {
-      (recordLine || upcoming.length > 0) && (
-        <dl class="flex items-center gap-8 text-sm">
-          {upcoming.length > 0 && (
-            <div>
-              <dt class="text-[var(--color-text-dim)] uppercase tracking-wider text-[0.65rem]">
-                {t.matches.upcoming}
-              </dt>
-              <dd class="font-display text-3xl mt-1 leading-none tabular-nums">
-                {upcoming.length}
-              </dd>
-            </div>
-          )}
-          {recordLine && (
-            <div>
-              <dt class="text-[var(--color-text-dim)] uppercase tracking-wider text-[0.65rem]">
-                {t.matches.recordLabel}
-              </dt>
-              <dd class="font-display text-3xl mt-1 leading-none tabular-nums">{recordLine}</dd>
-            </div>
-          )}
-        </dl>
-      )
-    }
   </div>
 </section>
 
-<section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10">
-  <div class="flex items-center gap-3 mb-5">
-    <h2 class="font-display text-2xl tracking-wide">{t.matches.upcoming}</h2>
-    <span class="flex-1 h-px bg-[var(--color-border)]"></span>
-    <span class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] tabular-nums">
+<section class="reveal mx-auto max-w-(--max-content) px-4 sm:px-6 mt-10">
+  <SectionHeader heading={t.matches.upcoming}>
+    <span class="text-xs uppercase tracking-wider text-(--color-text-dim) tabular-nums">
       {upcoming.length}
     </span>
-  </div>
+  </SectionHeader>
   {
     upcoming.length > 0 ? (
-      <div class="space-y-3">
+      <div class="space-y-3 mt-6">
         {upcoming.map((m, i) => (
           <MatchCard match={m} index={i} />
         ))}
       </div>
     ) : (
-      <MatchEmptyState variant="upcoming" />
+      <div class="mt-6">
+        <MatchEmptyState variant="upcoming" />
+      </div>
     )
   }
 </section>
@@ -111,20 +113,20 @@ const pastSections = Array.from(pastByTournament.entries()).map(([tournament, ma
 {
   past.length > 0 ? (
     pastSections.map((sec) => (
-      <section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12">
-        <div class="flex items-center gap-3 mb-5">
-          <h2 class="font-display text-2xl tracking-wide">{sec.heading}</h2>
-          {sec.competedAs && (
-            <span class="text-[0.7rem] uppercase tracking-wider text-[var(--color-accent-2)] border border-[var(--color-border)] rounded-full px-2 py-0.5">
-              {t.competedAs(sec.competedAs)}
+      <section class="reveal mx-auto max-w-(--max-content) px-4 sm:px-6 mt-12">
+        <SectionHeader heading={sec.heading}>
+          <span class="flex items-center gap-3">
+            {sec.competedAs && (
+              <span class="text-[0.7rem] uppercase tracking-wider text-(--color-accent-2) border border-(--color-border) rounded-full px-2 py-0.5">
+                {t.competedAs(sec.competedAs)}
+              </span>
+            )}
+            <span class="text-xs uppercase tracking-wider text-(--color-text-dim) tabular-nums">
+              {sec.record}
             </span>
-          )}
-          <span class="flex-1 h-px bg-[var(--color-border)]" />
-          <span class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] tabular-nums">
-            {sec.record}
           </span>
-        </div>
-        <div class="space-y-3">
+        </SectionHeader>
+        <div class="space-y-3 mt-6">
           {/* Past sections sit below the fold; every backdrop lazy-loads. */}
           {sec.matches.map((m, i) => (
             <MatchCard match={m} index={upcoming.length + i} />
@@ -133,12 +135,11 @@ const pastSections = Array.from(pastByTournament.entries()).map(([tournament, ma
       </section>
     ))
   ) : (
-    <section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12">
-      <div class="flex items-center gap-3 mb-5">
-        <h2 class="font-display text-2xl tracking-wide">{t.matches.pastResults}</h2>
-        <span class="flex-1 h-px bg-[var(--color-border)]" />
+    <section class="reveal mx-auto max-w-(--max-content) px-4 sm:px-6 mt-12">
+      <SectionHeader heading={t.matches.pastResults} />
+      <div class="mt-6">
+        <MatchEmptyState variant="past" />
       </div>
-      <MatchEmptyState variant="past" />
     </section>
   )
 }

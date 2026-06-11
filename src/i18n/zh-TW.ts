@@ -364,6 +364,8 @@ export const zhTW: Strings = {
     tbd: '待定',
     win: '勝',
     loss: '負',
+    // DRAFT PENDING RIRI NATIVE REVIEW
+    mapByMap: '逐圖戰況',
   },
 
   reach: {

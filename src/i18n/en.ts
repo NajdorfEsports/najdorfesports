@@ -407,6 +407,8 @@ export const en = {
     tbd: 'TBD',
     win: 'W',
     loss: 'L',
+    /** Disclosure label for the per-map score table on a match card. */
+    mapByMap: 'Map by map',
   },
 
   /** Broadcast-reach highlight on the home page (BroadcastReach). The number is
