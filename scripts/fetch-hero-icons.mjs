@@ -39,7 +39,7 @@ const ROSTER_MANUAL = join(__dirname, '..', 'src', 'data', 'roster.manual.json')
 
 const API = 'https://liquipedia.net/overwatch/api.php';
 const QUERY_INTERVAL_MS = 2_000; // 1 query per 2s, Liquipedia non-parse limit
-const ICON_WIDTH = 120;
+const ICON_WIDTH = 480;
 
 /**
  * Liquipedia uses two naming conventions: older heroes have

@@ -39,7 +39,7 @@ const MATCHES_MANUAL = join(__dirname, '..', 'src', 'data', 'matches.manual.json
 
 const API = 'https://liquipedia.net/overwatch/api.php';
 const QUERY_INTERVAL_MS = 2_000;
-const TARGET_WIDTH = 600;
+const TARGET_WIDTH = 1200;
 
 /** Baseline pool of OW2 competitive maps. Pre-fetching the whole pool
  *  once means a future match on any of these maps automatically picks
