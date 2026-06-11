@@ -11,6 +11,7 @@ import MatchEmptyState from '../match/EmptyState.astro';
 import MatchTicker from '../match/MatchTicker.astro';
 import { owcs, competedAsFor, type MatchEntry } from '../../data/site';
 import { loadMatches } from '../../data/loaders';
+import { splitMatches, recordOf } from '../../lib/matches';
 import { getLocale, useT } from '../../i18n';
 import { translateTournament } from '../../i18n/format';
 
@@ -19,13 +20,10 @@ const t = useT(locale);
 
 const allMatches = loadMatches();
 
-const now = Date.now();
-const upcoming = allMatches
-  .filter((m) => new Date(m.date).getTime() >= now)
-  .sort((a, b) => +new Date(a.date) - +new Date(b.date));
-const past = allMatches
-  .filter((m) => new Date(m.date).getTime() < now)
-  .sort((a, b) => +new Date(b.date) - +new Date(a.date));
+// Bucketing + records come from src/lib/matches.ts (unit tested). The
+// past list keeps unscored matches in their tournament sections, where
+// MatchCard renders them as a neutral TBD; records count finals only.
+const { upcoming, past } = splitMatches(allMatches, Date.now());
 
 // Group past matches by tournament so each stage has its own section.
 const pastByTournament = new Map<string, MatchEntry[]>();
@@ -35,14 +33,12 @@ for (const m of past) {
   pastByTournament.set(m.tournament, arr);
 }
 
-const wins = past.filter((m) => m.result === 'win').length;
-const losses = past.filter((m) => m.result === 'loss').length;
+const { wins, losses } = recordOf(allMatches);
 const recordLine = wins + losses > 0 ? t.matches.record(wins, losses) : null;
 
 // Precompute the per-tournament sections with translated headings + records.
 const pastSections = Array.from(pastByTournament.entries()).map(([tournament, matches]) => {
-  const w = matches.filter((x) => x.result === 'win').length;
-  const l = matches.filter((x) => x.result === 'loss').length;
+  const { wins: w, losses: l } = recordOf(matches);
   return {
     heading: translateTournament(tournament, locale),
     record: t.matches.record(w, l),

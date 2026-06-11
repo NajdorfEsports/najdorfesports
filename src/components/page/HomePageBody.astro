@@ -20,6 +20,7 @@ import BishopMark from '../ui/BishopMark.astro';
 import { getCollection } from 'astro:content';
 import { competedAsFor, type Sponsor } from '../../data/site';
 import { loadRoster, loadMatches, loadAchievements } from '../../data/loaders';
+import { splitMatches, recordOf, seriesScore } from '../../lib/matches';
 import sponsorsData from '../../data/sponsors.json';
 import { getLocale, pathFor, useT } from '../../i18n';
 import { formatDate, translateTournament, translatePlacement } from '../../i18n/format';
@@ -32,13 +33,12 @@ const roster = loadRoster();
 const achievements = loadAchievements();
 
 const now = Date.now();
-const upcoming = allMatches
-  .filter((m) => new Date(m.date).getTime() >= now)
-  .sort((a, b) => +new Date(a.date) - +new Date(b.date));
-const past = allMatches
-  .filter((m) => new Date(m.date).getTime() < now)
-  .sort((a, b) => +new Date(b.date) - +new Date(a.date));
-const recent3 = past.slice(0, 3);
+// Bucketing lives in src/lib/matches.ts so the "an unscored match never
+// renders as a result" rule is unit tested. Recent results draw from
+// `completed` only: a past-dated match still awaiting its score shows up
+// on /matches as TBD, never here as a fake W/L.
+const { upcoming, past, completed } = splitMatches(allMatches, now);
+const recentRows = completed.slice(0, 3).map((m) => ({ match: m, score: seriesScore(m) }));
 
 const nextMatch = upcoming[0];
 
@@ -59,8 +59,7 @@ const newsPosts = (await getCollection('news', ({ data }) => !data.draft && data
 // Real-data hero stats
 const players = roster.filter((p) => ['Tank', 'DPS', 'Support', 'Flex'].includes(p.role));
 const countries = new Set(players.map((p) => p.country).filter(Boolean));
-const wins = past.filter((m) => m.result === 'win').length;
-const losses = past.filter((m) => m.result === 'loss').length;
+const { wins, losses } = recordOf(allMatches);
 
 const topAchievement = [...achievements].sort((a, b) => +new Date(b.date) - +new Date(a.date))[0];
 // "As Rankers" attribution if the headline achievement predates the org
@@ -421,10 +420,10 @@ const heroBishops = [
       {t.home.recentResults}
     </p>
     {
-      recent3.length > 0 ? (
+      recentRows.length > 0 ? (
         <>
           <ul class="mt-4 space-y-1 flex-1">
-            {recent3.map((m) => (
+            {recentRows.map(({ match: m, score }) => (
               <li>
                 <a
                   href={m.streamUrl ?? matchesHref}
@@ -436,22 +435,25 @@ const heroBishops = [
                     {t.match.vs(m.opponent)}
                   </span>
                   <span class="flex items-center gap-2 shrink-0">
-                    {m.mapScores && m.mapScores.length > 0 && (
+                    {score && (
                       <span class="font-display text-sm text-[var(--color-text-dim)] tabular-nums">
-                        {m.mapScores.reduce((a, x) => a + (x.ourScore > x.theirScore ? 1 : 0), 0)}–
-                        {m.mapScores.reduce((a, x) => a + (x.theirScore > x.ourScore ? 1 : 0), 0)}
+                        {score.ours}–{score.theirs}
                       </span>
                     )}
-                    <span
-                      class:list={[
-                        'inline-flex items-center justify-center w-6 h-6 rounded-sm border font-display text-sm font-bold transition-transform group-hover:scale-110',
-                        m.result === 'win'
-                          ? 'text-[var(--color-win)] border-[var(--color-win)]'
-                          : 'text-[var(--color-loss)] border-[var(--color-loss)]',
-                      ]}
-                    >
-                      {m.result === 'win' ? t.match.win : t.match.loss}
-                    </span>
+                    {/* Explicit two-branch pill: only a final result ever
+                        renders a letter. Anything else renders nothing. */}
+                    {(m.result === 'win' || m.result === 'loss') && (
+                      <span
+                        class:list={[
+                          'inline-flex items-center justify-center w-6 h-6 rounded-sm border font-display text-sm font-bold transition-transform group-hover:scale-110',
+                          m.result === 'win'
+                            ? 'text-[var(--color-win)] border-[var(--color-win)]'
+                            : 'text-[var(--color-loss)] border-[var(--color-loss)]',
+                        ]}
+                      >
+                        {m.result === 'win' ? t.match.win : t.match.loss}
+                      </span>
+                    )}
                   </span>
                 </a>
               </li>

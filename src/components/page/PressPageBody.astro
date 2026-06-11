@@ -10,6 +10,7 @@
  */
 import { site, competedAsFor } from '../../data/site';
 import { loadRoster, loadMatches, loadAchievements } from '../../data/loaders';
+import { recordOf } from '../../lib/matches';
 import { getLocale, useT } from '../../i18n';
 
 const locale = getLocale(Astro);
@@ -48,8 +49,7 @@ const achTag = topAch ? competedAsFor(topAch.event) : null;
 const stage2Played = loadMatches().filter(
   (m) => /Stage 2/.test(m.tournament) && (m.result === 'win' || m.result === 'loss'),
 );
-const s2w = stage2Played.filter((m) => m.result === 'win').length;
-const s2l = stage2Played.filter((m) => m.result === 'loss').length;
+const { wins: s2w, losses: s2l } = recordOf(stage2Played);
 
 const results: string[] = [];
 if (topAch) {

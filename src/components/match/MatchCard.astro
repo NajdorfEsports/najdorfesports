@@ -9,6 +9,7 @@ import {
   MATCH_TIME_ZONE,
 } from '../../i18n/format';
 import { formatCount } from '../../data/social';
+import { seriesScore } from '../../lib/matches';
 import mapIcons from '../../data/maps.json';
 
 interface Props {
@@ -27,14 +28,7 @@ const timePretty = formatMatchTime(date, locale);
 
 const resultLabel =
   match.result === 'win' ? t.match.win : match.result === 'loss' ? t.match.loss : '·';
-const aggregate = match.mapScores?.reduce(
-  (acc, m) => {
-    if (m.ourScore > m.theirScore) acc.ours += 1;
-    else if (m.theirScore > m.ourScore) acc.theirs += 1;
-    return acc;
-  },
-  { ours: 0, theirs: 0 },
-);
+const aggregate = seriesScore(match);
 
 // Watch-link resolution.
 //   Upcoming match  -> streamUrl (live channel) labelled 'Watch'.
