@@ -110,15 +110,15 @@ describe('computeSendAfter', () => {
   const end = '2026-06-10T11:00:00Z';
   const endMs = Date.parse(end);
 
-  it('adds 48 hours in normal mode', () => {
+  it('adds 48 hours to the session end in normal mode', () => {
     expect(computeSendAfter(end, false, 0)).toBe(endMs + 48 * 60 * 60 * 1000);
   });
 
-  it('adds 10 minutes in test mode', () => {
-    expect(computeSendAfter(end, true, 0)).toBe(endMs + 10 * 60 * 1000);
+  it('in test mode sends 10 minutes after the booking, ignoring the session end', () => {
+    expect(computeSendAfter(end, true, 1_000_000)).toBe(1_000_000 + 10 * 60 * 1000);
   });
 
-  it('falls back to now when endTime is unparseable', () => {
+  it('falls back to now when endTime is unparseable (normal mode)', () => {
     expect(computeSendAfter('not-a-date', false, 1000)).toBe(1000 + 48 * 60 * 60 * 1000);
   });
 });

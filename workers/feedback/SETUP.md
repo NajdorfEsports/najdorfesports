@@ -8,8 +8,8 @@ handles the dashboard clicks; this file is the plain reference.
 ## What it does
 
 Cal.com fires a signed `BOOKING_PAID` webhook to this Worker. The Worker stores
-the booking in KV. An hourly cron sends one feedback email (via Resend) 48 hours
-after the session ends, linking your Tally form. Reply-To is
+the booking in KV. A cron (every 5 minutes) sends one feedback email (via Resend)
+48 hours after the session ends, linking your Tally form. Reply-To is
 owner@najdorfesports.gg.
 
 ## Prerequisites

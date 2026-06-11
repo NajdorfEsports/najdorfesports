@@ -133,12 +133,18 @@ export function parseBookingPaid(body: unknown): ParsedBooking | null {
   };
 }
 
-/** When the feedback email becomes eligible: 48h after the session (10 min in TEST_MODE). */
+/**
+ * When the feedback email becomes eligible.
+ * Production: 48 hours after the session ends.
+ * TEST_MODE: 10 minutes after the booking itself (nowMs), NOT after the session
+ * end, so the chain can be verified quickly even when the booked slot is days
+ * away. (Anchoring the test delay to a future session end was the original bug.)
+ */
 export function computeSendAfter(endTimeIso: string, testMode: boolean, nowMs: number): number {
-  const offsetMs = testMode ? 10 * 60 * 1000 : 48 * 60 * 60 * 1000;
+  if (testMode) return nowMs + 10 * 60 * 1000;
   const end = Date.parse(endTimeIso);
   const base = Number.isFinite(end) ? end : nowMs;
-  return base + offsetMs;
+  return base + 48 * 60 * 60 * 1000;
 }
 
 /** A record is due when it is unsent, not permanently failed, and past its sendAfter. */

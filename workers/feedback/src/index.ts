@@ -2,9 +2,9 @@
  * Najdorf Esports coaching feedback Worker.
  *
  * Flow: Cal.com fires a signed BOOKING_PAID webhook into the fetch handler,
- * which stores a record in KV keyed by the booking uid. An hourly cron scans KV
- * and, 48 hours after each session ends, sends one feedback email via Resend
- * that links a Tally form. Free tier throughout (Workers, KV, Resend free).
+ * which stores a record in KV keyed by the booking uid. A cron (every 5 minutes)
+ * scans KV and, 48 hours after each session ends, sends one feedback email via
+ * Resend that links a Tally form. Free tier throughout (Workers, KV, Resend free).
  *
  * Why a Worker and not Cal.com Workflows: custom email templates moved to paid
  * Cal.com Teams, but webhooks are free on every plan. This is the free path.
