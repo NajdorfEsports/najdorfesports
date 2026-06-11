@@ -1,6 +1,5 @@
 ---
 import '../styles/global.css';
-import { ClientRouter } from 'astro:transitions';
 import SiteHeader from '../components/layout/SiteHeader.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
 import { site } from '../data/site';
@@ -197,144 +196,36 @@ if (crumbSegments.length > 0) {
 
     {
       /*
-      Astro 5 client-side router. Replaces full-page navigations with a
-      View-Transitions-API crossfade, persisting <header> / <footer> across
-      page changes. ~3 KB inlined first-party JS, no cookies, no network
-      calls, falls back cleanly to standard nav on browsers that don't
-      support the View Transitions API. Reduced-motion preference is
-      respected automatically. Per-element transition names live on the
-      wordmark and the OWCS badge below so they morph between routes.
+      Navigation is plain cross-document. The crossfade and the header
+      wordmark/bishop morphs come from NATIVE view transitions declared in
+      global.css (`@view-transition`), zero JS: Chromium and Safari animate,
+      Firefox does a normal full-page navigation. The old ClientRouter was
+      removed with the CSP hardening pass; its SPA swap also silently broke
+      inline scripts that were not re-executed after navigation.
     */
     }
-    <ClientRouter />
   </head>
   <body>
     <a href="#main" class="skip-link">{t.skipLink}</a>
-    <SiteHeader transition:persist />
+    <SiteHeader />
     <main id="main" tabindex="-1">
       <slot />
     </main>
-    <SiteFooter transition:persist />
+    <SiteFooter />
 
-    <script is:inline>
-      // Reveal-on-scroll. Re-attaches on every ClientRouter navigation
-      // because page body content is swapped underneath us. Wraps the
-      // original IIFE in an astro:page-load handler.
-      (() => {
-        function init() {
-          const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-          const els = document.querySelectorAll('.reveal:not(.is-visible)');
-          if (els.length === 0) return;
-          if (reduced || !('IntersectionObserver' in window)) {
-            for (const el of els) el.classList.add('is-visible');
-            return;
-          }
-          const io = new IntersectionObserver(
-            (entries) => {
-              for (const e of entries) {
-                if (e.isIntersecting) {
-                  e.target.classList.add('is-visible');
-                  io.unobserve(e.target);
-                }
-              }
-            },
-            { threshold: 0.15, rootMargin: '0px 0px -60px 0px' },
-          );
-          for (const el of els) io.observe(el);
-        }
-        // Fire on initial load and on every ClientRouter navigation.
-        init();
-        document.addEventListener('astro:page-load', init);
-      })();
-    </script>
-
-    <script is:inline>
-      // Count-up enhancement. Opt in with `data-count-up` + `data-target`.
-      // The SERVER renders the final value as the element's text, so the right
-      // number shows on first paint, with no JS, and on slow JS. This driver
-      // only ENHANCES from there, it never shows a "0" state:
-      //   - prefers-reduced-motion / no IntersectionObserver: keep the final
-      //     value in place (snap), never animate.
-      //   - elements already on screen at load (the hero / roster stat boxes):
-      //     keep the final value. Counting them up from 0 now would flash the
-      //     real number down to "0" first, which is the broken-looking state.
-      //   - off-screen elements: count up 0 → target when scrolled into view.
-      (() => {
-        const DURATION_MS = 700;
-        const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-
-        function finalText(el) {
-          const target = parseInt(el.getAttribute('data-target') || '0', 10);
-          const prefix = el.dataset.countPrefix || '';
-          const suffix = el.dataset.countSuffix || '';
-          return prefix + (isNaN(target) ? 0 : target) + suffix;
-        }
-
-        // Lock in the server-rendered final value, no animation.
-        function snap(el) {
-          el.textContent = finalText(el);
-          el.dataset.countDone = '1';
-        }
-
-        function animate(el, target) {
-          if (el.dataset.countDone === '1') return;
-          el.dataset.countDone = '1';
-          const start = performance.now();
-          // Preserve any prefix/suffix the author wants kept after the digits
-          // (e.g. "+", "%"). Read once at start so we don't re-parse mid-anim.
-          const prefix = el.dataset.countPrefix || '';
-          const suffix = el.dataset.countSuffix || '';
-
-          function frame(now) {
-            const t = Math.min(1, (now - start) / DURATION_MS);
-            const v = Math.round(easeOutCubic(t) * target);
-            el.textContent = prefix + v + suffix;
-            if (t < 1) requestAnimationFrame(frame);
-          }
-          requestAnimationFrame(frame);
-        }
-
-        function inViewport(el) {
-          const r = el.getBoundingClientRect();
-          const vh = window.innerHeight || document.documentElement.clientHeight;
-          const vw = window.innerWidth || document.documentElement.clientWidth;
-          return r.bottom > 0 && r.right > 0 && r.top < vh && r.left < vw;
-        }
-
-        function init() {
-          const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-          const els = document.querySelectorAll('[data-count-up]:not([data-count-done="1"])');
-          if (els.length === 0) return;
-
-          if (reduced || !('IntersectionObserver' in window)) {
-            for (const el of els) snap(el);
-            return;
-          }
-
-          const io = new IntersectionObserver(
-            (entries) => {
-              for (const e of entries) {
-                if (e.isIntersecting) {
-                  const target = parseInt(e.target.getAttribute('data-target') || '0', 10);
-                  animate(e.target, isNaN(target) ? 0 : target);
-                  io.unobserve(e.target);
-                }
-              }
-            },
-            { threshold: 0.4 },
-          );
-
-          for (const el of els) {
-            // Already visible at load: keep the final value (no 0 flash). Only
-            // count up the stats a visitor actually scrolls down to.
-            if (inViewport(el)) snap(el);
-            else io.observe(el);
-          }
-        }
-
-        init();
-        document.addEventListener('astro:page-load', init);
-      })();
+    {
+      /*
+      Sitewide client behaviors, bundled by Astro into a fingerprinted
+      /_astro/*.js module so the CSP needs no 'unsafe-inline' for scripts.
+      Each module runs once per full page load. JSON-LD blocks above stay
+      inline on purpose: they are non-executable data, not script-src
+      subjects.
+    */
+    }
+    <script>
+      import '../scripts/reveal.ts';
+      import '../scripts/count-up.ts';
+      import '../scripts/nav-toggle.ts';
     </script>
   </body>
 </html>

@@ -126,39 +126,31 @@ const hasVideo = videoId.trim().length > 0;
   }
 </style>
 
-<script is:inline>
-  // Facade -> iframe swap. Mirrors LiveHero: the iframe (and Google's cookies)
-  // is only created after a deliberate click. Re-binds on ClientRouter nav.
-  (() => {
-    function init() {
-      document.querySelectorAll('[data-yt-load]').forEach((btn) => {
-        if (btn.dataset.bound === '1') return;
-        btn.dataset.bound = '1';
-        btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-video-id');
-          const facade = btn.closest('[data-yt-facade]');
-          if (!id || !facade) return;
-          const iframe = document.createElement('iframe');
-          // Privacy-enhanced domain: youtube-nocookie.com, NOT youtube.com.
-          iframe.src =
-            'https://www.youtube-nocookie.com/embed/' +
-            encodeURIComponent(id) +
-            '?autoplay=1&rel=0';
-          iframe.title = 'YouTube video player';
-          iframe.allow = 'autoplay; encrypted-media; picture-in-picture; web-share';
-          iframe.allowFullscreen = true;
-          iframe.setAttribute('loading', 'lazy');
-          iframe.style.position = 'absolute';
-          iframe.style.inset = '0';
-          iframe.style.width = '100%';
-          iframe.style.height = '100%';
-          iframe.style.border = '0';
-          facade.appendChild(iframe);
-          btn.remove();
-        });
-      });
-    }
-    init();
-    document.addEventListener('astro:page-load', init);
-  })();
+<script>
+  // Facade -> iframe swap, processed module (CSP: no inline JS). Mirrors
+  // LiveHero: the iframe (and Google's cookies) is only created after a
+  // deliberate click. Delegation covers every facade on the page with one
+  // listener, bound once per full page load.
+  document.addEventListener('click', (e) => {
+    const btn = e.target instanceof Element ? e.target.closest('[data-yt-load]') : null;
+    if (!btn) return;
+    const id = btn.getAttribute('data-video-id');
+    const facade = btn.closest('[data-yt-facade]');
+    if (!id || !facade) return;
+    const iframe = document.createElement('iframe');
+    // Privacy-enhanced domain: youtube-nocookie.com, NOT youtube.com.
+    iframe.src =
+      'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&rel=0';
+    iframe.title = 'YouTube video player';
+    iframe.allow = 'autoplay; encrypted-media; picture-in-picture; web-share';
+    iframe.allowFullscreen = true;
+    iframe.setAttribute('loading', 'lazy');
+    iframe.style.position = 'absolute';
+    iframe.style.inset = '0';
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.border = '0';
+    facade.appendChild(iframe);
+    btn.remove();
+  });
 </script>

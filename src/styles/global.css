@@ -56,6 +56,29 @@
     U+A720-A7FF;
 }
 
+/*
+ * Native cross-document view transitions, zero JS. Replaces the old
+ * ClientRouter: same-origin navigations crossfade, and the header bishop
+ * mark + wordmark morph between pages via their shared
+ * view-transition-name. Chromium and Safari animate; Firefox (and any
+ * browser without the feature) does a plain full-page navigation, which
+ * is the correct degradation. Reduced motion turns the whole thing off.
+ */
+@view-transition {
+  navigation: auto;
+}
+.vt-bishop {
+  view-transition-name: bishop-mark;
+}
+.vt-wordmark {
+  view-transition-name: wordmark-compact;
+}
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
 @theme {
   --color-bg: #0b0b0f;
   --color-surface: #15151c;
@@ -339,15 +362,6 @@
     to {
       transform: translate3d(var(--dx, 24px), var(--dy, -32px), 0) rotate(var(--rot, 6deg));
     }
-  }
-
-  /* Hero parallax: the inline script in HomePageBody updates
-   * --parallax-y and --parallax-fade in response to window.scrollY.
-   * Pure transform + opacity so the GPU does all the work. */
-  .hero-content {
-    transform: translate3d(0, var(--parallax-y, 0px), 0);
-    opacity: var(--parallax-fade, 1);
-    will-change: transform, opacity;
   }
 }
 

@@ -136,131 +136,114 @@ const renderable = !!match && !!match.streamUrl;
   .live-hero.hidden { display: none !important; }
 </style>
 
-{renderable && (
-  <script is:inline>
-    // Runs on initial load AND on every ClientRouter navigation that lands
-    // on a page rendering a LiveHero (currently only the home page).
-    (() => {
-      let intervalId = null;
+<script>
+  // Processed module (CSP: no inline JS), runs once per full page load and
+  // early-returns on pages without a live shell. Cannot be wrapped in the
+  // `renderable` expression above: Astro only processes top-level scripts.
+  function init() {
+    const live = document.querySelector('[data-hero-live]');
+    const def = document.querySelector('[data-hero-default]');
+    if (!live || !def) return;
 
-      function init() {
-        if (intervalId !== null) {
-          clearInterval(intervalId);
-          intervalId = null;
+    const matchIso = live.getAttribute('data-match-iso');
+    const channel = live.getAttribute('data-twitch-channel');
+    const parentDomains = (live.getAttribute('data-parent-domains') || '')
+      .split(',').map((s) => s.trim()).filter(Boolean);
+    const labelLive = live.getAttribute('data-label-live') || 'LIVE NOW';
+    const labelStarts = live.getAttribute('data-label-starts') || 'Starts in';
+
+    if (!matchIso) return;
+    const matchTime = new Date(matchIso).getTime();
+    if (isNaN(matchTime)) return;
+
+    // -30 min before kickoff through +3 hours after = live window
+    const WINDOW_BEFORE_MS = 30 * 60 * 1000;
+    const WINDOW_AFTER_MS = 3 * 60 * 60 * 1000;
+
+    let active = false;
+    let injected = false;
+
+    function enterLive() {
+      if (active) return;
+      active = true;
+      def!.classList.add('hidden');
+      def!.setAttribute('aria-hidden', 'true');
+      live!.classList.remove('hidden');
+      live!.removeAttribute('aria-hidden');
+    }
+
+    // Facade pattern: iframe (and Twitch's cookies) only loads after the
+    // visitor explicitly clicks the play button. Until then we hit zero
+    // twitch.tv endpoints, so no third-party cookies are set on the
+    // visitor's device.
+    function injectIframe() {
+      if (injected || !channel) return;
+      const mount = live!.querySelector('[data-stream-mount]');
+      if (!mount) return;
+      mount.innerHTML = '';
+      const parentParams = parentDomains
+        .map((p) => 'parent=' + encodeURIComponent(p))
+        .join('&');
+      const src = 'https://player.twitch.tv/?channel=' +
+        encodeURIComponent(channel) + '&' + parentParams + '&muted=true';
+      const iframe = document.createElement('iframe');
+      iframe.src = src;
+      iframe.allowFullscreen = true;
+      iframe.setAttribute('scrolling', 'no');
+      iframe.title = 'Twitch live stream';
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      iframe.style.border = '0';
+      mount.appendChild(iframe);
+      injected = true;
+    }
+
+    const loadBtn = live.querySelector('[data-stream-load]');
+    if (loadBtn) loadBtn.addEventListener('click', injectIframe);
+
+    function exitLive() {
+      if (!active) return;
+      active = false;
+      live!.classList.add('hidden');
+      live!.setAttribute('aria-hidden', 'true');
+      def!.classList.remove('hidden');
+      def!.removeAttribute('aria-hidden');
+    }
+
+    function tick() {
+      const now = Date.now();
+      const delta = matchTime - now;
+      const inWindow = delta <= WINDOW_BEFORE_MS && delta >= -WINDOW_AFTER_MS;
+
+      if (!inWindow) { exitLive(); return; }
+      enterLive();
+
+      const labelEl = live!.querySelector('[data-live-label]');
+      const cdEl = live!.querySelector('[data-live-countdown]');
+
+      if (delta > 0) {
+        // pre-match countdown
+        if (labelEl) labelEl.textContent = labelStarts;
+        if (cdEl) {
+          const totalSec = Math.floor(delta / 1000);
+          const min = Math.floor(totalSec / 60);
+          const sec = totalSec % 60;
+          cdEl.textContent = String(min).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
         }
-
-        const live = document.querySelector('[data-hero-live]');
-        const def  = document.querySelector('[data-hero-default]');
-        if (!live || !def) return;
-
-        const matchIso     = live.getAttribute('data-match-iso');
-        const channel      = live.getAttribute('data-twitch-channel');
-        const parentDomains = (live.getAttribute('data-parent-domains') || '')
-          .split(',').map(s => s.trim()).filter(Boolean);
-        const labelLive    = live.getAttribute('data-label-live')   || 'LIVE NOW';
-        const labelStarts  = live.getAttribute('data-label-starts') || 'Starts in';
-
-        if (!matchIso) return;
-        const matchTime = new Date(matchIso).getTime();
-        if (isNaN(matchTime)) return;
-
-        // -30 min before kickoff through +3 hours after = live window
-        const WINDOW_BEFORE_MS = 30 * 60 * 1000;
-        const WINDOW_AFTER_MS  = 3 * 60 * 60 * 1000;
-
-        let active = false;
-        let injected = false;
-
-        function enterLive() {
-          if (active) return;
-          active = true;
-          def.classList.add('hidden');
-          def.setAttribute('aria-hidden', 'true');
-          live.classList.remove('hidden');
-          live.removeAttribute('aria-hidden');
-        }
-
-        // Facade pattern: iframe (and Twitch's cookies) only loads after the
-        // visitor explicitly clicks the play button. Until then we hit zero
-        // twitch.tv endpoints, so no third-party cookies are set on the
-        // visitor's device.
-        function injectIframe() {
-          if (injected || !channel) return;
-          const mount = live.querySelector('[data-stream-mount]');
-          if (!mount) return;
-          mount.innerHTML = '';
-          const parentParams = parentDomains
-            .map(p => 'parent=' + encodeURIComponent(p))
-            .join('&');
-          const src = 'https://player.twitch.tv/?channel=' +
-            encodeURIComponent(channel) + '&' + parentParams + '&muted=true';
-          const iframe = document.createElement('iframe');
-          iframe.src = src;
-          iframe.allowFullscreen = true;
-          iframe.setAttribute('scrolling', 'no');
-          iframe.title = 'Twitch live stream';
-          iframe.style.width = '100%';
-          iframe.style.height = '100%';
-          iframe.style.border = '0';
-          mount.appendChild(iframe);
-          injected = true;
-        }
-
-        const loadBtn = live.querySelector('[data-stream-load]');
-        if (loadBtn) loadBtn.addEventListener('click', injectIframe);
-
-        function exitLive() {
-          if (!active) return;
-          active = false;
-          live.classList.add('hidden');
-          live.setAttribute('aria-hidden', 'true');
-          def.classList.remove('hidden');
-          def.removeAttribute('aria-hidden');
-        }
-
-        function tick() {
-          const now = Date.now();
-          const delta = matchTime - now;
-          const inWindow = delta <= WINDOW_BEFORE_MS && delta >= -WINDOW_AFTER_MS;
-
-          if (!inWindow) { exitLive(); return; }
-          enterLive();
-
-          const labelEl = live.querySelector('[data-live-label]');
-          const cdEl    = live.querySelector('[data-live-countdown]');
-
-          if (delta > 0) {
-            // pre-match countdown
-            if (labelEl) labelEl.textContent = labelStarts;
-            if (cdEl) {
-              const totalSec = Math.floor(delta / 1000);
-              const min = Math.floor(totalSec / 60);
-              const sec = totalSec % 60;
-              cdEl.textContent = String(min).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
-            }
-          } else {
-            // match underway
-            if (labelEl) labelEl.textContent = labelLive;
-            if (cdEl) cdEl.textContent = '';
-          }
-        }
-
-        // Defer first check to idle so we don't compete with hero paint.
-        const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 100));
-        idle(() => {
-          tick();
-          intervalId = setInterval(tick, 1000);
-        });
+      } else {
+        // match underway
+        if (labelEl) labelEl.textContent = labelLive;
+        if (cdEl) cdEl.textContent = '';
       }
+    }
 
-      init();
-      document.addEventListener('astro:page-load', init);
-      document.addEventListener('astro:before-swap', () => {
-        if (intervalId !== null) {
-          clearInterval(intervalId);
-          intervalId = null;
-        }
-      });
-    })();
-  </script>
-)}
+    // Defer first check to idle so we don't compete with hero paint.
+    const idle = window.requestIdleCallback || ((cb: () => void) => setTimeout(cb, 100));
+    idle(() => {
+      tick();
+      setInterval(tick, 1000);
+    });
+  }
+
+  init();
+</script>

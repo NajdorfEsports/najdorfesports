@@ -37,7 +37,7 @@ const homeHref = pathFor(locale, '/');
         Sized to fill the header's 4rem row with a touch of breathing room.
       */
       }
-      <span class="inline-block shrink-0" transition:name="bishop-mark">
+      <span class="inline-block shrink-0 vt-bishop">
         <img
           src="/branding/bishop-logo-dark.png"
           alt="Najdorf Esports"
@@ -48,7 +48,7 @@ const homeHref = pathFor(locale, '/');
           decoding="async"
         />
       </span>
-      <span class="font-display text-2xl tracking-wide" transition:name="wordmark-compact">
+      <span class="font-display text-2xl tracking-wide vt-wordmark">
         <span class="text-[var(--color-accent)]">NAJDORF</span>
         <span class="text-[var(--color-text)]">ESPORTS</span>
       </span>
@@ -154,22 +154,7 @@ const homeHref = pathFor(locale, '/');
   }
 </style>
 
-<script is:inline>
-  // Event delegation on the document, not a direct listener on the button:
-  // the client router replaces the header on navigation and never re-runs
-  // an identical inline script, so a button-bound listener dies after the
-  // first soft navigation (the burger menu went dead). Delegation binds
-  // once and keeps working whatever happens to the header element.
-  (() => {
-    if (window.__najdorfNavBound) return;
-    window.__najdorfNavBound = true;
-    document.addEventListener('click', (e) => {
-      const btn = e.target instanceof Element ? e.target.closest('[data-mobile-toggle]') : null;
-      if (!btn) return;
-      const panel = document.getElementById('mobile-nav');
-      if (!panel) return;
-      const open = panel.classList.toggle('hidden') === false;
-      btn.setAttribute('aria-expanded', String(open));
-    });
-  })();
-</script>
+{
+  /* The burger toggle behavior lives in src/scripts/nav-toggle.ts, loaded
+    once by BaseLayout as a processed module (no inline JS, CSP-clean). */
+}

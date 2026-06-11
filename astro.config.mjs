@@ -35,6 +35,15 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      // Never inline scripts (or other assets) into the HTML: the CSP
+      // ships script-src WITHOUT 'unsafe-inline', so every script must
+      // load from /_astro/*. Without this, Vite inlines bundles smaller
+      // than 4KB as <script type="module"> elements and the policy
+      // would block them. scripts/check-no-inline-scripts.mjs enforces
+      // the invariant in CI.
+      assetsInlineLimit: 0,
+    },
   },
 
   build: {

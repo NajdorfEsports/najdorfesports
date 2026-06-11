@@ -90,27 +90,19 @@ const eventEndIso = `${owcs.mainEventEnd}T23:59:59Z`;
   }
 </style>
 
-<script is:inline>
+<script>
   // Toggle the in-event state on the OWCS badge based on the current
-  // client-side time vs the data-event-start / data-event-end attrs.
-  // Runs on initial paint AND on every ClientRouter navigation so the
-  // badge stays in sync without a server rebuild when the window opens.
-  (() => {
-    function check() {
-      const els = document.querySelectorAll('.owcs-badge[data-event-start][data-event-end]');
-      if (els.length === 0) return;
-      const now = Date.now();
-      for (const el of els) {
-        const start = Date.parse(el.getAttribute('data-event-start') || '');
-        const end = Date.parse(el.getAttribute('data-event-end') || '');
-        if (Number.isNaN(start) || Number.isNaN(end)) continue;
-        const inEvent = now >= start && now <= end;
-        if (inEvent) el.setAttribute('data-in-event', '1');
-        else el.removeAttribute('data-in-event');
-      }
-    }
-
-    check();
-    document.addEventListener('astro:page-load', check);
-  })();
+  // client-side time vs the data-event-start / data-event-end attrs, so
+  // the badge stays in sync without a server rebuild when the window
+  // opens. Processed module (CSP: no inline JS), once per page load.
+  const els = document.querySelectorAll('.owcs-badge[data-event-start][data-event-end]');
+  const now = Date.now();
+  for (const el of els) {
+    const start = Date.parse(el.getAttribute('data-event-start') || '');
+    const end = Date.parse(el.getAttribute('data-event-end') || '');
+    if (Number.isNaN(start) || Number.isNaN(end)) continue;
+    const inEvent = now >= start && now <= end;
+    if (inEvent) el.setAttribute('data-in-event', '1');
+    else el.removeAttribute('data-in-event');
+  }
 </script>

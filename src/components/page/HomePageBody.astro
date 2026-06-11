@@ -156,10 +156,7 @@ const heroBishops = [
     aria-hidden="true"
   >
   </div>
-  <div
-    class="hero-content relative mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12 sm:pt-20 pb-12"
-    data-hero-content
-  >
+  <div class="relative mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12 sm:pt-20 pb-12">
     {
       /* Wordmark with per-letter rise. This is the home page's single h1.
         aria-label gives assistive tech the unbroken word so the per-letter
@@ -334,68 +331,6 @@ const heroBishops = [
     </dl>
   </div>
 </section>
-
-{
-  /*
-  Hero parallax driver. As the user scrolls, the inner hero content
-  (wordmark / eyebrow / body / CTAs / stat strip) translates upward at
-  25% of scroll speed and gradually fades out, a "sticky lag" that
-  keeps the wordmark in view longer than a plain scroll would. The
-  bishop motif in the background drifts via its own keyframes,
-  independent of scroll, so the two layers create depth. requestAnimationFrame
-  coalesces scroll events; will-change keeps the painter happy.
-  prefers-reduced-motion bails entirely.
-*/
-}
-<script is:inline>
-  (() => {
-    let raf = 0;
-    let bound = false;
-    let hero = null;
-
-    function update() {
-      raf = 0;
-      if (!hero) return;
-      const y = window.scrollY;
-      // Cap translate at -160px so it doesn't go absurd on long pages.
-      const translate = Math.min(y * 0.25, 160);
-      // Fade hero out by scroll position 540px (~typical hero height).
-      const fade = Math.max(0, 1 - y / 540);
-      hero.style.setProperty('--parallax-y', `${-translate}px`);
-      hero.style.setProperty('--parallax-fade', String(fade));
-    }
-
-    function onScroll() {
-      if (raf) return;
-      raf = requestAnimationFrame(update);
-    }
-
-    function attach() {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      hero = document.querySelector('[data-hero-content]');
-      if (!hero) return;
-      window.addEventListener('scroll', onScroll, { passive: true });
-      bound = true;
-      update();
-    }
-
-    function detach() {
-      if (!bound) return;
-      window.removeEventListener('scroll', onScroll);
-      if (raf) cancelAnimationFrame(raf);
-      raf = 0;
-      bound = false;
-      hero = null;
-    }
-
-    attach();
-    document.addEventListener('astro:page-load', () => {
-      detach();
-      attach();
-    });
-    document.addEventListener('astro:before-swap', detach);
-  })();
-</script>
 
 <LiveHero match={liveCandidate} />
 

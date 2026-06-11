@@ -75,6 +75,12 @@ jobs:
       - name: Build
         run: npm run build
 
+      # CSP invariant: script-src ships without 'unsafe-inline', so no built
+      # page may contain an executable inline script (JSON-LD data blocks
+      # are exempt). Keeps the policy honest forever, not just this pass.
+      - name: No inline scripts in dist
+        run: node scripts/check-no-inline-scripts.mjs
+
       # E2E against the built site (wrangler dev serves dist with _headers
       # and _redirects applied). Browser binaries are cached on the
       # Playwright version so most runs skip the download.
