@@ -476,6 +476,16 @@ export const en = {
     heroPool: 'Hero pool',
     links: 'Links',
     realName: 'Real name',
+    /** Derived team-stats panel. The note is the honesty rule made visible:
+     *  Liquipedia carries team results only, never per-player appearances. */
+    teamRecordHeading: 'Team record',
+    teamRecordNote:
+      'Najdorf Esports team results in OWCS Pacific 2026. Individual match appearances are not tracked.',
+    recentMatchesHeading: 'Recent matches',
+    mapRecordHeading: 'Map record',
+    statsEmpty: 'No completed matches yet.',
+    playedLabel: 'Played',
+    streakLabel: 'Form',
     metaDescription: (handle: string, role: string) =>
       `${handle}, ${role} for Najdorf Esports in OWCS Pacific.`,
   },

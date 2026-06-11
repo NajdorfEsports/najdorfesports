@@ -4,16 +4,19 @@
  * two localized mirrors. Driven entirely by the merged roster entry so it
  * stays in sync with the roster data.
  *
- * Visual: the player's signature hero ART (under Blizzard's Fan Content
- * Policy), never a photo, matching the roster-card source pattern. Designed to
- * degrade gracefully: a brand-new player with no bio and no socials still
- * reads as an intentional page (large hero art + handle + role + nationality),
- * not a broken/empty shell. Every optional section is omitted when its data is
- * absent.
+ * Visual (2026-06 redesign): a full-width identity band of the player's
+ * signature hero ART through the sitewide ink treatment (under Blizzard's
+ * Fan Content Policy, never a photo), the handle at hero scale over it,
+ * then the hero pool as portrait tiles, the derived TEAM stats panel
+ * (src/lib/derived-stats.ts, honestly labelled), outbound links, and the
+ * Liquipedia attribution the data requires. Degrades gracefully: a
+ * brand-new player with no art and no socials still reads as an
+ * intentional page.
  */
 import { Image } from 'astro:assets';
 import CountryFlag from '../player/CountryFlag.astro';
 import BishopMark from '../ui/BishopMark.astro';
+import PlayerStatsPanel from '../player/PlayerStatsPanel.astro';
 import { type RosterEntry, type Role } from '../../data/site';
 import { roleAccent, ageFromBirth } from '../../lib/player';
 import { resolveHeroIcons } from '../../lib/heroes';
@@ -57,98 +60,120 @@ const avatarAlt = t.player.avatarAlt(
 );
 ---
 
-<article class="mx-auto max-w-4xl px-4 sm:px-6 pt-8 pb-16" style={`--accent:${accent};`}>
-  <a
-    href={rosterHref}
-    class="link-arrow has-glyph text-xs uppercase tracking-wider text-[var(--color-accent-2)] hover:text-[var(--color-accent)] inline-flex"
-  >
-    <span>{t.playerPage.backToRoster}</span>
-  </a>
-
-  <div class="mt-6 grid gap-8 sm:grid-cols-[auto_1fr] items-start">
-    {/* Signature hero art (or a branded bishop panel if no icon is known). */}
-    {
-      bannerHero ? (
-        <div class="player-detail__art">
-          <Image
-            src={bannerHero.image}
-            alt={avatarAlt}
-            width={180}
-            densities={[1, 2]}
-            loading="eager"
-            fetchpriority="high"
-            decoding="async"
-            class="player-detail__art-img"
-          />
-        </div>
-      ) : (
-        <div class="player-detail__art player-detail__art--mono" role="img" aria-label={avatarAlt}>
-          <BishopMark width={88} height={132} strokeWidth={1.4} />
-        </div>
-      )
-    }
-
-    <div class="min-w-0">
-      <h1 class="font-display text-5xl sm:text-6xl tracking-tight leading-none break-words">
-        {player.handle}
-      </h1>
-
-      <div class="mt-4 flex items-center gap-2 flex-wrap text-xs uppercase tracking-wider">
-        {
-          roles.map((r) => {
-            const a = roleAccent(r);
-            return (
-              <span
-                class="px-2.5 py-1 rounded-sm border font-semibold"
-                style={`color:${a};border-color:${a};`}
-              >
-                {t.roles[r as Role] ?? r}
-              </span>
-            );
-          })
-        }
-        {
-          hasCountry && (
-            <span class="flex items-center gap-1.5 text-[var(--color-text-dim)] ml-1 normal-case">
-              <CountryFlag code={player.countryCode} name={countryName} size="md" />
-              <span class="text-sm">{countryName}</span>
-            </span>
-          )
-        }
+{
+  /* Identity band: ink-treated signature-hero art, cropped wide, with the
+    nameplate overlapping its lower edge. */
+}
+<section
+  class="player-banner relative isolate overflow-hidden border-b border-(--color-border)"
+  style={`--accent:${accent};`}
+>
+  {
+    bannerHero ? (
+      <>
+        <Image
+          src={bannerHero.image}
+          alt=""
+          widths={[768, bannerHero.image.width]}
+          sizes="100vw"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+          class="player-banner__art ink-img"
+          aria-hidden="true"
+        />
+        <div class="ink-wash" aria-hidden="true" />
+      </>
+    ) : (
+      <div class="texture-board" aria-hidden="true" />
+    )
+  }
+  <div class="player-banner__scrim" aria-hidden="true"></div>
+  {
+    !bannerHero && (
+      <div
+        class="absolute -right-10 -bottom-24 text-(--color-accent) opacity-[0.07]"
+        aria-hidden="true"
+      >
+        <BishopMark width={260} height={390} strokeWidth={1.2} />
       </div>
+    )
+  }
 
+  <div class="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 pt-10 pb-10 sm:pt-14">
+    <a
+      href={rosterHref}
+      class="link-arrow has-glyph text-xs uppercase tracking-wider text-(--color-accent-2) hover:text-(--color-accent) inline-flex"
+    >
+      <span>{t.playerPage.backToRoster}</span>
+    </a>
+
+    <h1
+      class="font-display text-(length:--text-h1) tracking-tight leading-none break-words mt-10 sm:mt-16"
+      aria-label={avatarAlt}
+    >
+      {player.handle}
+    </h1>
+
+    <div class="mt-5 flex items-center gap-2 flex-wrap text-xs uppercase tracking-wider">
       {
-        (player.realName || age !== null) && (
-          <p class="mt-4 text-[var(--color-text-dim)]">
-            {player.realName && <span class="text-[var(--color-text)]">{player.realName}</span>}
-            {player.realName && age !== null && ' · '}
-            {age !== null && <span class="tabular-nums">{age}</span>}
-          </p>
+        roles.map((r) => {
+          const a = roleAccent(r);
+          return (
+            <span
+              class="px-2.5 py-1 rounded-sm border font-semibold bg-(--color-bg)/60 backdrop-blur-sm"
+              style={`color:${a};border-color:${a};`}
+            >
+              {t.roles[r as Role] ?? r}
+            </span>
+          );
+        })
+      }
+      {
+        hasCountry && (
+          <span class="flex items-center gap-1.5 text-(--color-text-dim) ml-1 normal-case">
+            <CountryFlag code={player.countryCode} name={countryName} size="md" />
+            <span class="text-sm">{countryName}</span>
+          </span>
         )
       }
     </div>
-  </div>
 
+    {
+      (player.realName || age !== null) && (
+        <p class="mt-4 text-(--color-text-dim)">
+          {player.realName && <span class="text-(--color-text)">{player.realName}</span>}
+          {player.realName && age !== null && ' · '}
+          {age !== null && <span class="tabular-nums">{age}</span>}
+        </p>
+      )
+    }
+  </div>
+</section>
+
+<article class="mx-auto max-w-4xl px-4 sm:px-6 pb-16" style={`--accent:${accent};`}>
   {
     heroes.length > 0 && (
       <section class="mt-12">
-        <h2 class="text-[0.7rem] uppercase tracking-[0.25em] text-[var(--color-accent-2)]">
+        <h2 class="text-[0.7rem] uppercase tracking-[0.25em] text-(--color-accent-2)">
           {t.playerPage.heroPool}
         </h2>
-        <ul class="mt-4 flex flex-wrap gap-3" role="list">
+        <ul class="mt-4 flex flex-wrap gap-4" role="list">
           {heroes.map((h) => (
-            <li class="flex items-center gap-2.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-full pl-1.5 pr-4 py-1.5">
+            <li class="flex flex-col items-center gap-2 w-20">
               <Image
                 src={h.image}
                 alt={h.name}
-                width={36}
+                width={72}
                 densities={[1, 2]}
                 loading="lazy"
                 decoding="async"
-                class="w-9 h-9 rounded-full object-cover"
-                style="object-position:50% 18%;"
+                class="chip-ink w-18 h-18 rounded-md object-cover border border-(--color-border)"
+                style="object-position:50% 14%;"
               />
-              <span class="font-display text-sm tracking-wide">{h.name}</span>
+              <span class="text-[0.65rem] uppercase tracking-wider text-(--color-text-dim) text-center leading-tight">
+                {h.name}
+              </span>
             </li>
           ))}
         </ul>
@@ -156,10 +181,12 @@ const avatarAlt = t.player.avatarAlt(
     )
   }
 
+  <PlayerStatsPanel />
+
   {
     links.length > 0 && (
-      <section class="mt-10">
-        <h2 class="text-[0.7rem] uppercase tracking-[0.25em] text-[var(--color-accent-2)]">
+      <section class="mt-12">
+        <h2 class="text-[0.7rem] uppercase tracking-[0.25em] text-(--color-accent-2)">
           {t.playerPage.links}
         </h2>
         <ul class="mt-4 flex flex-wrap gap-3" role="list">
@@ -169,7 +196,7 @@ const avatarAlt = t.player.avatarAlt(
                 href={l.url}
                 target="_blank"
                 rel="noopener"
-                class="inline-flex items-center gap-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md px-4 py-2 text-sm uppercase tracking-wider text-[var(--color-text-dim)] hover:text-[var(--color-text)] hover:border-[var(--accent)] transition-colors"
+                class="inline-flex items-center gap-2 bg-(--color-surface) border border-(--color-border) rounded-md px-4 py-2 text-sm uppercase tracking-wider text-(--color-text-dim) hover:text-(--color-text) hover:border-(--accent) transition-colors"
               >
                 <span class="link-arrow has-glyph">
                   <span>{l.label}</span>
@@ -181,51 +208,46 @@ const avatarAlt = t.player.avatarAlt(
       </section>
     )
   }
+
+  {/* Match data on this page comes from Liquipedia; attribution required. */}
+  <p class="mt-14 text-xs text-(--color-text-dim)">
+    {t.matches.attribution.before}<a
+      href="https://liquipedia.net/overwatch/"
+      target="_blank"
+      rel="noopener"
+      class="link-slide text-(--color-accent-2)">Liquipedia</a
+    >{t.matches.attribution.between}<a
+      href="https://creativecommons.org/licenses/by-sa/3.0/"
+      target="_blank"
+      rel="noopener"
+      class="link-slide text-(--color-accent-2)">CC BY-SA 3.0</a
+    >{t.matches.attribution.after}
+  </p>
 </article>
 
 <style>
-  /* Large signature-hero art panel. Cover-cropped with the face biased upward,
-     same framing intent as PlayerAvatar (50% 14%). A subtle accent ring + a
-     bottom vignette keep it cohesive with the card treatment. The vignette
-     lives on an ::after overlay so it paints above the child img. */
-  .player-detail__art {
-    position: relative;
-    width: 140px;
-    height: 180px;
-    border-radius: 0.5rem;
-    overflow: hidden;
-    border: 1px solid var(--color-border);
-    box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent) 22%, transparent);
-  }
-  .player-detail__art :global(.player-detail__art-img) {
+  /* :global because the img is emitted by <Image>, outside this
+     component's style scope; .player-banner anchors the selector. */
+  .player-banner :global(.player-banner__art) {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 50% 12%;
-    display: block;
+    object-position: 50% 18%;
+    z-index: -1;
   }
-  .player-detail__art::after {
-    content: '';
+  /* The ink wash needs to sit between art and scrim; both are absolutely
+     positioned siblings, so let DOM order stack them (art, wash, scrim). */
+  .player-banner__scrim {
     position: absolute;
     inset: 0;
-    border-radius: inherit;
     pointer-events: none;
-    box-shadow: inset 0 -16px 28px -12px rgba(11, 11, 15, 0.75);
-  }
-  .player-detail__art--mono::after {
-    box-shadow: none;
-  }
-  @media (min-width: 640px) {
-    .player-detail__art {
-      width: 180px;
-      height: 230px;
-    }
-  }
-  .player-detail__art--mono {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-2) 100%);
-    color: var(--color-text-dim);
+    background: linear-gradient(
+      to top,
+      rgba(11, 11, 15, 0.94) 0%,
+      rgba(11, 11, 15, 0.62) 45%,
+      rgba(11, 11, 15, 0.38) 100%
+    );
   }
 </style>

@@ -1,0 +1,172 @@
+---
+/**
+ * Derived team-stats panel on the player detail pages. Everything here is
+ * TEAM data computed from matches.json (src/lib/derived-stats.ts), clearly
+ * labelled as such via t.playerPage.teamRecordNote: Liquipedia carries no
+ * per-player appearance data and we never invent any. Stage 1 tournaments
+ * carry the "As Rankers" attribution like everywhere else.
+ */
+import { Image } from 'astro:assets';
+import { recordOf } from '../../lib/matches';
+import {
+  completedMatches,
+  recordByTournament,
+  mapBreakdown,
+  currentStreak,
+} from '../../lib/derived-stats';
+import { loadMatches } from '../../data/loaders';
+import { competedAsFor } from '../../data/site';
+import { mapImagesByName } from '../../lib/assetImages';
+import { getLocale, useT } from '../../i18n';
+import { formatDate, translateTournament } from '../../i18n/format';
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+
+const completed = completedMatches(loadMatches(), Date.now());
+const overall = recordOf(completed);
+const tournaments = recordByTournament(completed).map((r) => ({
+  ...r,
+  heading: translateTournament(r.tournament, locale),
+  competedAs: competedAsFor(r.tournament),
+}));
+const maps = mapBreakdown(completed).slice(0, 6);
+const streak = currentStreak(completed);
+const recent = completed.slice(0, 5);
+---
+
+<section class="mt-12" aria-label={t.playerPage.teamRecordHeading}>
+  <h2 class="text-[0.7rem] uppercase tracking-[0.25em] text-(--color-accent-2)">
+    {t.playerPage.teamRecordHeading}
+  </h2>
+  <p class="mt-2 text-xs text-(--color-text-dim) max-w-prose">{t.playerPage.teamRecordNote}</p>
+
+  {
+    completed.length === 0 ? (
+      <p class="mt-4 text-sm text-(--color-text-dim)">{t.playerPage.statsEmpty}</p>
+    ) : (
+      <>
+        {/* Scoresheet row: overall, per-stage, form. */}
+        <dl class="mt-5 flex flex-wrap gap-y-4">
+          <div class="pr-5">
+            <dt class="text-[0.6rem] uppercase tracking-[0.2em] text-(--color-text-dim)">
+              {t.roster.recordLabel}
+            </dt>
+            <dd class="font-display text-2xl sm:text-3xl leading-none tabular-nums mt-1.5">
+              {t.matches.record(overall.wins, overall.losses)}
+            </dd>
+          </div>
+          {tournaments.map((tr) => (
+            <div class="px-5 border-l border-(--color-border)">
+              <dt class="text-[0.6rem] uppercase tracking-[0.2em] text-(--color-text-dim)">
+                {tr.heading}
+                {tr.competedAs && (
+                  <span class="text-(--color-accent-2)"> · {t.competedAs(tr.competedAs)}</span>
+                )}
+              </dt>
+              <dd class="font-display text-2xl sm:text-3xl leading-none tabular-nums mt-1.5">
+                {t.matches.record(tr.wins, tr.losses)}
+              </dd>
+            </div>
+          ))}
+          {streak && (
+            <div class="px-5 border-l border-(--color-border)">
+              <dt class="text-[0.6rem] uppercase tracking-[0.2em] text-(--color-text-dim)">
+                {t.playerPage.streakLabel}
+              </dt>
+              <dd
+                class:list={[
+                  'font-display text-2xl sm:text-3xl leading-none tabular-nums mt-1.5',
+                  streak.kind === 'win' ? 'text-(--color-win)' : 'text-(--color-loss)',
+                ]}
+              >
+                {streak.length}
+                {streak.kind === 'win' ? t.match.win : t.match.loss}
+              </dd>
+            </div>
+          )}
+        </dl>
+
+        <div class="mt-8 grid gap-8 md:grid-cols-2">
+          {/* Recent matches, same result-row idiom as the home page. */}
+          <div>
+            <h3 class="text-[0.7rem] uppercase tracking-[0.25em] text-(--color-accent-2)">
+              {t.playerPage.recentMatchesHeading}
+            </h3>
+            <ul class="mt-3 space-y-1" role="list">
+              {recent.map((m) => (
+                <li class="flex items-center justify-between gap-3 text-sm py-2 border-b border-(--color-border)/60">
+                  <span class="min-w-0">
+                    <span class="block truncate">{t.match.vs(m.opponent)}</span>
+                    <span class="block text-[0.65rem] uppercase tracking-wider text-(--color-text-dim) mt-0.5">
+                      {formatDate(m.date, locale, { month: 'short', day: 'numeric' })}
+                      {competedAsFor(m.tournament) && (
+                        <> · {t.competedAs(competedAsFor(m.tournament)!)}</>
+                      )}
+                    </span>
+                  </span>
+                  {(m.result === 'win' || m.result === 'loss') && (
+                    <span
+                      class:list={[
+                        'inline-flex items-center justify-center w-6 h-6 rounded-sm border font-display text-sm font-bold shrink-0',
+                        m.result === 'win'
+                          ? 'text-(--color-win) border-(--color-win)'
+                          : 'text-(--color-loss) border-(--color-loss)',
+                      ]}
+                    >
+                      {m.result === 'win' ? t.match.win : t.match.loss}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Map record with small ink-treated thumbs. */}
+          {maps.length > 0 && (
+            <div>
+              <h3 class="text-[0.7rem] uppercase tracking-[0.25em] text-(--color-accent-2)">
+                {t.playerPage.mapRecordHeading}
+              </h3>
+              <ul class="mt-3 space-y-1" role="list">
+                {maps.map((m) => {
+                  const art = mapImagesByName[m.map];
+                  return (
+                    <li class="flex items-center gap-3 text-sm py-2 border-b border-(--color-border)/60">
+                      {art ? (
+                        <Image
+                          src={art}
+                          alt=""
+                          width={48}
+                          densities={[1, 2]}
+                          loading="lazy"
+                          decoding="async"
+                          class="chip-ink w-12 h-7 object-cover rounded-sm border border-(--color-border) shrink-0"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <span
+                          class="w-12 h-7 rounded-sm border border-(--color-border) bg-(--color-surface-2) shrink-0"
+                          aria-hidden="true"
+                        />
+                      )}
+                      <span class="min-w-0 flex-1 truncate">{m.map}</span>
+                      <span class="text-[0.65rem] uppercase tracking-wider text-(--color-text-dim) shrink-0">
+                        {t.playerPage.playedLabel} {m.played}
+                      </span>
+                      <span class="font-display tabular-nums shrink-0">
+                        <span class="text-(--color-win)">{m.wins}</span>
+                        <span class="text-(--color-text-dim)">–</span>
+                        <span class="text-(--color-loss)">{m.losses}</span>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+        </div>
+      </>
+    )
+  }
+</section>

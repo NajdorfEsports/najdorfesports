@@ -419,6 +419,14 @@ export const zhTW: Strings = {
     heroPool: '英雄池',
     links: '連結',
     realName: '本名',
+    // DRAFT PENDING RIRI NATIVE REVIEW (the seven stats strings below)
+    teamRecordHeading: '隊伍戰績',
+    teamRecordNote: 'Najdorf Esports 在 OWCS Pacific 2026 的隊伍成績。個人出賽場次未作統計。',
+    recentMatchesHeading: '近期比賽',
+    mapRecordHeading: '地圖戰績',
+    statsEmpty: '尚無完賽紀錄。',
+    playedLabel: '場次',
+    streakLabel: '近況',
     metaDescription: (handle, role) => `Najdorf Esports 的${role} ${handle}，征戰 OWCS Pacific。`,
   },
 
