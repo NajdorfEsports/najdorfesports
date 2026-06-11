@@ -71,8 +71,6 @@ export const en = {
   roster: {
     eyebrow: 'Active roster · OWCS Pacific 2026',
     h1: 'The Lineup',
-    /** Heading for the coach + manager section at the foot of /roster/. */
-    staffHeading: 'Staff',
     playersLabel: 'Players',
     regionLabel: 'Region',
     fullRoster: 'Full roster',
@@ -429,6 +427,13 @@ export const en = {
     upcoming: 'Upcoming',
     recordLabel: 'Record',
     record: (wins: number, losses: number) => `${wins}W – ${losses}L`,
+    /** Split variant of `record` for the /matches header stat, where the
+     *  wins half renders in brand blue and the losses half in loss red.
+     *  recordJoin is the separator between the halves. Keep the three
+     *  pieces concatenated identical to `record`. */
+    recordWins: (wins: number) => `${wins}W`,
+    recordLosses: (losses: number) => `${losses}L`,
+    recordJoin: ' – ',
     pastResults: 'Past Results',
     /** Attribution sentence with two inline links; rendered as
      *  before + <Liquipedia> + between + <CC BY-SA 3.0> + after. */

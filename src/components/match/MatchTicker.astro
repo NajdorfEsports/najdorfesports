@@ -4,11 +4,13 @@ import { getLocale, useT } from '../../i18n';
 import { formatDate, translateTournament, MATCH_TIME_ZONE } from '../../i18n/format';
 
 /**
- * Season strip under the header. STATIC, not a marquee: the old CSS loop
- * fought the motion language (nothing loops) and kept stamping later LCP
- * entries as longer items slid into view. The strip now reads left to
- * right as "what's next, then what just happened" (upcoming soonest-first,
- * then results newest-first) and overflows into a natural swipe/scroll.
+ * Season strip under the header: a CSS marquee (owner preference, restored
+ * 2026-06 after a short static stint). The item list is duplicated so the
+ * track can translate -50% for a seamless loop; the second half is
+ * aria-hidden with untabbable links. Items read "what's next, then what
+ * just happened" (upcoming soonest-first, then results newest-first).
+ * Under prefers-reduced-motion the loop stops and the strip degrades to a
+ * static swipe/scroll with the duplicate half hidden.
  */
 interface Props {
   matches: ReadonlyArray<MatchEntry>;
@@ -79,22 +81,39 @@ for (const m of [...upcoming, ...past]) {
 if (items.length === 0) {
   items.push({ key: 'fallback', label: fallback, variant: 'neutral' });
 }
+
+// Duplicate the item list so the CSS marquee can translate -50% for a seamless loop.
+const duplicated = [...items, ...items];
 ---
 
 <div class="ticker" aria-label={t.ticker.ariaLabel} role="region">
+  <div class="ticker__edge ticker__edge--left" aria-hidden="true"></div>
   <ul class="ticker__track">
     {
-      items.map((item) => (
-        <li class:list={['ticker__item', `ticker__item--${item.variant}`]}>
-          {item.href ? (
-            <a href={item.href} target="_blank" rel="noopener" class="ticker__link">
-              {item.label}
-            </a>
-          ) : (
-            <span>{item.label}</span>
-          )}
-        </li>
-      ))
+      duplicated.map((item, i) => {
+        const isDuplicate = i >= items.length;
+        return (
+          <li
+            class:list={['ticker__item', `ticker__item--${item.variant}`]}
+            data-half={isDuplicate ? 'b' : 'a'}
+            {...(isDuplicate ? { 'aria-hidden': 'true' } : {})}
+          >
+            {item.href ? (
+              <a
+                href={item.href}
+                target="_blank"
+                rel="noopener"
+                class="ticker__link"
+                {...(isDuplicate ? { tabindex: -1 } : {})}
+              >
+                {item.label}
+              </a>
+            ) : (
+              <span>{item.label}</span>
+            )}
+          </li>
+        );
+      })
     }
   </ul>
   <div class="ticker__edge ticker__edge--right" aria-hidden="true"></div>
@@ -107,17 +126,17 @@ if (items.length === 0) {
     border-top: 1px solid var(--color-border);
     border-bottom: 1px solid var(--color-border);
     overflow: hidden;
+    --ticker-duration: 60s;
   }
 
   .ticker__track {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 2.5rem;
     white-space: nowrap;
-    padding: 0.75rem 1rem;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    padding: 0.75rem 0;
+    animation: ticker-marquee var(--ticker-duration) linear infinite;
+    will-change: transform;
     /* Status chrome, not editorial type: 13px uppercase strip text looks
        the same in system faces, so it paints once with zero webfont
        dependency and never repaints (a font-swap repaint here was the
@@ -133,13 +152,10 @@ if (items.length === 0) {
       'Microsoft YaHei',
       sans-serif;
   }
-  .ticker__track::-webkit-scrollbar {
-    display: none;
-  }
-  @media (min-width: 40rem) {
-    .ticker__track {
-      padding-inline: 1.5rem;
-    }
+
+  .ticker:hover .ticker__track,
+  .ticker:focus-within .ticker__track {
+    animation-play-state: paused;
   }
 
   .ticker__item {
@@ -194,7 +210,7 @@ if (items.length === 0) {
     text-underline-offset: 3px;
   }
 
-  /* Fade the trailing edge so the overflow reads as "more this way". */
+  /* Fade edges so the scroll doesn't pop at the borders. */
   .ticker__edge {
     position: absolute;
     top: 0;
@@ -203,9 +219,22 @@ if (items.length === 0) {
     z-index: 1;
     pointer-events: none;
   }
+  .ticker__edge--left {
+    left: 0;
+    background: linear-gradient(to right, var(--color-surface), transparent);
+  }
   .ticker__edge--right {
     right: 0;
     background: linear-gradient(to left, var(--color-surface), transparent);
+  }
+
+  @keyframes ticker-marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
   }
 
   /* The live dot pulse is a status indicator, not decoration; it still
@@ -220,7 +249,24 @@ if (items.length === 0) {
     }
   }
 
+  /* Reduced motion: stop the loop and fall back to a static, manually
+     scrollable strip. The duplicate half exists only for the seamless
+     loop, so it disappears with the animation. */
   @media (prefers-reduced-motion: reduce) {
+    .ticker__track {
+      animation: none;
+      display: flex;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-inline: 1rem;
+    }
+    .ticker__track::-webkit-scrollbar {
+      display: none;
+    }
+    .ticker__item[data-half='b'] {
+      display: none;
+    }
     .ticker__item--live::before {
       animation: none;
     }

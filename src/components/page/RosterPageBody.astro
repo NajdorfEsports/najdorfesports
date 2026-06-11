@@ -4,12 +4,11 @@
  * Per-URL locale comes from Astro.currentLocale; the Person JSON-LD block is
  * locale-independent and gets passed back to the page for inclusion in <head>.
  *
- * Players (Tank/DPS/Support/Flex) get the poster-style PlayerCard grid per
- * role; coaches and managers get the deliberately quieter StaffCard rows at
- * the foot (hero art on a manager card reads wrong).
+ * Every role (players, coach, managers) gets the poster-style PlayerCard
+ * grid in its own ROLE_ORDER section, signature-hero backdrop included;
+ * the owner wants staff presented exactly like the players.
  */
 import PlayerCard from '../player/PlayerCard.astro';
-import StaffCard from '../player/StaffCard.astro';
 import AchievementStrip from '../team/AchievementStrip.astro';
 import MatchTicker from '../match/MatchTicker.astro';
 import SectionHeader from '../ui/SectionHeader.astro';
@@ -26,22 +25,17 @@ const achievements = loadAchievements();
 
 const PLAYER_ROLES: Role[] = ['Tank', 'DPS', 'Support', 'Flex'];
 
-// Group players by role for display, sorted by the shared ROLE_ORDER so the
-// order stays consistent with any future consumer (ticker, strip, etc.).
+// Group by role for display (coach and managers included, each role its own
+// section), sorted by the shared ROLE_ORDER so the order stays consistent
+// with any future consumer (ticker, strip, etc.).
 const grouped: Partial<Record<Role, RosterEntry[]>> = {};
 for (const p of roster) {
-  if (!PLAYER_ROLES.includes(p.role)) continue;
   (grouped[p.role] ??= []).push(p);
 }
 const sections = (Object.keys(ROLE_ORDER) as Role[])
   .sort((a, b) => ROLE_ORDER[a] - ROLE_ORDER[b])
   .filter((r) => grouped[r] && grouped[r]!.length > 0)
   .map((r) => ({ role: r, players: grouped[r]!.sort((a, b) => a.handle.localeCompare(b.handle)) }));
-
-// Coach + manager rows, in role order then by handle.
-const staff = roster
-  .filter((p) => p.role === 'Coach' || p.role === 'Manager')
-  .sort((a, b) => ROLE_ORDER[a.role] - ROLE_ORDER[b.role] || a.handle.localeCompare(b.handle));
 
 // "Players" counts athletes only: a coach or manager is not a player. Excludes
 // inactive entries too, so the stat matches the home hero count.
@@ -112,22 +106,5 @@ const regionLabel: string = (t.regions as Record<string, string>)[site.region] ?
         </div>
       </div>
     ))
-  }
-
-  {
-    staff.length > 0 && (
-      <div>
-        <SectionHeader heading={t.roster.staffHeading}>
-          <span class="text-xs uppercase tracking-wider text-(--color-accent-2) tabular-nums">
-            {staff.length}
-          </span>
-        </SectionHeader>
-        <div class="grid gap-4 lg:grid-cols-2 mt-6">
-          {staff.map((person) => (
-            <StaffCard person={person} />
-          ))}
-        </div>
-      </div>
-    )
   }
 </section>

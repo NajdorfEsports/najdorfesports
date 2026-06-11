@@ -115,11 +115,13 @@ if (!backdrop) {
     backdrop && (
       <>
         {/* Backdrop art is texture, not content: it sits behind an 80-92%
-            scrim and the ink wash, so one 640w candidate (the pre-redesign
-            served 600w for this same full-bleed treatment) is plenty at
-            every viewport. Native lazy-loading prefetches far ahead on
-            slow connections, so per-image bytes are what keep this page's
-            backdrops from starving the display font (the LCP). */}
+            scrim, so one 640w candidate (the pre-redesign served 600w for
+            this same full-bleed treatment) is plenty at every viewport.
+            Native lazy-loading prefetches far ahead on slow connections,
+            so per-image bytes are what keep this page's backdrops from
+            starving the display font (the LCP). The map art deliberately
+            keeps its natural colors: no ink duotone here (owner call,
+            2026-06). */}
         <Image
           src={backdrop}
           alt=""
@@ -129,9 +131,8 @@ if (!backdrop) {
           decoding="async"
           aria-hidden="true"
           data-map={heroMap}
-          class="match-card__backdrop ink-img"
+          class="match-card__backdrop"
         />
-        <div class="ink-wash" aria-hidden="true" />
         <div class="match-card__overlay" aria-hidden="true" />
       </>
     )

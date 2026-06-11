@@ -72,8 +72,6 @@ export const zhCN: Strings = {
   roster: {
     eyebrow: '现役名单 · OWCS Pacific 2026',
     h1: '出战阵容',
-    // DRAFT PENDING RIRI NATIVE REVIEW
-    staffHeading: '教练与经理',
     playersLabel: '选手',
     regionLabel: '赛区',
     fullRoster: '完整名单',
@@ -382,6 +380,11 @@ export const zhCN: Strings = {
     upcoming: '即将开打',
     recordLabel: '战绩',
     record: (wins, losses) => `${wins} 胜 ${losses} 负`,
+    // Verbatim fragments of the reviewed `record` string above (no new
+    // wording), split so the /matches header can color the two halves.
+    recordWins: (wins) => `${wins} 胜`,
+    recordLosses: (losses) => `${losses} 负`,
+    recordJoin: ' ',
     pastResults: '过往战绩',
     attribution: {
       before: '赛事数据来自 ',

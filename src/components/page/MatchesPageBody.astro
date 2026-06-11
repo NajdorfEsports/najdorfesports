@@ -35,7 +35,7 @@ for (const m of past) {
 }
 
 const { wins, losses } = recordOf(allMatches);
-const recordLine = wins + losses > 0 ? t.matches.record(wins, losses) : null;
+const hasRecord = wins + losses > 0;
 
 // Precompute the per-tournament sections with translated headings + records.
 const pastSections = Array.from(pastByTournament.entries()).map(([tournament, matches]) => {
@@ -62,7 +62,7 @@ const pastSections = Array.from(pastByTournament.entries()).map(([tournament, ma
         </h1>
       </div>
       {
-        (recordLine || upcoming.length > 0) && (
+        (hasRecord || upcoming.length > 0) && (
           <dl class="flex items-center gap-8 text-sm">
             {upcoming.length > 0 && (
               <div>
@@ -74,12 +74,19 @@ const pastSections = Array.from(pastByTournament.entries()).map(([tournament, ma
                 </dd>
               </div>
             )}
-            {recordLine && (
+            {hasRecord && (
               <div>
                 <dt class="text-(--color-text-dim) uppercase tracking-wider text-[0.65rem]">
                   {t.matches.recordLabel}
                 </dt>
-                <dd class="font-display text-3xl mt-1 leading-none tabular-nums">{recordLine}</dd>
+                {/* Wins in the ticker's brand blue, losses in the loss
+                    red: the owner wants the record to read like the old
+                    scrolling strip. */}
+                <dd class="font-display text-3xl mt-1 leading-none tabular-nums">
+                  <span class="text-(--color-accent-2)">{t.matches.recordWins(wins)}</span>
+                  <span class="text-(--color-text-dim)">{t.matches.recordJoin}</span>
+                  <span class="text-(--color-loss)">{t.matches.recordLosses(losses)}</span>
+                </dd>
               </div>
             )}
           </dl>
