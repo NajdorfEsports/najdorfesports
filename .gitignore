@@ -38,3 +38,6 @@ playwright-report/
 !.dev.vars.example
 !.env.example
 scripts/.cache/
+
+# lighthouse ci artifacts
+.lighthouseci/

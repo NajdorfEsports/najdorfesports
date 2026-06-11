@@ -1,8 +1,0 @@
-{
-  "http://localhost:52230/index.html": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1781212691321-81271.report.html",
-  "http://localhost:52230/roster/index.html": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1781212691676-34406.report.html",
-  "http://localhost:52230/matches/index.html": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1781212691980-72939.report.html",
-  "http://localhost:52230/news/index.html": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1781212692267-44966.report.html",
-  "http://localhost:52230/coaching/index.html": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1781212692574-77790.report.html",
-  "http://localhost:52230/zh-TW/index.html": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1781212692863-48751.report.html"
-}
