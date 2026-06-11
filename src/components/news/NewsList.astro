@@ -17,37 +17,71 @@ interface Props {
 
 const { posts, locale } = Astro.props;
 const t = useT(locale);
+
+// The newest article leads the page at full width with the hero-variant
+// cover; the rest grid below as cards. With a single post the featured
+// block IS the page, no orphan grid.
+const [featured, ...rest] = posts;
 ---
 
-<section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12">
-  <p class="text-sm uppercase tracking-wider text-[var(--color-accent-2)]">{t.news.eyebrow}</p>
-  <h1 class="font-display text-4xl sm:text-5xl mt-2 tracking-wide">{t.news.heading}</h1>
+<section class="relative isolate overflow-hidden border-b border-(--color-border)">
+  <div class="texture-board" aria-hidden="true"></div>
+  <div class="mx-auto max-w-(--max-content) px-4 sm:px-6 pt-12 pb-10">
+    <p class="eyebrow">{t.news.eyebrow}</p>
+    <h1 class="font-display text-(length:--text-h1) mt-2 tracking-wide leading-none">
+      {t.news.heading}
+    </h1>
+  </div>
 </section>
 
-<section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10 grid gap-6 md:grid-cols-2">
-  {
-    posts.map((post) => (
-      <a
-        href={pathFor(locale, `/news/${post.data.slug}/`)}
-        class="news-link group block surface-hover bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md overflow-hidden"
-      >
+{
+  featured && (
+    <section class="mx-auto max-w-(--max-content) px-4 sm:px-6 mt-10">
+      <a href={pathFor(locale, `/news/${featured.data.slug}/`)} class="news-link group block">
         <NewsCover
-          title={post.data.title}
-          date={post.data.date}
-          eyebrow={post.data.eyebrow}
-          tone={post.data.tone}
-          variant="card"
+          title={featured.data.title}
+          date={featured.data.date}
+          eyebrow={featured.data.eyebrow}
+          tone={featured.data.tone}
+          variant="hero"
           locale={locale}
         />
-        {post.data.description && (
-          <p class="text-sm text-[var(--color-text-dim)] px-5 py-4 leading-relaxed">
-            {post.data.description}
+        {featured.data.description && (
+          <p class="text-sm text-(--color-text-dim) leading-relaxed mt-4 max-w-prose">
+            {featured.data.description}
           </p>
         )}
       </a>
-    ))
-  }
-</section>
+    </section>
+  )
+}
+
+{
+  rest.length > 0 && (
+    <section class="mx-auto max-w-(--max-content) px-4 sm:px-6 mt-10 grid gap-6 md:grid-cols-2">
+      {rest.map((post) => (
+        <a
+          href={pathFor(locale, `/news/${post.data.slug}/`)}
+          class="news-link group block bg-(--color-surface) border border-(--color-border) rounded-md overflow-hidden"
+        >
+          <NewsCover
+            title={post.data.title}
+            date={post.data.date}
+            eyebrow={post.data.eyebrow}
+            tone={post.data.tone}
+            variant="card"
+            locale={locale}
+          />
+          {post.data.description && (
+            <p class="text-sm text-(--color-text-dim) px-5 py-4 leading-relaxed">
+              {post.data.description}
+            </p>
+          )}
+        </a>
+      ))}
+    </section>
+  )
+}
 
 <style>
   /* The cover is a self-contained block; on hover lift the whole card

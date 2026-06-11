@@ -42,15 +42,20 @@ const faqs = [
 ---
 
 <article>
-  {/* Hero */}
-  <section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12 pb-8">
-    <p class="text-sm uppercase tracking-wider text-[var(--color-accent-2)]">{c.hero.eyebrow}</p>
-    <h1 class="font-display text-4xl sm:text-5xl mt-2 tracking-wide max-w-3xl">{c.hero.heading}</h1>
-    <p class="text-lg text-[var(--color-text)] mt-4 leading-relaxed max-w-2xl">
-      {c.hero.subheading}
-    </p>
-    <div class="mt-6">
-      <Button href="#coaches">{c.hero.cta}</Button>
+  {/* Hero on the board texture, matching the sitewide header band. */}
+  <section class="relative isolate overflow-hidden border-b border-(--color-border)">
+    <div class="texture-board" aria-hidden="true"></div>
+    <div class="mx-auto max-w-(--max-content) px-4 sm:px-6 pt-12 pb-10">
+      <p class="eyebrow">{c.hero.eyebrow}</p>
+      <h1 class="font-display text-(length:--text-h1) mt-2 tracking-wide leading-none max-w-3xl">
+        {c.hero.heading}
+      </h1>
+      <p class="text-lg text-[var(--color-text)] mt-4 leading-relaxed max-w-2xl">
+        {c.hero.subheading}
+      </p>
+      <div class="mt-6">
+        <Button href="#coaches">{c.hero.cta}</Button>
+      </div>
     </div>
   </section>
 

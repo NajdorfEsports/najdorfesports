@@ -20,15 +20,24 @@ const offers = [
 ];
 ---
 
-<section class="mx-auto max-w-3xl px-4 sm:px-6 pt-12 pb-16">
-  <p class="text-sm uppercase tracking-wider text-[var(--color-accent-2)]">{t.partners.eyebrow}</p>
-  <h1 class="font-display text-4xl sm:text-5xl mt-2 tracking-wide">{t.partners.title}</h1>
+<section class="relative isolate overflow-hidden border-b border-(--color-border)">
+  <div class="texture-board" aria-hidden="true"></div>
+  <div class="mx-auto max-w-3xl px-4 sm:px-6 pt-12 pb-10">
+    <p class="eyebrow">{t.partners.eyebrow}</p>
+    <h1 class="font-display text-(length:--text-h1) mt-2 tracking-wide leading-none">
+      {t.partners.title}
+    </h1>
+  </div>
+</section>
 
-  <p class="text-lg text-[var(--color-text)] mt-6 leading-relaxed">{t.partners.intro}</p>
-  <p class="text-[var(--color-text-dim)] mt-4 leading-relaxed">{t.partners.standing}</p>
+<section class="mx-auto max-w-3xl px-4 sm:px-6 pb-16">
+  <p class="text-lg text-[var(--color-text)] mt-10 leading-relaxed max-w-prose">
+    {t.partners.intro}
+  </p>
+  <p class="text-[var(--color-text-dim)] mt-4 leading-relaxed max-w-prose">{t.partners.standing}</p>
 
   <section class="mt-12">
-    <h2 class="font-display text-2xl tracking-wide">{t.partners.offerHeading}</h2>
+    <h2 class="font-display text-(length:--text-h2) tracking-wide">{t.partners.offerHeading}</h2>
     <p class="text-sm text-[var(--color-text-dim)] mt-2 leading-relaxed">{t.partners.offerNote}</p>
     <ul class="mt-6 grid gap-4 sm:grid-cols-2" role="list">
       {
@@ -50,7 +59,7 @@ const offers = [
   </section>
 
   <section class="mt-12">
-    <h2 class="font-display text-2xl tracking-wide">{t.partners.contactHeading}</h2>
+    <h2 class="font-display text-(length:--text-h2) tracking-wide">{t.partners.contactHeading}</h2>
     <p class="mt-3">
       <Fragment set:html={'<!--email_off-->'} />
       <a

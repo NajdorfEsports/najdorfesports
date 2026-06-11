@@ -28,7 +28,7 @@ const { Content } = await render(post);
     locale={locale}
   />
 
-  <div class="prose mt-8">
+  <div class="prose mt-10">
     <Content />
   </div>
 
@@ -45,6 +45,8 @@ const { Content } = await render(post);
     color: var(--color-text);
     font-size: 1.05rem;
     line-height: 1.75;
+    /* Editorial measure: long-form copy never runs wall to wall. */
+    max-width: var(--max-prose);
   }
   .prose p {
     margin-bottom: 1.25em;

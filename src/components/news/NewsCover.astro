@@ -47,6 +47,15 @@ const dateLabel = formatDate(date, locale, {
 
 <div class:list={['news-cover', `news-cover--${tone}`, `news-cover--${variant}`]}>
   {
+    /* The bishop's-move hatch, from the shared texture system, tinted with
+      this cover's accent. */
+  }
+  <span
+    class="texture-diag"
+    aria-hidden="true"
+    style="--hatch-ink: color-mix(in oklab, var(--cover-accent, var(--color-accent)) 14%, transparent);"
+  ></span>
+  {
     /* Top accent rule, gives the cover a defined "card top" edge so the
       cover never reads as empty space, even when the bishop watermark
       sits low in the frame. */
@@ -217,23 +226,6 @@ const dateLabel = formatDate(date, locale, {
   }
   .news-cover--card .news-cover__cross {
     width: 52px;
-  }
-
-  /* Diagonal hatch, slightly more visible than before. */
-  .news-cover::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image: repeating-linear-gradient(
-      135deg,
-      transparent 0,
-      transparent 14px,
-      color-mix(in oklab, var(--cover-accent, var(--color-accent)) 14%, transparent) 14px,
-      color-mix(in oklab, var(--cover-accent, var(--color-accent)) 14%, transparent) 15px
-    );
-    mix-blend-mode: overlay;
-    opacity: 0.55;
   }
 
   .news-cover__content {
