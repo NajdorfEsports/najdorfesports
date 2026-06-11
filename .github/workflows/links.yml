@@ -1,0 +1,54 @@
+name: Link check
+
+# Scheduled sweep of every internal and external link in the built site.
+# 403 and 429 are accepted: X, Twitch, and Liquipedia routinely refuse
+# anonymous CI bots, and a bot-block is not a broken link. Failures open
+# a GitHub issue instead of failing silently in the Actions tab. Never
+# part of the deploy path.
+
+on:
+  schedule:
+    # Tuesdays 06:43 UTC, after the Lighthouse run.
+    - cron: '43 6 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  lychee:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Check links
+        id: lychee
+        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2.8.0
+        with:
+          args: >-
+            --base dist
+            --accept '200..299,403,429'
+            --no-progress
+            'dist/**/*.html'
+          fail: true
+
+      - name: Open an issue with the report
+        if: failure()
+        uses: peter-evans/create-issue-from-file@e8ef132d6df98ed982188e460ebb3b5d4ef3a9cd # v5.0.1
+        with:
+          title: 'Link check: broken links found'
+          content-filepath: ./lychee/out.md
+          labels: link-check

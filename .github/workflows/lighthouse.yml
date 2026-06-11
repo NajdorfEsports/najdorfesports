@@ -1,0 +1,45 @@
+name: Lighthouse budgets
+
+# Scheduled performance audit against the BUILT site (LHCI serves dist from
+# its own static server). Asserts the budgets the 2026-06 pass committed to:
+# performance >= 0.97 on every audited page including /matches, zero
+# third-party requests, and the script/font/image size budgets in
+# lighthouserc.json. zh pages assert >= 0.90 instead: they carry ~290KB of
+# self-hosted brand CJK subsets that Lighthouse's simulated throttling
+# prices into its model even though the fonts load post-idle and the
+# OBSERVED paint is instant; dropping brand CJK is the only way to score
+# higher, and that is an owner decision, not a CI one. Deliberately NOT
+# part of the push gate: Lighthouse on shared runners can flake, and
+# Cloudflare Pages deploys must never wait on it. A red run here is a
+# signal to investigate, not a blocked deploy.
+
+on:
+  schedule:
+    # Tuesdays 06:17 UTC, the day after the Monday data refreshes, so the
+    # audit sees the week's real content.
+    - cron: '17 6 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Lighthouse CI
+        run: npx --yes @lhci/cli@0.15.x autorun
