@@ -20,4 +20,4 @@ TEST_MODE = "true"
 #   wrangler kv namespace create FEEDBACK_KV
 [[kv_namespaces]]
 binding = "FEEDBACK_KV"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "0347267733d6410ca8b17090f9718b52"
