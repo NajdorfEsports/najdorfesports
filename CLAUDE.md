@@ -247,8 +247,14 @@ These are deliberate stances. Don't undo without flagging.
 - Twitch player is **click-to-load** (`LiveHero.astro` facade). The
   iframe is only injected after the user clicks. Don't auto-embed.
 - `public/_headers` defines a tight CSP. `frame-src` allows **only**
-  `https://player.twitch.tv`. Adding a new third-party embed requires
-  updating this header.
+  `https://player.twitch.tv`, `https://www.youtube-nocookie.com`, and
+  `https://app.cal.com`; `script-src` and `connect-src` additionally allow
+  `https://app.cal.com` for the coaching embed. Adding any other third-party
+  embed requires updating this header.
+- The Cal.com coaching embed is **lazy** (same doctrine as the Twitch
+  facade): `embed.js` is fetched only on the first hover/focus/touch/click
+  of a Book button, never at page load. Do not convert it to an eager embed.
+  See the Coaching section.
 - `public/_redirects` handles **path-based** redirects only: the news-slug
   rename and the lowercase-locale fixups (`/zh-tw/*` → `/zh-TW/*`). Locale
   prefixes are case-sensitive on disk. **Host** redirects do NOT work in
@@ -263,6 +269,43 @@ These are deliberate stances. Don't undo without flagging.
   HTML comments (rendered via `<Fragment set:html=...>`) to opt out of
   Cloudflare's automatic Email Obfuscation. If you add a new mailto link
   or visible email in a page or component, wrap it the same way.
+
+## Coaching
+
+- `/coaching/` (all three locales) is a thin wrapper over
+  `CoachingPageBody.astro`. Per-coach FACTS and localized prose (bio, region
+  note) live in `src/data/coaching.ts` so adding coach #2 is a pure data
+  change; region options are in `src/data/regions.ts`. Shared page chrome
+  (section headings, filter and payment labels, FAQ) is in `t.coaching.*`.
+- The page is a coach browser with role/language/hero filters, then a
+  per-coach three-step booking flow (region, then payment method, then tier).
+  All vanilla, no framework; one inline script drives the filters and the
+  region/payment selectors. Defaults: Global region + card.
+- Dual payment: card (Stripe) and PayPal. Cal.com allows one payment app per
+  event type, so each tier exists twice: the canonical slugs are the card
+  variants, the `<slug>-paypal` twins are PayPal. `BookingLink.enabled` gates
+  each; a disabled link renders "Coming soon", never a dead anchor.
+- Booking is Cal.com popup embeds. Each Book control is BOTH a real anchor to
+  `cal.com/<slug>` (no-JS fallback) and carries `data-cal-link`/`data-cal-config`.
+  `embed.js` loads lazily on first hover/focus/touch/click of a Book control
+  (privacy doctrine, see Privacy); a too-early first click is replayed once the
+  embed registers, else it falls back to opening the Cal.com link. Keep it lazy.
+- Prices in `coaching.ts` are display-only (`priceUsd`) and MUST match the
+  Cal.com event settings; when a price changes there, update `priceUsd` and the
+  matching "Save $X" badge strings in all three i18n files.
+- If an in-iframe checkout is ever blocked, the fix is extending `frame-src`
+  with the processor redirect origins or relaxing the `payment=()` entry in the
+  Permissions-Policy in `public/_headers` for the embed, NOT removing the popup
+  or opening a second tab.
+- There is deliberately NO free/intro tier anywhere; the owner ordered it
+  scrubbed. Do not reintroduce it.
+- No Service/Product/FAQPage JSON-LD on the coaching page; the org node +
+  breadcrumbs from `BaseLayout` are the deliberate scope. The page uses the
+  default OG card on purpose.
+- 48-hour post-session feedback is a separate Cloudflare Worker in
+  `workers/feedback/` (Cal.com BOOKING_PAID webhook to a Resend email linking a
+  Tally form), independent of the Astro build. See `workers/feedback/SETUP.md`.
+  zh strings added in the rebuild carry DRAFT PENDING RIRI NATIVE REVIEW markers.
 
 ## Out of scope (don't add unless asked)
 
