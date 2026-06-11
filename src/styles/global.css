@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 @import './tokens.css';
+/* Generated CJK subsets (see scripts/subset-cjk-fonts.mjs). */
+@import './fonts-cjk.css';
 
 /*
  * Self-hosted fonts. Anton and Inter both ship under SIL Open Font License
@@ -8,8 +10,10 @@
  * München 2022 ruled hot-linked Google Fonts a violation without consent).
  *
  * Two subsets per family: latin (~U+0020-00FF) covers English; latin-ext
- * covers most European accents. CJK characters in zh-TW / zh-CN fall back
- * to system fonts, which matches the prior Google Fonts behavior.
+ * covers most European accents. CJK characters in zh-TW / zh-CN render in
+ * the subsetted Noto Sans TC/SC faces from the generated fonts-cjk.css
+ * (regenerate with `npm run build:fonts` when zh copy changes); system
+ * CJK faces remain as metrics-matched fallbacks below.
  */
 @font-face {
   font-family: 'Anton';
@@ -95,6 +99,28 @@
   --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
+/*
+ * Metrics-adjusted local fallbacks for the CJK faces: while a Noto subset
+ * loads (font-display: swap), the system CJK face renders with Noto-like
+ * vertical metrics so the swap doesn't shift layout. Values from the Noto
+ * Sans CJK metrics (ascender 1160 / descender 288 on a 1000 upm square);
+ * CJK em-square uniformity makes size-adjust unnecessary.
+ */
+@font-face {
+  font-family: 'Noto Sans TC fallback';
+  src: local('PingFang TC'), local('Microsoft JhengHei');
+  ascent-override: 116%;
+  descent-override: 28.8%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Noto Sans SC fallback';
+  src: local('PingFang SC'), local('Microsoft YaHei');
+  ascent-override: 116%;
+  descent-override: 28.8%;
+  line-gap-override: 0%;
+}
+
 @layer base {
   html {
     background-color: var(--color-bg);
@@ -102,6 +128,30 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+  }
+
+  /*
+   * Per-locale font stacks. Latin faces stay FIRST so handles, numbers,
+   * and "OWCS" keep rendering in Inter/Anton inside zh copy; CJK glyphs
+   * fall through to the subsetted Noto faces via their unicode-range
+   * (en pages download zero Noto bytes). The "Display" alias is the 700
+   * instance registered at weight 400, giving zh headings real weight
+   * behind Anton without synthetic bolding. The <html lang> values are
+   * script subtags (zh-Hant / zh-Hans), set in BaseLayout.
+   */
+  html[lang='zh-Hant'] {
+    --font-sans:
+      'Inter', 'Noto Sans TC', 'Noto Sans TC fallback', 'PingFang TC', 'Microsoft JhengHei',
+      system-ui, sans-serif;
+    --font-display:
+      'Anton', 'Noto Sans TC Display', 'Noto Sans TC fallback', 'PingFang TC', sans-serif;
+  }
+  html[lang='zh-Hans'] {
+    --font-sans:
+      'Inter', 'Noto Sans SC', 'Noto Sans SC fallback', 'PingFang SC', 'Microsoft YaHei', system-ui,
+      sans-serif;
+    --font-display:
+      'Anton', 'Noto Sans SC Display', 'Noto Sans SC fallback', 'PingFang SC', sans-serif;
   }
 
   body {

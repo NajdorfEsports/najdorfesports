@@ -25,6 +25,7 @@
     "fetch:player": "node scripts/fetch-player.mjs",
     "fetch:social": "node scripts/fetch-social-stats.mjs",
     "build:og": "node scripts/generate-og.mjs",
+    "build:fonts": "node scripts/subset-cjk-fonts.mjs",
     "deploy": "npm run build && wrangler deploy",
     "cf-typegen": "wrangler types"
   },
@@ -46,6 +47,7 @@
     "prettier": "^3.8.3",
     "prettier-plugin-astro": "^0.14.1",
     "sharp": "^0.34.0",
+    "subset-font": "^2.5.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.8",
     "wrangler": "^4.94.0",

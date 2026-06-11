@@ -311,12 +311,25 @@ const heroBishops = [
         {
           wins + losses > 0 ? (
             <dd class="font-display text-3xl sm:text-4xl leading-none tabular-nums mt-1 flex items-baseline gap-1">
-              <span data-count-up data-target={wins} data-count-suffix={t.match.win}>
+              {/* whitespace-nowrap: the zh suffixes (勝/負) must never
+                  wrap away from their number; a too-narrow viewport
+                  breaks at the dash between the two records instead. */}
+              <span
+                class="whitespace-nowrap"
+                data-count-up
+                data-target={wins}
+                data-count-suffix={t.match.win}
+              >
                 {wins}
                 {t.match.win}
               </span>
               <span class="text-[var(--color-text-dim)] text-2xl">–</span>
-              <span data-count-up data-target={losses} data-count-suffix={t.match.loss}>
+              <span
+                class="whitespace-nowrap"
+                data-count-up
+                data-target={losses}
+                data-count-suffix={t.match.loss}
+              >
                 {losses}
                 {t.match.loss}
               </span>

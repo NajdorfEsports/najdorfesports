@@ -37,3 +37,4 @@ playwright-report/
 .dev.vars*
 !.dev.vars.example
 !.env.example
+scripts/.cache/

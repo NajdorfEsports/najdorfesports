@@ -170,6 +170,33 @@ if (crumbSegments.length > 0) {
     }
     <link rel="preload" as="font" type="font/woff2" href="/fonts/anton-latin.woff2" crossorigin />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-latin.woff2" crossorigin />
+    {
+      /* zh locales also preload their 400 CJK text face (the 700 display
+         face can arrive with font-display: swap). en pages preload no CJK
+         bytes; the unicode-range on the faces keeps them inert there. */
+    }
+    {
+      locale === 'zh-TW' && (
+        <link
+          rel="preload"
+          as="font"
+          type="font/woff2"
+          href="/fonts/noto-sans-tc-400.subset.woff2"
+          crossorigin
+        />
+      )
+    }
+    {
+      locale === 'zh-CN' && (
+        <link
+          rel="preload"
+          as="font"
+          type="font/woff2"
+          href="/fonts/noto-sans-sc-400.subset.woff2"
+          crossorigin
+        />
+      )
+    }
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.name} />
