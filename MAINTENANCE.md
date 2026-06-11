@@ -74,11 +74,15 @@ or use a fresh `id` for a manual-only match:
 
 ## Publish a news post
 
-News is English-only, one Markdown file per post.
+News ships in three languages: each article is THREE files sharing one
+slug: `<base>.md` (English), `<base>.zh-TW.md`, `<base>.zh-CN.md`.
 
 1. Create `src/content/news/<slug>.md`. The filename **is** the URL slug
    (`2026-06-recap.md` -> `/news/2026-06-recap/`), so name it carefully:
-   renaming it later changes the URL and the OG image path.
+   renaming it later changes the URL and the OG image path. Then add the
+   two zh siblings with the SAME `slug:` front-matter value (a missing
+   translation never 404s, the language switcher just falls back to that
+   locale's news index).
 2. Front matter:
 
    ```markdown
@@ -101,7 +105,15 @@ News is English-only, one Markdown file per post.
    ```
    Skip this and the post's social-share image 404s. `build:og` reads every
    post in `src/content/news/` and emits one card per slug.
-4. Commit the `.md` **and** the generated `public/branding/og/news-<slug>.png`.
+4. **Regenerate the zh font subsets** (the second gotcha): any new Chinese
+   characters in the zh files need to land in the self-hosted fonts:
+   ```bash
+   npm run build:fonts
+   ```
+   `npm test` fails with the missing characters listed if you forget.
+5. Commit the `.md` files, the generated
+   `public/branding/og/news-<slug>.png`, and (when zh copy changed)
+   `public/fonts/*.subset.woff2` + `public/styles/fonts-cjk.css`.
 
 ## When to bump OG_VERSION
 
@@ -122,12 +134,50 @@ roster move or match result sooner, open the repo's **Actions** tab ->
 ## Refresh hero / map artwork
 
 ```bash
-npm run fetch:heroes   # signature-hero portraits -> public/heroes/
-npm run fetch:maps     # map artwork -> public/maps/ (full OW2 pool)
+npm run fetch:heroes   # signature-hero portraits -> src/assets/heroes/
+npm run fetch:maps     # map artwork -> src/assets/maps/ (full OW2 pool)
 ```
 
 Run `fetch:heroes` after adding a player with a new signature hero. New OW maps
 get appended to the `OWCS_MAP_POOL` constant in `scripts/fetch-map-icons.mjs`.
+Commit the images AND the updated `src/data/{heroes,maps}.json` together; if
+a local `astro dev` is running, restart it so the new files are picked up.
+
+## Publish a match highlight (YouTube Short)
+
+1. Create `src/content/highlights/<name>.md` with front matter: `title`,
+   `date`, `opponent`, `matchId` (from `src/data/matches.json`), and a
+   self-hosted 9:16 poster at `src/assets/highlights/<name>.webp`
+   referenced as `poster: '../../assets/highlights/<name>.webp'`. NEVER a
+   YouTube thumbnail URL (that would contact Google on page load).
+2. Leave `videoId` EMPTY until the Short is live: the card renders a clean
+   "coming soon" state. Filling in `videoId` (just the ID, not a URL) is
+   the single step that makes it playable.
+
+## Run the tests
+
+```bash
+npm test               # unit tests, fast
+npm run test:e2e:full  # builds, then runs the browser suite
+```
+
+The browser suite checks navigation, the language switcher, the coaching
+filters, and that every page renders with JavaScript disabled. It runs in
+CI on every push too.
+
+## Regenerate the Chinese font subsets
+
+Whenever you add or change ANY Chinese copy (news, i18n strings, coaching
+prose):
+
+```bash
+npm run build:fonts
+```
+
+Commit the regenerated `public/fonts/*.subset.woff2` and
+`public/styles/fonts-cjk.css`. The script downloads its source fonts on
+first run (needs network, ~30MB, cached afterwards). `npm test` fails
+with the missing characters listed if you skip this.
 
 ---
 
