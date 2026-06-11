@@ -63,25 +63,28 @@ const news = defineCollection({
  */
 const highlights = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/highlights' }),
-  schema: z.object({
-    title: z.string(),
-    date: z.coerce.date(),
-    /** Related match id from src/data/matches.json (cross-reference). */
-    matchId: z.string().optional(),
-    /** Opponent label for display (e.g. "Team Secret"). */
-    opponent: z.string().optional(),
-    /** Self-hosted 9:16 poster under /highlights/<name>.webp. Optional: a
-     *  missing poster falls back to a branded placeholder. NEVER a YouTube
-     *  thumbnail URL (that would contact Google on load). */
-    poster: z.string().optional(),
-    /** YouTube video ID only (the part after watch?v= or youtu.be/), NOT a
-     *  full URL. EMPTY until the Short is published -> "coming soon" state. */
-    videoId: z.string().default(''),
-    /** Frame shape. Vertical Shorts are "9/16" (default); landscape match
-     *  highlights are "16/9" and render as a featured player above the grid. */
-    aspect: z.enum(['9/16', '16/9']).default('9/16'),
-    draft: z.boolean().default(false),
-  }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      date: z.coerce.date(),
+      /** Related match id from src/data/matches.json (cross-reference). */
+      matchId: z.string().optional(),
+      /** Opponent label for display (e.g. "Team Secret"). */
+      opponent: z.string().optional(),
+      /** Self-hosted 9:16 poster, a path RELATIVE to this entry's file
+       *  (e.g. ../../assets/highlights/<name>.webp) so it flows through
+       *  astro:assets optimization. Optional: a missing poster falls back
+       *  to a branded placeholder. NEVER a YouTube thumbnail URL (that
+       *  would contact Google on load). */
+      poster: image().optional(),
+      /** YouTube video ID only (the part after watch?v= or youtu.be/), NOT a
+       *  full URL. EMPTY until the Short is published -> "coming soon" state. */
+      videoId: z.string().default(''),
+      /** Frame shape. Vertical Shorts are "9/16" (default); landscape match
+       *  highlights are "16/9" and render as a featured player above the grid. */
+      aspect: z.enum(['9/16', '16/9']).default('9/16'),
+      draft: z.boolean().default(false),
+    }),
 });
 
 export const collections = { news, highlights };

@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import PlayerAvatar from './PlayerAvatar.astro';
 import CountryFlag from './CountryFlag.astro';
 import Badge from '../ui/Badge.astro';
@@ -65,11 +66,17 @@ const avatarAlt = t.player.avatarAlt(
       <>
         <div class="player-card__backdrop" aria-hidden="true">
           {backdropHeroes.map((h) => (
-            <span
-              class="player-card__hero"
-              style={`background-image: url('${h.iconUrl}');`}
-              data-hero={h.name}
-            />
+            <span class="player-card__hero" data-hero={h.name}>
+              <Image
+                src={h.image}
+                alt=""
+                width={240}
+                densities={[1, 2]}
+                loading="lazy"
+                decoding="async"
+                class="player-card__hero-img"
+              />
+            </span>
           ))}
         </div>
         <div class="player-card__overlay" aria-hidden="true" />
@@ -220,11 +227,16 @@ const avatarAlt = t.player.avatarAlt(
 
   .player-card__hero {
     flex: 1;
-    background-size: cover;
-    background-position: 50% 18%;
-    background-repeat: no-repeat;
+    overflow: hidden;
     /* Feather the inner edges so adjacent heroes blend rather than collide */
     mask-image: linear-gradient(90deg, transparent 0%, black 12%, black 88%, transparent 100%);
+  }
+  .player-card__hero :global(.player-card__hero-img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 18%;
+    display: block;
     /* Cinematic zoom on hover. Each strip gets a slightly different
        transform-origin via :nth-child below so the heroes don't all
        move in lockstep, it reads like a poster gently breathing. */
@@ -232,23 +244,23 @@ const avatarAlt = t.player.avatarAlt(
     transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
     will-change: transform;
   }
-  .player-card__hero:nth-child(1) {
+  .player-card__hero:nth-child(1) :global(.player-card__hero-img) {
     transform-origin: 30% 35%;
   }
-  .player-card__hero:nth-child(2) {
+  .player-card__hero:nth-child(2) :global(.player-card__hero-img) {
     transform-origin: 50% 30%;
   }
-  .player-card__hero:nth-child(3) {
+  .player-card__hero:nth-child(3) :global(.player-card__hero-img) {
     transform-origin: 70% 35%;
   }
-  .player-card__hero:nth-child(4) {
+  .player-card__hero:nth-child(4) :global(.player-card__hero-img) {
     transform-origin: 85% 30%;
   }
 
-  .player-card:hover .player-card__hero {
+  .player-card:hover .player-card__hero :global(.player-card__hero-img) {
     transform: scale(1.08);
   }
-  .player-card:hover .player-card__hero:nth-child(2) {
+  .player-card:hover .player-card__hero:nth-child(2) :global(.player-card__hero-img) {
     /* Middle hero leads with a hair more zoom + a touch of vertical drift */
     transform: scale(1.1) translateY(-2px);
   }
@@ -366,7 +378,7 @@ const avatarAlt = t.player.avatarAlt(
 
   @media (prefers-reduced-motion: reduce) {
     .player-card,
-    .player-card__hero,
+    .player-card__hero :global(.player-card__hero-img),
     .player-card__overlay,
     .player-card__handle,
     .player-card::before {
@@ -376,9 +388,9 @@ const avatarAlt = t.player.avatarAlt(
     .player-card:hover {
       transform: none;
     }
-    .player-card:hover .player-card__hero,
-    .player-card:hover .player-card__hero:nth-child(2) {
-      transform: none;
+    .player-card:hover .player-card__hero :global(.player-card__hero-img),
+    .player-card:hover .player-card__hero:nth-child(2) :global(.player-card__hero-img) {
+      transform: none !important;
     }
     .player-card:hover::before {
       opacity: 0;

@@ -40,13 +40,9 @@
 /branding/*
   Cache-Control: public, max-age=86400
 
-# Hero portraits, fetched from Liquipedia on a weekly cadence and only
-# replaced when the roster's signatureHeroes list changes. Safe to cache
-# for a week so repeat visitors don't re-fetch each card backdrop.
-/heroes/*
-  Cache-Control: public, max-age=604800
-
-# Player portraits, same cadence as hero icons; updated rarely.
+# Hero portraits and map art moved into src/assets and now ship as
+# fingerprinted /_astro/* files (immutable rule above), so they need no
+# blocks here. Player portraits keep their stable public/ URLs.
 /roster/*
   Cache-Control: public, max-age=604800
 

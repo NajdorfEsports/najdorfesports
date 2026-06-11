@@ -106,10 +106,12 @@ export const SponsorSchema = z
   })
   .strict();
 
-/** heroes.json / maps.json: { "Hero Name": "/heroes/slug.webp" }. */
+/** heroes.json / maps.json: { "Hero Name": "slug" }. The slug keys into the
+ *  src/assets/{heroes,maps}/<slug>.webp glob in src/lib/assetImages.ts, so
+ *  images flow through astro:assets instead of shipping raw from public/. */
 export const IconMapSchema = z.record(
   z.string().min(1),
-  z.string().regex(/^\/(heroes|maps)\/[a-z0-9-]+\.webp$/, 'must be /heroes|maps/<slug>.webp'),
+  z.string().regex(/^[a-z0-9-]+$/, 'must be a lowercase slug'),
 );
 
 export const SocialStatPlatformSchema = z.enum([

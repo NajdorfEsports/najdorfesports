@@ -6,8 +6,9 @@
  * that appears in our current roster's `signatureHeroes`, re-encodes them
  * to WebP via sharp, and writes:
  *
- *   public/heroes/<slug>.webp   (120 px cropped portrait, WebP q=86)
- *   src/data/heroes.json        (name -> /heroes/<slug>.webp map)
+ *   src/assets/heroes/<slug>.webp  (120 px cropped portrait, WebP q=86)
+ *   src/data/heroes.json           (name -> slug map; slugs key into the
+ *                                   src/assets glob in src/lib/assetImages.ts)
  *
  * Run with `npm run fetch:heroes` after the roster fetcher discovers a new
  * hero name. The output is committed alongside the data, so subsequent
@@ -31,7 +32,7 @@ import { slugify } from './lib/slug.mjs';
 import { IconMapSchema } from '../src/data/schemas.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const HEROES_DIR = join(__dirname, '..', 'public', 'heroes');
+const HEROES_DIR = join(__dirname, '..', 'src', 'assets', 'heroes');
 const HEROES_JSON = join(__dirname, '..', 'src', 'data', 'heroes.json');
 const ROSTER_AUTO = join(__dirname, '..', 'src', 'data', 'roster.json');
 const ROSTER_MANUAL = join(__dirname, '..', 'src', 'data', 'roster.manual.json');
@@ -121,8 +122,8 @@ async function collectHeroNames() {
       const filePath = join(HEROES_DIR, `${slug}.webp`);
       await sleep(QUERY_INTERVAL_MS);
       const size = await downloadTo(filePath, iconUrl);
-      map[hero] = `/heroes/${slug}.webp`;
-      console.log(`[hero-icons]   ${hero}: ${size} bytes -> /heroes/${slug}.webp`);
+      map[hero] = slug;
+      console.log(`[hero-icons]   ${hero}: ${size} bytes -> src/assets/heroes/${slug}.webp`);
     } catch (err) {
       console.warn(`[hero-icons]   ${hero}: failed (${err?.message ?? err})`);
     }

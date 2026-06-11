@@ -6,11 +6,13 @@
  * same script. "View sessions" is an in-page anchor that the page script
  * smooth-scrolls.
  */
+import { Image } from 'astro:assets';
 import Badge from '../ui/Badge.astro';
 import Button from '../ui/Button.astro';
 import PlayerAvatar from '../player/PlayerAvatar.astro';
 import CountryFlag from '../player/CountryFlag.astro';
 import { getLocale, useT } from '../../i18n';
+import { mapImagesBySlug } from '../../lib/assetImages';
 import type { Coach } from '../../data/coaching';
 import type { Role } from '../../data/site';
 
@@ -18,6 +20,10 @@ interface Props {
   coach: Coach;
 }
 const { coach } = Astro.props;
+
+// Backdrop resolved through the assets glob by slug. Fail-soft: a typo'd
+// or missing map renders no backdrop instead of a silent 404 background.
+const backdrop = mapImagesBySlug[coach.backdropMap];
 
 const locale = getLocale(Astro);
 const t = useT(locale);
@@ -47,12 +53,20 @@ const heroList = coach.heroes.join(',');
   data-heroes={heroList}
   aria-label={c.browse.coachAria(coach.displayName, role)}
 >
-  <div
-    class="coach-card__bg"
-    style={`background-image:url('/maps/${coach.backdropMap}.webp')`}
-    aria-hidden="true"
-  >
-  </div>
+  {
+    backdrop && (
+      <Image
+        src={backdrop}
+        alt=""
+        widths={[480, backdrop.width]}
+        sizes="(min-width: 640px) 560px, 100vw"
+        loading="lazy"
+        decoding="async"
+        aria-hidden="true"
+        class="coach-card__bg"
+      />
+    )
+  }
   <div class="coach-card__scrim" aria-hidden="true"></div>
 
   <div class="relative z-10 flex items-center gap-4">
@@ -115,13 +129,16 @@ const heroList = coach.heroes.join(',');
 
 <style>
   /* Map art faded behind the coach card; a left-weighted scrim keeps the
-     avatar, handle, and text readable over it. */
-  .coach-card__bg {
+     avatar, handle, and text readable over it. (:global because the img is
+     emitted by <Image>, outside this component's style scope.) */
+  .coach-card :global(.coach-card__bg) {
     position: absolute;
     inset: 0;
     z-index: 0;
-    background-size: cover;
-    background-position: center 25%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 25%;
     opacity: 0.5;
   }
   .coach-card__scrim {

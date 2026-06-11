@@ -1,6 +1,7 @@
 ---
+import { Image } from 'astro:assets';
 import { hasPortrait, portraitPath } from '../../data/roster-portraits';
-import { firstHeroIcon } from '../../lib/heroes';
+import { firstHeroImage } from '../../lib/heroes';
 
 interface Props {
   handle: string;
@@ -26,10 +27,10 @@ const alt = label ?? handle;
 
 const px = size;
 
-// Fallback chain: real headshot -> first signature hero with an icon ->
+// Fallback chain: real headshot -> first signature hero with an image ->
 // monogram. The hero art is the single source of truth shared with the card
 // backdrop, so an avatar and its card always show the same character.
-const heroIconUrl = firstHeroIcon(heroes);
+const heroImage = firstHeroImage(heroes);
 
 function hashHue(s: string) {
   let h = 0;
@@ -65,19 +66,27 @@ const src = portraitPath(handle);
       class="rounded-full object-cover border border-[var(--color-border)]"
       style={`width:${px}px;height:${px}px;`}
     />
-  ) : heroIconUrl ? (
+  ) : heroImage ? (
     /*
      * Hero portrait fallback. The signature character is cropped into the
-     * circle with the face pushed toward the top (background-position) so the
+     * circle with the face pushed toward the top (object-position) so the
      * head, not the chest, lands in frame. A faint inner ring + bottom vignette
      * keep it cohesive with the monogram chips on the same card.
      */
-    <div
-      role="img"
-      aria-label={alt}
-      class="player-avatar-hero relative border border-[var(--color-border)] overflow-hidden"
-      style={`width:${px}px;height:${px}px;background-image:url('${heroIconUrl}');border-radius:9999px;`}
-    />
+    <span
+      class="player-avatar-hero relative inline-block border border-[var(--color-border)] overflow-hidden"
+      style={`width:${px}px;height:${px}px;border-radius:9999px;`}
+    >
+      <Image
+        src={heroImage}
+        alt={alt}
+        width={px}
+        densities={[1, 2]}
+        loading="lazy"
+        decoding="async"
+        class="player-avatar-hero__img"
+      />
+    </span>
   ) : (
     /*
      * Monogram fallback. A faint outlined bishop SVG sits behind the
@@ -119,17 +128,28 @@ const src = portraitPath(handle);
 }
 
 <style>
-  .player-avatar-hero {
-    background-size: cover;
-    /* Face sits near the top of these full/upper-body hero renders, so bias
-       the crop upward, same framing intent as the card backdrop (50% 18%). */
-    background-position: 50% 14%;
-    background-repeat: no-repeat;
-    /* Bottom vignette + soft inner ring so the portrait reads as a branded
-       chip rather than a bare photo cutout. */
+  /* Bottom vignette + soft inner ring so the portrait reads as a branded
+     chip rather than a bare photo cutout. Lives on an overlay so it paints
+     ABOVE the child img (an inset box-shadow on the wrapper would hide
+     behind it). */
+  .player-avatar-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
     box-shadow:
       inset 0 -10px 18px -8px rgba(11, 11, 15, 0.7),
       inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  }
+  .player-avatar-hero__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Face sits near the top of these full/upper-body hero renders, so bias
+       the crop upward, same framing intent as the card backdrop (50% 18%). */
+    object-position: 50% 14%;
+    display: block;
   }
 
   .player-avatar-mono__bishop {

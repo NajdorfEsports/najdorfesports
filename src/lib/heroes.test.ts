@@ -1,17 +1,21 @@
 import { describe, it, expect } from 'vitest';
-import { resolveHeroIcons, firstHeroIcon } from './heroes';
+import type { ImageMetadata } from 'astro';
+import { resolveHeroIcons, firstHeroImage } from './heroes';
 
-const MAP = {
-  Ana: '/heroes/ana.webp',
-  Kiriko: '/heroes/kiriko.webp',
-  Genji: '/heroes/genji.webp',
-};
+const img = (name: string): ImageMetadata =>
+  ({ src: `/_astro/${name}.webp`, width: 120, height: 120, format: 'webp' }) as ImageMetadata;
+
+const ANA = img('ana');
+const KIRIKO = img('kiriko');
+const GENJI = img('genji');
+
+const MAP: Record<string, ImageMetadata> = { Ana: ANA, Kiriko: KIRIKO, Genji: GENJI };
 
 describe('resolveHeroIcons (injected map)', () => {
   it('resolves known heroes, drops unknown, preserves order', () => {
     expect(resolveHeroIcons(['Ana', 'Nope', 'Genji'], undefined, MAP)).toEqual([
-      { name: 'Ana', iconUrl: '/heroes/ana.webp' },
-      { name: 'Genji', iconUrl: '/heroes/genji.webp' },
+      { name: 'Ana', image: ANA },
+      { name: 'Genji', image: GENJI },
     ]);
   });
 
@@ -24,13 +28,13 @@ describe('resolveHeroIcons (injected map)', () => {
   });
 });
 
-describe('firstHeroIcon', () => {
-  it('returns the first resolvable icon url', () => {
-    expect(firstHeroIcon(['Nope', 'Kiriko', 'Ana'], MAP)).toBe('/heroes/kiriko.webp');
+describe('firstHeroImage', () => {
+  it('returns the first resolvable image', () => {
+    expect(firstHeroImage(['Nope', 'Kiriko', 'Ana'], MAP)).toBe(KIRIKO);
   });
 
   it('returns undefined when nothing resolves', () => {
-    expect(firstHeroIcon(['Nope'], MAP)).toBeUndefined();
-    expect(firstHeroIcon(undefined, MAP)).toBeUndefined();
+    expect(firstHeroImage(['Nope'], MAP)).toBeUndefined();
+    expect(firstHeroImage(undefined, MAP)).toBeUndefined();
   });
 });

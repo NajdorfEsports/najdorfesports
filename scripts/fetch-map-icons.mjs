@@ -6,8 +6,9 @@
  * appears in our matches data and re-encodes them to WebP. Mirrors the
  * shape of fetch-hero-icons.mjs but for maps instead of heroes:
  *
- *   public/maps/<slug>.webp   (600px landscape WebP q=82)
- *   src/data/maps.json        (name -> /maps/<slug>.webp map)
+ *   src/assets/maps/<slug>.webp  (600px landscape WebP q=82)
+ *   src/data/maps.json           (name -> slug map; slugs key into the
+ *                                 src/assets glob in src/lib/assetImages.ts)
  *
  * Run with `npm run fetch:maps` after the matches fetcher (or a manual
  * edit to matches.json/matches.manual.json) introduces a new map name.
@@ -31,7 +32,7 @@ import { slugify, stripAccents } from './lib/slug.mjs';
 import { IconMapSchema } from '../src/data/schemas.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const MAPS_DIR = join(__dirname, '..', 'public', 'maps');
+const MAPS_DIR = join(__dirname, '..', 'src', 'assets', 'maps');
 const MAPS_JSON = join(__dirname, '..', 'src', 'data', 'maps.json');
 const MATCHES_AUTO = join(__dirname, '..', 'src', 'data', 'matches.json');
 const MATCHES_MANUAL = join(__dirname, '..', 'src', 'data', 'matches.manual.json');
@@ -214,8 +215,8 @@ async function collectMapNames() {
       const filePath = join(MAPS_DIR, `${slug}.webp`);
       await sleep(QUERY_INTERVAL_MS);
       const size = await downloadTo(filePath, iconUrl);
-      out[name] = `/maps/${slug}.webp`;
-      console.log(`[map-icons]   ${name}: ${size} bytes -> /maps/${slug}.webp`);
+      out[name] = slug;
+      console.log(`[map-icons]   ${name}: ${size} bytes -> src/assets/maps/${slug}.webp`);
     } catch (err) {
       console.warn(`[map-icons]   ${name}: failed (${err?.message ?? err})`);
     }

@@ -98,8 +98,8 @@ const pastSections = Array.from(pastByTournament.entries()).map(([tournament, ma
   {
     upcoming.length > 0 ? (
       <div class="space-y-3">
-        {upcoming.map((m) => (
-          <MatchCard match={m} />
+        {upcoming.map((m, i) => (
+          <MatchCard match={m} index={i} />
         ))}
       </div>
     ) : (
@@ -125,8 +125,9 @@ const pastSections = Array.from(pastByTournament.entries()).map(([tournament, ma
           </span>
         </div>
         <div class="space-y-3">
-          {sec.matches.map((m) => (
-            <MatchCard match={m} />
+          {/* Past sections sit below the fold; every backdrop lazy-loads. */}
+          {sec.matches.map((m, i) => (
+            <MatchCard match={m} index={upcoming.length + i} />
           ))}
         </div>
       </section>

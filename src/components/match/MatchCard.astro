@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import Badge from '../ui/Badge.astro';
 import type { MatchEntry } from '../../data/site';
 import { getLocale, useT } from '../../i18n';
@@ -10,12 +12,16 @@ import {
 } from '../../i18n/format';
 import { formatCount } from '../../data/social';
 import { seriesScore } from '../../lib/matches';
-import mapIcons from '../../data/maps.json';
+import { mapImagesByName, mapImagesBySlug } from '../../lib/assetImages';
 
 interface Props {
   match: MatchEntry;
+  /** 0-based position in the list. The first cards sit above the fold and
+   *  load their backdrops eagerly; everything below lazy-loads. */
+  index?: number;
 }
-const { match } = Astro.props;
+const { match, index = 0 } = Astro.props;
+const eager = index < 2;
 
 const locale = getLocale(Astro);
 const t = useT(locale);
@@ -58,17 +64,17 @@ const watchLabel = isPast ? t.match.watchVod : t.match.watch;
 // `lookupMap` falls back to a normalized comparison when a direct key
 // hit misses, so casing or punctuation drift in match data ("kings
 // row", "King's Row", "King’s Row") still resolves to the canonical
-// `/maps/kings-row.webp`. The on-disk `maps.json` stays keyed by
-// canonical display name (it is the human-edited surface).
-const knownMaps = mapIcons as Record<string, string>;
+// image. `maps.json` stays keyed by canonical display name (the
+// human-edited surface); images flow through astro:assets via the
+// name-to-image join in src/lib/assetImages.ts.
 const normalizeMapKey = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '');
-function lookupMap(name: string | undefined): string | null {
+function lookupMap(name: string | undefined): ImageMetadata | null {
   if (!name) return null;
-  if (knownMaps[name]) return knownMaps[name];
+  if (mapImagesByName[name]) return mapImagesByName[name];
   const target = normalizeMapKey(name);
   if (target.length === 0) return null;
-  for (const k of Object.keys(knownMaps)) {
-    if (normalizeMapKey(k) === target) return knownMaps[k] ?? null;
+  for (const k of Object.keys(mapImagesByName)) {
+    if (normalizeMapKey(k) === target) return mapImagesByName[k] ?? null;
   }
   return null;
 }
@@ -87,11 +93,13 @@ function hashStr(s: string): number {
   return Math.abs(h);
 }
 
-let backdropUrl: string | null = heroMap ? lookupMap(heroMap) : null;
-if (!backdropUrl) {
-  const pool = Object.values(knownMaps);
+let backdrop: ImageMetadata | null = heroMap ? lookupMap(heroMap) : null;
+if (!backdrop) {
+  // Deterministic-random fallback pool keyed off the filesystem glob (not
+  // the JSON), so a JSON/file drift can never produce a broken backdrop.
+  const pool = Object.values(mapImagesBySlug);
   if (pool.length > 0) {
-    backdropUrl = pool[hashStr(match.id) % pool.length] ?? null;
+    backdrop = pool[hashStr(match.id) % pool.length] ?? null;
   }
 }
 ---
@@ -99,17 +107,22 @@ if (!backdropUrl) {
 <article
   class:list={[
     'match-card relative overflow-hidden isolate bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-4 sm:p-5 grid grid-cols-[auto_1fr_auto] gap-4 items-center',
-    backdropUrl ? 'match-card--has-backdrop' : '',
+    backdrop ? 'match-card--has-backdrop' : '',
   ]}
 >
   {
-    backdropUrl && (
+    backdrop && (
       <>
-        <div
-          class="match-card__backdrop"
-          style={`background-image: url('${backdropUrl}');`}
+        <Image
+          src={backdrop}
+          alt=""
+          widths={[480, backdrop.width]}
+          sizes="(min-width: 1152px) 1104px, 100vw"
+          loading={eager ? 'eager' : 'lazy'}
+          decoding="async"
           aria-hidden="true"
           data-map={heroMap}
+          class="match-card__backdrop"
         />
         <div class="match-card__overlay" aria-hidden="true" />
       </>
@@ -199,21 +212,23 @@ if (!backdropUrl) {
 
   /* Map backdrop, vertically fills the card. Soft Ken-Burns zoom on hover
    * matches the player card "breathing" effect: subtle, cinematic, not a
-   * jarring scale-up. */
-  .match-card__backdrop {
+   * jarring scale-up. (:global because the img is emitted by <Image>,
+   * outside this component's style scope.) */
+  .match-card :global(.match-card__backdrop) {
     position: absolute;
     inset: 0;
     z-index: 0;
-    background-size: cover;
-    background-position: 50% 45%;
-    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 45%;
     border-radius: inherit;
     transform-origin: 50% 45%;
     transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
     will-change: transform;
     pointer-events: none;
   }
-  .match-card--has-backdrop:hover .match-card__backdrop {
+  .match-card--has-backdrop:hover :global(.match-card__backdrop) {
     transform: scale(1.06);
   }
 
@@ -242,14 +257,14 @@ if (!backdropUrl) {
 
   @media (prefers-reduced-motion: reduce) {
     .match-card,
-    .match-card__backdrop,
+    .match-card :global(.match-card__backdrop),
     .match-card__overlay {
       transition: none;
     }
     .match-card--has-backdrop:hover {
       transform: none;
     }
-    .match-card--has-backdrop:hover .match-card__backdrop {
+    .match-card--has-backdrop:hover :global(.match-card__backdrop) {
       transform: none;
     }
   }
