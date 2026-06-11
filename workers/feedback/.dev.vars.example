@@ -1,0 +1,21 @@
+# Copy to .dev.vars for local `wrangler dev`. NEVER commit .dev.vars.
+# In production these are set with `wrangler secret put <NAME>` (except the
+# non-secret FROM_ADDRESS and TEST_MODE, which live in wrangler.toml [vars]).
+
+# Cal.com webhook shared secret. Set the same value in Cal.com:
+# Settings > Developer > Webhooks > Secret.
+CALCOM_WEBHOOK_SECRET=
+
+# Resend API key, starts with re_ (https://resend.com > API Keys).
+RESEND_API_KEY=
+
+# Tally feedback form URL. The Owner provides this; never fabricate it.
+# The Worker refuses to send if this is unset.
+TALLY_FORM_URL=
+
+# Verified Resend sending identity (the domain must be verified in Resend).
+FROM_ADDRESS=feedback@najdorfesports.gg
+
+# "true" for testing: 10-minute delay instead of 48h, route all mail to
+# owner@najdorfesports.gg, and log the full incoming payload.
+TEST_MODE=true

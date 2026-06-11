@@ -1,0 +1,23 @@
+# Najdorf Esports coaching feedback Worker.
+# Independent of the Astro Pages deploy (that ships via Cloudflare Pages Git
+# integration). Deploy this with `wrangler deploy` from inside workers/feedback.
+name = "najdorf-feedback"
+main = "src/index.ts"
+compatibility_date = "2026-05-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Hourly scan: send feedback for sessions whose 48h window has elapsed.
+[triggers]
+crons = ["0 * * * *"]
+
+# Non-secret vars. Secrets (CALCOM_WEBHOOK_SECRET, RESEND_API_KEY,
+# TALLY_FORM_URL) are set with `wrangler secret put` and never committed.
+[vars]
+FROM_ADDRESS = "feedback@najdorfesports.gg"
+TEST_MODE = "true"
+
+# Scheduling store. Create it once, then paste the id here:
+#   wrangler kv namespace create FEEDBACK_KV
+[[kv_namespaces]]
+binding = "FEEDBACK_KV"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
