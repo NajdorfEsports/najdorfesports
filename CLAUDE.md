@@ -275,12 +275,14 @@ These are deliberate stances. Don't undo without flagging.
 - `/coaching/` (all three locales) is a thin wrapper over
   `CoachingPageBody.astro`. Per-coach FACTS and localized prose (bio, region
   note) live in `src/data/coaching.ts` so adding coach #2 is a pure data
-  change; region options are in `src/data/regions.ts`. Shared page chrome
-  (section headings, filter and payment labels, FAQ) is in `t.coaching.*`.
+  change. Shared page chrome (section headings, filter and payment labels,
+  FAQ) is in `t.coaching.*`.
 - The page is a coach browser with role/language/hero filters, then a
-  per-coach three-step booking flow (region, then payment method, then tier).
-  All vanilla, no framework; one inline script drives the filters and the
-  region/payment selectors. Defaults: Global region + card.
+  per-coach two-step booking flow (payment method, then tier). There is no
+  customer-location/region step (deliberately removed: every region was
+  offered the same methods, so it only added friction). All vanilla, no
+  framework; one inline script drives the filters and the payment selector.
+  Default: card.
 - Dual payment: card (Stripe) and PayPal. Cal.com allows one payment app per
   event type, so each tier exists twice: the canonical slugs are the card
   variants, the `<slug>-paypal` twins are PayPal. `BookingLink.enabled` gates

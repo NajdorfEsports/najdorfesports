@@ -173,6 +173,9 @@ export const COACHES: ReadonlyArray<Coach> = [
   },
 ];
 
+/** Default payment method preselected so the booking flow is never empty. */
+export const DEFAULT_PROCESSOR: Processor = 'stripe';
+
 /** Public booking URL for the no-JS fallback anchor. */
 export function bookingUrl(calLink: string): string {
   return `${CAL_BOOKING_ORIGIN}/${calLink}`;

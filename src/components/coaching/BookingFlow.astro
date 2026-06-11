@@ -1,19 +1,18 @@
 ---
 /**
- * Per-coach booking flow: three-step progressive disclosure (region, payment
- * method, session tier). Plain client-side buttons with aria-pressed; the page
- * script tracks the selection (no cookies, no geolocation, nothing persisted).
+ * Per-coach booking flow: two-step progressive disclosure (payment method, then
+ * session tier). Plain client-side buttons with aria-pressed; the page script
+ * tracks the selection (no cookies, nothing persisted).
  *
- * Step 3 renders both processor controls per tier; the script shows only the
- * one matching the selected method. Disabled links render "Coming soon" via
- * BookButton, never a dead anchor. Defaults: Global region and card, so the
- * flow is never empty and the default controls are the live (Stripe) links.
+ * The sessions step renders both processor controls per tier; the script shows
+ * only the one matching the selected method. Disabled links render "Coming soon"
+ * via BookButton, never a dead anchor. Default: card, so the flow is never empty
+ * and the default controls are the live (Stripe) links.
  */
 import Badge from '../ui/Badge.astro';
 import BookButton from './BookButton.astro';
 import { getLocale, useT } from '../../i18n';
-import { liveRegions, DEFAULT_REGION_ID, DEFAULT_PROCESSOR } from '../../data/regions';
-import { linkFor, type Coach, type Processor } from '../../data/coaching';
+import { linkFor, DEFAULT_PROCESSOR, type Coach, type Processor } from '../../data/coaching';
 
 interface Props {
   coach: Coach;
@@ -24,7 +23,6 @@ const locale = getLocale(Astro);
 const t = useT(locale);
 const c = t.coaching;
 
-const regions = liveRegions();
 const processors: { id: Processor; label: string }[] = [
   { id: 'stripe', label: c.booking.payCard },
   { id: 'paypal', label: c.booking.payPaypal },
@@ -45,33 +43,7 @@ const toggleBase =
     {c.booking.heading(coach.displayName)}
   </h2>
 
-  {/* Step 1: region */}
-  <div class="mt-6">
-    <p class={stepEyebrow}>{c.booking.regionStep}</p>
-    <h3 class={stepHeading} id={`region-h-${coach.slug}`}>{c.booking.regionHeading}</h3>
-    <div
-      class="mt-3 flex flex-wrap gap-2"
-      role="group"
-      aria-labelledby={`region-h-${coach.slug}`}
-      data-region-group
-    >
-      {
-        regions.map((r) => (
-          <button
-            type="button"
-            class={toggleBase}
-            data-region={r.id}
-            data-methods={r.methods.join(',')}
-            aria-pressed={r.id === DEFAULT_REGION_ID ? 'true' : 'false'}
-          >
-            {r.label[locale] ?? r.label.en}
-          </button>
-        ))
-      }
-    </div>
-  </div>
-
-  {/* Step 2: payment method */}
+  {/* Step 1: payment method */}
   <div class="mt-6">
     <p class={stepEyebrow}>{c.booking.paymentStep}</p>
     <h3 class={stepHeading} id={`pay-h-${coach.slug}`}>{c.booking.paymentHeading}</h3>
@@ -96,7 +68,7 @@ const toggleBase =
     </div>
   </div>
 
-  {/* Step 3: sessions */}
+  {/* Step 2: sessions */}
   <div class="mt-6">
     <p class={stepEyebrow}>{c.booking.sessionsStep}</p>
     <h3 class={stepHeading}>{c.booking.sessionsHeading}</h3>

@@ -105,9 +105,8 @@ export const en = {
   },
 
   /** Coaching page (/coaching/). Per-coach facts and prose (bio, region note)
-   *  live in src/data/coaching.ts and regions in src/data/regions.ts; this is
-   *  the shared page chrome. Booking is handled by embedded Cal.com bookers
-   *  (no accounts, no backend). */
+   *  live in src/data/coaching.ts; this is the shared page chrome. Booking is
+   *  handled by embedded Cal.com bookers (no accounts, no backend). */
   coaching: {
     hero: {
       eyebrow: 'Coaching',
@@ -118,7 +117,7 @@ export const en = {
     },
     browse: {
       heading: 'Meet the coaches',
-      lede: 'Pick a coach, choose your region and how you want to pay, then book your first session.',
+      lede: 'Pick a coach, choose how you want to pay, then book your first session.',
       viewSessions: 'View sessions',
       filtersLabel: 'Filter coaches',
       filterRole: 'Role',
@@ -138,12 +137,10 @@ export const en = {
     },
     booking: {
       heading: (name: string) => `Book with ${name}`,
-      regionHeading: 'Where are you located?',
-      regionStep: 'Step 1',
       paymentHeading: 'How do you want to pay?',
-      paymentStep: 'Step 2',
+      paymentStep: 'Step 1',
       sessionsHeading: 'Choose your sessions',
-      sessionsStep: 'Step 3',
+      sessionsStep: 'Step 2',
       payCard: 'Pay by card',
       payPaypal: 'Pay with PayPal',
       comingSoon: 'Coming soon',
@@ -178,7 +175,7 @@ export const en = {
       heading: 'How it works',
       step1Title: 'Choose and book',
       step1Body:
-        'Pick a coach, your region, and how you want to pay, then choose an open time for your first session.',
+        'Pick a coach and how you want to pay, then choose an open time for your first session.',
       step2Title: 'Pay securely',
       step2Body: 'Pay securely by card or PayPal. A pack is paid once, in full, at booking.',
       step3Title: 'Connect on Discord',

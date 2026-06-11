@@ -108,7 +108,7 @@ export const zhTW: Strings = {
     },
     browse: {
       heading: '認識教練',
-      lede: '選擇一位教練，挑選你的地區與付款方式，然後預約你的第一堂課。',
+      lede: '選擇一位教練，挑選你的付款方式，然後預約你的第一堂課。',
       viewSessions: '查看課程',
       filtersLabel: '篩選教練',
       filterRole: '位置',
@@ -128,12 +128,10 @@ export const zhTW: Strings = {
     },
     booking: {
       heading: (name) => `預約 ${name} 的課程`,
-      regionHeading: '你在哪個地區？',
-      regionStep: '步驟 1',
       paymentHeading: '你想如何付款？',
-      paymentStep: '步驟 2',
+      paymentStep: '步驟 1',
       sessionsHeading: '選擇課程',
-      sessionsStep: '步驟 3',
+      sessionsStep: '步驟 2',
       payCard: '信用卡付款',
       payPaypal: '以 PayPal 付款',
       comingSoon: '即將推出',
@@ -165,7 +163,7 @@ export const zhTW: Strings = {
     how: {
       heading: '流程說明',
       step1Title: '選擇並預約',
-      step1Body: '選擇一位教練、你的地區與付款方式，再為你的第一堂課挑選一個開放的時段。',
+      step1Body: '選擇一位教練與付款方式，再為你的第一堂課挑選一個開放的時段。',
       step2Title: '安全付款',
       step2Body: '以信用卡或 PayPal 安全付款。課程包於預約時一次付清全額。',
       step3Title: '在 Discord 聯繫',

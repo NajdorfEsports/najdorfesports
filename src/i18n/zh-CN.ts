@@ -108,7 +108,7 @@ export const zhCN: Strings = {
     },
     browse: {
       heading: '认识教练',
-      lede: '选择一位教练，挑选你的地区与付款方式，然后预约你的第一节课。',
+      lede: '选择一位教练，挑选你的付款方式，然后预约你的第一节课。',
       viewSessions: '查看课程',
       filtersLabel: '筛选教练',
       filterRole: '位置',
@@ -128,12 +128,10 @@ export const zhCN: Strings = {
     },
     booking: {
       heading: (name) => `预约 ${name} 的课程`,
-      regionHeading: '你在哪个地区？',
-      regionStep: '步骤 1',
       paymentHeading: '你想如何付款？',
-      paymentStep: '步骤 2',
+      paymentStep: '步骤 1',
       sessionsHeading: '选择课程',
-      sessionsStep: '步骤 3',
+      sessionsStep: '步骤 2',
       payCard: '信用卡付款',
       payPaypal: '以 PayPal 付款',
       comingSoon: '即将推出',
@@ -165,7 +163,7 @@ export const zhCN: Strings = {
     how: {
       heading: '流程说明',
       step1Title: '选择并预约',
-      step1Body: '选择一位教练、你的地区与付款方式，再为你的第一节课挑选一个开放的时段。',
+      step1Body: '选择一位教练与付款方式，再为你的第一节课挑选一个开放的时段。',
       step2Title: '安全付款',
       step2Body: '以信用卡或 PayPal 安全付款。课程包于预约时一次付清全额。',
       step3Title: '在 Discord 联系',

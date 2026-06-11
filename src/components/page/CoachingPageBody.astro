@@ -2,15 +2,14 @@
 /**
  * Coaching page body. Rendered at /coaching/, /zh-TW/coaching/, /zh-CN/coaching/.
  * Per-URL locale comes from Astro.currentLocale; shared chrome lives in i18n
- * (t.coaching). Per-coach facts and prose come from src/data/coaching.ts and
- * region options from src/data/regions.ts.
+ * (t.coaching). Per-coach facts and prose come from src/data/coaching.ts.
  *
  * Flow: hero, coach browser (filters + card grid), one booking section per coach
- * (region then payment then tier), how it works, FAQ, help. Booking is handled
- * by embedded Cal.com bookers: each Book control is a real anchor to the public
- * Cal.com page that the inline init script upgrades to a popup (so booking works
- * with JS off). The inline script also drives the filters and the region and
- * payment selectors (vanilla, no framework).
+ * (payment then tier), how it works, FAQ, help. Booking is handled by embedded
+ * Cal.com bookers: each Book control is a real anchor to the public Cal.com page
+ * that the inline init script upgrades to a popup (so booking works with JS off).
+ * The inline script also drives the filters and the payment selector (vanilla,
+ * no framework).
  */
 import Button from '../ui/Button.astro';
 import CoachCard from '../coaching/CoachCard.astro';
@@ -206,9 +205,9 @@ const faqs = [
     }
   }
 
-  // Coach browser filters + per-coach region/payment selectors. All client-side,
-  // no cookies, no geolocation, nothing persisted. Visibility uses inline
-  // display so Tailwind's display utilities cannot override it.
+  // Coach browser filters + per-coach payment selector. All client-side, no
+  // cookies, nothing persisted. Visibility uses inline display so Tailwind's
+  // display utilities cannot override it.
   function najdorfShowMethod(section, method) {
     section.querySelectorAll('[data-method-btn]').forEach(function (b) {
       b.setAttribute(
@@ -219,28 +218,6 @@ const faqs = [
     section.querySelectorAll('.book-control').forEach(function (el) {
       el.style.display = el.getAttribute('data-method') === method ? '' : 'none';
     });
-  }
-
-  function najdorfCurrentMethod(section) {
-    var pressed = section.querySelector('[data-method-btn][aria-pressed="true"]');
-    return pressed ? pressed.getAttribute('data-method-btn') : 'stripe';
-  }
-
-  function najdorfShowRegion(section, regionBtn) {
-    section.querySelectorAll('[data-region]').forEach(function (b) {
-      b.setAttribute('aria-pressed', b === regionBtn ? 'true' : 'false');
-    });
-    var methods = (regionBtn.getAttribute('data-methods') || '').split(',').filter(Boolean);
-    var active = najdorfCurrentMethod(section);
-    var available = [];
-    section.querySelectorAll('[data-method-btn]').forEach(function (b) {
-      var m = b.getAttribute('data-method-btn');
-      var ok = methods.indexOf(m) !== -1;
-      b.style.display = ok ? '' : 'none';
-      if (ok) available.push(m);
-    });
-    if (available.indexOf(active) === -1) active = available[0] || active;
-    najdorfShowMethod(section, active);
   }
 
   function najdorfApplyFilters() {
@@ -270,13 +247,13 @@ const faqs = [
   }
 
   function najdorfCoachingSetup() {
-    // Note: the Cal embed is NOT armed here (lazy by doctrine); only the
-    // filter and region/payment UI is initialized on load and SPA navigation.
+    // Note: the Cal embed is NOT armed here (lazy by doctrine); only the filter
+    // and payment UI is initialized on load and SPA navigation.
     document.querySelectorAll('[data-booking]').forEach(function (section) {
       var pressed =
-        section.querySelector('[data-region][aria-pressed="true"]') ||
-        section.querySelector('[data-region]');
-      if (pressed) najdorfShowRegion(section, pressed);
+        section.querySelector('[data-method-btn][aria-pressed="true"]') ||
+        section.querySelector('[data-method-btn]');
+      if (pressed) najdorfShowMethod(section, pressed.getAttribute('data-method-btn'));
     });
     najdorfApplyFilters();
   }
@@ -327,17 +304,10 @@ const faqs = [
     });
 
     document.addEventListener('click', function (e) {
-      var regionBtn = e.target.closest && e.target.closest('[data-region]');
-      if (regionBtn) {
-        var rs = regionBtn.closest('[data-booking]');
-        if (rs) najdorfShowRegion(rs, regionBtn);
-        return;
-      }
       var methodBtn = e.target.closest && e.target.closest('[data-method-btn]');
       if (methodBtn) {
         var ms = methodBtn.closest('[data-booking]');
         if (ms) najdorfShowMethod(ms, methodBtn.getAttribute('data-method-btn'));
-        return;
       }
     });
 
