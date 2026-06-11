@@ -25,6 +25,10 @@ pnpm-debug.log*
 .idea
 .DS_Store
 
+# playwright
+test-results/
+playwright-report/
+
 # misc
 *.tsbuildinfo
 
