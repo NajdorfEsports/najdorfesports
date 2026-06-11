@@ -99,6 +99,10 @@ const homeHref = pathFor(locale, '/');
     </button>
   </div>
 
+  {
+    /* Without scripting the toggle button can never open this panel, so a
+      scoped style keeps it expanded; see the matching rule below. */
+  }
   <nav
     id="mobile-nav"
     class="md:hidden hidden border-t border-[var(--color-border)] px-4 sm:px-6 py-3"
@@ -130,12 +134,40 @@ const homeHref = pathFor(locale, '/');
   </nav>
 </header>
 
+<style>
+  /* No-JS fallback: the burger toggle is script-driven, so when scripting
+     is off the mobile nav renders expanded instead of unreachable. Browsers
+     that don't know the media feature skip this and keep today's behavior. */
+  @media (scripting: none) {
+    #mobile-nav {
+      display: block;
+    }
+    [data-mobile-toggle] {
+      display: none;
+    }
+  }
+  @media (min-width: 48rem) {
+    /* Never let the no-JS fallback leak into the desktop layout. */
+    #mobile-nav {
+      display: none;
+    }
+  }
+</style>
+
 <script is:inline>
+  // Event delegation on the document, not a direct listener on the button:
+  // the client router replaces the header on navigation and never re-runs
+  // an identical inline script, so a button-bound listener dies after the
+  // first soft navigation (the burger menu went dead). Delegation binds
+  // once and keeps working whatever happens to the header element.
   (() => {
-    const btn = document.querySelector('[data-mobile-toggle]');
-    const panel = document.getElementById('mobile-nav');
-    if (!btn || !panel) return;
-    btn.addEventListener('click', () => {
+    if (window.__najdorfNavBound) return;
+    window.__najdorfNavBound = true;
+    document.addEventListener('click', (e) => {
+      const btn = e.target instanceof Element ? e.target.closest('[data-mobile-toggle]') : null;
+      if (!btn) return;
+      const panel = document.getElementById('mobile-nav');
+      if (!panel) return;
       const open = panel.classList.toggle('hidden') === false;
       btn.setAttribute('aria-expanded', String(open));
     });
