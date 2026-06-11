@@ -100,11 +100,11 @@ export interface Coach {
 }
 
 /**
- * Build the per-processor links for a tier. The existing Cal.com event slugs
- * are the card (Stripe) variants and are live. The PayPal twins follow the
- * "<slug>-paypal" convention; they do not exist yet (verified 404), so they
- * ship disabled and the page shows "Coming soon" until they are created in the
- * Cal.com dashboard. Flip `paypalEnabled` to true once the twin is confirmed.
+ * Build the per-processor links for a tier. The base Cal.com event slugs are the
+ * card (Stripe) variants; the PayPal twins follow the "<slug>-paypal" convention.
+ * Both sets exist and are live (verified non-404), so callers pass
+ * paypalEnabled: true. The default stays false so a future tier whose PayPal
+ * twin has not been created yet ships "Coming soon" instead of a dead anchor.
  */
 function links(baseSlug: string, paypalEnabled = false): BookingLink[] {
   return [
@@ -153,21 +153,21 @@ export const COACHES: ReadonlyArray<Coach> = [
         priceUsd: 15,
         durationMin: 60,
         sessions: 1,
-        links: links('overwatch-coaching-1h'),
+        links: links('overwatch-coaching-1h', true),
       },
       {
         tier: 'pack2',
         priceUsd: 25,
         durationMin: 60,
         sessions: 2,
-        links: links('brysonbtw-2-session-pack'),
+        links: links('brysonbtw-2-session-pack', true),
       },
       {
         tier: 'pack4',
         priceUsd: 50,
         durationMin: 60,
         sessions: 4,
-        links: links('brysonbtw-4-session-pack'),
+        links: links('brysonbtw-4-session-pack', true),
       },
     ],
   },
