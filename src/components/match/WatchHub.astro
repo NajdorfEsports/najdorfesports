@@ -12,6 +12,16 @@
 import { watchChannels, confirmed, type WatchChannel } from '../../data/site';
 import { getLocale, useT } from '../../i18n';
 
+interface Props {
+  /**
+   * Compact mode renders just the labelled channel-chip row, for embedding
+   * inside another band (the home match center). The default standalone
+   * mode keeps its own section chrome.
+   */
+  compact?: boolean;
+}
+const { compact = false } = Astro.props;
+
 const locale = getLocale(Astro);
 const t = useT(locale);
 
@@ -22,22 +32,33 @@ const platformLabel: Record<WatchChannel['platform'], string> = {
   youtube: 'YouTube',
   other: 'Watch',
 };
+
+const Wrapper = compact ? 'div' : 'section';
 ---
 
 {
   visible.length > 0 && (
-    <section
-      class="watch-hub mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10"
+    <Wrapper
+      class:list={[
+        'watch-hub',
+        compact ? '' : 'mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10',
+      ]}
       aria-label={t.watch.eyebrow}
     >
-      <div class="flex items-end justify-between mb-4 gap-4">
-        <div>
-          <p class="text-[0.65rem] uppercase tracking-[0.25em] text-[var(--color-accent-2)]">
-            {t.watch.eyebrow}
-          </p>
-          <h2 class="font-display text-2xl sm:text-3xl mt-1 tracking-wide">{t.watch.heading}</h2>
+      {compact ? (
+        <p class="text-[0.65rem] uppercase tracking-[0.25em] text-[var(--color-text-dim)] mb-3">
+          {t.watch.eyebrow}
+        </p>
+      ) : (
+        <div class="flex items-end justify-between mb-4 gap-4">
+          <div>
+            <p class="text-[0.65rem] uppercase tracking-[0.25em] text-[var(--color-accent-2)]">
+              {t.watch.eyebrow}
+            </p>
+            <h2 class="font-display text-2xl sm:text-3xl mt-1 tracking-wide">{t.watch.heading}</h2>
+          </div>
         </div>
-      </div>
+      )}
 
       <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {visible.map((c) => (
@@ -75,7 +96,7 @@ const platformLabel: Record<WatchChannel['platform'], string> = {
           </li>
         ))}
       </ul>
-    </section>
+    </Wrapper>
   )
 }
 

@@ -41,6 +41,8 @@ export const zhTW: Strings = {
     recentEmpty: '尚無比賽結果。第二階段 6 月 4 日開打。',
     allMatches: '所有比賽',
     nextMatchLabel: '下一場比賽',
+    // DRAFT PENDING RIRI NATIVE REVIEW
+    matchCenterHeading: '賽事中心',
     latest: '最新消息',
     allNews: '所有新聞',
     read: '閱讀',
@@ -280,6 +282,12 @@ export const zhTW: Strings = {
     comingSoon: '精華即將推出',
     loadVideo: '播放精華',
     loadNote: '載入後將從 YouTube 播放，並由 Google 設置其 cookies。',
+    // DRAFT PENDING RIRI NATIVE REVIEW (the four placeholder strings below)
+    placeholderTitle: '更多精華即將推出',
+    placeholderBody: (opponent: string, date: string) =>
+      `對戰 ${opponent} 的精華將於賽後上線（${date}）。`,
+    placeholderBodyEmpty: '下一場系列賽的精華將於賽後上線。',
+    subscribeCta: '訂閱 YouTube 頻道',
   },
   live: {
     liveNow: '直播中',

@@ -1,7 +1,16 @@
 ---
-import PlayerAvatar from '../player/PlayerAvatar.astro';
+/**
+ * Home-page roster preview: one slim vertical slat per player, the
+ * signature hero art running through the sitewide ink treatment with the
+ * handle set along the bottom. Staff are excluded here (they live on
+ * /roster/). Players without hero art get the board texture instead, so
+ * a brand-new signing never renders broken.
+ */
+import { Image } from 'astro:assets';
 import CountryFlag from '../player/CountryFlag.astro';
+import SectionHeader from '../ui/SectionHeader.astro';
 import { playerSlug, hasDetailPage, type RosterEntry, type Role } from '../../data/site';
+import { firstHeroImage } from '../../lib/heroes';
 import { getLocale, pathFor, useT } from '../../i18n';
 import { displayCountry } from '../../i18n/format';
 
@@ -10,6 +19,8 @@ interface Props {
   /** Hide entries with these roles from the preview (e.g., coaches/managers). */
   excludeRoles?: ReadonlyArray<string>;
   href?: string;
+  /** Scoresheet index from the home spine (aria-hidden, never translated). */
+  move?: string | null;
 }
 const locale = getLocale(Astro);
 const t = useT(locale);
@@ -18,121 +29,130 @@ const {
   players,
   excludeRoles = ['Coach', 'Manager'],
   href = pathFor(locale, '/roster/'),
+  move,
 } = Astro.props;
 
 const visible = players.filter((p) => !excludeRoles.includes(p.role));
 const countries = new Set(visible.map((p) => p.country).filter(Boolean));
 const coaches = players.filter((p) => p.role === 'Coach');
+
+const slats = visible.map((p) => ({
+  player: p,
+  art: firstHeroImage(p.signatureHeroes),
+  href: hasDetailPage(p)
+    ? pathFor(locale, `/roster/${playerSlug(p.handle)}/`)
+    : (p.liquipediaUrl ?? href),
+  external: !hasDetailPage(p) && !!p.liquipediaUrl,
+}));
 ---
 
-<section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16" aria-label="Roster preview">
-  <div class="flex items-end justify-between mb-5">
-    <div>
-      <p class="text-xs uppercase tracking-[0.25em] text-[var(--color-accent-2)]">
-        {t.rosterStrip.activeRoster}
-      </p>
-      <h2 class="font-display text-3xl sm:text-4xl mt-1 tracking-wide">
-        {t.rosterStrip.countLine(visible.length, countries.size, coaches.length)}
-      </h2>
-    </div>
+<section class="section" aria-label="Roster preview">
+  <SectionHeader
+    move={move}
+    eyebrow={t.rosterStrip.activeRoster}
+    heading={t.rosterStrip.countLine(visible.length, countries.size, coaches.length)}
+  >
     <a
       href={href}
-      class="hidden sm:inline-flex link-arrow has-glyph text-sm uppercase tracking-wider text-[var(--color-accent-2)] hover:text-[var(--color-accent)]"
+      class="link-arrow has-glyph text-sm uppercase tracking-wider text-(--color-accent-2) hover:text-(--color-accent)"
     >
       <span>{t.rosterStrip.fullRoster}</span>
     </a>
-  </div>
+  </SectionHeader>
 
-  <div class="roster-strip">
-    <ul class="roster-strip__track">
-      {
-        visible.map((p, i) => {
-          // Link to the internal detail page when one exists (all players here
-          // do); fall back to the outbound Liquipedia profile otherwise.
-          const detailHref = hasDetailPage(p)
-            ? pathFor(locale, `/roster/${playerSlug(p.handle)}/`)
-            : (p.liquipediaUrl ?? href);
-          const external = !hasDetailPage(p) && !!p.liquipediaUrl;
-          return (
-            <li class="roster-strip__item" style={`--stagger:${i};`}>
-              <a
-                href={detailHref}
-                target={external ? '_blank' : undefined}
-                rel={external ? 'noopener' : undefined}
-                class="flex flex-col items-center gap-2"
-              >
-                <PlayerAvatar
-                  handle={p.handle}
-                  heroes={p.signatureHeroes}
-                  size={48}
-                  label={t.player.avatarAlt(p.handle, t.roles[p.role as Role] ?? p.role)}
+  <ul class="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3" role="list">
+    {
+      slats.map(({ player: p, art, href: slatHref, external }, i) => (
+        <li class="roster-slat" style={`--stagger:${i};`}>
+          <a
+            href={slatHref}
+            target={external ? '_blank' : undefined}
+            rel={external ? 'noopener' : undefined}
+            class="roster-slat__link group relative isolate block overflow-hidden rounded-md border border-(--color-border) bg-(--color-surface)"
+            aria-label={t.player.avatarAlt(p.handle, t.roles[p.role as Role] ?? p.role)}
+          >
+            {art ? (
+              <>
+                <Image
+                  src={art}
+                  alt=""
+                  width={240}
+                  densities={[1, 2]}
+                  loading="lazy"
+                  decoding="async"
+                  class="roster-slat__art ink-img"
+                  aria-hidden="true"
                 />
-                <span class="font-display text-base tracking-wide leading-none">{p.handle}</span>
-                <span class="flex items-center gap-1.5 text-[0.65rem] uppercase tracking-wider text-[var(--color-text-dim)]">
-                  {t.roles[p.role as Role] ?? p.role}
-                  {p.countryCode && (
-                    <>
-                      <span aria-hidden="true">·</span>
-                      <CountryFlag
-                        code={p.countryCode}
-                        name={displayCountry(p.countryCode, p.country, locale)}
-                        size="sm"
-                      />
-                    </>
-                  )}
-                </span>
-              </a>
-            </li>
-          );
-        })
-      }
-    </ul>
-  </div>
-
-  <p class="sm:hidden text-right mt-3">
-    <a
-      href={href}
-      class="link-arrow has-glyph text-sm uppercase tracking-wider text-[var(--color-accent-2)] hover:text-[var(--color-accent)]"
-    >
-      <span>{t.rosterStrip.fullRoster}</span>
-    </a>
-  </p>
+                <div class="ink-wash" aria-hidden="true" />
+              </>
+            ) : (
+              <div class="texture-board" aria-hidden="true" />
+            )}
+            <div class="roster-slat__scrim" aria-hidden="true" />
+            <div class="relative z-10 flex flex-col justify-end h-full p-3">
+              <p class="font-display text-lg tracking-wide leading-none">{p.handle}</p>
+              <p class="mt-1.5 flex items-center gap-1.5 text-[0.6rem] uppercase tracking-wider text-(--color-text-dim)">
+                {t.roles[p.role as Role] ?? p.role}
+                {p.countryCode && (
+                  <>
+                    <span aria-hidden="true">·</span>
+                    <CountryFlag
+                      code={p.countryCode}
+                      name={displayCountry(p.countryCode, p.country, locale)}
+                      size="sm"
+                    />
+                  </>
+                )}
+              </p>
+            </div>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
 </section>
 
 <style>
-  .roster-strip {
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-border) transparent;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 0.25rem;
-    /* hide horizontal overflow caused by hover lift */
-    margin-inline: -1rem;
-    padding-inline: 1rem;
-  }
-
-  .roster-strip__track {
-    display: flex;
-    gap: 1.5rem;
-    list-style: none;
-    margin: 0;
-    padding: 0.5rem 0;
-    min-width: max-content;
-  }
-
-  .roster-strip__item {
-    flex: 0 0 auto;
-    animation: strip-fade 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  .roster-slat {
+    animation: slat-fade 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
     animation-delay: calc(var(--stagger, 0) * 60ms);
-    transition: transform 0.2s ease-out;
   }
-
-  .roster-strip__item:hover {
+  .roster-slat__link {
+    aspect-ratio: 3 / 4.5;
+    transition:
+      border-color 0.2s ease-out,
+      transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .roster-slat__link:hover {
+    border-color: var(--color-accent);
     transform: translateY(-3px);
   }
+  .roster-slat__link :global(.roster-slat__art) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 12%;
+    transform-origin: 50% 25%;
+    transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .roster-slat__link:hover :global(.roster-slat__art) {
+    transform: scale(1.05);
+  }
+  .roster-slat__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(11, 11, 15, 0.92) 0%,
+      rgba(11, 11, 15, 0.35) 45%,
+      rgba(11, 11, 15, 0.12) 100%
+    );
+    pointer-events: none;
+  }
 
-  @keyframes strip-fade {
+  @keyframes slat-fade {
     from {
       opacity: 0;
       transform: translateY(8px);
@@ -144,10 +164,17 @@ const coaches = players.filter((p) => p.role === 'Coach');
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .roster-strip__item {
+    .roster-slat {
       animation: none;
     }
-    .roster-strip__item:hover {
+    .roster-slat__link,
+    .roster-slat__link :global(.roster-slat__art) {
+      transition: none;
+    }
+    .roster-slat__link:hover {
+      transform: none;
+    }
+    .roster-slat__link:hover :global(.roster-slat__art) {
       transform: none;
     }
   }

@@ -10,8 +10,11 @@ import {
 
 interface Props {
   achievements: ReadonlyArray<Achievement>;
+  /** Compact mode drops the section chrome for embedding inside a band. */
+  compact?: boolean;
 }
-const { achievements } = Astro.props;
+const { achievements, compact = false } = Astro.props;
+const Wrapper = compact ? 'div' : 'section';
 
 const locale = getLocale(Astro);
 const t = useT(locale);
@@ -30,13 +33,19 @@ function placementTier(placement: string): 'gold' | 'silver' | 'bronze' | 'neutr
 
 {
   sorted.length > 0 && (
-    <section
-      class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10"
+    <Wrapper
+      class={compact ? '' : 'mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-10'}
       aria-label={t.achievement.ariaLabel}
     >
-      <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] mb-3">
-        {t.achievement.recentResults}
-      </p>
+      {
+        /* Standalone mode labels itself; compact mode sits under a
+           SectionHeader that already carries the same heading. */
+        !compact && (
+          <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)] mb-3">
+            {t.achievement.recentResults}
+          </p>
+        )
+      }
       <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {sorted.map((a) => {
           const tier = placementTier(a.placement);
@@ -93,7 +102,7 @@ function placementTier(placement: string): 'gold' | 'silver' | 'bronze' | 'neutr
           );
         })}
       </ul>
-    </section>
+    </Wrapper>
   )
 }
 

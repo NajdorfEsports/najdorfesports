@@ -36,6 +36,7 @@ export const en = {
     recentEmpty: 'No completed matches yet. Stage 2 begins June 4.',
     allMatches: 'All matches',
     nextMatchLabel: 'Next match',
+    matchCenterHeading: 'Match center',
     latest: 'Latest',
     allNews: 'All news',
     read: 'Read',
@@ -305,6 +306,12 @@ export const en = {
     loadVideo: 'Play highlight',
     /** Mirrors the Twitch facade note: no Google contact until the click. */
     loadNote: 'Loading plays from YouTube and lets Google set its cookies.',
+    /** Companion cards beside a lone Short so the rail reads curated. */
+    placeholderTitle: 'More film on the way',
+    placeholderBody: (opponent: string, date: string) =>
+      `Highlights from ${opponent} land here after match day, ${date}.`,
+    placeholderBodyEmpty: 'Highlights from the next series land here after match day.',
+    subscribeCta: 'Subscribe on YouTube',
   },
   live: {
     liveNow: 'LIVE NOW',

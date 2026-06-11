@@ -3,6 +3,18 @@
  * Home page body. Same markup is rendered at `/`, `/zh-TW/`, and `/zh-CN/`.
  * Astro.currentLocale is resolved per-URL by Astro's i18n router, so this
  * component picks up the right locale automatically.
+ *
+ * Composition (2026-06 redesign): the page reads like a scoresheet. Each
+ * section carries a half-move of the Najdorf line as a quiet aria-hidden
+ * index (src/lib/notation.ts):
+ *   1. e4      hero
+ *   1... c5    match center (live/countdown + results + where to watch)
+ *   2. Nf3     roster preview
+ *   2... d6    season so far (achievements + broadcast reach)
+ *   3. d4      highlights
+ *   3... cxd4  latest news
+ * Sponsors and the community band close the page without indexes (they are
+ * outro chrome, not chapters).
  */
 import OWCSBadge from '../ui/OWCSBadge.astro';
 import NextMatchCountdown from '../match/NextMatchCountdown.astro';
@@ -17,10 +29,13 @@ import BroadcastReach from '../team/BroadcastReach.astro';
 import CommunityCTA from '../team/CommunityCTA.astro';
 import Button from '../ui/Button.astro';
 import BishopMark from '../ui/BishopMark.astro';
+import SectionHeader from '../ui/SectionHeader.astro';
+import NewsCover from '../news/NewsCover.astro';
 import { getCollection } from 'astro:content';
 import { competedAsFor, type Sponsor } from '../../data/site';
 import { loadRoster, loadMatches, loadAchievements } from '../../data/loaders';
 import { splitMatches, recordOf, seriesScore } from '../../lib/matches';
+import { moveLabel } from '../../lib/notation';
 import sponsorsData from '../../data/sponsors.json';
 import { getLocale, pathFor, useT } from '../../i18n';
 import { formatDate, translateTournament, translatePlacement } from '../../i18n/format';
@@ -71,49 +86,14 @@ const matchesHref = pathFor(locale, '/matches/');
 const rosterHref = pathFor(locale, '/roster/');
 const newsHref = pathFor(locale, '/news/');
 
-// Drifting bishop motif behind the hero. Each entry is one instance: position
-// + animation vars live in `style`, responsive visibility in `class`, and the
-// svg size / stroke on the mark itself. They never sync because the durations
-// (--dur) differ. The 4th instance tints itself with the secondary accent via
-// an inline `color` (the mark's stroke is currentColor).
-const heroBishops = [
-  {
-    class: '',
-    width: 180,
-    height: 270,
-    strokeWidth: 1.6,
-    style: 'top:8%;left:6%;--dur:62s;--dx:24px;--dy:-18px;--rot:5deg;--op:0.07;',
-  },
-  {
-    class: '',
-    width: 240,
-    height: 360,
-    strokeWidth: 1.4,
-    style: 'top:32%;right:4%;--dur:78s;--dx:-32px;--dy:22px;--rot:-7deg;--op:0.05;',
-  },
-  {
-    class: 'hidden md:inline-block',
-    width: 140,
-    height: 210,
-    strokeWidth: 1.6,
-    style: 'bottom:6%;left:28%;--dur:54s;--dx:18px;--dy:-26px;--rot:9deg;--op:0.04;',
-  },
-  {
-    class: 'hidden lg:inline-block',
-    width: 160,
-    height: 240,
-    strokeWidth: 1.5,
-    style:
-      'top:52%;left:62%;--dur:70s;--dx:-20px;--dy:30px;--rot:-5deg;--op:0.06; color:var(--color-accent-2);',
-  },
-  {
-    class: 'hidden xl:inline-block',
-    width: 100,
-    height: 150,
-    strokeWidth: 1.6,
-    style: 'top:18%;right:36%;--dur:84s;--dx:30px;--dy:-14px;--rot:4deg;--op:0.04;',
-  },
-];
+// Next-fixture context handed to the highlights rail so its "more film on
+// the way" placeholder names a real series instead of inventing one.
+const nextFilm = nextMatch
+  ? {
+      opponent: nextMatch.opponent,
+      date: formatDate(nextMatch.date, locale, { month: 'short', day: 'numeric' }),
+    }
+  : undefined;
 ---
 
 <MatchTicker matches={allMatches} />
@@ -121,95 +101,73 @@ const heroBishops = [
 {
   /*
   Two heroes share this slot: the always-rendered default and the
-  hidden-by-default live mode. A small inline script in <LiveHero/> swaps
-  them when current time falls in [match - 30m, match + 3h]. Both are
-  server-rendered so there is no FOUC and SEO crawlers see the default.
+  hidden-by-default live mode. The LiveHero module swaps them when current
+  time falls in [match - 30m, match + 3h]. Both are server-rendered so
+  there is no FOUC and SEO crawlers see the default.
 
-  The default hero composes three layers:
-    - .hero-bishops: five drifting bishop SVGs (decorative, very faint)
-    - the gradient surface→bg wash, dimmer at top
-    - the actual content (wordmark, subhead, body, CTAs)
-
-  Each letter of "NAJDORF ESPORTS" gets a per-character rise on first paint
-  (animation lives in src/styles/global.css). prefers-reduced-motion users
-  see the final state immediately via the sitewide reduce rule.
+  The default hero: a board-grid texture and ONE architectural bishop
+  cropped at the right frame edge (replacing the old five drifting
+  pieces), the wordmark rising as two groups, then the data-driven status
+  block and a hairline scoresheet row for the stats. The section's bottom
+  border is the baseline the rest of the page hangs from.
 */
 }
-<section data-hero-default class="relative overflow-hidden isolate">
+<section
+  data-hero-default
+  class="relative overflow-hidden isolate border-b border-(--color-border)"
+>
+  <div class="texture-board" aria-hidden="true"></div>
   {
-    /* Drifting bishop motif. Five instances at different sizes / positions /
-      durations so they never sync. Pointer-events:none so CTAs underneath
-      stay clickable. aria-hidden because they're purely decorative. */
+    /* The architectural bishop: oversized, faint linework, deliberately
+      cropped by the section edge. Hidden from narrow viewports where it
+      would crowd the wordmark. */
   }
-  <div class="hero-bishops absolute inset-0" aria-hidden="true">
-    {
-      heroBishops.map((b) => (
-        <span class:list={['bishop-drift', b.class]} style={b.style}>
-          <BishopMark width={b.width} height={b.height} strokeWidth={b.strokeWidth} />
-        </span>
-      ))
-    }
-  </div>
-
   <div
-    class="absolute inset-0 bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg)] opacity-80"
+    class="absolute -right-16 -bottom-40 hidden md:block text-(--color-accent) opacity-[0.07]"
+    aria-hidden="true"
+  >
+    <BishopMark width={420} height={630} strokeWidth={1.2} />
+  </div>
+  <div
+    class="absolute inset-0 bg-gradient-to-b from-(--color-surface) to-(--color-bg) opacity-60 -z-10"
     aria-hidden="true"
   >
   </div>
-  <div class="relative mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-12 sm:pt-20 pb-12">
-    {
-      /* Wordmark with per-letter rise. This is the home page's single h1.
-        aria-label gives assistive tech the unbroken word so the per-letter
-        spans don't fragment the readout. Tailwind preflight zeroes heading
-        margins and inherits font-size, so the p->h1 swap is visually
-        identical. */
-    }
+
+  <div class="relative mx-auto max-w-(--max-content) px-4 sm:px-6 pt-14 sm:pt-24 pb-12">
+    <p class="hero-fade-in section-header__move-like" aria-hidden="true" style="--delay:0ms">
+      {moveLabel(0)}
+    </p>
     <h1
-      class="font-display text-5xl sm:text-7xl md:text-8xl tracking-tight leading-none"
-      aria-label="Najdorf Esports"
+      class="font-display text-(length:--text-hero) tracking-tight leading-[0.95] mt-2"
+      style="overflow-wrap: anywhere"
     >
-      <span class="text-[var(--color-accent)]" aria-hidden="true">
-        <span class="hero-letter" style="--n:0">N</span><span class="hero-letter" style="--n:1"
-          >A</span
-        ><span class="hero-letter" style="--n:2">J</span><span class="hero-letter" style="--n:3"
-          >D</span
-        ><span class="hero-letter" style="--n:4">O</span><span class="hero-letter" style="--n:5"
-          >R</span
-        ><span class="hero-letter" style="--n:6">F</span>
-      </span>
-      <span class="text-[var(--color-text)]" aria-hidden="true">
-        <span class="hero-letter" style="--n:7">&nbsp;</span><span class="hero-letter" style="--n:8"
-          >E</span
-        ><span class="hero-letter" style="--n:9">S</span><span class="hero-letter" style="--n:10"
-          >P</span
-        ><span class="hero-letter" style="--n:11">O</span><span class="hero-letter" style="--n:12"
-          >R</span
-        ><span class="hero-letter" style="--n:13">T</span><span class="hero-letter" style="--n:14"
-          >S</span
-        >
-      </span>
+      <span class="hero-fade-in inline-block text-(--color-accent)" style="--delay:60ms"
+        >NAJDORF</span
+      >
+      <span class="hero-fade-in inline-block" style="--delay:180ms">ESPORTS</span>
     </h1>
 
     <p
-      class="hero-fade-in mt-4 font-display text-xl sm:text-2xl text-[var(--color-accent-2)] tracking-[0.3em]"
-      style="--delay:680ms"
+      class="hero-fade-in mt-4 font-display text-lg sm:text-xl text-(--color-accent-2) tracking-[0.3em]"
+      style="--delay:420ms"
     >
       {t.hero.subhead}
     </p>
 
     <p
-      class="hero-fade-in mt-6 max-w-xl text-base sm:text-lg text-[var(--color-text-dim)] leading-relaxed"
-      style="--delay:780ms"
+      class="hero-fade-in mt-6 max-w-xl text-base sm:text-lg text-(--color-text-dim) leading-relaxed"
+      style="--delay:520ms"
     >
       {
         topAchievement && (
-          <span class="text-[var(--color-text)]">
+          <span class="text-(--color-text)">
             {t.hero.achievement(
               translatePlacement(topAchievement.placement, locale),
               translateTournament(topAchievement.event.replace(/^.*?·\s*/, ''), locale),
             )}
             {heroCompetedAs && (
-              <span class="text-[var(--color-text-dim)]"> ({t.competedAs(heroCompetedAs)})</span>
+              <span class="text-(--color-text-dim)"> ({t.competedAs(heroCompetedAs)})</span>
             )}{' '}
           </span>
         )
@@ -220,34 +178,32 @@ const heroBishops = [
     {
       /*
       Data-driven status line: current W-L record + next fixture, both derived
-      from the match data so they advance automatically after each result. This
-      is the live "where we stand" line; the human-written tagline above stays
-      static. Reuses existing localized labels (no new i18n keys). Hides itself
-      cleanly before any match exists.
+      from the match data so they advance automatically after each result.
+      Hides itself cleanly before any match exists.
     */
     }
     {
       (wins + losses > 0 || nextMatch) && (
         <p
           class="hero-fade-in mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm"
-          style="--delay:840ms"
+          style="--delay:600ms"
         >
           {wins + losses > 0 && (
             <span class="inline-flex items-baseline gap-2">
-              <span class="text-[0.65rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)]">
+              <span class="text-[0.65rem] uppercase tracking-[0.2em] text-(--color-text-dim)">
                 {t.roster.recordLabel}
               </span>
-              <span class="font-display tracking-wide tabular-nums text-[var(--color-text)]">
+              <span class="font-display tracking-wide tabular-nums text-(--color-text)">
                 {t.matches.record(wins, losses)}
               </span>
             </span>
           )}
           {nextMatch && (
             <span class="inline-flex items-baseline gap-2">
-              <span class="text-[0.65rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)]">
+              <span class="text-[0.65rem] uppercase tracking-[0.2em] text-(--color-text-dim)">
                 {t.home.nextMatchLabel}
               </span>
-              <span class="text-[var(--color-text)]">
+              <span class="text-(--color-text)">
                 {t.nextMatch.vs(nextMatch.opponent)} ·{' '}
                 {formatDate(nextMatch.date, locale, { month: 'short', day: 'numeric' })}
               </span>
@@ -257,60 +213,51 @@ const heroBishops = [
       )
     }
 
-    <div class="hero-fade-in mt-8 flex flex-wrap gap-3" style="--delay:880ms">
+    <div class="hero-fade-in mt-8 flex flex-wrap gap-3" style="--delay:680ms">
       <Button href={matchesHref} variant="primary">{t.hero.matchSchedule}</Button>
       <Button href={rosterHref} variant="secondary">{t.hero.meetRoster}</Button>
     </div>
 
     {
       /*
-      Hero stat strip. Each numeric value carries `data-count-up` +
-      `data-target` so the BaseLayout count-up driver animates it from 0
-      when the strip enters the viewport. tabular-nums keeps the digit
-      cells from jittering during the count. The W-L record renders as
-      two count-up cells separated by a static en-dash, since the count
-      driver only handles single integers.
+      Scoresheet stat row: hairline-ruled cells instead of boxed tiles.
+      Each numeric value carries `data-count-up` + `data-target` so the
+      count-up module animates it on entry; the SERVER renders the real
+      value so crawlers and no-JS visitors always see the truth.
     */
     }
-    <dl
-      class="hero-fade-in mt-10 grid grid-cols-3 max-w-md gap-px bg-[var(--color-border)] border border-[var(--color-border)] rounded-md overflow-hidden"
-      style="--delay:1000ms"
-    >
-      <div class="bg-[var(--color-surface)] px-4 py-3 sm:px-5 sm:py-4">
-        <dt class="text-[0.6rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)]">
+    <dl class="hero-fade-in mt-12 flex max-w-lg" style="--delay:780ms">
+      <div class="flex-1 pr-5">
+        <dt class="text-[0.6rem] uppercase tracking-[0.2em] text-(--color-text-dim)">
           {t.roster.playersLabel}
         </dt>
-        {
-          /* Server-render the REAL value as the baseline so crawlers and no-JS
-            visitors see the true count; the count-up driver animates over it. */
-        }
         <dd
-          class="font-display text-3xl sm:text-4xl leading-none tabular-nums mt-1"
+          class="font-display text-3xl sm:text-4xl leading-none tabular-nums mt-2"
           data-count-up
           data-target={players.length}
         >
           {players.length}
         </dd>
       </div>
-      <div class="bg-[var(--color-surface)] px-4 py-3 sm:px-5 sm:py-4">
-        <dt class="text-[0.6rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)]">
+      <div class="flex-1 px-5 border-l border-(--color-border)">
+        <dt class="text-[0.6rem] uppercase tracking-[0.2em] text-(--color-text-dim)">
           {countries.size === 1 ? t.roster.countryLabel : t.roster.countriesLabel}
         </dt>
         <dd
-          class="font-display text-3xl sm:text-4xl leading-none tabular-nums mt-1"
+          class="font-display text-3xl sm:text-4xl leading-none tabular-nums mt-2"
           data-count-up
           data-target={countries.size}
         >
           {countries.size}
         </dd>
       </div>
-      <div class="bg-[var(--color-surface)] px-4 py-3 sm:px-5 sm:py-4">
-        <dt class="text-[0.6rem] uppercase tracking-[0.2em] text-[var(--color-text-dim)]">
+      <div class="flex-[1.4] pl-5 border-l border-(--color-border)">
+        <dt class="text-[0.6rem] uppercase tracking-[0.2em] text-(--color-text-dim)">
           {t.roster.recordLabel}
         </dt>
         {
           wins + losses > 0 ? (
-            <dd class="font-display text-3xl sm:text-4xl leading-none tabular-nums mt-1 flex items-baseline gap-1">
+            <dd class="font-display text-3xl sm:text-4xl leading-none tabular-nums mt-2 flex items-baseline gap-1">
               {/* whitespace-nowrap: the zh suffixes (勝/負) must never
                   wrap away from their number; a too-narrow viewport
                   breaks at the dash between the two records instead. */}
@@ -323,7 +270,7 @@ const heroBishops = [
                 {wins}
                 {t.match.win}
               </span>
-              <span class="text-[var(--color-text-dim)] text-2xl">–</span>
+              <span class="text-(--color-text-dim) text-2xl">–</span>
               <span
                 class="whitespace-nowrap"
                 data-count-up
@@ -335,7 +282,7 @@ const heroBishops = [
               </span>
             </dd>
           ) : (
-            <dd class="font-display text-2xl sm:text-3xl leading-none mt-1 text-[var(--color-text-dim)]">
+            <dd class="font-display text-2xl sm:text-3xl leading-none mt-2 text-(--color-text-dim)">
               0W &middot; 0L
             </dd>
           )
@@ -347,127 +294,142 @@ const heroBishops = [
 
 <LiveHero match={liveCandidate} />
 
-<section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 -mt-4">
-  <OWCSBadge prominent />
-</section>
-
-<div class="reveal">
-  <WatchHub />
-</div>
-
-<section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-12 grid gap-6 lg:grid-cols-3">
-  <div class="reveal lg:col-span-2">
-    <NextMatchCountdown match={nextMatch} />
-  </div>
-
-  <div
-    class="reveal bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 flex flex-col"
-    data-stagger="1"
+{/* 1... c5: one band for everything match-shaped. */}
+<section class="reveal section" aria-label={t.home.matchCenterHeading}>
+  <SectionHeader
+    move={moveLabel(1)}
+    eyebrow={t.owcsBadge.descriptor}
+    heading={t.home.matchCenterHeading}
   >
-    <p class="text-xs uppercase tracking-wider text-[var(--color-accent-2)]">
-      {t.home.recentResults}
-    </p>
-    {
-      recentRows.length > 0 ? (
-        <>
-          <ul class="mt-4 space-y-1 flex-1">
-            {recentRows.map(({ match: m, score }) => (
-              <li>
-                <a
-                  href={m.streamUrl ?? matchesHref}
-                  target={m.streamUrl ? '_blank' : undefined}
-                  rel={m.streamUrl ? 'noopener' : undefined}
-                  class="result-row group flex items-center justify-between gap-3 text-sm py-2.5 px-2 -mx-2 rounded-sm transition-colors hover:bg-[var(--color-surface-2)]"
-                >
-                  <span class="truncate min-w-0 group-hover:text-[var(--color-text)] transition-colors">
-                    {t.match.vs(m.opponent)}
-                  </span>
-                  <span class="flex items-center gap-2 shrink-0">
-                    {score && (
-                      <span class="font-display text-sm text-[var(--color-text-dim)] tabular-nums">
-                        {score.ours}–{score.theirs}
-                      </span>
-                    )}
-                    {/* Explicit two-branch pill: only a final result ever
-                        renders a letter. Anything else renders nothing. */}
-                    {(m.result === 'win' || m.result === 'loss') && (
-                      <span
-                        class:list={[
-                          'inline-flex items-center justify-center w-6 h-6 rounded-sm border font-display text-sm font-bold transition-transform group-hover:scale-110',
-                          m.result === 'win'
-                            ? 'text-[var(--color-win)] border-[var(--color-win)]'
-                            : 'text-[var(--color-loss)] border-[var(--color-loss)]',
-                        ]}
-                      >
-                        {m.result === 'win' ? t.match.win : t.match.loss}
-                      </span>
-                    )}
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
-          <a
-            href={matchesHref}
-            class="link-arrow has-glyph mt-4 text-xs uppercase tracking-wider text-[var(--color-accent-2)] hover:text-[var(--color-accent)]"
-          >
-            <span>{t.home.allMatches}</span>
-          </a>
-        </>
-      ) : (
-        <p class="text-sm text-[var(--color-text-dim)] mt-3">{t.home.recentEmpty}</p>
-      )
-    }
+    <a
+      href={matchesHref}
+      class="link-arrow has-glyph text-sm uppercase tracking-wider text-(--color-accent-2) hover:text-(--color-accent)"
+    >
+      <span>{t.home.allMatches}</span>
+    </a>
+  </SectionHeader>
+
+  <div class="mt-6">
+    <OWCSBadge prominent />
+  </div>
+
+  <div class="mt-6 grid gap-6 lg:grid-cols-3">
+    <div class="lg:col-span-2">
+      <NextMatchCountdown match={nextMatch} />
+    </div>
+
+    <div class="bg-(--color-surface) border border-(--color-border) rounded-md p-6 flex flex-col">
+      <p class="text-xs uppercase tracking-wider text-(--color-accent-2)">
+        {t.home.recentResults}
+      </p>
+      {
+        recentRows.length > 0 ? (
+          <>
+            <ul class="mt-4 space-y-1 flex-1">
+              {recentRows.map(({ match: m, score }) => (
+                <li>
+                  <a
+                    href={m.streamUrl ?? matchesHref}
+                    target={m.streamUrl ? '_blank' : undefined}
+                    rel={m.streamUrl ? 'noopener' : undefined}
+                    class="result-row group flex items-center justify-between gap-3 text-sm py-2.5 px-2 -mx-2 rounded-sm transition-colors hover:bg-(--color-surface-2)"
+                  >
+                    <span class="truncate min-w-0 group-hover:text-(--color-text) transition-colors">
+                      {t.match.vs(m.opponent)}
+                    </span>
+                    <span class="flex items-center gap-2 shrink-0">
+                      {score && (
+                        <span class="font-display text-sm text-(--color-text-dim) tabular-nums">
+                          {score.ours}–{score.theirs}
+                        </span>
+                      )}
+                      {/* Explicit two-branch pill: only a final result ever
+                          renders a letter. Anything else renders nothing. */}
+                      {(m.result === 'win' || m.result === 'loss') && (
+                        <span
+                          class:list={[
+                            'inline-flex items-center justify-center w-6 h-6 rounded-sm border font-display text-sm font-bold transition-transform group-hover:scale-110',
+                            m.result === 'win'
+                              ? 'text-(--color-win) border-(--color-win)'
+                              : 'text-(--color-loss) border-(--color-loss)',
+                          ]}
+                        >
+                          {m.result === 'win' ? t.match.win : t.match.loss}
+                        </span>
+                      )}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p class="text-sm text-(--color-text-dim) mt-3">{t.home.recentEmpty}</p>
+        )
+      }
+    </div>
+  </div>
+
+  <div class="mt-6">
+    <WatchHub compact />
   </div>
 </section>
 
+{/* 2. Nf3: the roster slat rail. */}
 <div class="reveal">
-  <RosterPreview players={roster} />
+  <RosterPreview players={roster} move={moveLabel(2)} />
 </div>
 
+{/* 2... d6: season so far. */}
+<section class="reveal section" aria-label={t.achievement.ariaLabel}>
+  <SectionHeader
+    move={moveLabel(3)}
+    eyebrow={t.hero.subhead}
+    heading={t.achievement.recentResults}
+  />
+  <div class="mt-6 space-y-6">
+    <AchievementStrip achievements={achievements} compact />
+    <BroadcastReach compact />
+  </div>
+</section>
+
+{/* 3. d4: highlights, built for 9:16 film. */}
 <div class="reveal">
-  <AchievementStrip achievements={achievements} />
+  <HighlightsStrip move={moveLabel(4)} nextFilm={nextFilm} />
 </div>
 
-<div class="reveal">
-  <HighlightsStrip />
-</div>
-
-<div class="reveal">
-  <SponsorsRow sponsors={sponsorsData as Sponsor[]} />
-</div>
-
-<section class="reveal mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16">
-  <div class="flex items-end justify-between mb-6">
-    <h2 class="font-display text-3xl sm:text-4xl tracking-wide">{t.home.latest}</h2>
+{/* 3... cxd4: latest news with real covers. */}
+<section class="reveal section">
+  <SectionHeader move={moveLabel(5)} heading={t.home.latest}>
     <a
       href={newsHref}
-      class="link-arrow has-glyph text-sm uppercase tracking-wider text-[var(--color-accent-2)] hover:text-[var(--color-accent)]"
+      class="link-arrow has-glyph text-sm uppercase tracking-wider text-(--color-accent-2) hover:text-(--color-accent)"
     >
       <span>{t.home.allNews}</span>
     </a>
-  </div>
+  </SectionHeader>
 
-  <div class="grid gap-6 md:grid-cols-2">
+  <div class="grid gap-6 md:grid-cols-2 mt-6">
     {
-      newsPosts.map((post, i) => (
+      newsPosts.map((post) => (
         <a
           href={pathFor(locale, `/news/${post.data.slug}/`)}
-          class="surface-hover reveal block bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 group"
-          data-stagger={i + 1}
+          class="surface-hover block rounded-md group"
         >
-          <p class="text-xs uppercase tracking-wider text-[var(--color-text-dim)]">
-            {formatDate(post.data.date, locale, { month: 'long', day: 'numeric', year: 'numeric' })}
-          </p>
-          <h3 class="font-display text-2xl mt-2 tracking-wide group-hover:text-[var(--color-accent-2)] transition-colors">
-            {post.data.title}
-          </h3>
+          <NewsCover
+            title={post.data.title}
+            date={post.data.date}
+            eyebrow={post.data.eyebrow}
+            tone={post.data.tone}
+            variant="card"
+            locale={locale}
+          />
           {post.data.description && (
-            <p class="text-sm text-[var(--color-text-dim)] mt-2 line-clamp-3">
+            <p class="text-sm text-(--color-text-dim) mt-3 line-clamp-2 px-1">
               {post.data.description}
             </p>
           )}
-          <p class="link-arrow has-glyph text-sm uppercase tracking-wider text-[var(--color-accent-2)] mt-4">
+          <p class="link-arrow has-glyph text-xs uppercase tracking-wider text-(--color-accent-2) mt-2 px-1 group-hover:text-(--color-accent)">
             <span>{t.home.read}</span>
           </p>
         </a>
@@ -477,9 +439,21 @@ const heroBishops = [
 </section>
 
 <div class="reveal">
-  <BroadcastReach />
+  <SponsorsRow sponsors={sponsorsData as Sponsor[]} />
 </div>
 
 <div class="reveal">
   <CommunityCTA />
 </div>
+
+<style>
+  /* Local twin of SectionHeader's move index for the hero (which composes
+     its header by hand around the wordmark). */
+  .section-header__move-like {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+    color: color-mix(in oklab, var(--color-accent-2) 60%, var(--color-text-dim));
+  }
+</style>

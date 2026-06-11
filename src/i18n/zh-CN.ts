@@ -40,6 +40,8 @@ export const zhCN: Strings = {
     recentEmpty: '暂无比赛结果。第二阶段 6 月 4 日开打。',
     allMatches: '所有比赛',
     nextMatchLabel: '下一场比赛',
+    // DRAFT PENDING RIRI NATIVE REVIEW
+    matchCenterHeading: '赛事中心',
     latest: '最新消息',
     allNews: '所有新闻',
     read: '阅读',
@@ -280,6 +282,12 @@ export const zhCN: Strings = {
     comingSoon: '集锦即将上线',
     loadVideo: '播放集锦',
     loadNote: '加载后将从 YouTube 播放，并由 Google 设置其 cookies。',
+    // DRAFT PENDING RIRI NATIVE REVIEW (the four placeholder strings below)
+    placeholderTitle: '更多集锦即将上线',
+    placeholderBody: (opponent: string, date: string) =>
+      `对阵 ${opponent} 的集锦将于赛后上线（${date}）。`,
+    placeholderBodyEmpty: '下一场系列赛的集锦将于赛后上线。',
+    subscribeCta: '订阅 YouTube 频道',
   },
   live: {
     liveNow: '直播中',

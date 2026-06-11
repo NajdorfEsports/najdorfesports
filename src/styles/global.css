@@ -435,23 +435,13 @@
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
- * Cinematic home hero
+ * Home hero entrance
  * ─────────────────────────────────────────────────────────────────────────── */
 
-/* Hero wordmark: per-letter rise + scale-up on first paint. The page sets
- *  `--n` (the letter index) inline; the keyframe stays declarative. */
 @layer utilities {
-  .hero-letter {
-    display: inline-block;
-    opacity: 0;
-    transform: translateY(14px) scale(0.96);
-    animation: hero-letter-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: calc(var(--n, 0) * 40ms);
-    will-change: opacity, transform;
-  }
-
-  /* Eyebrow / supporting copy / CTA row each fade in once the wordmark has
-     resolved. Stagger via `--delay` so we don't recompute keyframes. */
+  /* The hero settles in as a handful of groups (wordmark halves, eyebrow,
+     copy, CTAs, stat row), each staggered via an inline `--delay`. One
+     register of motion: things settle into place, nothing loops. */
   .hero-fade-in {
     opacity: 0;
     transform: translateY(8px);
@@ -460,33 +450,6 @@
     will-change: opacity, transform;
   }
 
-  /* Drifting bishop motif sits behind the hero. Each instance gets its own
-   * `--dur`, `--dx`, `--dy`, `--rot`, `--op` so the five (or however many)
-   * pieces never sync. Pure transform, GPU-cheap, no reflow. */
-  .bishop-drift {
-    position: absolute;
-    pointer-events: none;
-    color: var(--color-accent);
-    opacity: var(--op, 0.06);
-    animation: bishop-drift var(--dur, 60s) ease-in-out infinite alternate;
-    will-change: transform;
-    /* Subtle blur softens hard SVG edges into the background. */
-    filter: blur(0.4px);
-  }
-  .bishop-drift svg {
-    display: block;
-  }
-
-  @keyframes hero-letter-rise {
-    from {
-      opacity: 0;
-      transform: translateY(14px) scale(0.96);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
   @keyframes hero-fade-in {
     from {
       opacity: 0;
@@ -495,14 +458,6 @@
     to {
       opacity: 1;
       transform: translateY(0);
-    }
-  }
-  @keyframes bishop-drift {
-    from {
-      transform: translate3d(0, 0, 0) rotate(0deg);
-    }
-    to {
-      transform: translate3d(var(--dx, 24px), var(--dy, -32px), 0) rotate(var(--rot, 6deg));
     }
   }
 }
@@ -539,14 +494,9 @@
   .link-arrow:hover::after {
     transform: none !important;
   }
-  .hero-letter,
   .hero-fade-in {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;
-  }
-  .bishop-drift {
-    animation: none !important;
-    transform: none !important;
   }
 }

@@ -15,6 +15,13 @@
 import { loadMatches } from '../../data/loaders';
 import { getLocale, pathFor, useT } from '../../i18n';
 
+interface Props {
+  /** Compact mode drops the section chrome for embedding inside a band. */
+  compact?: boolean;
+}
+const { compact = false } = Astro.props;
+const Wrapper = compact ? 'div' : 'section';
+
 const locale = getLocale(Astro);
 const t = useT(locale);
 
@@ -30,8 +37,8 @@ const matchesHref = pathFor(locale, '/matches/');
 
 {
   peakMatch && (
-    <section
-      class="reach mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-20"
+    <Wrapper
+      class={compact ? 'reach' : 'reach mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-20'}
       aria-label={t.reach.eyebrow}
     >
       <a href={matchesHref} class="reach-card group">
@@ -47,7 +54,7 @@ const matchesHref = pathFor(locale, '/matches/');
           </p>
         </div>
       </a>
-    </section>
+    </Wrapper>
   )
 }
 
