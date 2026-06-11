@@ -171,31 +171,15 @@ if (crumbSegments.length > 0) {
     <link rel="preload" as="font" type="font/woff2" href="/fonts/anton-latin.woff2" crossorigin />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-latin.woff2" crossorigin />
     {
-      /* zh locales also preload their 400 CJK text face (the 700 display
-         face can arrive with font-display: swap). en pages preload no CJK
-         bytes; the unicode-range on the faces keeps them inert there. */
-    }
-    {
-      locale === 'zh-TW' && (
-        <link
-          rel="preload"
-          as="font"
-          type="font/woff2"
-          href="/fonts/noto-sans-tc-400.subset.woff2"
-          crossorigin
-        />
-      )
-    }
-    {
-      locale === 'zh-CN' && (
-        <link
-          rel="preload"
-          as="font"
-          type="font/woff2"
-          href="/fonts/noto-sans-sc-400.subset.woff2"
-          crossorigin
-        />
-      )
+      /* The CJK faces are deliberately NOT preloaded. They ship with
+         font-display: optional (a late ~140KB arrival must never repaint
+         the page), so a preload cannot buy a first-view render on slow
+         connections anyway; what it DID do was starve the small Latin
+         faces above and push every zh page's font-swap LCP out by
+         seconds. First zh view renders in the metrics-matched system
+         face (PingFang / Microsoft families, declared in global.css);
+         Noto serves from cache on every later view. The unicode-range on
+         the faces keeps en pages at zero CJK bytes. */
     }
 
     <meta property="og:type" content="website" />
@@ -253,6 +237,7 @@ if (crumbSegments.length > 0) {
       import '../scripts/reveal.ts';
       import '../scripts/count-up.ts';
       import '../scripts/nav-toggle.ts';
+      import '../scripts/fonts.ts';
     </script>
   </body>
 </html>

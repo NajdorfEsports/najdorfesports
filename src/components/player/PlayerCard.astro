@@ -12,8 +12,10 @@ interface Props {
   player: RosterEntry;
   /** 0-based index used to stagger the fade-in animation. */
   index?: number;
+  /** Eager-load the backdrop art (the page's first, above-fold card). */
+  eager?: boolean;
 }
-const { player, index = 0 } = Astro.props;
+const { player, index = 0, eager = false } = Astro.props;
 
 const locale = getLocale(Astro);
 const t = useT(locale);
@@ -58,12 +60,16 @@ const hasBackdrop = backdropHeroes.length > 0;
         <div class="player-card__backdrop" aria-hidden="true">
           {backdropHeroes.map((h) => (
             <span class="player-card__hero" data-hero={h.name}>
+              {/* One 320w candidate: strips render ~130-190px wide under
+                  the ink wash and scrim, and keeping each under ~20KB
+                  stops the lazy-load lookahead from starving the display
+                  font on slow connections. */}
               <Image
                 src={h.image}
                 alt=""
-                width={240}
-                densities={[1, 2]}
-                loading="lazy"
+                widths={[320]}
+                sizes="320px"
+                loading={eager ? 'eager' : 'lazy'}
                 decoding="async"
                 class="player-card__hero-img ink-img"
               />

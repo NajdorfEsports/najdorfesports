@@ -3,6 +3,13 @@ import type { MatchEntry } from '../../data/site';
 import { getLocale, useT } from '../../i18n';
 import { formatDate, translateTournament, MATCH_TIME_ZONE } from '../../i18n/format';
 
+/**
+ * Season strip under the header. STATIC, not a marquee: the old CSS loop
+ * fought the motion language (nothing loops) and kept stamping later LCP
+ * entries as longer items slid into view. The strip now reads left to
+ * right as "what's next, then what just happened" (upcoming soonest-first,
+ * then results newest-first) and overflows into a natural swipe/scroll.
+ */
 interface Props {
   matches: ReadonlyArray<MatchEntry>;
   fallback?: string;
@@ -21,10 +28,16 @@ interface TickerItem {
   href?: string;
 }
 
+const upcoming = matches
+  .filter((m) => +new Date(m.date) >= now)
+  .sort((a, b) => +new Date(a.date) - +new Date(b.date));
+const past = matches
+  .filter((m) => +new Date(m.date) < now)
+  .sort((a, b) => +new Date(b.date) - +new Date(a.date));
+
 const items: TickerItem[] = [];
-for (const m of matches) {
-  const ts = +new Date(m.date);
-  const isPast = ts < now;
+for (const m of [...upcoming, ...past]) {
+  const isPast = +new Date(m.date) < now;
   const dateStr = formatDate(m.date, locale, {
     month: 'short',
     day: 'numeric',
@@ -66,39 +79,22 @@ for (const m of matches) {
 if (items.length === 0) {
   items.push({ key: 'fallback', label: fallback, variant: 'neutral' });
 }
-
-// Duplicate the item list so the CSS marquee can translate -50% for a seamless loop.
-const duplicated = [...items, ...items];
 ---
 
 <div class="ticker" aria-label={t.ticker.ariaLabel} role="region">
-  <div class="ticker__edge ticker__edge--left" aria-hidden="true"></div>
   <ul class="ticker__track">
     {
-      duplicated.map((item, i) => {
-        const isDuplicate = i >= items.length;
-        return (
-          <li
-            class:list={['ticker__item', `ticker__item--${item.variant}`]}
-            data-half={isDuplicate ? 'b' : 'a'}
-            {...(isDuplicate ? { 'aria-hidden': 'true' } : {})}
-          >
-            {item.href ? (
-              <a
-                href={item.href}
-                target="_blank"
-                rel="noopener"
-                class="ticker__link"
-                {...(isDuplicate ? { tabindex: -1 } : {})}
-              >
-                {item.label}
-              </a>
-            ) : (
-              <span>{item.label}</span>
-            )}
-          </li>
-        );
-      })
+      items.map((item) => (
+        <li class:list={['ticker__item', `ticker__item--${item.variant}`]}>
+          {item.href ? (
+            <a href={item.href} target="_blank" rel="noopener" class="ticker__link">
+              {item.label}
+            </a>
+          ) : (
+            <span>{item.label}</span>
+          )}
+        </li>
+      ))
     }
   </ul>
   <div class="ticker__edge ticker__edge--right" aria-hidden="true"></div>
@@ -111,22 +107,39 @@ const duplicated = [...items, ...items];
     border-top: 1px solid var(--color-border);
     border-bottom: 1px solid var(--color-border);
     overflow: hidden;
-    --ticker-duration: 60s;
   }
 
   .ticker__track {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 2.5rem;
     white-space: nowrap;
-    padding: 0.75rem 0;
-    animation: ticker-marquee var(--ticker-duration) linear infinite;
-    will-change: transform;
+    padding: 0.75rem 1rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Status chrome, not editorial type: 13px uppercase strip text looks
+       the same in system faces, so it paints once with zero webfont
+       dependency and never repaints (a font-swap repaint here was the
+       page's LCP on slow connections). */
+    font-family:
+      system-ui,
+      -apple-system,
+      'Segoe UI',
+      Roboto,
+      'PingFang TC',
+      'Microsoft JhengHei',
+      'PingFang SC',
+      'Microsoft YaHei',
+      sans-serif;
   }
-
-  .ticker:hover .ticker__track,
-  .ticker:focus-within .ticker__track {
-    animation-play-state: paused;
+  .ticker__track::-webkit-scrollbar {
+    display: none;
+  }
+  @media (min-width: 40rem) {
+    .ticker__track {
+      padding-inline: 1.5rem;
+    }
   }
 
   .ticker__item {
@@ -138,6 +151,7 @@ const duplicated = [...items, ...items];
     text-transform: uppercase;
     font-weight: 600;
     color: var(--color-text-dim);
+    flex-shrink: 0;
   }
 
   .ticker__item::before {
@@ -180,7 +194,7 @@ const duplicated = [...items, ...items];
     text-underline-offset: 3px;
   }
 
-  /* Fade edges so the scroll doesn't pop at the borders. */
+  /* Fade the trailing edge so the overflow reads as "more this way". */
   .ticker__edge {
     position: absolute;
     top: 0;
@@ -189,24 +203,13 @@ const duplicated = [...items, ...items];
     z-index: 1;
     pointer-events: none;
   }
-  .ticker__edge--left {
-    left: 0;
-    background: linear-gradient(to right, var(--color-surface), transparent);
-  }
   .ticker__edge--right {
     right: 0;
     background: linear-gradient(to left, var(--color-surface), transparent);
   }
 
-  @keyframes ticker-marquee {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-50%);
-    }
-  }
-
+  /* The live dot pulse is a status indicator, not decoration; it still
+     respects reduced motion below. */
   @keyframes live-pulse {
     0%,
     100% {
@@ -218,9 +221,6 @@ const duplicated = [...items, ...items];
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ticker__track {
-      animation: none;
-    }
     .ticker__item--live::before {
       animation: none;
     }

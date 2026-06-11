@@ -49,7 +49,12 @@ const creditParts =
     {/* Row 1, brand + horizontal nav, single row on desktop, stacked on mobile. */}
     <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-5">
       <div>
-        <p class="font-display text-xl tracking-wide">
+        {
+          /* text-2xl, not xl: 24px is the WCAG large-text threshold, where
+            the brand blue's 3.8:1 contrast passes AA (3:1). At 20px it
+            would need 4.5:1 and fail. Matches the header treatment. */
+        }
+        <p class="font-display text-2xl tracking-wide">
           <span class="text-[var(--color-accent)]">NAJDORF</span>
           <span class="text-[var(--color-text)]">ESPORTS</span>
         </p>

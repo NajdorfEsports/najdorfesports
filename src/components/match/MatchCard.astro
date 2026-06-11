@@ -22,7 +22,7 @@ interface Props {
   index?: number;
 }
 const { match, index = 0 } = Astro.props;
-const eager = index < 2;
+const eager = index < 1;
 
 const locale = getLocale(Astro);
 const t = useT(locale);
@@ -114,11 +114,17 @@ if (!backdrop) {
   {
     backdrop && (
       <>
+        {/* Backdrop art is texture, not content: it sits behind an 80-92%
+            scrim and the ink wash, so one 640w candidate (the pre-redesign
+            served 600w for this same full-bleed treatment) is plenty at
+            every viewport. Native lazy-loading prefetches far ahead on
+            slow connections, so per-image bytes are what keep this page's
+            backdrops from starving the display font (the LCP). */}
         <Image
           src={backdrop}
           alt=""
-          widths={[480, 960, backdrop.width]}
-          sizes="(min-width: 1152px) 1104px, 100vw"
+          widths={[640]}
+          sizes="640px"
           loading={eager ? 'eager' : 'lazy'}
           decoding="async"
           aria-hidden="true"

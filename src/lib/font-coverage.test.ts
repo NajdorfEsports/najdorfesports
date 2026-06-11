@@ -13,7 +13,7 @@ import { extractCjkCodepoints, fromUnicodeRange, localeBucketForPath } from './g
  */
 
 const SRC = fileURLToPath(new URL('..', import.meta.url));
-const CSS = join(SRC, 'styles', 'fonts-cjk.css');
+const CSS = join(SRC, '..', 'public', 'styles', 'fonts-cjk.css');
 const HARVEST_EXTS = new Set(['.ts', '.tsx', '.astro', '.md', '.mdx', '.json']);
 
 function* walk(dir: string): Generator<string> {

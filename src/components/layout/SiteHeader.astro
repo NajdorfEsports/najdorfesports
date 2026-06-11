@@ -1,6 +1,13 @@
 ---
+import { Image } from 'astro:assets';
 import LanguageSwitcher from './LanguageSwitcher.astro';
 import { getLocale, pathFor, primaryNav, useT } from '../../i18n';
+// Optimized copy of public/branding/bishop-logo-dark.png: the public file
+// keeps its stable URL for the press kit and OG pipeline, but serving the
+// raw 74KB artwork PNG as a 56px header logo cost more than every script
+// on the page combined. This import lets astro:assets emit a right-sized
+// webp instead.
+import bishopLogo from '../../assets/branding/bishop-logo-dark.png';
 
 const locale = getLocale(Astro);
 const t = useT(locale);
@@ -38,11 +45,16 @@ const homeHref = pathFor(locale, '/');
       */
       }
       <span class="inline-block shrink-0 vt-bishop">
-        <img
-          src="/branding/bishop-logo-dark.png"
-          alt="Najdorf Esports"
-          width="658"
-          height="750"
+        {
+          /* alt is empty on purpose: the link carries the accessible name
+            and the wordmark text sits right beside the mark, so a named
+            image would read out "Najdorf Esports" twice. */
+        }
+        <Image
+          src={bishopLogo}
+          alt=""
+          height={112}
+          densities={[1, 2]}
           class="block h-12 w-auto sm:h-14"
           loading="eager"
           decoding="async"

@@ -1,7 +1,5 @@
 @import 'tailwindcss';
 @import './tokens.css';
-/* Generated CJK subsets (see scripts/subset-cjk-fonts.mjs). */
-@import './fonts-cjk.css';
 
 /*
  * Self-hosted fonts. Anton and Inter both ship under SIL Open Font License
@@ -142,26 +140,42 @@
 
   /*
    * Per-locale font stacks. Latin faces stay FIRST so handles, numbers,
-   * and "OWCS" keep rendering in Inter/Anton inside zh copy; CJK glyphs
-   * fall through to the subsetted Noto faces via their unicode-range
-   * (en pages download zero Noto bytes). The "Display" alias is the 700
-   * instance registered at weight 400, giving zh headings real weight
-   * behind Anton without synthetic bolding. The <html lang> values are
-   * script subtags (zh-Hant / zh-Hans), set in BaseLayout.
+   * and "OWCS" keep rendering in Inter/Anton inside zh copy. The brand
+   * CJK subsets are budgeted deliberately:
+   *   - headings (--font-display) carry 'Noto Sans ... Display' (the 700
+   *     instance registered at weight 400: real weight behind Anton
+   *     without synthetic bolding);
+   *   - long-form article prose (--font-prose, applied to .prose) carries
+   *     Noto Sans 400;
+   *   - body/chrome zh renders in the metrics-matched SYSTEM faces, the
+   *     same convention as most major zh sites, because pulling ~140KB of
+   *     webfont into every status line and label measurably slowed zh
+   *     pages against their English twins.
+   * en pages download zero Noto bytes (unicode-range keeps the faces
+   * inert). The <html lang> values are script subtags (zh-Hant /
+   * zh-Hans), set in BaseLayout.
    */
   html[lang='zh-Hant'] {
     --font-sans:
-      'Inter', 'Noto Sans TC', 'Noto Sans TC fallback', 'PingFang TC', 'Microsoft JhengHei',
-      system-ui, sans-serif;
+      'Inter', 'Noto Sans TC fallback', 'PingFang TC', 'Microsoft JhengHei', system-ui, sans-serif;
     --font-display:
       'Anton', 'Noto Sans TC Display', 'Noto Sans TC fallback', 'PingFang TC', sans-serif;
+    --font-prose:
+      'Inter', 'Noto Sans TC', 'Noto Sans TC fallback', 'PingFang TC', 'Microsoft JhengHei',
+      system-ui, sans-serif;
   }
   html[lang='zh-Hans'] {
     --font-sans:
-      'Inter', 'Noto Sans SC', 'Noto Sans SC fallback', 'PingFang SC', 'Microsoft YaHei', system-ui,
-      sans-serif;
+      'Inter', 'Noto Sans SC fallback', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
     --font-display:
       'Anton', 'Noto Sans SC Display', 'Noto Sans SC fallback', 'PingFang SC', sans-serif;
+    --font-prose:
+      'Inter', 'Noto Sans SC', 'Noto Sans SC fallback', 'PingFang SC', 'Microsoft YaHei', system-ui,
+      sans-serif;
+  }
+  /* Long-form bodies (news articles) get the brand CJK text face. */
+  .prose {
+    font-family: var(--font-prose, var(--font-sans));
   }
 
   body {

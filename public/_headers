@@ -52,6 +52,11 @@
 /apple-touch-icon.png
   Cache-Control: public, max-age=86400
 
+# Generated CJK font stylesheet (lazy-loaded by src/scripts/fonts.ts).
+# Short cache: it changes whenever zh copy changes.
+/styles/*
+  Cache-Control: public, max-age=3600
+
 # RSS feed
 /feed.xml
   Cache-Control: public, max-age=3600
