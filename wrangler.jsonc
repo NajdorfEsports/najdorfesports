@@ -6,26 +6,18 @@
 // and `public/_redirects` to every response (verified live: the CSP and
 // HSTS headers are present on HTML, static assets, and 404s alike).
 //
-// This wrangler.jsonc only drives the MANUAL fallback `npm run deploy`
-// (`wrangler deploy`) and `npm run preview` (`wrangler dev`). It is NOT the
-// production path. The site is fully static (no `prerender = false` route,
-// no SSR), so the `_worker.js` the Cloudflare adapter emits is a thin asset
-// shim; `/_worker.js` is correctly inaccessible in production (returns 404).
-//
-// If you ever migrate production to `wrangler deploy`, remember that headers
-// set via `_headers` apply to ASSET responses only. Re-verify the CSP/HSTS
-// posture against the live worker before switching.
+// This file is NOT the production path. It drives `npm run preview` and
+// the Playwright e2e server (`wrangler dev`), plus the manual fallback
+// `npm run deploy`, all as an ASSETS-ONLY Worker: no worker code, just
+// `dist` served by the edge runtime. Workers static assets honor _headers
+// and _redirects the same way Pages does, and `not_found_handling` makes
+// the custom 404 page return a real 404 status, matching production.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "najdorfesports",
   "compatibility_date": "2026-05-23",
-  "observability": {
-    "enabled": true,
-  },
-  "main": "dist/_worker.js/index.js",
-  "compatibility_flags": ["global_fetch_strictly_public", "nodejs_compat"],
   "assets": {
-    "binding": "ASSETS",
     "directory": "dist",
+    "not_found_handling": "404-page",
   },
 }
