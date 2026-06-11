@@ -241,14 +241,41 @@
     ]
   },
   {
-    "id": "liquipedia-owcs-pacific-2026-stage-2-2-202606111100",
-    "date": "2026-06-11T11:00:00.000Z",
+    "id": "liquipedia-owcs-pacific-2026-stage-2-2-202606111110",
+    "date": "2026-06-11T11:10:00.000Z",
     "opponent": "Trap12",
     "tournament": "OWCS Pacific 2026 · Stage 2",
     "format": "BO5",
     "streamUrl": "https://twitch.tv/ow_esports_th",
     "liquipediaUrl": "https://liquipedia.net/overwatch/Overwatch_Champions_Series/2026/Asia/Stage_2/Pacific/Regular_Season",
-    "result": "tbd"
+    "result": "win",
+    "mapScores": [
+      {
+        "map": "Ilios",
+        "ourScore": 2,
+        "theirScore": 1
+      },
+      {
+        "map": "Numbani",
+        "ourScore": 1,
+        "theirScore": 2
+      },
+      {
+        "map": "Rialto",
+        "ourScore": 0,
+        "theirScore": 2
+      },
+      {
+        "map": "New Queen Street",
+        "ourScore": 1,
+        "theirScore": 0
+      },
+      {
+        "map": "New Junk City",
+        "ourScore": 3,
+        "theirScore": 1
+      }
+    ]
   },
   {
     "id": "liquipedia-owcs-pacific-2026-stage-2-3-202606181400",
