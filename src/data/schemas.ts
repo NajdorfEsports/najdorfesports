@@ -5,10 +5,10 @@
  * malformed Liquipedia fetch fails `astro build` with a precise message instead
  * of shipping a broken page or crashing at request time.
  *
- * IMPORTANT: import zod from 'zod' (the explicit v4 devDependency), NOT from
- * 'astro/zod' (which resolves to Astro's bundled v3, a different major).
- * Content collections (content.config.ts) keep their isolated `astro:content`
- * z; do not mix the two.
+ * One zod everywhere: the explicit 'zod' v4 dependency is the repo's single
+ * zod source. Content collections (content.config.ts) import the same 'zod'
+ * since Astro 6's content layer accepts Standard Schema validators (the old
+ * v3/v4 split against astro:content's bundled zod is gone).
  *
  * This module imports ONLY 'zod', so the plain-Node fetch scripts can import it
  * directly (Node >= 22.18 strips the TS types at runtime).

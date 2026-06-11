@@ -1,5 +1,10 @@
-import { defineCollection, z } from 'astro:content';
+// One zod for the whole repo: Astro 6's content layer accepts Standard
+// Schema validators, so collections use the same explicit zod v4 dependency
+// as src/data/schemas.ts (the old astro:content z was a bundled zod v3 and
+// had to stay isolated; that wall is gone).
+import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { z } from 'zod';
 
 const news = defineCollection({
   // Custom generateId: the glob loader's default uses `data.slug` as the entry
