@@ -44,6 +44,15 @@ const allRoles = [player.role, ...(player.altRoles ?? [])].filter((r, i, a) => a
 // Signature heroes that have an icon, capped at 4 for the card backdrop.
 const backdropHeroes = resolveHeroIcons(player.signatureHeroes, 4);
 const hasBackdrop = backdropHeroes.length > 0;
+
+// Each strip's flex-grow tracks its render's canvas aspect ratio (clamped so
+// a tall render never collapses to a sliver and a wide one never hogs the
+// card). Every hero then sheds roughly the same proportion of its sides to
+// the cover crop, so the collage fills the card evenly: wide poses (Hazard,
+// Zarya) stop over-zooming into torso closeups and tall ones (Ana, Lucio)
+// stop floating in extra width.
+const stripGrow = (image: { width: number; height: number }) =>
+  Math.min(1.15, Math.max(0.55, image.width / image.height)).toFixed(3);
 ---
 
 <article
@@ -59,7 +68,11 @@ const hasBackdrop = backdropHeroes.length > 0;
       <>
         <div class="player-card__backdrop" aria-hidden="true">
           {backdropHeroes.map((h) => (
-            <span class="player-card__hero" data-hero={h.name}>
+            <span
+              class="player-card__hero"
+              data-hero={h.name}
+              style={`--strip-grow:${stripGrow(h.image)}`}
+            >
               {/* One 320w candidate: strips render ~130-190px wide under
                   the ink wash and scrim, and keeping each under ~20KB
                   stops the lazy-load lookahead from starving the display
@@ -222,7 +235,9 @@ const hasBackdrop = backdropHeroes.length > 0;
   }
 
   .player-card__hero {
-    flex: 1;
+    /* Grow factor set inline per strip from the render's aspect ratio; see
+       stripGrow in the frontmatter. Basis 0 so widths split purely by grow. */
+    flex: var(--strip-grow, 1) 1 0%;
     overflow: hidden;
     /* Feather the inner edges so adjacent heroes blend rather than collide */
     mask-image: linear-gradient(90deg, transparent 0%, black 12%, black 88%, transparent 100%);

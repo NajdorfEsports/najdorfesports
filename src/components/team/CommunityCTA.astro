@@ -65,7 +65,13 @@ const countFor = (name: string) => {
         <p class="mt-3 text-[var(--color-text-dim)] leading-relaxed">{t.community.body}</p>
       </div>
 
-      <ul class="mt-8 grid gap-4 sm:grid-cols-2">
+      {/* auto-rows-fr + h-full anchors keep every card the same height no
+          matter how its blurb wraps; the CTA line pins to the bottom edge
+          via mt-auto so the links sit on one baseline across the band.
+          grid-cols-1 (not an implicit auto track) matters on phones: the
+          minmax(0,1fr) track lets the nowrap handle URLs truncate instead
+          of pushing the card past the viewport. */}
+      <ul class="mt-8 grid gap-4 grid-cols-1 sm:grid-cols-2 sm:auto-rows-fr">
         {visible.map((s) => {
           const count = countFor(s.name);
           return (
@@ -75,7 +81,7 @@ const countFor = (name: string) => {
                 target="_blank"
                 rel="me noopener"
                 class:list={[
-                  'community-card group relative flex items-start gap-4 bg-[var(--color-surface)]',
+                  'community-card group relative flex h-full gap-4 bg-[var(--color-surface)]',
                   'border border-[var(--color-border)] rounded-md p-5 sm:p-6',
                   s.name === 'Discord' ? 'community-card--discord' : '',
                   s.name === 'X' ? 'community-card--x' : '',
@@ -85,13 +91,13 @@ const countFor = (name: string) => {
                 aria-label={`Najdorf Esports on ${s.name}${s.handle ? ` (${s.handle})` : ''}`}
               >
                 <span
-                  class="community-card__chip inline-flex items-center justify-center w-12 h-12 rounded-full shrink-0"
+                  class="community-card__chip self-start inline-flex items-center justify-center w-12 h-12 rounded-full shrink-0"
                   aria-hidden="true"
                 >
                   <PlatformIcon platform={s.name} size={s.name === 'Discord' ? 22 : 20} />
                 </span>
 
-                <div class="min-w-0 flex-1">
+                <div class="min-w-0 flex-1 flex flex-col">
                   <div class="flex items-baseline justify-between gap-3">
                     <p class="font-display text-xl tracking-wide">{s.name}</p>
                     {s.handle && (
@@ -111,7 +117,7 @@ const countFor = (name: string) => {
                       {s.blurb}
                     </p>
                   )}
-                  <p class="link-arrow has-glyph mt-3 text-xs uppercase tracking-wider text-[var(--color-accent-2)] group-hover:text-[var(--color-accent)]">
+                  <p class="link-arrow has-glyph mt-auto pt-3 text-xs uppercase tracking-wider text-[var(--color-accent-2)] group-hover:text-[var(--color-accent)]">
                     <span>{ctaFor(s.name)}</span>
                   </p>
                 </div>
