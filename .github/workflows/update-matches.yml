@@ -28,16 +28,16 @@ jobs:
       # compromised tag at any of these repos cannot inject arbitrary
       # commits into `main`. The human-readable version tag is in the
       # trailing comment; Dependabot / Renovate can bump both atomically.
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: '22'
 
       # npm install cache, keyed on the lockfile. Saves ~20s per weekly
       # run; more importantly, makes the workflow resilient to a flaky
       # npm registry on cron Mondays.
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.npm
           key: npm-${{ hashFiles('**/package-lock.json') }}
@@ -48,7 +48,7 @@ jobs:
         run: node scripts/fetch-liquipedia.mjs
 
       - name: Commit updated data (if changed)
-        uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 # v5.2.0
+        uses: stefanzweifel/git-auto-commit-action@04702edda442b2e678b25b537cec683a1493fcb9 # v7.1.0
         with:
           commit_message: 'chore(data): refresh from Liquipedia'
           file_pattern: |
