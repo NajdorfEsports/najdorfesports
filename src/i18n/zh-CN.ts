@@ -62,11 +62,15 @@ export const zhCN: Strings = {
     rosterDescription: (headcount, countries) =>
       `Najdorf Esports 现役 OWCS Pacific 名单，共 ${headcount} 名选手，来自 ${countries.join('、')}。`,
     gamesTitle: '游戏',
+    // DRAFT PENDING RIRI NATIVE REVIEW (gamesDescription update + OWdle meta)
     gamesDescription:
-      'Najdorf Esports 的每日《守望先锋》小游戏，首发每日迷你填字，共三种难度，免费游玩。',
+      'Najdorf Esports 的每日《守望先锋》小游戏：三种难度的每日迷你填字，以及每日猜英雄游戏 OWdle。',
     crosswordTitle: '每日 Overwatch 迷你填字',
     crosswordDescription:
       'Najdorf Esports 免费的每日《守望先锋》迷你填字游戏。三种难度，美东时间午夜更新，无广告、无跟踪。',
+    owdleTitle: 'OWdle：每日 Overwatch 猜英雄游戏',
+    owdleDescription:
+      '从定位、出身、生命值、攻击类型等线索猜出隐藏的《守望先锋》英雄。Najdorf Esports 的免费每日游戏，无广告、无跟踪。',
   },
 
   news: {
@@ -456,6 +460,12 @@ export const zhCN: Strings = {
         '一份轻巧的《守望先锋》填字游戏：英雄、地图、术语与电竞历史。三种难度，每天更新。',
       crosswordCta: '开始今天的谜题',
       newDaily: '每日更新',
+      // DRAFT PENDING RIRI NATIVE REVIEW (OWdle hub card)
+      owdleTitle: 'OWdle',
+      owdleDesc:
+        '猜出今天的隐藏《守望先锋》英雄。每次猜测会比对七项属性：定位、出身、生命值、推出年份等。每天一位英雄，全球同题。',
+      owdleCta: '猜今天的英雄',
+      newHeroDaily: '每日新英雄',
     },
     crossword: {
       eyebrow: '每日游戏',
@@ -506,6 +516,78 @@ export const zhCN: Strings = {
       ariaGrid: '填字格',
       ariaKeyboard: '屏幕键盘',
       ariaBackspace: '删除字母',
+    },
+    // DRAFT PENDING RIRI NATIVE REVIEW (entire owdle section)
+    owdle: {
+      eyebrow: '每日游戏',
+      heading: 'OWdle',
+      intro: '每天一位隐藏的《守望先锋》英雄，全球同题。输入猜测，每一栏都会告诉你有多接近。',
+      zhValuesNotice: '英雄名称与出身目前以英文显示。',
+      inputLabel: '猜一位英雄',
+      inputPlaceholder: '输入英雄名称',
+      guessButton: '猜',
+      suggestionsLabel: '英雄建议',
+      unknownHero: '请从建议列表中选择英雄。',
+      colHero: '英雄',
+      colRole: '定位',
+      colSubRole: '子定位',
+      colGender: '性别',
+      colOrigin: '出身',
+      colHp: '生命值',
+      colAttack: '攻击类型',
+      colYear: '年份',
+      roleValues: { tank: '坦克', damage: '输出', support: '辅助' },
+      subRoleValues: {
+        bruiser: '格斗型',
+        flanker: '侧翼',
+        initiator: '开团',
+        medic: '医疗',
+        recon: '侦察',
+        sharpshooter: '神射手',
+        specialist: '特化',
+        stalwart: '坐镇',
+        survivor: '生存',
+        tactician: '战术',
+      },
+      genderValues: { female: '女性', male: '男性', 'non-binary': '非二元', none: '无' },
+      attackValues: { hitscan: '即时命中', projectile: '弹道', beam: '光束', melee: '近战' },
+      legendHeading: '如何阅读格子',
+      legendExact: '完全相符',
+      legendPartial: '接近：部分重叠，或相差 25 生命值 / 1 年以内',
+      legendMiss: '不相符',
+      legendHigher: '答案更高或更晚',
+      legendLower: '答案更低或更早',
+      winHeading: '答对了！',
+      winBody: (hero, count) => `答案是 ${hero}。你用了 ${count} 次猜中。`,
+      winBodyOne: (hero) => `答案是 ${hero}。一次猜中！`,
+      fitToggle: '缩放至屏幕宽度',
+      shareLabel: '分享成绩',
+      shareCopied: '已复制到剪贴板',
+      puzzleLabel: '题号',
+      nextHeroLabel: '下一位英雄倒计时',
+      yesterdayLabel: '昨天的英雄',
+      statsHeading: '你的记录',
+      statsPlayed: '已玩',
+      statsWon: '猜中',
+      statsStreak: '连续猜中',
+      statsMaxStreak: '最佳连续',
+      statsNote: '记录只保存在这个浏览器中，不会离开你的设备。',
+      distHeading: '猜测次数分布',
+      noJsNotice:
+        '互动游戏需要启用 JavaScript。猜测、记录与每日英雄都只在你的浏览器中运行，不会发送到任何地方。',
+      howToHeading: '玩法说明',
+      howTo1:
+        '输入英雄名称进行猜测。每次猜测会填入一行：绿色代表完全相符，橙色代表接近，红色代表不符。',
+      howTo2:
+        '“出身”栏的橙色代表来自世界同一区域；“生命值”与“年份”的橙色代表相差 25 以内或一年以内。箭头指向答案：向上代表更高或更晚，向下代表更低或更早。',
+      howTo3: '猜测次数不限。每天美东时间午夜更新英雄。',
+      howTo4: '连胜与记录只留在这台设备上；分享只会发送色块。',
+      ariaBoard: '猜测结果格',
+      ariaSolvedBoard: '已解开的结果',
+      /** Legal text stays in English verbatim on every locale. */
+      disclaimer:
+        'This is an unofficial fan-made game. It is not affiliated with, endorsed by, or sponsored by Blizzard Entertainment. Overwatch is a trademark of Blizzard Entertainment, Inc. All hero names and related facts are the property of their respective owners.',
+      dataCredit: '英雄数据来自社区 OverFast API，并辅以人工整理。',
     },
   },
 

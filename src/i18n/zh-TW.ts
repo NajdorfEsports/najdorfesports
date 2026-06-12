@@ -62,11 +62,15 @@ export const zhTW: Strings = {
     rosterDescription: (headcount, countries) =>
       `Najdorf Esports 現役 OWCS Pacific 名單，共 ${headcount} 名選手，來自 ${countries.join('、')}。`,
     gamesTitle: '遊戲',
+    // DRAFT PENDING RIRI NATIVE REVIEW (gamesDescription update + OWdle meta)
     gamesDescription:
-      'Najdorf Esports 的每日《鬥陣特攻》小遊戲，首發每日迷你填字，共三種難度，免費遊玩。',
+      'Najdorf Esports 的每日《鬥陣特攻》小遊戲：三種難度的每日迷你填字，以及每日猜英雄遊戲 OWdle。',
     crosswordTitle: '每日 Overwatch 迷你填字',
     crosswordDescription:
       'Najdorf Esports 免費的每日《鬥陣特攻》迷你填字遊戲。三種難度，美東時間午夜更新，無廣告、無追蹤。',
+    owdleTitle: 'OWdle：每日 Overwatch 猜英雄遊戲',
+    owdleDescription:
+      '從定位、出身、生命值、攻擊類型等線索猜出隱藏的《鬥陣特攻》英雄。Najdorf Esports 的免費每日遊戲，無廣告、無追蹤。',
   },
 
   news: {
@@ -456,6 +460,12 @@ export const zhTW: Strings = {
         '一份輕巧的《鬥陣特攻》填字遊戲：英雄、地圖、術語與電競歷史。三種難度，每天更新。',
       crosswordCta: '開始今天的謎題',
       newDaily: '每日更新',
+      // DRAFT PENDING RIRI NATIVE REVIEW (OWdle hub card)
+      owdleTitle: 'OWdle',
+      owdleDesc:
+        '猜出今天的隱藏《鬥陣特攻》英雄。每次猜測會比對七項屬性：定位、出身、生命值、推出年份等。每天一位英雄，全球同題。',
+      owdleCta: '猜今天的英雄',
+      newHeroDaily: '每日新英雄',
     },
     crossword: {
       eyebrow: '每日遊戲',
@@ -506,6 +516,78 @@ export const zhTW: Strings = {
       ariaGrid: '填字格',
       ariaKeyboard: '螢幕鍵盤',
       ariaBackspace: '刪除字母',
+    },
+    // DRAFT PENDING RIRI NATIVE REVIEW (entire owdle section)
+    owdle: {
+      eyebrow: '每日遊戲',
+      heading: 'OWdle',
+      intro: '每天一位隱藏的《鬥陣特攻》英雄，全球同題。輸入猜測，每一欄都會告訴你有多接近。',
+      zhValuesNotice: '英雄名稱與出身目前以英文顯示。',
+      inputLabel: '猜一位英雄',
+      inputPlaceholder: '輸入英雄名稱',
+      guessButton: '猜',
+      suggestionsLabel: '英雄建議',
+      unknownHero: '請從建議清單中選擇英雄。',
+      colHero: '英雄',
+      colRole: '定位',
+      colSubRole: '子定位',
+      colGender: '性別',
+      colOrigin: '出身',
+      colHp: '生命值',
+      colAttack: '攻擊類型',
+      colYear: '年份',
+      roleValues: { tank: '坦克', damage: '輸出', support: '輔助' },
+      subRoleValues: {
+        bruiser: '格鬥型',
+        flanker: '側翼',
+        initiator: '開團',
+        medic: '醫療',
+        recon: '偵察',
+        sharpshooter: '神射手',
+        specialist: '特化',
+        stalwart: '坐鎮',
+        survivor: '生存',
+        tactician: '戰術',
+      },
+      genderValues: { female: '女性', male: '男性', 'non-binary': '非二元', none: '無' },
+      attackValues: { hitscan: '即時命中', projectile: '彈道', beam: '光束', melee: '近戰' },
+      legendHeading: '如何閱讀格子',
+      legendExact: '完全相符',
+      legendPartial: '接近：部分重疊，或相差 25 生命值 / 1 年以內',
+      legendMiss: '不相符',
+      legendHigher: '答案更高或更晚',
+      legendLower: '答案更低或更早',
+      winHeading: '答對了！',
+      winBody: (hero, count) => `答案是 ${hero}。你用了 ${count} 次猜中。`,
+      winBodyOne: (hero) => `答案是 ${hero}。一次猜中！`,
+      fitToggle: '縮放至螢幕寬度',
+      shareLabel: '分享成績',
+      shareCopied: '已複製到剪貼簿',
+      puzzleLabel: '題號',
+      nextHeroLabel: '下一位英雄倒數',
+      yesterdayLabel: '昨天的英雄',
+      statsHeading: '你的紀錄',
+      statsPlayed: '已玩',
+      statsWon: '猜中',
+      statsStreak: '連續猜中',
+      statsMaxStreak: '最佳連續',
+      statsNote: '紀錄只儲存在這個瀏覽器中，不會離開你的裝置。',
+      distHeading: '猜測次數分布',
+      noJsNotice:
+        '互動遊戲需要啟用 JavaScript。猜測、紀錄與每日英雄都只在你的瀏覽器中運行，不會傳送到任何地方。',
+      howToHeading: '玩法說明',
+      howTo1:
+        '輸入英雄名稱進行猜測。每次猜測會填入一列：綠色代表完全相符，橘色代表接近，紅色代表不符。',
+      howTo2:
+        '「出身」欄的橘色代表來自世界同一區域；「生命值」與「年份」的橘色代表相差 25 以內或一年以內。箭頭指向答案：向上代表更高或更晚，向下代表更低或更早。',
+      howTo3: '猜測次數不限。每天美東時間午夜更新英雄。',
+      howTo4: '連勝與紀錄只留在這部裝置上；分享只會送出色塊。',
+      ariaBoard: '猜測結果格',
+      ariaSolvedBoard: '已解開的結果',
+      /** Legal text stays in English verbatim on every locale. */
+      disclaimer:
+        'This is an unofficial fan-made game. It is not affiliated with, endorsed by, or sponsored by Blizzard Entertainment. Overwatch is a trademark of Blizzard Entertainment, Inc. All hero names and related facts are the property of their respective owners.',
+      dataCredit: '英雄資料來自社群 OverFast API，並輔以人工整理。',
     },
   },
 

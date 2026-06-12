@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import OwdlePageBody from '../../components/page/OwdlePageBody.astro';
+import { useT, getLocale } from '../../i18n';
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+---
+
+<BaseLayout title={t.pageMeta.owdleTitle} description={t.pageMeta.owdleDescription}>
+  <OwdlePageBody />
+</BaseLayout>

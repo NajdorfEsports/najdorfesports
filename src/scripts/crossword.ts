@@ -5,10 +5,11 @@
  * the date-keyed puzzle JSON, builds the grid + clue lists, and wires
  * input, check/reveal, stats, the rollover countdown, and sharing.
  *
- * Storage: localStorage, THE single documented exception to the
- * zero-storage policy (owner approval 2026-06-11). Stats live only on
- * the player's device and never leave it; every access is wrapped so a
- * blocked storage API (private browsing) degrades to in-memory.
+ * Storage: localStorage under the games exception to the zero-storage
+ * policy (owner approval 2026-06-11; OWdle shares the same exception,
+ * see src/scripts/owdle.ts). Stats live only on the player's device and
+ * never leave it; every access is wrapped so a blocked storage API
+ * (private browsing) degrades to in-memory.
  */
 import type { Difficulty, Puzzle, PuzzleSlot } from '../data/crossword/types';
 

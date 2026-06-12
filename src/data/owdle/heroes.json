@@ -1,0 +1,988 @@
+[
+  {
+    "id": "ana",
+    "name": "Ana",
+    "aliases": ["ana amari"],
+    "role": "support",
+    "subRole": "tactician",
+    "gender": "female",
+    "nationality": "Egypt",
+    "regionTags": ["africa", "middle-east"],
+    "baseHp": 250,
+    "attackType": ["hitscan", "projectile"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Biotic Rifle is hitscan scoped, projectile unscoped. Origin per official hero page.",
+    "source": {
+      "overfastKey": "ana",
+      "overfastLocation": "Cairo, Egypt"
+    }
+  },
+  {
+    "id": "anran",
+    "name": "Anran",
+    "aliases": [],
+    "role": "damage",
+    "subRole": "flanker",
+    "gender": "female",
+    "nationality": "China",
+    "regionTags": ["asia"],
+    "baseHp": 250,
+    "attackType": ["projectile"],
+    "releaseYear": 2026,
+    "needsVerification": true,
+    "sourceNote": "2026 rebrand hero. Origin from OverFast location (Chengdu); gender and attack type are best-effort pending wiki confirmation.",
+    "source": {
+      "overfastKey": "anran",
+      "overfastLocation": "Wuxing University, Chengdu (Previous), Watchpoint Gibraltar (Current)"
+    }
+  },
+  {
+    "id": "ashe",
+    "name": "Ashe",
+    "aliases": ["elizabeth caledonia ashe"],
+    "role": "damage",
+    "subRole": "sharpshooter",
+    "gender": "female",
+    "nationality": "United States",
+    "regionTags": ["north-america"],
+    "baseHp": 250,
+    "attackType": ["hitscan"],
+    "releaseYear": 2018,
+    "needsVerification": false,
+    "sourceNote": "BlizzCon 2018 hero. The Viper is hitscan both modes.",
+    "source": {
+      "overfastKey": "ashe",
+      "overfastLocation": "Deadlock Gorge, Arizona, USA"
+    }
+  },
+  {
+    "id": "baptiste",
+    "name": "Baptiste",
+    "aliases": ["jean-baptiste augustin"],
+    "role": "support",
+    "subRole": "tactician",
+    "gender": "male",
+    "nationality": "Haiti",
+    "regionTags": ["north-america"],
+    "baseHp": 250,
+    "attackType": ["hitscan"],
+    "releaseYear": 2019,
+    "needsVerification": false,
+    "sourceNote": "March 2019 hero. Biotic Launcher damage burst is hitscan.",
+    "source": {
+      "overfastKey": "baptiste",
+      "overfastLocation": "Tortuga, Haiti (formerly), Watchpoint: Gibraltar"
+    }
+  },
+  {
+    "id": "bastion",
+    "name": "Bastion",
+    "aliases": [],
+    "role": "damage",
+    "subRole": "specialist",
+    "gender": "none",
+    "nationality": "Sweden",
+    "regionTags": ["europe"],
+    "baseHp": 350,
+    "attackType": ["hitscan"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero; it/its pronouns. SST Laboratories unit, Gothenburg association per OverFast.",
+    "source": {
+      "overfastKey": "bastion",
+      "overfastLocation": "Gothenburg, Sweden"
+    }
+  },
+  {
+    "id": "brigitte",
+    "name": "Brigitte",
+    "aliases": ["brigitte lindholm"],
+    "role": "support",
+    "subRole": "survivor",
+    "gender": "female",
+    "nationality": "Sweden",
+    "regionTags": ["europe"],
+    "baseHp": 250,
+    "attackType": ["melee"],
+    "releaseYear": 2018,
+    "needsVerification": false,
+    "sourceNote": "March 2018 hero. Rocket Flail is melee.",
+    "source": {
+      "overfastKey": "brigitte",
+      "overfastLocation": "Gothenburg, Sweden (formerly), Watchpoint: Gibraltar"
+    }
+  },
+  {
+    "id": "cassidy",
+    "name": "Cassidy",
+    "aliases": ["cole cassidy", "mccree"],
+    "role": "damage",
+    "subRole": "sharpshooter",
+    "gender": "male",
+    "nationality": "United States",
+    "regionTags": ["north-america"],
+    "baseHp": 250,
+    "attackType": ["hitscan"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero, renamed 2021; former handle kept as a search alias.",
+    "source": {
+      "overfastKey": "cassidy",
+      "overfastLocation": "Santa Fe, New Mexico, USA (formerly), Watchpoint: Gibraltar"
+    }
+  },
+  {
+    "id": "domina",
+    "name": "Domina",
+    "aliases": [],
+    "role": "tank",
+    "subRole": "stalwart",
+    "gender": "female",
+    "nationality": "England",
+    "regionTags": ["europe"],
+    "baseHp": 650,
+    "attackType": ["projectile"],
+    "releaseYear": 2026,
+    "needsVerification": true,
+    "sourceNote": "2026 rebrand hero. Origin from OverFast location (London, formerly); gender and attack type are best-effort pending wiki confirmation.",
+    "source": {
+      "overfastKey": "domina",
+      "overfastLocation": "London, England (Formerly), Utopea, India"
+    }
+  },
+  {
+    "id": "doomfist",
+    "name": "Doomfist",
+    "aliases": ["akande ogundimu"],
+    "role": "tank",
+    "subRole": "initiator",
+    "gender": "male",
+    "nationality": "Nigeria",
+    "regionTags": ["africa"],
+    "baseHp": 525,
+    "attackType": ["hitscan", "melee"],
+    "releaseYear": 2017,
+    "needsVerification": false,
+    "sourceNote": "July 2017 hero. Hand Cannon is hitscan; the kit is built on melee punches.",
+    "source": {
+      "overfastKey": "doomfist",
+      "overfastLocation": "Oyo, Nigeria (formerly), Rome, Italy"
+    }
+  },
+  {
+    "id": "dva",
+    "name": "D.Va",
+    "aliases": ["hana song"],
+    "role": "tank",
+    "subRole": "initiator",
+    "gender": "female",
+    "nationality": "South Korea",
+    "regionTags": ["asia"],
+    "baseHp": 650,
+    "attackType": ["hitscan"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch-year hero (2016). Fusion Cannons are hitscan spread.",
+    "source": {
+      "overfastKey": "dva",
+      "overfastLocation": "MEKA Base, Busan, South Korea (formerly), Watchpoint: Gibraltar"
+    }
+  },
+  {
+    "id": "echo",
+    "name": "Echo",
+    "aliases": [],
+    "role": "damage",
+    "subRole": "recon",
+    "gender": "female",
+    "nationality": "United States",
+    "regionTags": ["north-america"],
+    "baseHp": 225,
+    "attackType": ["projectile", "beam"],
+    "releaseYear": 2020,
+    "needsVerification": false,
+    "sourceNote": "April 2020 hero; she/her omnic built in the United States per OverFast location. Tri-Shot projectile plus Focusing Beam.",
+    "source": {
+      "overfastKey": "echo",
+      "overfastLocation": "Switzerland (formerly), United States (formerly), Watchpoint: Gibraltar"
+    }
+  },
+  {
+    "id": "emre",
+    "name": "Emre",
+    "aliases": [],
+    "role": "damage",
+    "subRole": "specialist",
+    "gender": "male",
+    "nationality": "Turkey",
+    "regionTags": ["europe", "middle-east"],
+    "baseHp": 250,
+    "attackType": ["projectile"],
+    "releaseYear": 2026,
+    "needsVerification": true,
+    "sourceNote": "2026 rebrand hero. Origin from OverFast location (Istanbul, previous); gender and attack type are best-effort pending wiki confirmation.",
+    "source": {
+      "overfastKey": "emre",
+      "overfastLocation": "Istanbul, Turkey (previous), Rome, Italy (current)"
+    }
+  },
+  {
+    "id": "freja",
+    "name": "Freja",
+    "aliases": [],
+    "role": "damage",
+    "subRole": "recon",
+    "gender": "female",
+    "nationality": "Denmark",
+    "regionTags": ["europe"],
+    "baseHp": 225,
+    "attackType": ["projectile"],
+    "releaseYear": 2025,
+    "needsVerification": false,
+    "sourceNote": "2025 Season 16 hero. Revdraw Crossbow is projectile; Danish bounty hunter per official reveal.",
+    "source": {
+      "overfastKey": "freja",
+      "overfastLocation": "Copenhagen, Denmark (formerly); Unknown"
+    }
+  },
+  {
+    "id": "genji",
+    "name": "Genji",
+    "aliases": ["genji shimada"],
+    "role": "damage",
+    "subRole": "flanker",
+    "gender": "male",
+    "nationality": "Japan",
+    "regionTags": ["asia"],
+    "baseHp": 250,
+    "attackType": ["projectile", "melee"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero. Shuriken projectiles plus Dragonblade melee.",
+    "source": {
+      "overfastKey": "genji",
+      "overfastLocation": "Hanamura, Japan (formerly), Shambali Monastery, Nepal (formerly), Watchpoint: Gibraltar"
+    }
+  },
+  {
+    "id": "hanzo",
+    "name": "Hanzo",
+    "aliases": ["hanzo shimada"],
+    "role": "damage",
+    "subRole": "sharpshooter",
+    "gender": "male",
+    "nationality": "Japan",
+    "regionTags": ["asia"],
+    "baseHp": 250,
+    "attackType": ["projectile"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero. Storm Bow arrows are projectile.",
+    "source": {
+      "overfastKey": "hanzo",
+      "overfastLocation": "Hanamura, Japan (formerly)"
+    }
+  },
+  {
+    "id": "hazard",
+    "name": "Hazard",
+    "aliases": [],
+    "role": "tank",
+    "subRole": "initiator",
+    "gender": "male",
+    "nationality": "Scotland",
+    "regionTags": ["europe"],
+    "baseHp": 650,
+    "attackType": ["projectile", "melee"],
+    "releaseYear": 2024,
+    "needsVerification": false,
+    "sourceNote": "December 2024 tank. Bonespur is projectile; the kit leans on melee spikes. Glasgow origin per OverFast.",
+    "source": {
+      "overfastKey": "hazard",
+      "overfastLocation": "Glasgow, Scotland (Formerly), Unknown"
+    }
+  },
+  {
+    "id": "illari",
+    "name": "Illari",
+    "aliases": [],
+    "role": "support",
+    "subRole": "survivor",
+    "gender": "female",
+    "nationality": "Peru",
+    "regionTags": ["south-america"],
+    "baseHp": 250,
+    "attackType": ["hitscan"],
+    "releaseYear": 2023,
+    "needsVerification": false,
+    "sourceNote": "August 2023 hero. Solar Rifle damage fire is hitscan.",
+    "source": {
+      "overfastKey": "illari",
+      "overfastLocation": "Runasapi, Peru."
+    }
+  },
+  {
+    "id": "jetpack-cat",
+    "name": "Jetpack Cat",
+    "aliases": [],
+    "role": "support",
+    "subRole": "tactician",
+    "gender": "male",
+    "nationality": "Gibraltar",
+    "regionTags": ["europe"],
+    "baseHp": 225,
+    "attackType": ["projectile"],
+    "releaseYear": 2026,
+    "needsVerification": true,
+    "sourceNote": "2026 rebrand hero. Watchpoint: Gibraltar resident per OverFast; gender, origin, and attack type are best-effort pending wiki confirmation.",
+    "source": {
+      "overfastKey": "jetpack-cat",
+      "overfastLocation": "Watchpoint: Gibraltar"
+    }
+  },
+  {
+    "id": "junker-queen",
+    "name": "Junker Queen",
+    "aliases": ["odessa stone"],
+    "role": "tank",
+    "subRole": "stalwart",
+    "gender": "female",
+    "nationality": "Australia",
+    "regionTags": ["oceania"],
+    "baseHp": 525,
+    "attackType": ["hitscan", "melee"],
+    "releaseYear": 2022,
+    "needsVerification": false,
+    "sourceNote": "OW2 launch tank (October 2022). Scattergun hitscan plus knife and axe melee.",
+    "source": {
+      "overfastKey": "junker-queen",
+      "overfastLocation": "Junkertown, Australia"
+    }
+  },
+  {
+    "id": "junkrat",
+    "name": "Junkrat",
+    "aliases": ["jamison fawkes"],
+    "role": "damage",
+    "subRole": "specialist",
+    "gender": "male",
+    "nationality": "Australia",
+    "regionTags": ["oceania"],
+    "baseHp": 250,
+    "attackType": ["projectile"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero. Frag Launcher is projectile.",
+    "source": {
+      "overfastKey": "junkrat",
+      "overfastLocation": "Junkertown, Australia (formerly)"
+    }
+  },
+  {
+    "id": "juno",
+    "name": "Juno",
+    "aliases": [],
+    "role": "support",
+    "subRole": "survivor",
+    "gender": "female",
+    "nationality": "Mars",
+    "regionTags": ["space"],
+    "baseHp": 225,
+    "attackType": ["hitscan"],
+    "releaseYear": 2024,
+    "needsVerification": false,
+    "sourceNote": "August 2024 hero, born on the Red Promise Colony, Mars. Mediblaster is hitscan.",
+    "source": {
+      "overfastKey": "juno",
+      "overfastLocation": "Red Promise Colony, Mars (formerly), Watchpoint: Gibraltar"
+    }
+  },
+  {
+    "id": "kiriko",
+    "name": "Kiriko",
+    "aliases": ["kiriko kamori"],
+    "role": "support",
+    "subRole": "medic",
+    "gender": "female",
+    "nationality": "Japan",
+    "regionTags": ["asia"],
+    "baseHp": 225,
+    "attackType": ["projectile"],
+    "releaseYear": 2022,
+    "needsVerification": false,
+    "sourceNote": "OW2 launch support (October 2022). Kunai are projectile.",
+    "source": {
+      "overfastKey": "kiriko",
+      "overfastLocation": "Kanezaka, Japan"
+    }
+  },
+  {
+    "id": "lifeweaver",
+    "name": "Lifeweaver",
+    "aliases": ["niran pruksamanee"],
+    "role": "support",
+    "subRole": "medic",
+    "gender": "male",
+    "nationality": "Thailand",
+    "regionTags": ["asia"],
+    "baseHp": 250,
+    "attackType": ["projectile"],
+    "releaseYear": 2023,
+    "needsVerification": false,
+    "sourceNote": "April 2023 hero. Thorn Volley is projectile; Thai origin per official hero page.",
+    "source": {
+      "overfastKey": "lifeweaver",
+      "overfastLocation": "Atlantic Arcology"
+    }
+  },
+  {
+    "id": "lucio",
+    "name": "Lúcio",
+    "aliases": ["lucio correia dos santos"],
+    "role": "support",
+    "subRole": "tactician",
+    "gender": "male",
+    "nationality": "Brazil",
+    "regionTags": ["south-america"],
+    "baseHp": 225,
+    "attackType": ["projectile"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero. Sonic Amplifier is projectile.",
+    "source": {
+      "overfastKey": "lucio",
+      "overfastLocation": "Rio de Janeiro, Brazil"
+    }
+  },
+  {
+    "id": "mauga",
+    "name": "Mauga",
+    "aliases": [],
+    "role": "tank",
+    "subRole": "bruiser",
+    "gender": "male",
+    "nationality": "Samoa",
+    "regionTags": ["oceania"],
+    "baseHp": 725,
+    "attackType": ["hitscan"],
+    "releaseYear": 2023,
+    "needsVerification": false,
+    "sourceNote": "December 2023 tank. Twin chainguns are hitscan.",
+    "source": {
+      "overfastKey": "mauga",
+      "overfastLocation": "Apia, Samoa"
+    }
+  },
+  {
+    "id": "mei",
+    "name": "Mei",
+    "aliases": ["mei-ling zhou"],
+    "role": "damage",
+    "subRole": "specialist",
+    "gender": "female",
+    "nationality": "China",
+    "regionTags": ["asia"],
+    "baseHp": 300,
+    "attackType": ["beam", "projectile"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero. Endothermic Blaster stream plus icicle projectile.",
+    "source": {
+      "overfastKey": "mei",
+      "overfastLocation": "Xi’an, China (formerly)"
+    }
+  },
+  {
+    "id": "mercy",
+    "name": "Mercy",
+    "aliases": ["angela ziegler"],
+    "role": "support",
+    "subRole": "medic",
+    "gender": "female",
+    "nationality": "Switzerland",
+    "regionTags": ["europe"],
+    "baseHp": 225,
+    "attackType": ["beam", "projectile"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero. Caduceus Staff beams plus blaster projectiles.",
+    "source": {
+      "overfastKey": "mercy",
+      "overfastLocation": "Zürich, Switzerland (formerly), Watchpoint: Gibraltar"
+    }
+  },
+  {
+    "id": "mizuki",
+    "name": "Mizuki",
+    "aliases": [],
+    "role": "support",
+    "subRole": "survivor",
+    "gender": "female",
+    "nationality": "Japan",
+    "regionTags": ["asia"],
+    "baseHp": 250,
+    "attackType": ["projectile"],
+    "releaseYear": 2026,
+    "needsVerification": true,
+    "sourceNote": "2026 rebrand hero. Origin from OverFast location (Tokyo, previous); gender and attack type are best-effort pending wiki confirmation.",
+    "source": {
+      "overfastKey": "mizuki",
+      "overfastLocation": "Tokyo, Japan (Previous), Kanezaka, Japan (Current)"
+    }
+  },
+  {
+    "id": "moira",
+    "name": "Moira",
+    "aliases": ["moira odeorain"],
+    "role": "support",
+    "subRole": "medic",
+    "gender": "female",
+    "nationality": "Ireland",
+    "regionTags": ["europe"],
+    "baseHp": 225,
+    "attackType": ["beam"],
+    "releaseYear": 2017,
+    "needsVerification": false,
+    "sourceNote": "November 2017 hero, Dublin-born; the OverFast location (Oasis) is her residence. Biotic Grasp is beam.",
+    "source": {
+      "overfastKey": "moira",
+      "overfastLocation": "Oasis, Iraq"
+    }
+  },
+  {
+    "id": "orisa",
+    "name": "Orisa",
+    "aliases": [],
+    "role": "tank",
+    "subRole": "bruiser",
+    "gender": "female",
+    "nationality": "Numbani",
+    "regionTags": ["africa"],
+    "baseHp": 600,
+    "attackType": ["projectile"],
+    "releaseYear": 2017,
+    "needsVerification": false,
+    "sourceNote": "March 2017 hero; she/her omnic built in Numbani. Augmented Fusion Driver is projectile.",
+    "source": {
+      "overfastKey": "orisa",
+      "overfastLocation": "Numbani, Africa"
+    }
+  },
+  {
+    "id": "pharah",
+    "name": "Pharah",
+    "aliases": ["fareeha amari"],
+    "role": "damage",
+    "subRole": "recon",
+    "gender": "female",
+    "nationality": "Egypt",
+    "regionTags": ["africa", "middle-east", "north-america"],
+    "baseHp": 225,
+    "attackType": ["projectile"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero, Egyptian-Canadian (Canadian father per lore), hence the extra region tag. Rocket Launcher is projectile.",
+    "source": {
+      "overfastKey": "pharah",
+      "overfastLocation": "Giza, Egypt (formerly), Watchpoint: Gibraltar"
+    }
+  },
+  {
+    "id": "ramattra",
+    "name": "Ramattra",
+    "aliases": [],
+    "role": "tank",
+    "subRole": "stalwart",
+    "gender": "male",
+    "nationality": "Nepal",
+    "regionTags": ["asia"],
+    "baseHp": 525,
+    "attackType": ["projectile", "melee"],
+    "releaseYear": 2022,
+    "needsVerification": false,
+    "sourceNote": "December 2022 tank; he/him omnic of the Shambali. Void Accelerator projectile plus Nemesis pummel.",
+    "source": {
+      "overfastKey": "ramattra",
+      "overfastLocation": "Shambali Monastery, Nepal (formerly)"
+    }
+  },
+  {
+    "id": "reaper",
+    "name": "Reaper",
+    "aliases": ["gabriel reyes"],
+    "role": "damage",
+    "subRole": "flanker",
+    "gender": "male",
+    "nationality": "United States",
+    "regionTags": ["north-america"],
+    "baseHp": 300,
+    "attackType": ["hitscan"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero, Los Angeles-born; the OverFast location (Rome) is the Talon base. Hellfire Shotguns are hitscan.",
+    "source": {
+      "overfastKey": "reaper",
+      "overfastLocation": "Rome, Italy"
+    }
+  },
+  {
+    "id": "reinhardt",
+    "name": "Reinhardt",
+    "aliases": ["reinhardt wilhelm"],
+    "role": "tank",
+    "subRole": "stalwart",
+    "gender": "male",
+    "nationality": "Germany",
+    "regionTags": ["europe"],
+    "baseHp": 700,
+    "attackType": ["melee"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero. Rocket Hammer is melee.",
+    "source": {
+      "overfastKey": "reinhardt",
+      "overfastLocation": "Stuttgart, Germany (formerly), Watchpoint: Gibraltar"
+    }
+  },
+  {
+    "id": "roadhog",
+    "name": "Roadhog",
+    "aliases": ["mako rutledge"],
+    "role": "tank",
+    "subRole": "bruiser",
+    "gender": "male",
+    "nationality": "Australia",
+    "regionTags": ["oceania"],
+    "baseHp": 750,
+    "attackType": ["projectile"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero. Scrap Gun shrapnel is projectile.",
+    "source": {
+      "overfastKey": "roadhog",
+      "overfastLocation": "Junkertown, Australia (formerly)"
+    }
+  },
+  {
+    "id": "shion",
+    "name": "Shion",
+    "aliases": [],
+    "role": "damage",
+    "subRole": "flanker",
+    "gender": "female",
+    "nationality": "Japan",
+    "regionTags": ["asia"],
+    "baseHp": 250,
+    "attackType": ["projectile"],
+    "releaseYear": 2026,
+    "releaseDate": "2026-06-16",
+    "needsVerification": true,
+    "sourceNote": "Hero 52, announced for June 16, 2026 (Reign of Talon Season 3): Flanker Damage omnic of the Hashimoto Clan per coverage. Not on OverFast until launch; HP and attack type are placeholders.",
+    "source": {}
+  },
+  {
+    "id": "sierra",
+    "name": "Sierra",
+    "aliases": [],
+    "role": "damage",
+    "subRole": "recon",
+    "gender": "female",
+    "nationality": "United States",
+    "regionTags": ["north-america"],
+    "baseHp": 250,
+    "attackType": ["hitscan"],
+    "releaseYear": 2026,
+    "needsVerification": true,
+    "sourceNote": "2026 Season 2 hero. Origin from OverFast location (Grand Mesa, Colorado); gender and attack type are best-effort pending wiki confirmation.",
+    "source": {
+      "overfastKey": "sierra",
+      "overfastLocation": "Grand Mesa, Colorado"
+    }
+  },
+  {
+    "id": "sigma",
+    "name": "Sigma",
+    "aliases": ["siebren de kuiper"],
+    "role": "tank",
+    "subRole": "stalwart",
+    "gender": "male",
+    "nationality": "Netherlands",
+    "regionTags": ["europe"],
+    "baseHp": 625,
+    "attackType": ["projectile"],
+    "releaseYear": 2019,
+    "needsVerification": false,
+    "sourceNote": "August 2019 tank. Hyperspheres are projectile.",
+    "source": {
+      "overfastKey": "sigma",
+      "overfastLocation": "The Hague, Netherlands (formerly), International Space Station (formerly)"
+    }
+  },
+  {
+    "id": "sojourn",
+    "name": "Sojourn",
+    "aliases": ["vivian chase"],
+    "role": "damage",
+    "subRole": "sharpshooter",
+    "gender": "female",
+    "nationality": "Canada",
+    "regionTags": ["north-america"],
+    "baseHp": 225,
+    "attackType": ["projectile", "hitscan"],
+    "releaseYear": 2022,
+    "needsVerification": false,
+    "sourceNote": "OW2 launch damage hero (October 2022). Railgun primary is projectile, charged secondary is hitscan.",
+    "source": {
+      "overfastKey": "sojourn",
+      "overfastLocation": "Toronto, Canada"
+    }
+  },
+  {
+    "id": "soldier-76",
+    "name": "Soldier: 76",
+    "aliases": ["jack morrison"],
+    "role": "damage",
+    "subRole": "specialist",
+    "gender": "male",
+    "nationality": "United States",
+    "regionTags": ["north-america"],
+    "baseHp": 250,
+    "attackType": ["hitscan"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero, Indiana-born per lore. Heavy Pulse Rifle is hitscan.",
+    "source": {
+      "overfastKey": "soldier-76",
+      "overfastLocation": "Unknown"
+    }
+  },
+  {
+    "id": "sombra",
+    "name": "Sombra",
+    "aliases": ["olivia colomar"],
+    "role": "damage",
+    "subRole": "recon",
+    "gender": "female",
+    "nationality": "Mexico",
+    "regionTags": ["north-america"],
+    "baseHp": 225,
+    "attackType": ["hitscan"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "November 2016 hero. Machine Pistol is hitscan.",
+    "source": {
+      "overfastKey": "sombra",
+      "overfastLocation": "Dorado, Mexico"
+    }
+  },
+  {
+    "id": "symmetra",
+    "name": "Symmetra",
+    "aliases": ["satya vaswani"],
+    "role": "damage",
+    "subRole": "specialist",
+    "gender": "female",
+    "nationality": "India",
+    "regionTags": ["asia"],
+    "baseHp": 275,
+    "attackType": ["beam", "projectile"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero. Photon Projector beam plus orb projectile.",
+    "source": {
+      "overfastKey": "symmetra",
+      "overfastLocation": "Utopaea, India"
+    }
+  },
+  {
+    "id": "torbjorn",
+    "name": "Torbjörn",
+    "aliases": ["torbjorn lindholm"],
+    "role": "damage",
+    "subRole": "specialist",
+    "gender": "male",
+    "nationality": "Sweden",
+    "regionTags": ["europe"],
+    "baseHp": 300,
+    "attackType": ["projectile", "hitscan"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero. Rivet Gun primary is projectile, shotgun secondary is hitscan.",
+    "source": {
+      "overfastKey": "torbjorn",
+      "overfastLocation": "Gothenburg, Sweden"
+    }
+  },
+  {
+    "id": "tracer",
+    "name": "Tracer",
+    "aliases": ["lena oxton"],
+    "role": "damage",
+    "subRole": "flanker",
+    "gender": "female",
+    "nationality": "England",
+    "regionTags": ["europe"],
+    "baseHp": 175,
+    "attackType": ["hitscan"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero. Pulse Pistols are hitscan.",
+    "source": {
+      "overfastKey": "tracer",
+      "overfastLocation": "London, England, Watchpoint: Gibraltar"
+    }
+  },
+  {
+    "id": "vendetta",
+    "name": "Vendetta",
+    "aliases": [],
+    "role": "damage",
+    "subRole": "flanker",
+    "gender": "female",
+    "nationality": "Italy",
+    "regionTags": ["europe"],
+    "baseHp": 275,
+    "attackType": ["projectile"],
+    "releaseYear": 2025,
+    "needsVerification": true,
+    "sourceNote": "2025 hero. OverFast lists Rome, which is also the Talon base, so the origin needs wiki confirmation along with gender, attack type, and exact release.",
+    "source": {
+      "overfastKey": "vendetta",
+      "overfastLocation": "Rome, Italy"
+    }
+  },
+  {
+    "id": "venture",
+    "name": "Venture",
+    "aliases": ["sloan cameron"],
+    "role": "damage",
+    "subRole": "flanker",
+    "gender": "non-binary",
+    "nationality": "Canada",
+    "regionTags": ["north-america"],
+    "baseHp": 250,
+    "attackType": ["projectile"],
+    "releaseYear": 2024,
+    "needsVerification": false,
+    "sourceNote": "April 2024 hero; they/them per official announcement. Smart Excavator is projectile.",
+    "source": {
+      "overfastKey": "venture",
+      "overfastLocation": "Nova Scotia, Canada (Formerly), Roaming"
+    }
+  },
+  {
+    "id": "widowmaker",
+    "name": "Widowmaker",
+    "aliases": ["amelie lacroix"],
+    "role": "damage",
+    "subRole": "sharpshooter",
+    "gender": "female",
+    "nationality": "France",
+    "regionTags": ["europe"],
+    "baseHp": 225,
+    "attackType": ["hitscan"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero. Widow's Kiss is hitscan in both configurations.",
+    "source": {
+      "overfastKey": "widowmaker",
+      "overfastLocation": "Annecy, France"
+    }
+  },
+  {
+    "id": "winston",
+    "name": "Winston",
+    "aliases": [],
+    "role": "tank",
+    "subRole": "initiator",
+    "gender": "male",
+    "nationality": "Horizon Lunar Colony",
+    "regionTags": ["space"],
+    "baseHp": 625,
+    "attackType": ["beam"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero, Horizon-raised scientist. Tesla Cannon is beam.",
+    "source": {
+      "overfastKey": "winston",
+      "overfastLocation": "Horizon Lunar Colony (formerly), Watchpoint: Gibraltar"
+    }
+  },
+  {
+    "id": "wrecking-ball",
+    "name": "Wrecking Ball",
+    "aliases": ["hammond"],
+    "role": "tank",
+    "subRole": "initiator",
+    "gender": "male",
+    "nationality": "Horizon Lunar Colony",
+    "regionTags": ["space", "oceania"],
+    "baseHp": 725,
+    "attackType": ["hitscan"],
+    "releaseYear": 2018,
+    "needsVerification": false,
+    "sourceNote": "July 2018 tank; Horizon escapee who landed in the Outback, hence both tags. Quad Cannons are hitscan.",
+    "source": {
+      "overfastKey": "wrecking-ball",
+      "overfastLocation": "Horizon Lunar Colony (formerly), Junkertown (formerly)"
+    }
+  },
+  {
+    "id": "wuyang",
+    "name": "Wuyang",
+    "aliases": [],
+    "role": "support",
+    "subRole": "survivor",
+    "gender": "male",
+    "nationality": "China",
+    "regionTags": ["asia"],
+    "baseHp": 225,
+    "attackType": ["projectile"],
+    "releaseYear": 2025,
+    "needsVerification": false,
+    "sourceNote": "2025 Season 18 support from Wuxing University, Chengdu. Water-bolt primary is projectile.",
+    "source": {
+      "overfastKey": "wuyang",
+      "overfastLocation": "Wuxing University, Chengdu"
+    }
+  },
+  {
+    "id": "zarya",
+    "name": "Zarya",
+    "aliases": ["aleksandra zaryanova"],
+    "role": "tank",
+    "subRole": "bruiser",
+    "gender": "female",
+    "nationality": "Russia",
+    "regionTags": ["europe", "asia"],
+    "baseHp": 550,
+    "attackType": ["beam", "projectile"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero; Siberian, hence both region tags. Particle Cannon beam plus energy grenade.",
+    "source": {
+      "overfastKey": "zarya",
+      "overfastLocation": "Krasnoyarsk Front (formerly), Novoanskoye Forward Base, Siberia, Russia (formerly), Watchpoint: Gibraltar"
+    }
+  },
+  {
+    "id": "zenyatta",
+    "name": "Zenyatta",
+    "aliases": ["tekhartha zenyatta"],
+    "role": "support",
+    "subRole": "tactician",
+    "gender": "male",
+    "nationality": "Nepal",
+    "regionTags": ["asia"],
+    "baseHp": 250,
+    "attackType": ["projectile"],
+    "releaseYear": 2016,
+    "needsVerification": false,
+    "sourceNote": "Launch hero; he/him omnic of the Shambali. Orbs of Destruction are projectile.",
+    "source": {
+      "overfastKey": "zenyatta",
+      "overfastLocation": "Shambali Monastery, Nepal (formerly)"
+    }
+  }
+]

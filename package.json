@@ -24,6 +24,7 @@
     "fetch:maps": "node scripts/fetch-map-icons.mjs",
     "fetch:player": "node scripts/fetch-player.mjs",
     "fetch:social": "node scripts/fetch-social-stats.mjs",
+    "fetch:owdle": "node scripts/fetch-owdle.mjs",
     "build:og": "node scripts/generate-og.mjs",
     "build:fonts": "node scripts/subset-cjk-fonts.mjs",
     "deploy": "npm run build && wrangler deploy",

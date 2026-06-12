@@ -1,0 +1,449 @@
+---
+/**
+ * OWdle, the daily hero-guessing game (/games/owdle/), shared by all
+ * three locales.
+ *
+ * Same architecture as the crossword: everything that can be
+ * server-rendered is (heading, board header, legend, stats skeleton,
+ * how-to, disclaimer), all localized through useT. The engine
+ * (src/scripts/owdle.ts, a processed module, CSP-clean) carries the hero
+ * dataset in its bundle, so the page makes zero runtime requests.
+ *
+ * No-JS doctrine: the fallback notice and the how-to copy are visible by
+ * default; the interactive shell starts [hidden] and is revealed BY the
+ * engine once it boots (the crossword's inverse-reveal pattern).
+ *
+ * IP posture (Tier 1, owner-approved): hero names and factual attributes
+ * only, no Blizzard art, audio, or prose; the required non-affiliation
+ * disclaimer renders at the bottom of the page in every locale.
+ */
+import SectionHeader from '../ui/SectionHeader.astro';
+import { getLocale, useT } from '../../i18n';
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+const c = t.games.owdle;
+const isZh = locale !== 'en';
+
+// Strings the engine needs at runtime (templates use {placeholders}).
+const l10n = {
+  unknownHero: c.unknownHero,
+  shareLabel: c.shareLabel,
+  shareCopied: c.shareCopied,
+  winBody: c.winBody('{hero}', '{count}'),
+  winBodyOne: c.winBodyOne('{hero}'),
+  stateExact: c.legendExact,
+  statePartial: c.legendPartial,
+  stateMiss: c.legendMiss,
+  dirHigher: c.legendHigher,
+  dirLower: c.legendLower,
+  roleValues: c.roleValues,
+  subRoleValues: c.subRoleValues,
+  genderValues: c.genderValues,
+  attackValues: c.attackValues,
+  cols: {
+    role: c.colRole,
+    subRole: c.colSubRole,
+    gender: c.colGender,
+    nationality: c.colOrigin,
+    baseHp: c.colHp,
+    attackType: c.colAttack,
+    releaseYear: c.colYear,
+  },
+};
+
+const HEADER_COLS = [
+  c.colHero,
+  c.colRole,
+  c.colSubRole,
+  c.colGender,
+  c.colOrigin,
+  c.colHp,
+  c.colAttack,
+  c.colYear,
+];
+
+const LEGEND = [
+  { cls: 'is-exact', glyph: '✓', label: c.legendExact },
+  { cls: 'is-partial', glyph: '~', label: c.legendPartial },
+  { cls: 'is-miss', glyph: '✕', label: c.legendMiss },
+  { cls: 'is-dir', glyph: '↑', label: c.legendHigher },
+  { cls: 'is-dir', glyph: '↓', label: c.legendLower },
+];
+---
+
+<section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-10 pb-16">
+  <SectionHeader heading={c.heading} eyebrow={c.eyebrow} level="h1" />
+  <p class="mt-4 max-w-2xl text-[var(--color-text-dim)]">{c.intro}</p>
+  {
+    isZh && (
+      <p class="mt-2 max-w-2xl text-sm text-[var(--color-accent-2)]" data-zh-notice>
+        {c.zhValuesNotice}
+      </p>
+    )
+  }
+
+  <div id="owdle-app" data-l10n={JSON.stringify(l10n)}>
+    {
+      /* Visible whenever the engine has not (yet) booted: no-JS or a
+        blocked script. The engine hides it on success. */
+    }
+    <div
+      class="mt-8 max-w-2xl rounded border border-[var(--color-border)] bg-[var(--color-surface)] p-4 text-sm text-[var(--color-text-dim)]"
+      data-ow-fallback
+    >
+      {c.noJsNotice}
+    </div>
+
+    <div class="mt-8" hidden data-ow-ui>
+      <div
+        class="flex flex-wrap items-center justify-between gap-4 text-sm text-[var(--color-text-dim)] tabular-nums"
+      >
+        <span>
+          {c.puzzleLabel}
+          <span data-ow-number>#</span>
+        </span>
+        <span>
+          {c.nextHeroLabel}: <span data-ow-countdown>--:--:--</span>
+        </span>
+      </div>
+
+      <form class="mt-4 max-w-md" data-ow-form>
+        <label class="block text-sm font-medium" for="ow-guess-input">{c.inputLabel}</label>
+        <div class="relative mt-2">
+          <div class="flex gap-2">
+            <input
+              id="ow-guess-input"
+              class="ow-input"
+              type="text"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              placeholder={c.inputPlaceholder}
+              role="combobox"
+              aria-expanded="false"
+              aria-controls="ow-suggestions"
+              aria-autocomplete="list"
+            />
+            <button type="submit" class="ow-btn">{c.guessButton}</button>
+          </div>
+          <ul
+            id="ow-suggestions"
+            class="ow-suggestions"
+            role="listbox"
+            aria-label={c.suggestionsLabel}
+            hidden
+            data-ow-suggestions
+          >
+          </ul>
+        </div>
+        <p class="mt-2 min-h-5 text-sm text-[var(--color-loss)]" aria-live="polite" data-ow-error>
+        </p>
+      </form>
+
+      <div
+        class="mt-4 rounded border border-[var(--color-accent)]/50 bg-[var(--color-surface)] p-4"
+        hidden
+        data-ow-complete
+      >
+        <p class="font-display text-xl tracking-wide text-[var(--color-accent-2)]">
+          {c.winHeading}
+        </p>
+        <p class="mt-1 text-sm text-[var(--color-text-dim)]" data-ow-complete-body></p>
+        <button type="button" class="ow-btn mt-3" data-ow-share>{c.shareLabel}</button>
+      </div>
+
+      <div class="mt-3 flex justify-end">
+        <button type="button" class="ow-btn" aria-pressed="false" data-ow-fit>{c.fitToggle}</button>
+      </div>
+
+      <div
+        class="ow-board-wrap mt-2"
+        tabindex="0"
+        role="region"
+        aria-label={c.ariaBoard}
+        data-ow-board-wrap
+      >
+        <div class="ow-board" role="table" aria-label={c.ariaBoard} data-ow-board>
+          <div class="ow-row ow-head" role="row">
+            {
+              HEADER_COLS.map((label) => (
+                <div class="ow-cell ow-head-cell" role="columnheader">
+                  {label}
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+
+      <section class="mt-6 max-w-2xl">
+        <h2 class="font-display text-lg tracking-wide">{c.legendHeading}</h2>
+        <ul class="mt-2 grid gap-1.5 text-sm text-[var(--color-text-dim)] sm:grid-cols-2">
+          {
+            LEGEND.map((item) => (
+              <li class="flex items-center gap-2">
+                <span class={`ow-chip ${item.cls}`} aria-hidden="true">
+                  {item.glyph}
+                </span>
+                {item.label}
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section
+        class="mt-8 max-w-2xl rounded border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+      >
+        <h2 class="font-display text-lg tracking-wide">{c.statsHeading}</h2>
+        <dl class="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+          <div>
+            <dt class="text-[var(--color-text-dim)]">{c.statsPlayed}</dt>
+            <dd class="mt-0.5 text-lg font-semibold tabular-nums" data-stat="played">0</dd>
+          </div>
+          <div>
+            <dt class="text-[var(--color-text-dim)]">{c.statsWon}</dt>
+            <dd class="mt-0.5 text-lg font-semibold tabular-nums" data-stat="won">0</dd>
+          </div>
+          <div>
+            <dt class="text-[var(--color-text-dim)]">{c.statsStreak}</dt>
+            <dd class="mt-0.5 text-lg font-semibold tabular-nums" data-stat="currentStreak">0</dd>
+          </div>
+          <div>
+            <dt class="text-[var(--color-text-dim)]">{c.statsMaxStreak}</dt>
+            <dd class="mt-0.5 text-lg font-semibold tabular-nums" data-stat="maxStreak">0</dd>
+          </div>
+        </dl>
+        <h3 class="mt-4 text-sm font-medium">{c.distHeading}</h3>
+        <ol class="mt-2 space-y-1 text-xs" data-ow-dist></ol>
+        <p class="mt-3 text-sm text-[var(--color-text-dim)]" hidden data-ow-yesterday>
+          {c.yesterdayLabel}: <span class="font-semibold" data-ow-yesterday-name></span>
+        </p>
+        <p class="mt-3 text-xs text-[var(--color-text-dim)]">{c.statsNote}</p>
+      </section>
+    </div>
+  </div>
+
+  <section class="mt-12 max-w-2xl">
+    <h2 class="font-display text-xl tracking-wide">{c.howToHeading}</h2>
+    <ul class="mt-3 space-y-2 text-sm leading-relaxed text-[var(--color-text-dim)]">
+      <li>{c.howTo1}</li>
+      <li>{c.howTo2}</li>
+      <li>{c.howTo3}</li>
+      <li>{c.howTo4}</li>
+    </ul>
+  </section>
+
+  <footer class="mt-12 max-w-2xl border-t border-[var(--color-border)] pt-4">
+    <p class="text-xs leading-relaxed text-[var(--color-text-dim)]">{c.disclaimer}</p>
+    <p class="mt-2 text-xs text-[var(--color-text-dim)]">{c.dataCredit}</p>
+  </footer>
+</section>
+
+<style>
+  .ow-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 2.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    background: var(--color-surface);
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    color: var(--color-text);
+  }
+  .ow-input:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -1px;
+  }
+
+  .ow-btn {
+    display: inline-block;
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    padding: 0.5rem 0.875rem;
+    min-height: 2.75rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-text-dim);
+    cursor: pointer;
+    transition:
+      color 120ms,
+      border-color 120ms;
+  }
+  .ow-btn:hover {
+    color: var(--color-text);
+    border-color: var(--color-accent-2);
+  }
+  .ow-btn[aria-pressed='true'] {
+    border-color: var(--color-accent);
+    color: var(--color-accent-2);
+  }
+
+  .ow-suggestions {
+    position: absolute;
+    z-index: 20;
+    margin-top: 0.25rem;
+    width: 100%;
+    max-height: 16rem;
+    overflow-y: auto;
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    background: var(--color-surface-2);
+    box-shadow: var(--shadow-card);
+  }
+  .ow-suggestions :global(.ow-suggestion) {
+    display: block;
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.9375rem;
+    text-align: left;
+    color: var(--color-text-dim);
+    cursor: pointer;
+  }
+  .ow-suggestions :global(.ow-suggestion:hover),
+  .ow-suggestions :global(.ow-suggestion.is-active) {
+    color: var(--color-text);
+    background: color-mix(in oklab, var(--color-accent) 14%, var(--color-surface-2));
+  }
+
+  .ow-board-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ow-board-wrap:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+  }
+  .ow-board {
+    --ow-cols: minmax(7.5rem, 1.4fr) repeat(7, minmax(5.75rem, 1fr));
+    min-width: 54rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: var(--color-border);
+  }
+  .ow-board :global(.ow-row) {
+    display: grid;
+    grid-template-columns: var(--ow-cols);
+    gap: 2px;
+  }
+  .ow-board :global(.ow-cell) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.125rem;
+    min-height: 3.5rem;
+    padding: 0.375rem 0.375rem;
+    background: var(--color-surface);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+  .ow-board :global(.ow-cell:first-child) {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+  }
+  .ow-board :global(.ow-head-cell) {
+    min-height: 2.5rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-dim);
+  }
+  .ow-board :global(.ow-name) {
+    font-weight: 700;
+  }
+  .ow-board :global(.ow-glyph) {
+    font-size: 0.75rem;
+    font-weight: 700;
+    opacity: 0.9;
+  }
+  .ow-board :global(.is-exact) {
+    background: color-mix(in oklab, var(--color-win) 38%, var(--color-surface));
+  }
+  .ow-board :global(.is-partial) {
+    background: color-mix(in oklab, #d97706 40%, var(--color-surface));
+  }
+  .ow-board :global(.is-miss) {
+    background: color-mix(in oklab, var(--color-loss) 26%, var(--color-surface));
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .ow-board :global(.ow-row.is-new .ow-cell:not(:first-child)) {
+      animation: ow-pop 360ms ease both;
+      animation-delay: calc(var(--ow-i, 0) * 120ms);
+    }
+    @keyframes ow-pop {
+      0% {
+        opacity: 0;
+        transform: scale(0.85);
+      }
+    }
+  }
+
+  /* Fit-to-screen mode: compress the grid into the viewport width. */
+  .ow-board-wrap.is-fit {
+    overflow-x: hidden;
+  }
+  .ow-board-wrap.is-fit .ow-board {
+    min-width: 100%;
+    --ow-cols: minmax(2.5rem, 1.3fr) repeat(7, minmax(1.5rem, 1fr));
+  }
+  .ow-board-wrap.is-fit :global(.ow-cell) {
+    font-size: 0.5625rem;
+    padding: 0.25rem 0.125rem;
+    min-height: 2.75rem;
+  }
+  .ow-board-wrap.is-fit :global(.ow-head-cell) {
+    font-size: 0.5rem;
+  }
+
+  .ow-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: var(--color-surface-2);
+    flex-shrink: 0;
+  }
+  .ow-chip.is-exact {
+    background: color-mix(in oklab, var(--color-win) 38%, var(--color-surface));
+  }
+  .ow-chip.is-partial {
+    background: color-mix(in oklab, #d97706 40%, var(--color-surface));
+  }
+  .ow-chip.is-miss {
+    background: color-mix(in oklab, var(--color-loss) 26%, var(--color-surface));
+  }
+
+  :global([data-ow-dist] .ow-dist-row) {
+    display: grid;
+    grid-template-columns: 2rem 1fr 2.5rem;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  :global([data-ow-dist] .ow-dist-bar) {
+    height: 0.875rem;
+    border-radius: 0.125rem;
+    background: color-mix(in oklab, var(--color-accent) 55%, var(--color-surface));
+    min-width: 2px;
+  }
+</style>
+
+<script>
+  // Engine: guesses, comparisons, stats, countdown, share. Processed
+  // module (bundled to /_astro/*), keeping the no-inline-JS CSP.
+  import '../../scripts/owdle.ts';
+</script>
