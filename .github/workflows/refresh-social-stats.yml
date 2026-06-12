@@ -38,6 +38,11 @@ jobs:
           restore-keys: |
             npm-
 
+      # The fetch script imports src/data/schemas.ts, which needs zod from
+      # node_modules; without this step the job dies on ERR_MODULE_NOT_FOUND.
+      - name: Install dependencies
+        run: npm ci
+
       # Discord needs no secret. The others are optional: each source skips
       # itself when its credentials are absent, so the job is safe to run with
       # any subset of these set (or none).
