@@ -79,12 +79,12 @@ not translated yet; there is no hidden flag to flip. When the translated
 clue corpus is ready and reviewed, add per-locale clue fields to
 `entries.ts`, extend the generator's `clueFor`, and regenerate.
 
-**Pending RiRi review now** (machine-drafted, marked in-file with
-`DRAFT PENDING RIRI NATIVE REVIEW`):
-
-- `src/i18n/zh-TW.ts`: `nav.games`, the four `pageMeta.games*` /
-  `crossword*` keys, and the entire `games` section (~45 strings).
-- `src/i18n/zh-CN.ts`: same set.
+**Review status: APPROVED 2026-06-11.** The owner approved every games
+string in `zh-TW.ts` and `zh-CN.ts` (`nav.games`, the `pageMeta` games and
+crossword keys, and the full `games` section) before the merge to main;
+their DRAFT markers were removed in the merge commit. Clue text remains
+English in all locales until a translated clue corpus exists and passes
+its own review.
 
 ## 7. localStorage exception (documented)
 

@@ -19,7 +19,6 @@ export const zhTW: Strings = {
     matches: '賽程',
     news: '新聞',
     coaching: '教練課程',
-    // DRAFT PENDING RIRI NATIVE REVIEW
     games: '遊戲',
     about: '關於',
   },
@@ -62,7 +61,6 @@ export const zhTW: Strings = {
       '與 Najdorf Esports OWCS Pacific 名單選手 brysonbtw 進行一對一《鬥陣特攻》教學。提供單堂與多堂課程方案，預約時可以信用卡或 PayPal 安全付款。',
     rosterDescription: (headcount, countries) =>
       `Najdorf Esports 現役 OWCS Pacific 名單，共 ${headcount} 名選手，來自 ${countries.join('、')}。`,
-    // DRAFT PENDING RIRI NATIVE REVIEW (games/crossword meta block)
     gamesTitle: '遊戲',
     gamesDescription:
       'Najdorf Esports 的每日《鬥陣特攻》小遊戲，首發每日迷你填字，共三種難度，免費遊玩。',
@@ -448,7 +446,6 @@ export const zhTW: Strings = {
     metaDescription: (handle, role) => `Najdorf Esports 的${role} ${handle}，征戰 OWCS Pacific。`,
   },
 
-  // DRAFT PENDING RIRI NATIVE REVIEW (entire games section)
   games: {
     hub: {
       eyebrow: '遊戲',

@@ -18,7 +18,6 @@ export const zhCN: Strings = {
     matches: '赛程',
     news: '新闻',
     coaching: '教练课程',
-    // DRAFT PENDING RIRI NATIVE REVIEW
     games: '游戏',
     about: '关于',
   },
@@ -62,7 +61,6 @@ export const zhCN: Strings = {
       '与 Najdorf Esports OWCS Pacific 名单选手 brysonbtw 进行一对一《守望先锋》教学。提供单节与多节课程方案，预约时可使用信用卡或 PayPal 安全付款。',
     rosterDescription: (headcount, countries) =>
       `Najdorf Esports 现役 OWCS Pacific 名单，共 ${headcount} 名选手，来自 ${countries.join('、')}。`,
-    // DRAFT PENDING RIRI NATIVE REVIEW (games/crossword meta block)
     gamesTitle: '游戏',
     gamesDescription:
       'Najdorf Esports 的每日《守望先锋》小游戏，首发每日迷你填字，共三种难度，免费游玩。',
@@ -448,7 +446,6 @@ export const zhCN: Strings = {
     metaDescription: (handle, role) => `Najdorf Esports 的${role} ${handle}，征战 OWCS Pacific。`,
   },
 
-  // DRAFT PENDING RIRI NATIVE REVIEW (entire games section)
   games: {
     hub: {
       eyebrow: '游戏',
