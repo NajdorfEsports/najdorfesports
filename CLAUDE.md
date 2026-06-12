@@ -200,15 +200,19 @@ preview` and the Playwright e2e server, nothing more.
   out by `<SocialRow>` so nothing broken ships.
 - `src/data/sponsors.json` is an empty array at launch; UI hides empty
   sections automatically. Don't add a placeholder section back.
-- **Social / community stats: LIVE for Discord + X, dormant for the rest.**
+- **Social / community stats: DORMANT by owner decision (2026-06-11).**
   `src/data/social.ts` holds the config, types, `formatCount`, and two master
-  switches. `SHOW_SOCIAL_STATS` is `true`: Discord + X have `display: true` and
-  their counts render in `<CommunityCTA>` (the "Join the community" band on the
-  home page) as a "<count> members/followers" line. `SHOW_LIVE_VIEWERS` is still
-  `false` (gates the live "watching now" pill). Channels at zero (YouTube /
-  TikTok / Instagram) keep `display: false` and stay hidden. The standalone
-  `<SocialStats>` strip (`components/team/`) exists but is not placed anywhere;
-  it's an alternative surface. Counts are fetched at BUILD time by
+  switches. `SHOW_SOCIAL_STATS` is `false`: the owner keeps counts hidden while
+  the numbers are small (single/low double digits read as a liability, not
+  social proof). Do NOT flip it without the owner's go-ahead. When it flips to
+  `true`, Discord + X (`display: true`) render a "<count> members/followers"
+  line in `<CommunityCTA>` (the "Join the community" band on the home page)
+  with zero other changes. `SHOW_LIVE_VIEWERS` is also `false` (gates the live
+  "watching now" pill). Channels at zero (YouTube / TikTok / Instagram) keep
+  `display: false` and stay hidden regardless. The standalone `<SocialStats>`
+  strip (`components/team/`) exists but is not placed anywhere; it's an
+  alternative surface. The data pipeline stays LIVE so the switch is the only
+  change needed later: counts are fetched at BUILD time by
   `scripts/fetch-social-stats.mjs` (`npm run fetch:social`), written to
   `social-stats.json` (auto) with a `social-stats.manual.json` override merged
   by `platform` (manual wins, same contract as roster/matches). No client ever
@@ -223,12 +227,10 @@ preview` and the Playwright e2e server, nothing more.
   free API): edit `count` in `social-stats.manual.json`. The refresh workflow
   (`.github/workflows/refresh-social-stats.yml`) runs **weekly** (Mon 09:22 UTC)
   and on manual dispatch; it auto-commits `social-stats.json` only when a number
-  changes. To hide all counts again, flip `SHOW_SOCIAL_STATS` back to `false`
-  (CommunityCTA reverts to no counts automatically). True per-second "watching
-  now" realtime (vs the scheduled snapshot) would need an on-demand endpoint
-  (which would need re-adding an SSR adapter); `connect-src 'self'` is
-  already in the CSP, so only the adapter question matters for that
-  upgrade.
+  changes. True per-second "watching now" realtime (vs the scheduled snapshot)
+  would need an on-demand endpoint (which would need re-adding an SSR adapter);
+  `connect-src 'self'` is already in the CSP, so only the adapter question
+  matters for that upgrade.
 - News is an Astro content collection (`src/content/news/*.md`); schema in
   `src/content.config.ts`. Author defaults to `Najdorf Esports`.
 - **News is multilingual via a `slug` + `locale` convention.** Each article
