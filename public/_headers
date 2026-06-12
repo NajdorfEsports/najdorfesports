@@ -57,6 +57,13 @@
 /styles/*
   Cache-Control: public, max-age=3600
 
+# Daily crossword puzzles. Filenames are date-keyed (YYYY-MM-DD-tier.json),
+# so same-day caching is always safe and the midnight rollover fetches a
+# brand-new URL. One hour (not a day) so a same-day clue correction can
+# still be deployed without being pinned by browser caches.
+/games/crossword/puzzles/*
+  Cache-Control: public, max-age=3600
+
 # RSS feed
 /feed.xml
   Cache-Control: public, max-age=3600

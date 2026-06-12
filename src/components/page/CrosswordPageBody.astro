@@ -1,0 +1,437 @@
+---
+/**
+ * Daily mini crossword (/games/crossword/), shared by all three locales.
+ *
+ * Everything that can be server-rendered is: heading, difficulty tabs,
+ * check/reveal menus, the on-screen keyboard, stats skeleton, and the
+ * how-to copy, all localized through useT. The engine
+ * (src/scripts/crossword.ts, a processed module, CSP-clean) fetches the
+ * date-keyed puzzle JSON and builds only the grid and clue lists.
+ *
+ * No-JS doctrine: the fallback notice and the how-to copy are visible by
+ * default; the interactive shell starts [hidden] and is revealed BY the
+ * engine once a puzzle renders. A blocked script therefore never strands
+ * content invisible (the inverse of the .reveal pattern, same spirit as
+ * the burger button's scripting:none rule).
+ *
+ * Clue text is English in every locale for now (owner decision
+ * 2026-06-11); zh pages show the zhClueNotice until the translated
+ * corpus passes native review.
+ */
+import SectionHeader from '../ui/SectionHeader.astro';
+import { getLocale, useT } from '../../i18n';
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+const c = t.games.crossword;
+const isZh = locale !== 'en';
+
+// Strings the engine needs at runtime (templates use {placeholders}).
+const l10n = {
+  loadError: c.loadError,
+  noPuzzle: c.noPuzzle,
+  shareCopied: c.shareCopied,
+  shareLabel: c.shareLabel,
+  completeBody: c.completeBody('{time}'),
+  completeAssisted: c.completeAssisted,
+  ariaGrid: c.ariaGrid,
+};
+
+const KEY_ROWS = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'];
+const DIFFICULTIES = [
+  { id: 'easy', label: c.easy, desc: c.easyDesc },
+  { id: 'medium', label: c.medium, desc: c.mediumDesc },
+  { id: 'hard', label: c.hard, desc: c.hardDesc },
+] as const;
+---
+
+<section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-10 pb-16">
+  <SectionHeader heading={c.heading} eyebrow={c.eyebrow} level="h1" />
+  <p class="mt-4 max-w-2xl text-[var(--color-text-dim)]">{c.intro}</p>
+  {
+    isZh && (
+      <p class="mt-2 max-w-2xl text-sm text-[var(--color-accent-2)]" data-zh-notice>
+        {c.zhClueNotice}
+      </p>
+    )
+  }
+
+  <div
+    id="crossword-app"
+    data-l10n={JSON.stringify(l10n)}
+    data-puzzle-base="/games/crossword/puzzles/"
+  >
+    {
+      /* Visible whenever the engine has not (yet) produced a board: no-JS,
+        blocked script, fetch failure. The engine hides it on success and
+        rewrites its text on failure. */
+    }
+    <div
+      class="mt-8 max-w-2xl rounded border border-[var(--color-border)] bg-[var(--color-surface)] p-4 text-sm text-[var(--color-text-dim)]"
+      data-xw-fallback
+    >
+      {c.noJsNotice}
+    </div>
+
+    <div class="mt-8" hidden data-xw-ui>
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div role="group" aria-label={c.difficultyLabel} class="flex gap-2">
+          {
+            DIFFICULTIES.map((d) => (
+              <button
+                type="button"
+                class="xw-tab"
+                data-difficulty={d.id}
+                data-label={d.label}
+                title={d.desc}
+                aria-pressed={d.id === 'easy' ? 'true' : 'false'}
+              >
+                {d.label}
+              </button>
+            ))
+          }
+        </div>
+        <div class="flex items-center gap-4 text-sm text-[var(--color-text-dim)] tabular-nums">
+          <span>
+            {c.timerLabel}: <span data-xw-timer>0:00</span>
+          </span>
+          <span>
+            {c.nextPuzzleLabel}: <span data-xw-countdown>--:--:--</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="mt-6 grid gap-8 lg:grid-cols-[minmax(0,26rem)_1fr]">
+        <div>
+          <p
+            class="min-h-10 rounded bg-[var(--color-surface)] px-3 py-2 text-sm"
+            data-xw-active-clue
+          >
+          </p>
+          <div class="xw-grid mt-3" role="grid" aria-label={c.ariaGrid} data-xw-grid></div>
+
+          <div class="mt-4 flex flex-wrap items-center gap-2">
+            <details class="xw-menu" data-xw-menu>
+              <summary class="xw-btn">{c.checkLabel}</summary>
+              <div class="xw-menu-items">
+                <button type="button" class="xw-menu-item" data-action="check-letter"
+                  >{c.checkLetter}</button
+                >
+                <button type="button" class="xw-menu-item" data-action="check-word"
+                  >{c.checkWord}</button
+                >
+                <button type="button" class="xw-menu-item" data-action="check-puzzle"
+                  >{c.checkPuzzle}</button
+                >
+              </div>
+            </details>
+            <details class="xw-menu" data-xw-menu>
+              <summary class="xw-btn">{c.revealLabel}</summary>
+              <div class="xw-menu-items">
+                <button type="button" class="xw-menu-item" data-action="reveal-letter"
+                  >{c.revealLetter}</button
+                >
+                <button type="button" class="xw-menu-item" data-action="reveal-word"
+                  >{c.revealWord}</button
+                >
+                <button type="button" class="xw-menu-item" data-action="reveal-puzzle"
+                  >{c.revealPuzzle}</button
+                >
+              </div>
+            </details>
+            <button type="button" class="xw-btn" data-action="clear">{c.clearLabel}</button>
+            <button type="button" class="xw-btn" data-action="share" hidden data-xw-share
+              >{c.shareLabel}</button
+            >
+          </div>
+
+          <div
+            class="mt-4 rounded border border-[var(--color-accent)]/50 bg-[var(--color-surface)] p-4"
+            hidden
+            data-xw-complete
+          >
+            <p class="font-display text-xl tracking-wide text-[var(--color-accent-2)]">
+              {c.completeHeading}
+            </p>
+            <p class="mt-1 text-sm text-[var(--color-text-dim)]" data-xw-complete-body></p>
+          </div>
+
+          <div class="xw-keyboard mt-5" aria-label={c.ariaKeyboard} data-xw-keyboard>
+            {
+              KEY_ROWS.map((row, i) => (
+                <div class="xw-key-row">
+                  {[...row].map((letter) => (
+                    <button type="button" class="xw-key" data-key={letter}>
+                      {letter}
+                    </button>
+                  ))}
+                  {i === 2 && (
+                    <button
+                      type="button"
+                      class="xw-key xw-key-wide"
+                      data-key="backspace"
+                      aria-label={c.ariaBackspace}
+                    >
+                      ⌫
+                    </button>
+                  )}
+                </div>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="grid gap-6 sm:grid-cols-2 content-start">
+          <section>
+            <h2 class="font-display text-lg tracking-wide text-[var(--color-accent-2)]">
+              {c.acrossLabel}
+            </h2>
+            <ol class="mt-2 space-y-1 text-sm" data-xw-clues="across"></ol>
+          </section>
+          <section>
+            <h2 class="font-display text-lg tracking-wide text-[var(--color-accent-2)]">
+              {c.downLabel}
+            </h2>
+            <ol class="mt-2 space-y-1 text-sm" data-xw-clues="down"></ol>
+          </section>
+
+          <section
+            class="sm:col-span-2 rounded border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+          >
+            <h2 class="font-display text-lg tracking-wide">{c.statsHeading}</h2>
+            <dl class="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-5">
+              <div>
+                <dt class="text-[var(--color-text-dim)]">{c.statsPlayed}</dt>
+                <dd class="mt-0.5 text-lg font-semibold tabular-nums" data-stat="played">0</dd>
+              </div>
+              <div>
+                <dt class="text-[var(--color-text-dim)]">{c.statsWon}</dt>
+                <dd class="mt-0.5 text-lg font-semibold tabular-nums" data-stat="won">0</dd>
+              </div>
+              <div>
+                <dt class="text-[var(--color-text-dim)]">{c.statsStreak}</dt>
+                <dd class="mt-0.5 text-lg font-semibold tabular-nums" data-stat="currentStreak">
+                  0
+                </dd>
+              </div>
+              <div>
+                <dt class="text-[var(--color-text-dim)]">{c.statsMaxStreak}</dt>
+                <dd class="mt-0.5 text-lg font-semibold tabular-nums" data-stat="maxStreak">0</dd>
+              </div>
+              <div>
+                <dt class="text-[var(--color-text-dim)]">{c.statsBestTime}</dt>
+                <dd class="mt-0.5 text-lg font-semibold tabular-nums" data-stat="bestTime">-</dd>
+              </div>
+            </dl>
+            <p class="mt-3 text-xs text-[var(--color-text-dim)]">{c.statsNote}</p>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="mt-12 max-w-2xl">
+    <h2 class="font-display text-xl tracking-wide">{c.howToHeading}</h2>
+    <ul class="mt-3 space-y-2 text-sm leading-relaxed text-[var(--color-text-dim)]">
+      <li>{c.howTo1}</li>
+      <li>{c.howTo2}</li>
+      <li>{c.howTo3}</li>
+    </ul>
+  </section>
+</section>
+
+<style>
+  .xw-tab {
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.875rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-dim);
+    transition:
+      color 120ms,
+      border-color 120ms;
+  }
+  .xw-tab:hover {
+    color: var(--color-text);
+  }
+  .xw-tab[aria-pressed='true'] {
+    border-color: var(--color-accent);
+    color: var(--color-accent-2);
+  }
+
+  .xw-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--xw-size, 5), minmax(0, 1fr));
+    gap: 2px;
+    width: 100%;
+    max-width: 26rem;
+    background: var(--color-border);
+    border: 2px solid var(--color-border);
+    border-radius: 0.25rem;
+    touch-action: manipulation;
+  }
+  .xw-grid :global(.xw-cell) {
+    position: relative;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface);
+    font-weight: 700;
+    font-size: clamp(1rem, 4.5vw, 1.5rem);
+    cursor: pointer;
+    user-select: none;
+    color: var(--color-text);
+  }
+  .xw-grid :global(.xw-cell:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+  }
+  .xw-grid :global(.xw-block) {
+    background: var(--color-bg);
+    cursor: default;
+  }
+  .xw-grid :global(.xw-cell .xw-num) {
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    font-size: 0.55rem;
+    font-weight: 600;
+    color: var(--color-text-dim);
+  }
+  .xw-grid :global(.xw-cell.is-word) {
+    background: color-mix(in oklab, var(--color-accent) 16%, var(--color-surface));
+  }
+  .xw-grid :global(.xw-cell.is-active) {
+    background: color-mix(in oklab, var(--color-accent) 38%, var(--color-surface));
+  }
+  .xw-grid :global(.xw-cell.is-wrong) {
+    color: var(--color-loss);
+  }
+  .xw-grid :global(.xw-cell.is-revealed) {
+    color: var(--color-accent-2);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .xw-grid:global(.is-complete) :global(.xw-cell:not(.xw-block)) {
+      animation: xw-pop 480ms ease both;
+      animation-delay: calc(var(--xw-i, 0) * 28ms);
+    }
+    @keyframes xw-pop {
+      40% {
+        transform: scale(1.12);
+        background: color-mix(in oklab, var(--color-accent) 45%, var(--color-surface));
+      }
+    }
+  }
+
+  .xw-btn {
+    display: inline-block;
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-text-dim);
+    cursor: pointer;
+    list-style: none;
+    transition:
+      color 120ms,
+      border-color 120ms;
+  }
+  .xw-btn:hover {
+    color: var(--color-text);
+    border-color: var(--color-accent-2);
+  }
+  .xw-menu {
+    position: relative;
+  }
+  .xw-menu summary::-webkit-details-marker {
+    display: none;
+  }
+  .xw-menu-items {
+    position: absolute;
+    z-index: 20;
+    margin-top: 0.25rem;
+    min-width: 10rem;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    background: var(--color-surface-2);
+    box-shadow: var(--shadow-card);
+  }
+  .xw-menu-item {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    text-align: left;
+    color: var(--color-text-dim);
+  }
+  .xw-menu-item:hover {
+    color: var(--color-text);
+    background: color-mix(in oklab, var(--color-accent) 14%, var(--color-surface-2));
+  }
+
+  .xw-keyboard {
+    max-width: 26rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  .xw-key-row {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+  }
+  .xw-key {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 2.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    background: var(--color-surface);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  .xw-key:active {
+    background: color-mix(in oklab, var(--color-accent) 30%, var(--color-surface));
+  }
+  .xw-key-wide {
+    flex: 1.6 1 0;
+  }
+
+  :global([data-xw-clues] .xw-clue) {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.25rem 0.375rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    color: var(--color-text-dim);
+  }
+  :global([data-xw-clues] .xw-clue:hover) {
+    color: var(--color-text);
+  }
+  :global([data-xw-clues] .xw-clue.is-active) {
+    background: color-mix(in oklab, var(--color-accent) 16%, var(--color-bg));
+    color: var(--color-text);
+  }
+  :global([data-xw-clues] .xw-clue.is-solved) {
+    color: color-mix(in oklab, var(--color-text-dim) 55%, var(--color-bg));
+    text-decoration: line-through;
+  }
+  :global([data-xw-clues] .xw-clue-num) {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    min-width: 1.25rem;
+    text-align: right;
+  }
+</style>
+
+<script>
+  // Engine: fetch, board, input, check/reveal, stats, countdown, share.
+  // Processed module (bundled to /_astro/*), keeping the no-inline-JS CSP.
+  import '../../scripts/crossword.ts';
+</script>

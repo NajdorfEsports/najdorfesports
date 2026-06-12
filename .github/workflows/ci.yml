@@ -8,7 +8,7 @@ name: CI build check
 
 on:
   push:
-    branches: [main, 'redesign/**']
+    branches: [main, 'redesign/**', 'feature/**']
   pull_request:
     branches: [main]
 
