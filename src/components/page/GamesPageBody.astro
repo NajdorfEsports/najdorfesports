@@ -1,0 +1,45 @@
+---
+/**
+ * /games/ hub, shared by all three locales. One card per game (just the
+ * daily crossword for now); add a card here when game #2 ships. Closes
+ * with the same community band as the home page so the games surface
+ * doubles as a Discord funnel.
+ */
+import CommunityCTA from '../team/CommunityCTA.astro';
+import SectionHeader from '../ui/SectionHeader.astro';
+import { getLocale, pathFor, useT } from '../../i18n';
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+const g = t.games.hub;
+---
+
+<section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-10 pb-4">
+  <SectionHeader heading={g.heading} eyebrow={g.eyebrow} level="h1" />
+  <p class="mt-4 max-w-2xl text-[var(--color-text-dim)]">{g.sub}</p>
+
+  <div class="mt-8 grid gap-6 sm:grid-cols-2">
+    <a
+      href={pathFor(locale, '/games/crossword/')}
+      class="group block rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-6 transition-colors hover:border-[var(--color-accent-2)]"
+      style="box-shadow: var(--shadow-card)"
+    >
+      <div class="flex items-start justify-between gap-4">
+        <h2 class="font-display text-2xl tracking-wide">{g.crosswordTitle}</h2>
+        <span
+          class="shrink-0 rounded border border-[var(--color-accent)]/40 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-[var(--color-accent-2)]"
+        >
+          {g.newDaily}
+        </span>
+      </div>
+      <p class="mt-3 text-sm leading-relaxed text-[var(--color-text-dim)]">{g.crosswordDesc}</p>
+      <span
+        class="link-slide mt-4 inline-block text-sm font-medium uppercase tracking-wide text-[var(--color-accent-2)] group-hover:text-[var(--color-text)]"
+      >
+        {g.crosswordCta}
+      </span>
+    </a>
+  </div>
+</section>
+
+<CommunityCTA />

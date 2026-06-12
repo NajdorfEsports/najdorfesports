@@ -6,7 +6,9 @@ import { site } from '../data/site';
 // build date. Bump only when you've actually changed the policy below.
 // (Future Claude: do NOT auto-update this to the current session date.)
 // 2026-06-06: added the YouTube / youtube-nocookie click-to-load disclosure.
-const updated = '2026-06-06';
+// 2026-06-11: added the crossword localStorage disclosure (the single,
+//   deliberate exception to the no-client-storage stance; owner-approved).
+const updated = '2026-06-11';
 ---
 
 <BaseLayout
@@ -32,7 +34,8 @@ const updated = '2026-06-06';
           set:html={'<!--/email_off-->'}
         />. Cloudflare sets one strictly-necessary security cookie for bot protection; the embedded
         Twitch and YouTube players are click-to-load and never contact those services until you
-        press play.
+        press play. The optional daily crossword keeps its streaks and stats in your browser's local
+        storage; that data never leaves your device.
       </p>
     </aside>
 
@@ -47,11 +50,13 @@ const updated = '2026-06-06';
       <p>
         This site sets <strong>no cookies of its own.</strong> No analytics, no advertising trackers,
         no fingerprinting scripts, no first-party tracking pixels. Pages are static HTML, CSS, and a small
-        amount of vanilla JavaScript for the match countdown, mobile navigation, and a client-side hero
-        swap on match day. Nothing on the site reads or writes to <code>document.cookie</code>, <code
-          >localStorage</code
+        amount of vanilla JavaScript for the match countdown, mobile navigation, a client-side hero swap
+        on match day, and the daily crossword. Nothing on the site reads or writes to <code
+          >document.cookie</code
         >,
-        <code>sessionStorage</code>, or <code>IndexedDB</code>.
+        <code>sessionStorage</code>, or <code>IndexedDB</code>. The single use of <code
+          >localStorage</code
+        > is the crossword's on-device stats, described under "Game data on your device" below.
       </p>
       <p>
         Our hosting platform (Cloudflare Pages) sets one strictly-necessary, first-party cookie
@@ -70,6 +75,18 @@ const updated = '2026-06-06';
         Cloudflare additionally retains short-term access logs (IP, user agent, URL) for security
         and abuse-prevention. We do not link these logs to any personal identity and do not use them
         for marketing.
+      </p>
+
+      <h2 class="font-display text-2xl mt-8 tracking-wide">Game data on your device</h2>
+      <p>
+        The daily crossword at <code>/games/crossword/</code> stores your play statistics (puzzles played
+        and solved, streaks, best times, and your preferred difficulty) in your browser's
+        <code>localStorage</code>, under a single key. <strong
+          >This data never leaves your device.</strong
+        > It is not transmitted to us or to anyone else, it is not linked to any identity (there are no
+        accounts), and it is not used for tracking of any kind; it exists only so the game can show you
+        your own streak. Clearing your browser's site data removes it completely. This is the only use
+        of local storage anywhere on the site.
       </p>
 
       <h2 class="font-display text-2xl mt-8 tracking-wide">Fonts</h2>

@@ -18,6 +18,8 @@ export const zhCN: Strings = {
     matches: '赛程',
     news: '新闻',
     coaching: '教练课程',
+    // DRAFT PENDING RIRI NATIVE REVIEW
+    games: '游戏',
     about: '关于',
   },
   footer: {
@@ -60,6 +62,13 @@ export const zhCN: Strings = {
       '与 Najdorf Esports OWCS Pacific 名单选手 brysonbtw 进行一对一《守望先锋》教学。提供单节与多节课程方案，预约时可使用信用卡或 PayPal 安全付款。',
     rosterDescription: (headcount, countries) =>
       `Najdorf Esports 现役 OWCS Pacific 名单，共 ${headcount} 名选手，来自 ${countries.join('、')}。`,
+    // DRAFT PENDING RIRI NATIVE REVIEW (games/crossword meta block)
+    gamesTitle: '游戏',
+    gamesDescription:
+      'Najdorf Esports 的每日《守望先锋》小游戏，首发每日迷你填字，共三种难度，免费游玩。',
+    crosswordTitle: '每日 Overwatch 迷你填字',
+    crosswordDescription:
+      'Najdorf Esports 免费的每日《守望先锋》迷你填字游戏。三种难度，美东时间午夜更新，无广告、无跟踪。',
   },
 
   news: {
@@ -437,6 +446,70 @@ export const zhCN: Strings = {
     playedLabel: '场次',
     streakLabel: '近况',
     metaDescription: (handle, role) => `Najdorf Esports 的${role} ${handle}，征战 OWCS Pacific。`,
+  },
+
+  // DRAFT PENDING RIRI NATIVE REVIEW (entire games section)
+  games: {
+    hub: {
+      eyebrow: '游戏',
+      heading: '游戏',
+      sub: '来自战队的每日《守望先锋》小游戏。免费游玩，无广告，不跟踪。',
+      crosswordTitle: '每日迷你填字',
+      crosswordDesc:
+        '一份轻巧的《守望先锋》填字游戏：英雄、地图、术语与电竞历史。三种难度，每天更新。',
+      crosswordCta: '开始今天的谜题',
+      newDaily: '每日更新',
+    },
+    crossword: {
+      eyebrow: '每日游戏',
+      heading: 'Overwatch 迷你填字',
+      intro: '每天一份《守望先锋》主题迷你填字。选择难度，开始填格。',
+      difficultyLabel: '难度',
+      easy: '简单',
+      medium: '中等',
+      hard: '困难',
+      easyDesc: '休闲玩家',
+      mediumDesc: '资深玩家',
+      hardDesc: '电竞深度题',
+      acrossLabel: '横向',
+      downLabel: '纵向',
+      checkLabel: '检查',
+      checkLetter: '检查字母',
+      checkWord: '检查单词',
+      checkPuzzle: '检查全部',
+      revealLabel: '显示答案',
+      revealLetter: '显示字母',
+      revealWord: '显示单词',
+      revealPuzzle: '显示全部',
+      clearLabel: '清空格子',
+      shareLabel: '分享成绩',
+      shareCopied: '已复制到剪贴板',
+      nextPuzzleLabel: '下一题倒计时',
+      timerLabel: '时间',
+      completeHeading: '完成！',
+      completeBody: (time) => `你用 ${time} 完成了今天的谜题。`,
+      completeAssisted: '在提示帮助下完成。明天挑战全靠自己！',
+      statsHeading: '你的记录',
+      statsPlayed: '已玩',
+      statsWon: '完成',
+      statsStreak: '连续完成',
+      statsMaxStreak: '最佳连续',
+      statsBestTime: '最快时间',
+      statsNote: '记录只保存在这个浏览器中，不会离开你的设备。',
+      noJsNotice:
+        '互动谜题需要启用 JavaScript。格子、提示与进度都只在你的浏览器中运行，不会发送到任何地方。',
+      loadError: '无法加载今天的谜题，请刷新后再试。',
+      noPuzzle: '今天的谜题尚未发布，请稍后再来。',
+      zhClueNotice: '谜题提示目前仅提供英文，中文版本正在准备中。',
+      howToHeading: '玩法说明',
+      howTo1: '点击格子后输入字母。方向键移动光标，Tab 跳到下一条提示，Enter 切换横向与纵向。',
+      howTo2:
+        '卡住了吗？“检查”会标出错误的字母，“显示答案”会直接填入。不靠提示完成，分享图更漂亮。',
+      howTo3: '三种难度每天于美东时间午夜更新。',
+      ariaGrid: '填字格',
+      ariaKeyboard: '屏幕键盘',
+      ariaBackspace: '删除字母',
+    },
   },
 
   competedAs: (name) => `代表 ${name} 出战`,

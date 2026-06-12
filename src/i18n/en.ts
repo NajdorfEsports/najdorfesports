@@ -12,6 +12,7 @@ export const en = {
     matches: 'Matches',
     news: 'News',
     coaching: 'Coaching',
+    games: 'Games',
     about: 'About',
   },
   footer: {
@@ -57,6 +58,12 @@ export const en = {
       'Book one-on-one Overwatch coaching with brysonbtw from the Najdorf Esports OWCS Pacific roster. Single sessions and multi-session packs, paid securely at booking.',
     rosterDescription: (headcount: number, countries: string[]) =>
       `The Najdorf Esports active OWCS Pacific roster. ${headcount} players across ${countries.join(', ')}.`,
+    gamesTitle: 'Games',
+    gamesDescription:
+      'Daily Overwatch games from Najdorf Esports, starting with a free daily mini crossword in three difficulties.',
+    crosswordTitle: 'Daily Overwatch Mini Crossword',
+    crosswordDescription:
+      'A free daily Overwatch mini crossword from Najdorf Esports. Three difficulties, new puzzles at midnight Eastern, no ads, no tracking.',
   },
 
   /** News index + article chrome. Article bodies are per-locale markdown
@@ -507,6 +514,75 @@ export const en = {
     streakLabel: 'Form',
     metaDescription: (handle: string, role: string) =>
       `${handle}, ${role} for Najdorf Esports in OWCS Pacific.`,
+  },
+
+  /** /games/ hub and the daily mini crossword (/games/crossword/). The
+   *  crossword engine reads these via data attributes rendered by
+   *  CrosswordPageBody; everything stays server-rendered and localized. */
+  games: {
+    hub: {
+      eyebrow: 'Games',
+      heading: 'Games',
+      sub: 'Daily Overwatch games from the org. Free, no ads, nothing tracked.',
+      crosswordTitle: 'Daily Mini Crossword',
+      crosswordDesc:
+        'A bite-size Overwatch crossword: heroes, maps, callouts, and esports history. Three difficulties, a fresh grid every day.',
+      crosswordCta: "Play today's puzzle",
+      newDaily: 'New puzzle daily',
+    },
+    crossword: {
+      eyebrow: 'Daily game',
+      heading: 'Overwatch Mini Crossword',
+      intro: 'A new Overwatch-themed mini every day. Pick a difficulty and fill the grid.',
+      difficultyLabel: 'Difficulty',
+      easy: 'Easy',
+      medium: 'Medium',
+      hard: 'Hard',
+      easyDesc: 'Casual fan',
+      mediumDesc: 'Dedicated player',
+      hardDesc: 'Esports deep cuts',
+      acrossLabel: 'Across',
+      downLabel: 'Down',
+      checkLabel: 'Check',
+      checkLetter: 'Check letter',
+      checkWord: 'Check word',
+      checkPuzzle: 'Check puzzle',
+      revealLabel: 'Reveal',
+      revealLetter: 'Reveal letter',
+      revealWord: 'Reveal word',
+      revealPuzzle: 'Reveal puzzle',
+      clearLabel: 'Clear grid',
+      shareLabel: 'Share result',
+      shareCopied: 'Copied to clipboard',
+      nextPuzzleLabel: 'Next puzzle in',
+      timerLabel: 'Time',
+      completeHeading: 'Solved!',
+      completeBody: (time: string) => `You finished today's puzzle in ${time}.`,
+      completeAssisted: 'Solved with a few reveals. Tomorrow, clean sweep.',
+      statsHeading: 'Your stats',
+      statsPlayed: 'Played',
+      statsWon: 'Solved',
+      statsStreak: 'Streak',
+      statsMaxStreak: 'Best streak',
+      statsBestTime: 'Best time',
+      statsNote: 'Stats are stored only in this browser and never leave your device.',
+      noJsNotice:
+        'The interactive puzzle needs JavaScript. The grid, clues, and your progress all run right here in your browser; nothing is sent anywhere.',
+      loadError: "Today's puzzle could not be loaded. Refresh to try again.",
+      noPuzzle: 'No puzzle is published for today yet. Check back soon.',
+      /** Shown on zh pages while clue text is English-only (pending native
+       *  review of the translated clue corpus). */
+      zhClueNotice: 'Clues are currently in English. Localized clues are in the works.',
+      howToHeading: 'How to play',
+      howTo1:
+        'Tap a square and type. Arrow keys move around the grid, Tab jumps to the next clue, Enter switches between Across and Down.',
+      howTo2:
+        'Stuck? Check marks wrong letters; Reveal fills them in. Solve without reveals for a clean share grid.',
+      howTo3: 'A new puzzle for each difficulty lands daily at midnight US Eastern time.',
+      ariaGrid: 'Crossword grid',
+      ariaKeyboard: 'On-screen keyboard',
+      ariaBackspace: 'Delete letter',
+    },
   },
 
   /** Attribution tag for results the roster earned under its former name,
