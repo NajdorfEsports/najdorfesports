@@ -400,10 +400,14 @@ export const zhTW: Strings = {
   },
 
   ticker: {
-    upcoming: (date, opponent, tournament) => `${date} · 對戰 ${opponent} · ${tournament}`,
-    win: (opponent, tournament) => `勝 對戰 ${opponent} · ${tournament}`,
-    loss: (opponent, tournament) => `負 對戰 ${opponent} · ${tournament}`,
-    tbd: (opponent, tournament) => `對戰 ${opponent} · ${tournament}`,
+    // DRAFT PENDING RIRI NATIVE REVIEW (2026-06 ticker reorganization: rubrics + badges)
+    results: (stage, record) => `${stage ? `${stage}戰績` : '戰績'}${record ? ` · ${record}` : ''}`,
+    upNext: (stage) => (stage ? `即將開賽 · ${stage}` : '即將開賽'),
+    upcoming: (date, opponent) => `${date} · 對戰 ${opponent}`,
+    result: (opponent, date) => `${opponent} · ${date}`,
+    tbd: (opponent, date) => `對戰 ${opponent} · ${date}`,
+    winBadge: (score) => (score ? `勝 ${score}` : '勝'),
+    lossBadge: (score) => (score ? `負 ${score}` : '負'),
     fallback: 'OWCS Pacific 第二階段主賽事將於 2026 年 6 月 4 日開打。',
     ariaLabel: '賽事跑馬燈',
   },

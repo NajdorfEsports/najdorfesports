@@ -452,13 +452,25 @@ export const en = {
       `No completed matches yet. ${stage} results will appear here once the main event begins.`,
   },
 
-  /** Top-of-page marquee. */
+  /** Top-of-page marquee. The stream is organized into rubric-led groups
+   *  (current stage results, that stage's upcoming matches, then earlier
+   *  stages); the stage context lives in the rubric once, so items stay
+   *  short. */
   ticker: {
-    upcoming: (date: string, opponent: string, tournament: string) =>
-      `${date} · vs ${opponent} · ${tournament}`,
-    win: (opponent: string, tournament: string) => `W vs ${opponent} · ${tournament}`,
-    loss: (opponent: string, tournament: string) => `L vs ${opponent} · ${tournament}`,
-    tbd: (opponent: string, tournament: string) => `vs ${opponent} · ${tournament}`,
+    /** Rubric introducing a stage's results group, e.g. "Stage 2 results · 2-0".
+     *  `record` is omitted while the stage has no decided matches. */
+    results: (stage: string, record?: string) =>
+      `${stage ? `${stage} results` : 'Results'}${record ? ` · ${record}` : ''}`,
+    /** Rubric introducing a stage's upcoming matches, e.g. "Up next · Stage 2". */
+    upNext: (stage: string) => (stage ? `Up next · ${stage}` : 'Up next'),
+    upcoming: (date: string, opponent: string) => `${date} · vs ${opponent}`,
+    /** Result item body; the W/L map-score badge is rendered separately. */
+    result: (opponent: string, date: string) => `${opponent} · ${date}`,
+    /** Past match Liquipedia has not scored yet. */
+    tbd: (opponent: string, date: string) => `vs ${opponent} · ${date}`,
+    /** Boxed result marker, e.g. "W 3-1"; bare "W" when map data is missing. */
+    winBadge: (score?: string) => (score ? `W ${score}` : 'W'),
+    lossBadge: (score?: string) => (score ? `L ${score}` : 'L'),
     fallback: 'OWCS Pacific Stage 2 main event begins June 4, 2026.',
     ariaLabel: 'Match ticker',
   },

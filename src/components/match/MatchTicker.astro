@@ -5,10 +5,15 @@ import { formatDate, translateTournament, MATCH_TIME_ZONE } from '../../i18n/for
 
 /**
  * Season strip under the header: a CSS marquee (owner preference, restored
- * 2026-06 after a short static stint). The item list is duplicated so the
- * track can translate -50% for a seamless loop; the second half is
- * aria-hidden with untabbable links. Items read "what's next, then what
- * just happened" (upcoming soonest-first, then results newest-first).
+ * 2026-06 after a short static stint). The stream is organized into
+ * rubric-led groups (2026-06 legibility pass, owner-approved): the running
+ * stage's results lead, that stage's upcoming matches follow, then earlier
+ * stages' results. Each group opens with a small neutral pill naming the
+ * stage (and the stage record), so the tournament name is stated once per
+ * group instead of on every item and the green/red/blue color code never
+ * needs decoding. Results carry a boxed W/L badge with the real map score.
+ * The item list is duplicated so the track can translate -50% for a
+ * seamless loop; the second half is aria-hidden with untabbable links.
  * Under prefers-reduced-motion the loop stops and the strip degrades to a
  * static swipe/scroll with the duplicate half hidden.
  */
@@ -26,55 +31,106 @@ const now = Date.now();
 interface TickerItem {
   key: string;
   label: string;
-  variant: 'live' | 'upcoming' | 'win' | 'loss' | 'tbd' | 'neutral';
+  /** Boxed W/L map-score marker on result items, rendered ahead of the label. */
+  badge?: string;
+  variant: 'live' | 'upcoming' | 'win' | 'loss' | 'tbd' | 'neutral' | 'rubric';
   href?: string;
 }
 
-const upcoming = matches
-  .filter((m) => +new Date(m.date) >= now)
-  .sort((a, b) => +new Date(a.date) - +new Date(b.date));
-const past = matches
-  .filter((m) => +new Date(m.date) < now)
-  .sort((a, b) => +new Date(b.date) - +new Date(a.date));
+/**
+ * "OWCS Pacific 2026 · Stage 2 Regular Season" -> "Stage 2". The rubric
+ * carries the stage context once per group, so items can drop the long
+ * tournament suffix. Tournaments without a "Stage N" fragment fall back to
+ * their last dot-separated segment to keep the pill short.
+ */
+function stageTag(tournament: string): string {
+  const stage = tournament.match(/Stage\s*\d+/i)?.[0];
+  if (stage) return stage;
+  const segments = tournament
+    .split('·')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return segments[segments.length - 1] ?? tournament;
+}
+
+/** Maps won-lost for the badge ("3-1"); undefined when there is no map data yet. */
+function mapScore(m: MatchEntry): string | undefined {
+  if (!m.mapScores || m.mapScores.length === 0) return undefined;
+  const won = m.mapScores.filter((s) => s.ourScore > s.theirScore).length;
+  const lost = m.mapScores.filter((s) => s.ourScore < s.theirScore).length;
+  return `${won}-${lost}`;
+}
+
+const itemDate = (m: MatchEntry) =>
+  formatDate(m.date, locale, { month: 'short', day: 'numeric', timeZone: MATCH_TIME_ZONE });
+
+// Group matches by tournament, most recent activity first, so the leading
+// group is the running stage. Within a group, results (newest first) come
+// before that stage's upcoming matches (soonest first); earlier stages
+// follow as their own groups. Order requested by the owner (2026-06).
+const groups = new Map<string, MatchEntry[]>();
+for (const m of matches) {
+  const list = groups.get(m.tournament);
+  if (list) list.push(m);
+  else groups.set(m.tournament, [m]);
+}
+const latest = (list: MatchEntry[]) => Math.max(...list.map((m) => +new Date(m.date)));
+const orderedGroups = [...groups.entries()].sort(([, a], [, b]) => latest(b) - latest(a));
 
 const items: TickerItem[] = [];
-for (const m of [...upcoming, ...past]) {
-  const isPast = +new Date(m.date) < now;
-  const dateStr = formatDate(m.date, locale, {
-    month: 'short',
-    day: 'numeric',
-    timeZone: MATCH_TIME_ZONE,
-  });
-  const tournament = translateTournament(m.tournament, locale);
-  const href = m.liquipediaUrl;
-  if (!isPast) {
+for (const [tournament, list] of orderedGroups) {
+  const stage = translateTournament(stageTag(tournament), locale);
+  const past = list
+    .filter((m) => +new Date(m.date) < now)
+    .sort((a, b) => +new Date(b.date) - +new Date(a.date));
+  const upcoming = list
+    .filter((m) => +new Date(m.date) >= now)
+    .sort((a, b) => +new Date(a.date) - +new Date(b.date));
+
+  if (past.length > 0) {
+    const wins = past.filter((m) => m.result === 'win').length;
+    const losses = past.filter((m) => m.result === 'loss').length;
+    const record = wins + losses > 0 ? `${wins}-${losses}` : undefined;
     items.push({
-      key: `up-${m.id}`,
-      label: t.ticker.upcoming(dateStr, m.opponent, tournament),
-      variant: 'upcoming',
-      href,
+      key: `rub-results-${tournament}`,
+      label: t.ticker.results(stage, record),
+      variant: 'rubric',
     });
-  } else if (m.result === 'win') {
+    for (const m of past) {
+      if (m.result === 'win' || m.result === 'loss') {
+        items.push({
+          key: `${m.result === 'win' ? 'w' : 'l'}-${m.id}`,
+          badge:
+            m.result === 'win' ? t.ticker.winBadge(mapScore(m)) : t.ticker.lossBadge(mapScore(m)),
+          label: t.ticker.result(m.opponent, itemDate(m)),
+          variant: m.result,
+          href: m.liquipediaUrl,
+        });
+      } else {
+        items.push({
+          key: `tbd-${m.id}`,
+          label: t.ticker.tbd(m.opponent, itemDate(m)),
+          variant: 'tbd',
+          href: m.liquipediaUrl,
+        });
+      }
+    }
+  }
+
+  if (upcoming.length > 0) {
     items.push({
-      key: `w-${m.id}`,
-      label: t.ticker.win(m.opponent, tournament),
-      variant: 'win',
-      href,
+      key: `rub-next-${tournament}`,
+      label: t.ticker.upNext(stage),
+      variant: 'rubric',
     });
-  } else if (m.result === 'loss') {
-    items.push({
-      key: `l-${m.id}`,
-      label: t.ticker.loss(m.opponent, tournament),
-      variant: 'loss',
-      href,
-    });
-  } else {
-    items.push({
-      key: `tbd-${m.id}`,
-      label: t.ticker.tbd(m.opponent, tournament),
-      variant: 'tbd',
-      href,
-    });
+    for (const m of upcoming) {
+      items.push({
+        key: `up-${m.id}`,
+        label: t.ticker.upcoming(itemDate(m), m.opponent),
+        variant: 'upcoming',
+        href: m.liquipediaUrl,
+      });
+    }
   }
 }
 
@@ -82,11 +138,32 @@ if (items.length === 0) {
   items.push({ key: 'fallback', label: fallback, variant: 'neutral' });
 }
 
+// Marquee pacing: the pixel speed should not change when the weekly fetch
+// grows or shrinks the stream, so the loop duration scales with rendered
+// text width instead of sitting at a fixed 60s. CJK glyphs advance roughly
+// twice the width of this strip's latin characters, hence the double
+// weight. 13 units/second matches the feel of the old fixed-60s strip at
+// its June 2026 content volume plus the 10% speed-up the owner asked for.
+const textUnits = (s: string) =>
+  [...s].reduce((n, ch) => n + (ch.charCodeAt(0) >= 0x2e80 ? 2 : 1), 0);
+const ITEM_GAP_UNITS = 5; // the 2.5rem flex gap between items, in character widths
+const UNITS_PER_SECOND = 13;
+const totalUnits = items.reduce(
+  (n, it) => n + textUnits(it.label) + (it.badge ? textUnits(it.badge) + 1 : 0) + ITEM_GAP_UNITS,
+  0,
+);
+const tickerDuration = Math.max(18, Math.round(totalUnits / UNITS_PER_SECOND));
+
 // Duplicate the item list so the CSS marquee can translate -50% for a seamless loop.
 const duplicated = [...items, ...items];
 ---
 
-<div class="ticker" aria-label={t.ticker.ariaLabel} role="region">
+<div
+  class="ticker"
+  aria-label={t.ticker.ariaLabel}
+  role="region"
+  style={`--ticker-duration: ${tickerDuration}s`}
+>
   <div class="ticker__edge ticker__edge--left" aria-hidden="true"></div>
   <ul class="ticker__track">
     {
@@ -106,10 +183,14 @@ const duplicated = [...items, ...items];
                 class="ticker__link"
                 {...(isDuplicate ? { tabindex: -1 } : {})}
               >
+                {item.badge && <span class="ticker__badge">{item.badge}</span>}
                 {item.label}
               </a>
             ) : (
-              <span>{item.label}</span>
+              <span class="ticker__text">
+                {item.badge && <span class="ticker__badge">{item.badge}</span>}
+                {item.label}
+              </span>
             )}
           </li>
         );
@@ -126,6 +207,9 @@ const duplicated = [...items, ...items];
     border-top: 1px solid var(--color-border);
     border-bottom: 1px solid var(--color-border);
     overflow: hidden;
+    /* --ticker-duration is set inline per page: it scales with content
+       length so the pixel speed stays constant as the weekly data changes.
+       60s is only a safety net if the inline style ever goes missing. */
     --ticker-duration: 60s;
   }
 
@@ -199,6 +283,40 @@ const duplicated = [...items, ...items];
   .ticker__item--tbd,
   .ticker__item--neutral {
     color: var(--color-text-dim);
+  }
+
+  /* Group label pill ("Stage 2 results · 2-0", "Up next · Stage 2"). */
+  .ticker__item--rubric {
+    color: var(--color-text-dim);
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.2rem 0.8rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+  }
+  .ticker__item--rubric::before {
+    display: none;
+  }
+
+  /* Result items carry the W/L badge instead of the status dot. */
+  .ticker__item--win::before,
+  .ticker__item--loss::before {
+    display: none;
+  }
+  .ticker__badge {
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    padding: 0 0.4rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+
+  .ticker__link,
+  .ticker__text {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .ticker__link {
