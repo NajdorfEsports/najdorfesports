@@ -173,6 +173,31 @@ function init(): void {
   const yesterdayEl = $('[data-ow-yesterday]');
   const yesterdayNameEl = $('[data-ow-yesterday-name]');
 
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const ATTR_COL_COUNT = 7;
+
+  /**
+   * Parse a CSS time value to ms. The build minifier rewrites "600ms" to
+   * ".6s", so the unit suffix has to be honored, never assumed.
+   */
+  function cssTimeMs(value: string): number {
+    const t = value.trim();
+    const n = parseFloat(t);
+    if (Number.isNaN(n)) return 0;
+    return t.endsWith('ms') ? n : n * 1000;
+  }
+
+  /**
+   * Full row-reveal duration, read from the CSS vars on the board so the
+   * stylesheet stays the single source of truth.
+   */
+  function rowRevealMs(): number {
+    const styles = getComputedStyle(board);
+    const flip = cssTimeMs(styles.getPropertyValue('--ow-flip'));
+    const stagger = cssTimeMs(styles.getPropertyValue('--ow-stagger'));
+    return (ATTR_COL_COUNT - 1) * stagger + flip;
+  }
+
   // ---- state ---------------------------------------------------------
   let store = storage.load();
   let today = nyDate();
@@ -182,6 +207,7 @@ function init(): void {
   let solved = false;
   let suggestions: OwdleHero[] = [];
   let activeSuggestion = -1;
+  let winTimer = 0;
 
   const guessedIds = () => new Set(guessed.map((h) => h.id));
 
@@ -228,11 +254,20 @@ function init(): void {
     return `${base}${dir}`;
   }
 
-  function renderGuessRow(hero: OwdleHero, results: CellResult[], animate: boolean): void {
+  function renderGuessRow(
+    hero: OwdleHero,
+    results: CellResult[],
+    animate: boolean,
+    isWin = false,
+  ): void {
     const row = document.createElement('div');
     row.className = 'ow-row';
     row.setAttribute('role', 'row');
-    if (animate) row.classList.add('is-new');
+    if (animate) {
+      row.classList.add('is-new');
+      // The celebration pulse only ever plays live, never on restore.
+      if (isWin) row.classList.add('is-win');
+    }
 
     const nameCell = document.createElement('div');
     nameCell.className = 'ow-cell ow-name';
@@ -269,7 +304,7 @@ function init(): void {
 
   // ---- stats ---------------------------------------------------------
   const statEls = [...app.querySelectorAll<HTMLElement>('[data-stat]')];
-  function renderStats(): void {
+  function renderStats(animateBars = false): void {
     const s = store.stats;
     for (const el of statEls) {
       const k = el.dataset.stat as 'played' | 'won' | 'currentStreak' | 'maxStreak';
@@ -277,6 +312,7 @@ function init(): void {
     }
     distEl.replaceChildren();
     const max = Math.max(1, ...DIST_BUCKETS.map((b) => store.stats.dist[b] ?? 0));
+    const pending: Array<[HTMLElement, string]> = [];
     for (const bucket of DIST_BUCKETS) {
       const count = store.stats.dist[bucket] ?? 0;
       const li = document.createElement('li');
@@ -286,12 +322,22 @@ function init(): void {
       label.textContent = bucket;
       const bar = document.createElement('span');
       bar.className = 'ow-dist-bar';
-      bar.style.width = `${Math.round((count / max) * 100)}%`;
+      const width = `${Math.round((count / max) * 100)}%`;
+      bar.style.width = animateBars ? '0%' : width;
+      if (animateBars) pending.push([bar, width]);
       const num = document.createElement('span');
       num.className = 'tabular-nums';
       num.textContent = String(count);
       li.append(label, bar, num);
       distEl.append(li);
+    }
+    if (pending.length > 0) {
+      // Two frames: one to commit the zero widths, the next to transition.
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          for (const [bar, width] of pending) bar.style.width = width;
+        }),
+      );
     }
   }
 
@@ -319,7 +365,7 @@ function init(): void {
     const bucket = guessCount >= 8 ? '8+' : String(guessCount);
     s.dist[bucket] = (s.dist[bucket] ?? 0) + 1;
     storage.save(store);
-    renderStats();
+    renderStats(true);
   }
 
   // ---- suggestions ----------------------------------------------------
@@ -345,6 +391,7 @@ function init(): void {
 
   function showSuggestions(): void {
     if (solved) return;
+    const wasHidden = suggestionsEl.hidden;
     suggestions = searchHeroes(pool, input.value, guessedIds()).slice(0, 8);
     activeSuggestion = suggestions.length > 0 ? 0 : -1;
     suggestionsEl.replaceChildren();
@@ -356,6 +403,7 @@ function init(): void {
       const li = document.createElement('li');
       li.id = `ow-opt-${i}`;
       li.setAttribute('role', 'option');
+      li.style.setProperty('--ow-n', String(i));
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'ow-suggestion';
@@ -365,12 +413,32 @@ function init(): void {
       suggestionsEl.append(li);
     });
     suggestionsEl.hidden = false;
+    // Cascade the items only when the menu transitions hidden to shown;
+    // narrowing an already-open list repaints instantly.
+    suggestionsEl.classList.toggle('is-opening', wasHidden);
     input.setAttribute('aria-expanded', 'true');
     paintActiveSuggestion();
   }
 
-  input.addEventListener('input', () => {
+  // ---- errors ----------------------------------------------------------
+  function clearError(): void {
     errorEl.textContent = '';
+    errorEl.classList.remove('is-shake');
+    input.classList.remove('is-error');
+  }
+
+  function showError(message: string): void {
+    errorEl.textContent = message;
+    errorEl.classList.remove('is-shake');
+    input.classList.remove('is-error');
+    // Force a reflow so back-to-back errors restart the animations.
+    void errorEl.offsetWidth;
+    errorEl.classList.add('is-shake');
+    input.classList.add('is-error');
+  }
+
+  input.addEventListener('input', () => {
+    clearError();
     showSuggestions();
   });
 
@@ -396,32 +464,52 @@ function init(): void {
   // ---- guessing --------------------------------------------------------
   function submitGuess(hero: OwdleHero): void {
     if (!answer || solved || guessedIds().has(hero.id)) return;
+    const correct = hero.id === answer.id;
     guessed.push(hero);
     markPlayed();
-    renderGuessRow(hero, compareHeroes(hero, answer), true);
+    renderGuessRow(hero, compareHeroes(hero, answer), true, correct);
     input.value = '';
-    errorEl.textContent = '';
+    clearError();
     hideSuggestions();
-    if (hero.id === answer.id) {
-      win();
+    if (correct) {
+      win(true);
     } else {
       input.focus({ preventScroll: true });
     }
     persistDaily();
   }
 
-  function win(): void {
+  function showWinBox(celebrate: boolean): void {
     if (!answer) return;
-    solved = true;
     const template = guessed.length === 1 ? l10n.winBodyOne : l10n.winBody;
     completeBodyEl.textContent = template
       .replace('{hero}', answer.name)
       .replace('{count}', String(guessed.length));
+    completeEl.classList.toggle('is-celebrate', celebrate);
     completeEl.hidden = false;
+  }
+
+  /**
+   * Lock the game and record the win immediately (stat integrity beats
+   * theatrics if the tab closes mid-celebration); the win box itself waits
+   * for the final row's flips to land, except on restore or under reduced
+   * motion where it shows at once.
+   */
+  function win(animate: boolean): void {
+    if (!answer) return;
+    solved = true;
     input.disabled = true;
     submitBtn.disabled = true;
     hideSuggestions();
     markWon(guessed.length);
+    if (animate && !reducedMotion.matches) {
+      winTimer = window.setTimeout(() => {
+        showWinBox(true);
+        completeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }, rowRevealMs() + 150);
+    } else {
+      showWinBox(false);
+    }
   }
 
   form.addEventListener('submit', (ev) => {
@@ -434,7 +522,7 @@ function init(): void {
     if (picked && !guessedIds().has(picked.id)) {
       submitGuess(picked);
     } else {
-      errorEl.textContent = l10n.unknownHero;
+      showError(l10n.unknownHero);
     }
   });
 
@@ -447,8 +535,10 @@ function init(): void {
     const text = shareText(puzzleNumber(today), rows, window.location.href);
     const done = () => {
       shareBtn.textContent = l10n.shareCopied;
+      shareBtn.classList.add('is-copied');
       window.setTimeout(() => {
         shareBtn.textContent = l10n.shareLabel;
+        shareBtn.classList.remove('is-copied');
       }, 2000);
     };
     if (navigator.clipboard?.writeText) {
@@ -499,8 +589,11 @@ function init(): void {
     input.disabled = false;
     submitBtn.disabled = false;
     input.value = '';
-    errorEl.textContent = '';
+    clearError();
+    // Guards the midnight-rollover-during-celebration race.
+    window.clearTimeout(winTimer);
     completeEl.hidden = true;
+    completeEl.classList.remove('is-celebrate');
     hideSuggestions();
     numberEl.textContent = `#${puzzleNumber(today)}`;
 
@@ -517,14 +610,11 @@ function init(): void {
         renderGuessRow(hero, compareHeroes(hero, answer), false);
       }
       if (store.daily.solved && guessed.length > 0) {
+        // Not win(): markWon must never run on restore.
         solved = true;
-        const template = guessed.length === 1 ? l10n.winBodyOne : l10n.winBody;
-        completeBodyEl.textContent = template
-          .replace('{hero}', answer.name)
-          .replace('{count}', String(guessed.length));
-        completeEl.hidden = false;
         input.disabled = true;
         submitBtn.disabled = true;
+        showWinBox(false);
       }
     }
 
