@@ -31,14 +31,17 @@ export function resolveHeroIcons(
  * renders frame the character near horizontal center, so 50% is the default;
  * only renders whose head sits clearly off to one side need an entry. Zarya's
  * particle cannon pulls her body left and her face to ~a third in, Kiriko
- * stands to the left of her fox spirit, and Hazard leans to the right. Keyed by
- * display name to match `signatureHeroes`; a new hero with no entry simply
- * crops from center, which is right for the common case.
+ * stands to the left of her fox spirit, Hazard leans to the right, and Illari's
+ * figure sits far right of her oversized gun (a centered crop lands on the gun
+ * and misses her entirely). Keyed by display name to match `signatureHeroes`; a
+ * new hero with no entry simply crops from center, which is right for the
+ * common case.
  */
 const HERO_FOCUS_X: Record<string, number> = {
   Zarya: 34,
   Kiriko: 34,
   Hazard: 56,
+  Illari: 63,
 };
 
 export function heroFocusX(name: string): number {
