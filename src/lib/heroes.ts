@@ -25,6 +25,26 @@ export function resolveHeroIcons(
   return typeof limit === 'number' ? out.slice(0, limit) : out;
 }
 
+/**
+ * Horizontal focal point (percent) for a hero's signature render, used as the
+ * object-position X when a card crops that render into its strip. Most official
+ * renders frame the character near horizontal center, so 50% is the default;
+ * only renders whose head sits clearly off to one side need an entry. Zarya's
+ * particle cannon pulls her body left and her face to ~a third in, Kiriko
+ * stands to the left of her fox spirit, and Hazard leans to the right. Keyed by
+ * display name to match `signatureHeroes`; a new hero with no entry simply
+ * crops from center, which is right for the common case.
+ */
+const HERO_FOCUS_X: Record<string, number> = {
+  Zarya: 34,
+  Kiriko: 34,
+  Hazard: 56,
+};
+
+export function heroFocusX(name: string): number {
+  return HERO_FOCUS_X[name] ?? 50;
+}
+
 /** First resolvable hero image (for an avatar fallback), or undefined. */
 export function firstHeroImage(
   names: ReadonlyArray<string> | undefined,
