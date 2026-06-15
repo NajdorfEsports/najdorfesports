@@ -45,6 +45,14 @@ const allRoles = [player.role, ...(player.altRoles ?? [])].filter((r, i, a) => a
 const backdropHeroes = resolveHeroIcons(player.signatureHeroes, 4);
 const hasBackdrop = backdropHeroes.length > 0;
 
+// When Liquipedia lists only one or two signature heroes, the crisp strips
+// leave the transparent-PNG voids showing card-dark, so the figure floats in a
+// gap. A soft, enlarged, blurred echo of the same art sits behind to flood
+// those voids with the character's own colors, turning a 1-2 hero card into a
+// full-bleed poster like the coach/manager cards. Three or four heroes already
+// fill the card edge to edge, so the aura is skipped (it would be hidden).
+const sparseBackdrop = hasBackdrop && backdropHeroes.length < 3;
+
 // Each strip's flex-grow tracks its render's canvas aspect ratio (clamped so
 // a tall render never collapses to a sliver and a wide one never hogs the
 // card). Every hero then sheds roughly the same proportion of its sides to
@@ -67,6 +75,23 @@ const stripGrow = (image: { width: number; height: number }) =>
     hasBackdrop && (
       <>
         <div class="player-card__backdrop" aria-hidden="true">
+          {sparseBackdrop && (
+            <div class="player-card__aura" aria-hidden="true">
+              {backdropHeroes.map((h) => (
+                <span class="player-card__aura-cell" style={`--strip-grow:${stripGrow(h.image)}`}>
+                  <Image
+                    src={h.image}
+                    alt=""
+                    widths={[320]}
+                    sizes="320px"
+                    loading={eager ? 'eager' : 'lazy'}
+                    decoding="async"
+                    class="player-card__aura-img ink-img"
+                  />
+                </span>
+              ))}
+            </div>
+          )}
           {backdropHeroes.map((h) => (
             <span
               class="player-card__hero"
@@ -232,6 +257,37 @@ const stripGrow = (image: { width: number; height: number }) =>
     border-radius: inherit;
     overflow: hidden;
     pointer-events: none;
+  }
+
+  /* Sparse-backdrop aura: a blurred, enlarged echo of the same art that floods
+     the transparent voids a 1-2 hero card would otherwise leave card-dark. Sits
+     at the very back of the backdrop (negative z) so the crisp strips and the
+     ink wash both paint over it. */
+  .player-card__aura {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    display: flex;
+    overflow: hidden;
+    border-radius: inherit;
+  }
+  .player-card__aura-cell {
+    /* Mirror each strip's grow so the wash for a hero sits behind that hero.
+       No clip here: the blurred copies bleed across the seam so two heroes
+       read as one continuous field rather than two halves. */
+    flex: var(--strip-grow, 1) 1 0%;
+  }
+  .player-card__aura :global(.player-card__aura-img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 28%;
+    display: block;
+    /* Blow the art up and blur it into an ambient field; the ink filter is
+       repeated here because this more-specific rule overrides .ink-img. */
+    transform: scale(1.7);
+    filter: grayscale(1) contrast(1.06) brightness(0.84) blur(16px);
+    opacity: 0.6;
   }
 
   .player-card__hero {
