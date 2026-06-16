@@ -957,6 +957,20 @@ async function init(): Promise<void> {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     else stage.requestFullscreen().catch(() => {});
   });
+  // Re-fit the renderer to the stage. resizeTo's ResizeObserver misses the
+  // macOS fullscreen zoom animation (the canvas stays at the pre-fullscreen
+  // size), so re-measure on fullscreenchange at several points to catch the
+  // post-animation size, and on every window resize.
+  const refit = (): void => {
+    if (stage.clientWidth > 0 && stage.clientHeight > 0) {
+      app.renderer.resize(stage.clientWidth, stage.clientHeight);
+    }
+  };
+  document.addEventListener('fullscreenchange', () => {
+    refit();
+    for (const d of [60, 220, 500, 900]) window.setTimeout(refit, d);
+  });
+  window.addEventListener('resize', refit);
   q('[data-gg-continue]')?.addEventListener('click', () => {
     if (game.overlay !== 'win') return;
     game.accumulator = 0;
@@ -973,6 +987,19 @@ async function init(): Promise<void> {
 
   // --- Main loop: fixed-step accumulator decoupled from render ---
   app.ticker.add((ticker) => {
+    // Safety net: keep the renderer matched to the stage on every frame, so a
+    // missed resize (notably the macOS fullscreen zoom animation) self-corrects.
+    // Only resizes when actually out of sync, so it costs nothing in steady
+    // state; guarded against transient zero sizes during layout.
+    const sw = stage.clientWidth;
+    const sh = stage.clientHeight;
+    if (
+      sw > 0 &&
+      sh > 0 &&
+      (Math.abs(app.screen.width - sw) > 2 || Math.abs(app.screen.height - sh) > 2)
+    ) {
+      app.renderer.resize(sw, sh);
+    }
     game.dtSec = Math.min(ticker.deltaMS, 64) / 1000;
     game.t += game.dtSec;
     const w = game.world;
