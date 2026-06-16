@@ -83,7 +83,7 @@ export const ELITE: EnemyArchetype = {
   cost: 0,
   unlockAt: 0,
   cullAfter: null,
-  hp: 460,
+  hp: 900,
   speed: 98,
   radius: 32,
   contactDamage: 18,
@@ -93,15 +93,17 @@ export const ELITE: EnemyArchetype = {
   elite: true,
 };
 
-/** The climax boss: very fast, very tanky, very dangerous. Spawns once. */
+/** The climax boss: very fast, very tanky, very dangerous. Spawns once, with a
+ *  fixed (non-time-scaled) HP pool so it is a real fight even against a fully
+ *  upgraded player. Rendered as a crimson Queen. */
 export const REAPER: EnemyArchetype = {
   id: 'reaper',
   cost: 0,
   unlockAt: 0,
   cullAfter: null,
-  hp: 4500,
+  hp: 24000,
   speed: 178,
-  radius: 40,
+  radius: 42,
   contactDamage: 46,
   gemValue: 320,
   color: 0xff2d55,

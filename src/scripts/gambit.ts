@@ -197,9 +197,9 @@ const PIECE_BY_ID: Record<string, (c: Pen, cx: number, cy: number, R: number) =>
   runner: knightPath,
   shade: bishopPath,
   brute: rookPath,
-  knight: queenPath,
+  knight: kingPath,
   elite: kingPath,
-  reaper: kingPath,
+  reaper: queenPath,
 };
 
 async function init(): Promise<void> {
@@ -684,7 +684,9 @@ async function init(): Promise<void> {
   // --- Run lifecycle ---
   function buildWorld(): World {
     const seed = dailySeed(nyDate());
-    const pus = saved.standard ? {} : saved.powerups;
+    // The seeded daily is pure by default (fair for everyone); casual mode opts
+    // into the player's permanent PowerUps.
+    const pus = saved.casual ? saved.powerups : {};
     const hero = HEROES[saved.hero] ?? DEFAULT_HERO;
     return createWorld(seed, hero, pus);
   }
@@ -932,8 +934,8 @@ async function init(): Promise<void> {
     endRun();
   });
   standardBtn?.addEventListener('click', () => {
-    saved.standard = !saved.standard;
-    standardBtn.setAttribute('aria-pressed', saved.standard ? 'true' : 'false');
+    saved.casual = !saved.casual;
+    standardBtn.setAttribute('aria-pressed', saved.casual ? 'true' : 'false');
     store.save(saved);
   });
 
@@ -1177,7 +1179,7 @@ async function init(): Promise<void> {
   }
 
   // --- Initial UI state ---
-  if (standardBtn) standardBtn.setAttribute('aria-pressed', saved.standard ? 'true' : 'false');
+  if (standardBtn) standardBtn.setAttribute('aria-pressed', saved.casual ? 'true' : 'false');
   if (elDayNum) elDayNum.textContent = `#${dayNumber(nyDate())}`;
   if (elBest)
     elBest.textContent =

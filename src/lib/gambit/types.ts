@@ -154,8 +154,9 @@ export interface StoredState {
   currency: number;
   /** PowerUp id -> purchased level. */
   powerups: Record<string, number>;
-  /** When true, runs ignore PowerUps (the pure skill challenge). */
-  standard: boolean;
+  /** When true, runs apply your permanent PowerUps (casual mode). The seeded
+   *  daily defaults to false: a pure, fair run for everyone. */
+  casual: boolean;
   /** Number of runs won (survived to the win mark). */
   wins: number;
   /** Currently selected hero id. */

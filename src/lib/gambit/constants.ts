@@ -53,9 +53,9 @@ export const DIRECTOR_BASE_RATE = 1.25;
 export const START_CURRENCY = 0;
 
 /** A run is "won" at this mark; play continues into endless after. */
-export const RUN_WIN_SECONDS = 20 * 60;
-/** The Reaper (climax boss) spawns shortly before the win mark. */
-export const REAPER_SECONDS = 19 * 60 + 15;
+export const RUN_WIN_SECONDS = 10 * 60;
+/** The Reaper (climax boss) spawns one minute before the win mark. */
+export const REAPER_SECONDS = 9 * 60;
 
 /** Orbiting-blade weapon (the "orbiters" upgrade and the Rook hero). */
 export const ORBIT_RADIUS = 78;
@@ -90,14 +90,17 @@ export function enemyDamageScale(elapsedS: number): number {
   return 1 + elapsedS / 540;
 }
 
-/** Enemies speed up modestly over a run, so move speed stays relevant late. */
+/** Enemies speed up over a run, reaching "in your face" pace by the late game
+ *  so move speed and active kiting matter (tuned for a 10-minute run). */
 export function enemySpeedScale(elapsedS: number): number {
-  return 1 + Math.min(elapsedS, 1200) / 2200;
+  return 1 + Math.min(elapsedS, 600) / 1300;
 }
 
-/** Player damage multiplier from level: leveling is the core power curve. */
-export function damageForLevel(level: number): number {
-  return 1 + level * 0.06;
+/** Player damage from LEVEL is intentionally flat (1x): damage comes only from
+ *  upgrades, so a leveled player never becomes unkillable and bosses (with big
+ *  HP) stay a real fight. Kept as a hook in case a small ramp is wanted later. */
+export function damageForLevel(_level: number): number {
+  return 1;
 }
 
 /** XP required to clear each level. Flatter than a hard quadratic so leveling

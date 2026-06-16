@@ -8,7 +8,7 @@ describe('storage', () => {
       bestMs: 12345,
       currency: 80,
       powerups: { might: 2 },
-      standard: true,
+      casual: true,
       wins: 3,
       hero: 'knight',
       unlockedHeroes: ['bishop', 'knight'],

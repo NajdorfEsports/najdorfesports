@@ -195,6 +195,11 @@ const l10n = {
         {/* Victory overlay (20-minute survival). */}
         <div class="gg-overlay" hidden data-gg-win>
           <div class="gg-panel">
+            <svg class="gg-checkmate" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M6 22 L18 22 L16 10 L8 10 Z M8 10 L16 10 L15 7 L9 7 Z M11 7 L13 7 L13 1.5 L11 1.5 Z M9.5 4 L14.5 4 L14.5 2.8 L9.5 2.8 Z"
+              ></path>
+            </svg>
             <p class="gg-overlay-head gg-win-head">{c.winHeading}</p>
             <p class="gg-hint">{c.winBody}</p>
             <p class="gg-unlock" hidden data-gg-unlock></p>
@@ -684,6 +689,25 @@ const l10n = {
 
   .gg-win-head {
     color: var(--color-win);
+  }
+  /* Toppled king = checkmate. Falls over on the victory screen. */
+  .gg-checkmate {
+    width: 3.25rem;
+    height: 3.25rem;
+    color: var(--color-win);
+    transform: rotate(74deg);
+    transform-origin: 50% 82%;
+    filter: drop-shadow(0 0 10px color-mix(in oklab, var(--color-win) 55%, transparent));
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    [data-gg-win]:not([hidden]) .gg-checkmate {
+      animation: gg-topple 0.75s cubic-bezier(0.34, 1.45, 0.5, 1) both;
+    }
+    @keyframes gg-topple {
+      from {
+        transform: rotate(0deg);
+      }
+    }
   }
   .gg-unlock {
     font-size: 0.8125rem;

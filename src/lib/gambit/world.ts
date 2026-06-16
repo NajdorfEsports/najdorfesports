@@ -101,7 +101,7 @@ export function createWorld(
     xpToNext: xpForLevel(1),
     iframes: 0,
     basePickupRadius: 16,
-    baseMagnetRadius: 470,
+    baseMagnetRadius: 150,
     kills: 0,
     cooldown: 0,
     weaponId: hero.weaponId,

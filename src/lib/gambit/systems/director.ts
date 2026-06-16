@@ -43,7 +43,8 @@ function spawnEnemy(world: World, typeIndex: number): void {
   enemies.y[i] = y;
   enemies.prevX[i] = x;
   enemies.prevY[i] = y;
-  enemies.hp[i] = a.hp * enemyHpScale(elapsed);
+  // The Reaper keeps its fixed HP; everything else scales with elapsed time.
+  enemies.hp[i] = a.id === 'reaper' ? a.hp : a.hp * enemyHpScale(elapsed);
   enemies.radius[i] = a.radius;
   enemies.speed[i] = a.speed * enemySpeedScale(elapsed);
   enemies.damage[i] = a.contactDamage * enemyDamageScale(elapsed);

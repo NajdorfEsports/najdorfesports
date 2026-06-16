@@ -14,7 +14,7 @@ export const BOLT: WeaponDef = {
   baseProjectileSpeed: 600,
   baseProjectiles: 1,
   basePierce: 0,
-  baseRange: 440,
+  baseRange: 720,
   projectileRadius: 7,
   spreadDeg: 8,
 };
@@ -26,7 +26,7 @@ export const SPREAD: WeaponDef = {
   baseProjectileSpeed: 540,
   baseProjectiles: 4,
   basePierce: 0,
-  baseRange: 340,
+  baseRange: 430,
   projectileRadius: 6,
   spreadDeg: 40,
 };
