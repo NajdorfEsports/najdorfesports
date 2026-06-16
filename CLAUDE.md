@@ -256,6 +256,18 @@ preview` and the Playwright e2e server, nothing more.
 
 ## Branding
 
+- **Original art must be SYMMETRIC and COHERENT.** Lopsided symmetry and
+  decorative-but-meaningless detail are notorious AI tells (the owner is
+  allergic to them, same as em-dashes). For any art we author (SVGs, logos,
+  icons, game pieces, OG compositions): (1) anything with a natural axis is
+  mirror-symmetric about it (build one half, mirror it; verify the path is
+  truly symmetric, not just approximately); (2) every element earns its place,
+  makes structural sense, and CONNECTS to the whole (a finial seats on the
+  body, a base grounds the piece) instead of floating there "because it might
+  look good." Prefer fewer, fully-justified, well-joined elements over
+  decorative clutter. Render and eyeball it before shipping. (Naturalistic
+  scatter, e.g. fallen debris, should still read as a deliberate, balanced
+  composition, not random.)
 - Brand colors live in `src/styles/tokens.css` and `global.css`:
   `--color-accent` (primary, blue `#215BFF`) and `--color-accent-2`
   (secondary, soft blue `#6B8DFF`). Both cascade into every component.
