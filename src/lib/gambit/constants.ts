@@ -16,7 +16,7 @@ export const MAX_STEPS = 5;
 /** Half-width of the square arena, in world units. The player is clamped inside. */
 export const ARENA_HALF = 1400;
 
-export const MAX_ENEMIES = 600;
+export const MAX_ENEMIES = 650;
 export const MAX_PROJECTILES = 500;
 export const MAX_GEMS = 900;
 
@@ -28,6 +28,8 @@ export const SPAWN_DIST = 820;
 
 /** Seconds of invulnerability after taking a contact hit. */
 export const PLAYER_IFRAME = 0.65;
+/** Mending regen only applies after holding still this many seconds. */
+export const STILL_HEAL_DELAY = 2.5;
 /** Gems within magnet range home in at this speed (world units/sec). */
 export const MAGNET_SPEED = 720;
 
@@ -48,7 +50,7 @@ export const COLOR_REAPER = 0xff2d55;
 export const COLOR_CRIT = 0xffd24a;
 
 /** Director credit accrual at difficulty coefficient 1 (credits/second). */
-export const DIRECTOR_BASE_RATE = 1.25;
+export const DIRECTOR_BASE_RATE = 1.3;
 
 export const START_CURRENCY = 0;
 
@@ -73,7 +75,7 @@ export const SPLASH_FRACTION = 0.55;
  * director credit rate; non-decreasing, so the threat always rises.
  */
 export function difficultyCoeff(elapsedS: number): number {
-  return 1 + elapsedS / 70 + (elapsedS / 165) ** 2;
+  return 1 + elapsedS / 72 + (elapsedS / 160) ** 2;
 }
 
 /**

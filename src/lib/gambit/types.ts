@@ -33,6 +33,8 @@ export interface PlayerMods {
   critMult: number;
   /** Number of orbiting blades (the second weapon). */
   orbiters: number;
+  /** Flat HP healed each time an enemy is killed (Knight passive). */
+  lifestealOnKill: number;
 }
 
 export interface Player {
@@ -52,6 +54,8 @@ export interface Player {
   xpToNext: number;
   /** Seconds of invulnerability remaining after a contact hit. */
   iframes: number;
+  /** Seconds the player has held still (no input); gates Mending regen. */
+  stillTime: number;
   basePickupRadius: number;
   baseMagnetRadius: number;
   kills: number;
@@ -100,6 +104,8 @@ export interface HeroDef {
   baseHp: number;
   baseSpeed: number;
   radius: number;
+  /** Innate passive mods (deltas) added to the run at start: the hero identity. */
+  mods?: Partial<PlayerMods>;
 }
 
 export type UpgradeTag = 'offense' | 'defense' | 'utility';

@@ -616,7 +616,8 @@ export const zhCN: Strings = {
       bestLabel: '最佳',
       noBest: '暂无记录',
       standardLabel: '休闲模式',
-      standardHint: '使用你的永久升级游玩。每日对局对所有人都是纯净的。',
+      standardHint:
+        '关闭：纯净的每日对局，对所有人都是公平的挑战。开启：使用你永久升级的休闲对局。',
       currencyLabel: '碎片',
       shopHeading: '永久升级',
       shopHint: '花费对局获得的碎片。这些仅在休闲模式中生效；每日对局始终纯净。',
@@ -670,7 +671,7 @@ export const zhCN: Strings = {
         swift: { name: '疾步', desc: '移动更快。' },
         magnet: { name: '广纳', desc: '从更远处吸取碎片。' },
         fortify: { name: '强化', desc: '提升生命上限并回复。' },
-        regen: { name: '愈合', desc: '随时间缓慢回复生命。' },
+        regen: { name: '愈合', desc: '回复生命，但仅在你停下不动时生效。' },
       },
       powerups: {
         might: { name: '威力', desc: '每局开始时拥有更多伤害。' },
@@ -679,8 +680,15 @@ export const zhCN: Strings = {
         greed: { name: '贪婪', desc: '每局开始时从更远处吸取碎片。' },
       },
       heroes: {
-        bishop: { name: '主教', desc: '精准的远程射手。均衡而可靠。' },
-        knight: { name: '骑士', desc: '快速且具侵略性，使用近距离散射攻击。赢得一局以解锁。' },
+        // DRAFT PENDING RIRI NATIVE REVIEW
+        bishop: {
+          name: '主教',
+          desc: '精准的远程射手：暴击强劲，且每次击杀都会回复少量生命，能在安全距离外逐一击倒敌群。稳健而宽容。',
+        },
+        knight: {
+          name: '骑士',
+          desc: '快速且具侵略性：近距离散射、更快的攻击速度，并在每次击杀时回复生命。较为脆弱，因此要勇于突进并持续击杀。赢得一局以解锁。',
+        },
       },
     },
   },

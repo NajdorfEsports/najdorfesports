@@ -693,7 +693,8 @@ export const en = {
       bestLabel: 'Best',
       noBest: 'None yet',
       standardLabel: 'Casual mode',
-      standardHint: 'Play with your permanent upgrades. The daily run is pure for everyone.',
+      standardHint:
+        'Off: the pure daily run, the same fair challenge for everyone. On: a casual run that uses your permanent upgrades.',
       currencyLabel: 'Shards',
       shopHeading: 'Permanent upgrades',
       shopHint:
@@ -751,7 +752,7 @@ export const en = {
         swift: { name: 'Fleet Step', desc: 'Move faster.' },
         magnet: { name: 'Wider Reach', desc: 'Draw in shards from farther away.' },
         fortify: { name: 'Reinforce', desc: 'Raise maximum health and heal.' },
-        regen: { name: 'Mending', desc: 'Slowly recover health over time.' },
+        regen: { name: 'Mending', desc: 'Recover health, but only while you hold still.' },
       },
       powerups: {
         might: { name: 'Might', desc: 'Begin every run with more damage.' },
@@ -760,10 +761,13 @@ export const en = {
         greed: { name: 'Greed', desc: 'Begin every run drawing shards from farther.' },
       },
       heroes: {
-        bishop: { name: 'Bishop', desc: 'A precise long-range striker. Balanced and reliable.' },
+        bishop: {
+          name: 'Bishop',
+          desc: 'A precise long-range striker: heavy crits, plus a small heal on every kill, so it picks the swarm off from a safe distance. Steady and forgiving.',
+        },
         knight: {
           name: 'Knight',
-          desc: 'Fast and aggressive, with a close-range spread attack. Win a run to unlock.',
+          desc: 'Fast and aggressive: a close-range spread, quicker fire, and healing on every kill. Fragile, so dive in and keep killing. Win a run to unlock.',
         },
       },
     },

@@ -21,6 +21,7 @@ function freshPlayer(): Player {
     xp: 0,
     xpToNext: xpForLevel(1),
     iframes: 0,
+    stillTime: 0,
     basePickupRadius: 16,
     baseMagnetRadius: 130,
     kills: 0,
@@ -41,6 +42,7 @@ function freshPlayer(): Player {
       critChance: 0,
       critMult: 2.25,
       orbiters: 0,
+      lifestealOnKill: 0,
     },
   };
 }

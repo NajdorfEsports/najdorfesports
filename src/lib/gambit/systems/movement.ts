@@ -17,6 +17,8 @@ export function updateMovement(world: World, dt: number): void {
   player.prevX = player.x;
   player.prevY = player.y;
   const ilen = Math.hypot(player.inputX, player.inputY);
+  if (ilen > 0.01) player.stillTime = 0;
+  else player.stillTime += dt;
   if (ilen > 0) {
     const speed = player.baseSpeed * player.mods.moveSpeedMult;
     player.x = clamp(player.x + (player.inputX / ilen) * speed * dt, -ARENA_HALF, ARENA_HALF);

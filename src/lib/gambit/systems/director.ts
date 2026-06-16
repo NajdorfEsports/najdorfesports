@@ -22,7 +22,10 @@ import { ALL_ARCHETYPES, ELITE_INDEX, REAPER_INDEX, eligibleArchetypes } from '.
 import type { World } from '../types';
 
 /** Seconds between scheduled elite events. */
-const EVENT_INTERVAL = 75;
+const EVENT_INTERVAL = 60;
+/** First elite event lands here, leaving the opening ~90s as a forgiving
+ *  on-ramp; the cadence is steady after that. */
+const FIRST_EVENT_S = 90;
 /** Brutes that escort each elite. */
 const ELITE_ESCORT = 3;
 
@@ -67,8 +70,10 @@ export function updateDirector(world: World, dt: number): void {
   }
 
   // Scheduled elite events (power-spike pacing), spawned outside the budget.
-  while (elapsed >= (director.nextEventIndex + 1) * EVENT_INTERVAL) {
-    spawnEnemy(world, ELITE_INDEX);
+  // The back half sends two elites at once for a denser miniboss cadence.
+  while (elapsed >= FIRST_EVENT_S + director.nextEventIndex * EVENT_INTERVAL) {
+    const eliteCount = elapsed >= 420 ? 2 : 1;
+    for (let e = 0; e < eliteCount; e += 1) spawnEnemy(world, ELITE_INDEX);
     const bruteIndex = ALL_ARCHETYPES.findIndex((a) => a.id === 'brute');
     for (let k = 0; k < ELITE_ESCORT; k += 1) spawnEnemy(world, bruteIndex);
     director.nextEventIndex += 1;

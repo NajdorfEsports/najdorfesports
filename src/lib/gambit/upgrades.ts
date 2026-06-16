@@ -48,7 +48,7 @@ export const UPGRADES: UpgradeCard[] = [
       p.hp = Math.min(p.maxHp, p.hp + 25);
     },
   },
-  { id: 'regen', tags: ['defense'], maxStacks: 5, apply: (m) => void (m.regenPerSec += 1.0) },
+  { id: 'regen', tags: ['defense'], maxStacks: 5, apply: (m) => void (m.regenPerSec += 1.7) },
 ];
 
 export const UPGRADE_BY_ID: Record<string, UpgradeCard> = Object.fromEntries(

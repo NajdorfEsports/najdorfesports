@@ -14,6 +14,7 @@ import {
   ORBIT_RADIUS,
   PLAYER_IFRAME,
   SPLASH_FRACTION,
+  STILL_HEAL_DELAY,
   damageForLevel,
 } from '../constants';
 import { ALL_ARCHETYPES } from '../enemies';
@@ -55,6 +56,9 @@ function killEnemy(world: World, j: number): void {
     color: ALL_ARCHETYPES[enemies.type[j]!]!.color,
   });
   player.kills += 1;
+  if (player.mods.lifestealOnKill > 0) {
+    player.hp = Math.min(player.maxHp, player.hp + player.mods.lifestealOnKill);
+  }
   enemies.pool.kill(j);
 }
 
@@ -176,8 +180,9 @@ export function updateCollision(world: World, dt: number): void {
     }
   }
 
-  // Health regen (defense upgrades).
-  if (!world.dead && player.mods.regenPerSec > 0) {
+  // Mending regen: only kicks in once you have held still long enough, so
+  // healing is a deliberate, risky choice (stop moving in the swarm).
+  if (!world.dead && player.mods.regenPerSec > 0 && player.stillTime >= STILL_HEAL_DELAY) {
     player.hp = Math.min(player.maxHp, player.hp + player.mods.regenPerSec * dt);
   }
 }

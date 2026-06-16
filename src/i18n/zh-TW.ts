@@ -616,7 +616,8 @@ export const zhTW: Strings = {
       bestLabel: '最佳',
       noBest: '尚無紀錄',
       standardLabel: '休閒模式',
-      standardHint: '使用你的永久升級遊玩。每日對局對所有人都是純淨的。',
+      standardHint:
+        '關閉：純淨的每日對局，對所有人都是公平的挑戰。開啟：使用你永久升級的休閒對局。',
       currencyLabel: '碎片',
       shopHeading: '永久升級',
       shopHint: '花費對局獲得的碎片。這些僅在休閒模式中生效；每日對局始終純淨。',
@@ -670,7 +671,7 @@ export const zhTW: Strings = {
         swift: { name: '疾步', desc: '移動更快。' },
         magnet: { name: '廣納', desc: '從更遠處吸取碎片。' },
         fortify: { name: '強化', desc: '提升生命上限並回復。' },
-        regen: { name: '癒合', desc: '隨時間緩慢回復生命。' },
+        regen: { name: '癒合', desc: '回復生命，但僅在你停下不動時生效。' },
       },
       powerups: {
         might: { name: '威力', desc: '每局開始時擁有更多傷害。' },
@@ -679,8 +680,15 @@ export const zhTW: Strings = {
         greed: { name: '貪婪', desc: '每局開始時從更遠處吸取碎片。' },
       },
       heroes: {
-        bishop: { name: '主教', desc: '精準的遠程射手。均衡而可靠。' },
-        knight: { name: '騎士', desc: '快速且具侵略性，使用近距離散射攻擊。贏得一局以解鎖。' },
+        // DRAFT PENDING RIRI NATIVE REVIEW
+        bishop: {
+          name: '主教',
+          desc: '精準的遠程射手：暴擊強勁，且每次擊殺都會回復少量生命，能在安全距離外逐一擊倒敵群。穩健而寬容。',
+        },
+        knight: {
+          name: '騎士',
+          desc: '快速且具侵略性：近距離散射、更快的攻擊速度，並在每次擊殺時回復生命。較為脆弱，因此要勇於突進並持續擊殺。贏得一局以解鎖。',
+        },
       },
     },
   },

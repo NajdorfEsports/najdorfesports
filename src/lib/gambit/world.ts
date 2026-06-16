@@ -100,6 +100,7 @@ export function createWorld(
     xp: 0,
     xpToNext: xpForLevel(1),
     iframes: 0,
+    stillTime: 0,
     basePickupRadius: 16,
     baseMagnetRadius: 150,
     kills: 0,
@@ -120,9 +121,15 @@ export function createWorld(
       critChance: 0,
       critMult: CRIT_MULT,
       orbiters: 0,
+      lifestealOnKill: 0,
     },
   };
   applyPowerups(player, powerupLevels);
+  // Hero identity: add innate passive mods (deltas).
+  if (hero.mods) {
+    const m = player.mods as unknown as Record<string, number>;
+    for (const [k, v] of Object.entries(hero.mods)) m[k] += v ?? 0;
+  }
 
   return {
     seed,
