@@ -123,9 +123,10 @@ export interface DirectorState {
 
 export type SimEvent =
   | { type: 'levelup'; level: number }
-  | { type: 'kill'; x: number; y: number; elite: boolean }
+  | { type: 'kill'; x: number; y: number; elite: boolean; color: number }
   | { type: 'hit'; x: number; y: number }
-  | { type: 'pickup'; value: number }
+  | { type: 'pickup'; value: number; x: number; y: number }
+  | { type: 'shoot'; x: number; y: number; angle: number }
   | { type: 'died' };
 
 export interface RunResult {

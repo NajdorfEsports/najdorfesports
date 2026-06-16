@@ -66,6 +66,7 @@ function fire(world: World, target: number): void {
   const dx = enemies.x[target]! - player.x;
   const dy = enemies.y[target]! - player.y;
   const base = Math.atan2(dy, dx);
+  world.events.push({ type: 'shoot', x: player.x, y: player.y, angle: base });
   const spread = (def.spreadDeg * Math.PI) / 180;
   for (let k = 0; k < count; k += 1) {
     const offset = count === 1 ? 0 : (k / (count - 1) - 0.5) * spread * (count - 1);

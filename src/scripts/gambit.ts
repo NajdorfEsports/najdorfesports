@@ -6,6 +6,13 @@
  * localStorage. The whole simulation ships inside this bundle (src/lib/gambit),
  * so the page makes zero runtime requests.
  *
+ * Visuals are 100% in-engine and original: chess-piece silhouettes baked from
+ * 2D canvases (glow via shadowBlur), a pooled additive particle system for
+ * juice (muzzle, hit sparks, death bursts, pickups, level-up rings), glowing
+ * crystal gems kept visually distinct from the dark enemy pieces, an arena
+ * vignette, and a screen hit-flash. Every motion effect is gated on
+ * prefers-reduced-motion. No image assets, no filters, no eval.
+ *
  * Storage: localStorage under the games exception to the zero-storage policy
  * (key najdorf:gambit:v1). Only best time, currency, and purchased PowerUps
  * live there; every access degrades to in-memory if storage is blocked.
@@ -13,7 +20,8 @@
  * Determinism: the run is seeded from the New York calendar date, so the daily
  * difficulty curve is shared; the sim never reads wall-clock time (survival is
  * step-derived), and the loop clamps + caps catch-up so a backgrounded tab can
- * never spiral.
+ * never spiral. Cosmetic randomness (particles, shake) uses Math.random and
+ * never touches the seeded sim, so it can never desync a run.
  */
 // CRITICAL: this side-effecting import swaps PixiJS v8's `new Function`-based
 // uniform/shader/UBO/particle code generation for non-eval polyfills. Without
@@ -21,16 +29,15 @@
 // 'unsafe-eval') and the canvas never boots. Must load before `Application`.
 // Do not remove without relaxing the CSP (which we do not want to do).
 import 'pixi.js/unsafe-eval';
-import { Application, Container, Graphics, Sprite, type Texture } from 'pixi.js';
+import { Application, Container, Graphics, Sprite, Texture } from 'pixi.js';
 import {
   ARENA_HALF,
   COLOR_ACCENT,
+  COLOR_ACCENT2,
   COLOR_BOARD_DARK,
   COLOR_BOARD_LIGHT,
-  COLOR_GEM,
-  COLOR_PLAYER,
-  COLOR_PLAYER_RING,
-  COLOR_PROJECTILE,
+  COLOR_LOSS,
+  COLOR_WIN,
   DT_MS,
   MAX_ENEMIES,
   MAX_FRAME_MS,
@@ -44,7 +51,7 @@ import { DEFAULT_HERO } from '../lib/gambit/heroes';
 import { POWERUPS, powerupCost } from '../lib/gambit/powerups';
 import { STORAGE_KEY, deserialize, emptyState, serialize } from '../lib/gambit/storage';
 import { applyUpgrade, offerChoices } from '../lib/gambit/systems/progression';
-import type { EnemyShape, StoredState, World } from '../lib/gambit/types';
+import type { StoredState, World } from '../lib/gambit/types';
 import { createWorld, runResult, step } from '../lib/gambit/world';
 
 interface L10n {
@@ -54,11 +61,16 @@ interface L10n {
   newBest: string;
 }
 
-const ENEMY_REF = 20;
+/** Design radius the piece silhouettes are baked to (texture-space px). */
+const PIECE_R = 26;
+const ENEMY_VIS = 1.7;
 const PROJ_REF = 6;
+const PARTICLE_MAX = 520;
 
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
 const clampPct = (v: number): number => (v < 0 ? 0 : v > 100 ? 100 : v);
+const css = (n: number): string => `#${(n >>> 0).toString(16).padStart(6, '0').slice(-6)}`;
+const rand = (a: number, b: number): number => a + Math.random() * (b - a);
 
 function formatClock(total: number): string {
   const h = Math.floor(total / 3600);
@@ -90,6 +102,98 @@ const store = (() => {
     },
   };
 })();
+
+// --- Chess-piece silhouette path builders (centered at cx,cy, design radius R) ---
+type Pen = CanvasRenderingContext2D;
+function pawnPath(c: Pen, cx: number, cy: number, R: number): void {
+  c.moveTo(cx - R * 0.5, cy + R * 0.95);
+  c.lineTo(cx + R * 0.5, cy + R * 0.95);
+  c.lineTo(cx + R * 0.18, cy - R * 0.02);
+  c.lineTo(cx - R * 0.18, cy - R * 0.02);
+  c.closePath();
+  c.moveTo(cx + R * 0.36, cy - R * 0.32);
+  c.arc(cx, cy - R * 0.32, R * 0.36, 0, Math.PI * 2);
+}
+function knightPath(c: Pen, cx: number, cy: number, R: number): void {
+  c.moveTo(cx - R * 0.5, cy + R * 0.95);
+  c.lineTo(cx + R * 0.5, cy + R * 0.95);
+  c.lineTo(cx + R * 0.3, cy + R * 0.5);
+  c.lineTo(cx + R * 0.55, cy - R * 0.1);
+  c.lineTo(cx + R * 0.22, cy - R * 0.22);
+  c.lineTo(cx + R * 0.38, cy - R * 0.72);
+  c.lineTo(cx - R * 0.08, cy - R * 0.48);
+  c.lineTo(cx - R * 0.42, cy - R * 0.2);
+  c.lineTo(cx - R * 0.26, cy + R * 0.32);
+  c.lineTo(cx - R * 0.45, cy + R * 0.55);
+  c.closePath();
+}
+function rookPath(c: Pen, cx: number, cy: number, R: number): void {
+  c.moveTo(cx - R * 0.55, cy + R * 0.95);
+  c.lineTo(cx + R * 0.55, cy + R * 0.95);
+  c.lineTo(cx + R * 0.38, cy + R * 0.5);
+  c.lineTo(cx + R * 0.42, cy - R * 0.42);
+  c.lineTo(cx + R * 0.42, cy - R * 0.75);
+  c.lineTo(cx + R * 0.2, cy - R * 0.75);
+  c.lineTo(cx + R * 0.2, cy - R * 0.52);
+  c.lineTo(cx - R * 0.2, cy - R * 0.52);
+  c.lineTo(cx - R * 0.2, cy - R * 0.75);
+  c.lineTo(cx - R * 0.42, cy - R * 0.75);
+  c.lineTo(cx - R * 0.42, cy - R * 0.42);
+  c.lineTo(cx - R * 0.38, cy + R * 0.5);
+  c.closePath();
+}
+function queenPath(c: Pen, cx: number, cy: number, R: number): void {
+  c.moveTo(cx - R * 0.5, cy + R * 0.95);
+  c.lineTo(cx + R * 0.5, cy + R * 0.95);
+  c.lineTo(cx + R * 0.28, cy + R * 0.3);
+  c.lineTo(cx + R * 0.44, cy - R * 0.32);
+  c.lineTo(cx + R * 0.3, cy - R * 0.18);
+  c.lineTo(cx + R * 0.16, cy - R * 0.78);
+  c.lineTo(cx, cy - R * 0.2);
+  c.lineTo(cx - R * 0.16, cy - R * 0.78);
+  c.lineTo(cx - R * 0.3, cy - R * 0.18);
+  c.lineTo(cx - R * 0.44, cy - R * 0.32);
+  c.lineTo(cx - R * 0.28, cy + R * 0.3);
+  c.closePath();
+}
+function kingPath(c: Pen, cx: number, cy: number, R: number): void {
+  c.moveTo(cx - R * 0.52, cy + R * 0.95);
+  c.lineTo(cx + R * 0.52, cy + R * 0.95);
+  c.lineTo(cx + R * 0.3, cy + R * 0.3);
+  c.lineTo(cx + R * 0.4, cy - R * 0.45);
+  c.lineTo(cx - R * 0.4, cy - R * 0.45);
+  c.lineTo(cx - R * 0.3, cy + R * 0.3);
+  c.closePath();
+  c.moveTo(cx - R * 0.1, cy - R * 0.45);
+  c.lineTo(cx + R * 0.1, cy - R * 0.45);
+  c.lineTo(cx + R * 0.1, cy - R * 0.98);
+  c.lineTo(cx - R * 0.1, cy - R * 0.98);
+  c.closePath();
+  c.moveTo(cx - R * 0.3, cy - R * 0.78);
+  c.lineTo(cx + R * 0.3, cy - R * 0.78);
+  c.lineTo(cx + R * 0.3, cy - R * 0.62);
+  c.lineTo(cx - R * 0.3, cy - R * 0.62);
+  c.closePath();
+}
+function bishopPath(c: Pen, cx: number, cy: number, R: number): void {
+  c.moveTo(cx - R * 0.46, cy + R * 0.95);
+  c.lineTo(cx + R * 0.46, cy + R * 0.95);
+  c.lineTo(cx + R * 0.22, cy + R * 0.5);
+  c.quadraticCurveTo(cx + R * 0.56, cy - R * 0.08, cx + R * 0.12, cy - R * 0.56);
+  c.quadraticCurveTo(cx, cy - R * 0.72, cx - R * 0.12, cy - R * 0.56);
+  c.quadraticCurveTo(cx - R * 0.56, cy - R * 0.08, cx - R * 0.22, cy + R * 0.5);
+  c.closePath();
+  c.moveTo(cx + R * 0.13, cy - R * 0.74);
+  c.arc(cx, cy - R * 0.74, R * 0.13, 0, Math.PI * 2);
+}
+
+const PIECE_BY_ID: Record<string, (c: Pen, cx: number, cy: number, R: number) => void> = {
+  pawn: pawnPath,
+  runner: knightPath,
+  brute: rookPath,
+  knight: queenPath,
+  elite: kingPath,
+};
 
 async function init(): Promise<void> {
   const root = document.getElementById('gambit-app');
@@ -128,7 +232,7 @@ async function init(): Promise<void> {
   await app.init({
     preference: 'webgl',
     resizeTo: stage,
-    antialias: false,
+    antialias: true,
     backgroundAlpha: 0,
     resolution: Math.min(window.devicePixelRatio || 1, 2),
     autoDensity: true,
@@ -136,34 +240,133 @@ async function init(): Promise<void> {
   });
   stage.appendChild(app.canvas);
 
-  // --- Bake textures once (white shapes, tinted per entity) ---
-  const tex = (draw: (g: Graphics) => void): Texture => {
-    const g = new Graphics();
-    draw(g);
-    const t = app.renderer.generateTexture(g);
-    g.destroy();
-    return t;
-  };
-  const polyPts = (sides: number, r: number, rot: number): number[] => {
-    const pts: number[] = [];
-    for (let i = 0; i < sides; i += 1) {
-      const a = rot + (i / sides) * Math.PI * 2;
-      pts.push(Math.cos(a) * r, Math.sin(a) * r);
-    }
-    return pts;
-  };
-  const shapeTex: Record<EnemyShape, Texture> = {
-    triangle: tex((g) => g.poly(polyPts(3, ENEMY_REF, -Math.PI / 2)).fill(0xffffff)),
-    square: tex((g) =>
-      g.rect(-ENEMY_REF * 0.85, -ENEMY_REF * 0.85, ENEMY_REF * 1.7, ENEMY_REF * 1.7).fill(0xffffff),
-    ),
-    pentagon: tex((g) => g.poly(polyPts(5, ENEMY_REF, -Math.PI / 2)).fill(0xffffff)),
-    diamond: tex((g) => g.poly(polyPts(4, ENEMY_REF, -Math.PI / 2)).fill(0xffffff)),
-  };
-  const gemTex = tex((g) => g.poly(polyPts(4, 8, -Math.PI / 2)).fill(0xffffff));
-  const projTex = tex((g) => g.circle(0, 0, PROJ_REF).fill(0xffffff));
+  // --- Canvas-baked textures (CSP-safe; glow via shadowBlur) ---
+  function canvasTex(w: number, h: number, draw: (c: Pen, w: number, h: number) => void): Texture {
+    const cv = document.createElement('canvas');
+    cv.width = w;
+    cv.height = h;
+    const ctx = cv.getContext('2d');
+    if (ctx) draw(ctx, w, h);
+    return Texture.from(cv);
+  }
 
-  // --- Layers (inside a camera container) ---
+  /** A dark chess piece with a glowing colored edge, tinted per archetype. */
+  function pieceTex(
+    build: (c: Pen, cx: number, cy: number, R: number) => void,
+    edge: string,
+    opts: { glow: number; line: number; fillTop: string; fillBottom: string },
+  ): Texture {
+    const size = 92;
+    return canvasTex(size, size, (c) => {
+      const cx = size / 2;
+      const cy = size / 2;
+      c.lineJoin = 'round';
+      c.beginPath();
+      build(c, cx, cy, PIECE_R);
+      const g = c.createLinearGradient(0, cy - PIECE_R, 0, cy + PIECE_R);
+      g.addColorStop(0, opts.fillTop);
+      g.addColorStop(1, opts.fillBottom);
+      c.shadowColor = edge;
+      c.shadowBlur = opts.glow;
+      c.fillStyle = g;
+      c.fill();
+      c.fill();
+      c.shadowBlur = 0;
+      c.lineWidth = opts.line;
+      c.strokeStyle = edge;
+      c.stroke();
+    });
+  }
+
+  const archetypeTex: Texture[] = ALL_ARCHETYPES.map((a) => {
+    const build = PIECE_BY_ID[a.id] ?? pawnPath;
+    const elite = a.elite === true;
+    return pieceTex(build, css(a.color), {
+      glow: elite ? 18 : 12,
+      line: elite ? 3.5 : 2.4,
+      fillTop: '#3a3b48',
+      fillBottom: '#16161f',
+    });
+  });
+
+  const bishopTex = pieceTex(bishopPath, css(COLOR_ACCENT), {
+    glow: 14,
+    line: 2.5,
+    fillTop: '#ffffff',
+    fillBottom: css(COLOR_ACCENT2),
+  });
+
+  // Soft radial glow (additive sparks, auras).
+  const glowTex = canvasTex(48, 48, (c, w) => {
+    const r = w / 2;
+    const g = c.createRadialGradient(r, r, 0, r, r, r);
+    g.addColorStop(0, 'rgba(255,255,255,1)');
+    g.addColorStop(0.4, 'rgba(255,255,255,0.55)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    c.fillStyle = g;
+    c.fillRect(0, 0, w, w);
+  });
+
+  // Expanding telegraph / level-up ring (additive, tinted).
+  const ringTex = canvasTex(96, 96, (c, w) => {
+    const r = w / 2;
+    c.strokeStyle = 'rgba(255,255,255,1)';
+    c.lineWidth = 5;
+    c.shadowColor = 'rgba(255,255,255,1)';
+    c.shadowBlur = 6;
+    c.beginPath();
+    c.arc(r, r, r - 8, 0, Math.PI * 2);
+    c.stroke();
+  });
+
+  // Glowing crystal gem: clearly distinct from the dark enemy pieces.
+  const gemTex = canvasTex(40, 40, (c, w) => {
+    const r = w / 2;
+    const gl = c.createRadialGradient(r, r, 0, r, r, r);
+    gl.addColorStop(0, 'rgba(123,170,255,0.85)');
+    gl.addColorStop(1, 'rgba(123,170,255,0)');
+    c.fillStyle = gl;
+    c.fillRect(0, 0, w, w);
+    const k = 9;
+    c.beginPath();
+    c.moveTo(r, r - k);
+    c.lineTo(r + k * 0.72, r);
+    c.lineTo(r, r + k);
+    c.lineTo(r - k * 0.72, r);
+    c.closePath();
+    const cg = c.createLinearGradient(r, r - k, r, r + k);
+    cg.addColorStop(0, '#eaf1ff');
+    cg.addColorStop(1, css(COLOR_ACCENT2));
+    c.fillStyle = cg;
+    c.fill();
+    c.strokeStyle = '#ffffff';
+    c.lineWidth = 1;
+    c.stroke();
+  });
+
+  // Glowing bolt (horizontal capsule); rotated + stretched to velocity.
+  const projTex = canvasTex(40, 18, (c, w, h) => {
+    const cy = h / 2;
+    c.shadowColor = css(COLOR_ACCENT2);
+    c.shadowBlur = 6;
+    c.fillStyle = '#eef3ff';
+    c.beginPath();
+    c.roundRect(4, cy - 4, w - 8, 8, 4);
+    c.fill();
+    c.fill();
+  });
+
+  // Edge texture for the vignette + hit-flash (transparent center -> white edge).
+  const edgeTex = canvasTex(256, 256, (c, w) => {
+    const r = w / 2;
+    const g = c.createRadialGradient(r, r, r * 0.32, r, r, r * 0.52);
+    g.addColorStop(0, 'rgba(255,255,255,0)');
+    g.addColorStop(1, 'rgba(255,255,255,1)');
+    c.fillStyle = g;
+    c.fillRect(0, 0, w, w);
+  });
+
+  // --- World layers (inside a camera container) ---
   const camera = new Container();
   app.stage.addChild(camera);
 
@@ -175,9 +378,17 @@ async function init(): Promise<void> {
       arena.rect(gx, gy, cell, cell).fill(dark ? COLOR_BOARD_DARK : COLOR_BOARD_LIGHT);
     }
   }
-  arena
-    .rect(-ARENA_HALF, -ARENA_HALF, ARENA_HALF * 2, ARENA_HALF * 2)
-    .stroke({ width: 6, color: COLOR_ACCENT, alpha: 0.5 });
+  // Faint grid glow + a glowing border frame.
+  arena.rect(-ARENA_HALF, -ARENA_HALF, ARENA_HALF * 2, ARENA_HALF * 2).stroke({
+    width: 10,
+    color: COLOR_ACCENT,
+    alpha: 0.18,
+  });
+  arena.rect(-ARENA_HALF, -ARENA_HALF, ARENA_HALF * 2, ARENA_HALF * 2).stroke({
+    width: 3,
+    color: COLOR_ACCENT2,
+    alpha: 0.6,
+  });
   camera.addChild(arena);
 
   const gemLayer = new Container();
@@ -186,30 +397,138 @@ async function init(): Promise<void> {
   const fxLayer = new Container();
   camera.addChild(gemLayer, enemyLayer, projLayer);
 
-  // Player: a high-contrast piece, drawn once and repositioned.
-  const playerNode = new Graphics();
-  playerNode.circle(0, 0, DEFAULT_HERO.radius).fill(COLOR_PLAYER);
-  playerNode.circle(0, 0, DEFAULT_HERO.radius + 3).stroke({ width: 3, color: COLOR_PLAYER_RING });
-  playerNode.circle(0, 0, DEFAULT_HERO.radius - 6).fill(COLOR_ACCENT);
+  // Player: a glowing aura + the bishop silhouette, in a moved container.
+  const playerGlow = new Sprite(glowTex);
+  playerGlow.anchor.set(0.5);
+  playerGlow.blendMode = 'add';
+  playerGlow.tint = COLOR_ACCENT;
+  playerGlow.scale.set((DEFAULT_HERO.radius * 4.6) / 24);
+  playerGlow.alpha = 0.6;
+  const bishopSprite = new Sprite(bishopTex);
+  bishopSprite.anchor.set(0.5);
+  bishopSprite.scale.set((DEFAULT_HERO.radius * ENEMY_VIS) / PIECE_R);
+  const playerNode = new Container();
+  playerNode.addChild(playerGlow, bishopSprite);
   camera.addChild(playerNode, fxLayer);
 
+  // Screen-fixed overlays (above the world; HUD is DOM above the canvas).
+  const vignette = new Sprite(edgeTex);
+  vignette.anchor.set(0.5);
+  vignette.tint = 0x000000;
+  vignette.alpha = 0.55;
+  const hitFlash = new Sprite(edgeTex);
+  hitFlash.anchor.set(0.5);
+  hitFlash.tint = COLOR_LOSS;
+  hitFlash.alpha = 0;
+  app.stage.addChild(vignette, hitFlash);
+
   // --- Sprite pools, index-aligned with the entity stores ---
-  const mkPool = (n: number, t: Texture, tint: number, layer: Container): Sprite[] => {
+  const mkPool = (n: number, t: Texture, layer: Container): Sprite[] => {
     const arr: Sprite[] = [];
     for (let i = 0; i < n; i += 1) {
       const s = new Sprite(t);
       s.anchor.set(0.5);
-      s.tint = tint;
       s.visible = false;
       layer.addChild(s);
       arr.push(s);
     }
     return arr;
   };
-  // Enemy textures vary per frame; start with triangle.
-  const enemySprites = mkPool(MAX_ENEMIES, shapeTex.triangle, 0xffffff, enemyLayer);
-  const projSprites = mkPool(MAX_PROJECTILES, projTex, COLOR_PROJECTILE, projLayer);
-  const gemSprites = mkPool(MAX_GEMS, gemTex, COLOR_GEM, gemLayer);
+  const enemySprites = mkPool(MAX_ENEMIES, archetypeTex[0]!, enemyLayer);
+  const projSprites = mkPool(MAX_PROJECTILES, projTex, projLayer);
+  const gemSprites = mkPool(MAX_GEMS, gemTex, gemLayer);
+
+  // --- Particle system (pooled, additive) ---
+  const px = new Float32Array(PARTICLE_MAX);
+  const py = new Float32Array(PARTICLE_MAX);
+  const pvx = new Float32Array(PARTICLE_MAX);
+  const pvy = new Float32Array(PARTICLE_MAX);
+  const plife = new Float32Array(PARTICLE_MAX);
+  const pmax = new Float32Array(PARTICLE_MAX);
+  const psize0 = new Float32Array(PARTICLE_MAX);
+  const psize1 = new Float32Array(PARTICLE_MAX);
+  const pring = new Uint8Array(PARTICLE_MAX);
+  const pfree: number[] = [];
+  const particleSprites: Sprite[] = [];
+  for (let i = PARTICLE_MAX - 1; i >= 0; i -= 1) pfree.push(i);
+  for (let i = 0; i < PARTICLE_MAX; i += 1) {
+    const s = new Sprite(glowTex);
+    s.anchor.set(0.5);
+    s.blendMode = 'add';
+    s.visible = false;
+    fxLayer.addChild(s);
+    particleSprites.push(s);
+  }
+
+  function spawnParticle(
+    x: number,
+    y: number,
+    vx: number,
+    vy: number,
+    life: number,
+    s0: number,
+    s1: number,
+    tint: number,
+    ring: boolean,
+  ): void {
+    if (reduced) return;
+    const i = pfree.pop();
+    if (i === undefined) return;
+    px[i] = x;
+    py[i] = y;
+    pvx[i] = vx;
+    pvy[i] = vy;
+    plife[i] = life;
+    pmax[i] = life;
+    psize0[i] = s0;
+    psize1[i] = s1;
+    pring[i] = ring ? 1 : 0;
+    const s = particleSprites[i]!;
+    s.texture = ring ? ringTex : glowTex;
+    s.tint = tint;
+    s.visible = true;
+  }
+
+  function burst(x: number, y: number, n: number, speed: number, tint: number, size: number): void {
+    for (let k = 0; k < n; k += 1) {
+      const a = rand(0, Math.PI * 2);
+      const sp = rand(speed * 0.4, speed);
+      spawnParticle(
+        x,
+        y,
+        Math.cos(a) * sp,
+        Math.sin(a) * sp,
+        rand(0.3, 0.55),
+        size,
+        0,
+        tint,
+        false,
+      );
+    }
+  }
+
+  function updateParticles(dt: number): void {
+    for (let i = 0; i < PARTICLE_MAX; i += 1) {
+      const s = particleSprites[i]!;
+      if (!s.visible) continue;
+      plife[i] -= dt;
+      if (plife[i]! <= 0) {
+        s.visible = false;
+        pfree.push(i);
+        continue;
+      }
+      const t = 1 - plife[i]! / pmax[i]!;
+      px[i] += pvx[i]! * dt;
+      py[i] += pvy[i]! * dt;
+      pvx[i] *= 0.9;
+      pvy[i] *= 0.9;
+      const size = lerp(psize0[i]!, psize1[i]!, t);
+      s.position.set(px[i]!, py[i]!);
+      const base = pring[i] === 1 ? 96 : 48;
+      s.scale.set(size / base);
+      s.alpha = pring[i] === 1 ? 1 - t : 1 - t * t;
+    }
+  }
 
   // --- Game state ---
   const game = {
@@ -221,6 +540,11 @@ async function init(): Promise<void> {
     levelQueue: [] as number[],
     accumulator: 0,
     shake: 0,
+    zoom: 1,
+    flash: 0,
+    playerFlash: 0,
+    t: 0,
+    dtSec: 0,
   };
 
   // --- Input ---
@@ -320,6 +644,8 @@ async function init(): Promise<void> {
     game.levelQueue = [];
     game.accumulator = 0;
     game.shake = 0;
+    game.flash = 0;
+    game.zoom = 1;
     game.world = buildWorld();
     game.running = true;
     game.paused = false;
@@ -398,10 +724,45 @@ async function init(): Promise<void> {
   }
 
   function processEvents(): void {
-    if (!game.world) return;
-    for (const ev of game.world.events) {
-      if (ev.type === 'levelup') game.levelQueue.push(ev.level);
-      else if (ev.type === 'hit' && !reduced) game.shake = 12;
+    const w = game.world;
+    if (!w) return;
+    for (const ev of w.events) {
+      if (ev.type === 'levelup') {
+        game.levelQueue.push(ev.level);
+        spawnParticle(w.player.x, w.player.y, 0, 0, 0.6, 30, 240, COLOR_ACCENT2, true);
+        if (!reduced) game.zoom = 1.05;
+      } else if (ev.type === 'kill') {
+        if (ev.elite) {
+          burst(ev.x, ev.y, 22, 360, COLOR_ACCENT, 26);
+          spawnParticle(ev.x, ev.y, 0, 0, 0.5, 30, 220, COLOR_ACCENT, true);
+          if (!reduced) {
+            game.zoom = 1.06;
+            game.shake = 14;
+          }
+        } else {
+          burst(ev.x, ev.y, 6, 200, ev.color, 16);
+        }
+      } else if (ev.type === 'hit') {
+        if (!reduced) {
+          game.shake = 13;
+          game.flash = 0.42;
+          game.playerFlash = 0.22;
+        }
+      } else if (ev.type === 'pickup') {
+        spawnParticle(ev.x, ev.y, rand(-30, 30), rand(-70, -30), 0.4, 12, 0, COLOR_ACCENT2, false);
+      } else if (ev.type === 'shoot') {
+        spawnParticle(
+          ev.x + Math.cos(ev.angle) * 18,
+          ev.y + Math.sin(ev.angle) * 18,
+          Math.cos(ev.angle) * 60,
+          Math.sin(ev.angle) * 60,
+          0.18,
+          16,
+          0,
+          COLOR_WIN,
+          false,
+        );
+      }
     }
   }
 
@@ -467,6 +828,8 @@ async function init(): Promise<void> {
 
   // --- Main loop: fixed-step accumulator decoupled from render ---
   app.ticker.add((ticker) => {
+    game.dtSec = Math.min(ticker.deltaMS, 64) / 1000;
+    game.t += game.dtSec;
     const w = game.world;
     const simActive = game.running && !game.paused && game.overlay == null && w != null && !w.dead;
     if (simActive && w) {
@@ -500,29 +863,46 @@ async function init(): Promise<void> {
   function render(alpha: number): void {
     const w = game.world;
     if (!w) return;
-    const px = lerp(w.player.prevX, w.player.x, alpha);
-    const py = lerp(w.player.prevY, w.player.y, alpha);
-    let camX = app.screen.width / 2 - px;
-    let camY = app.screen.height / 2 - py;
+    const dt = game.dtSec;
+    const pxr = lerp(w.player.prevX, w.player.x, alpha);
+    const pyr = lerp(w.player.prevY, w.player.y, alpha);
+
+    // Camera: follow player, ease zoom-punch back to 1, decay shake.
+    game.zoom += (1 - game.zoom) * Math.min(1, dt * 6);
+    let camX = -pxr;
+    let camY = -pyr;
     if (game.shake > 0.3) {
       camX += (Math.random() - 0.5) * game.shake;
       camY += (Math.random() - 0.5) * game.shake;
-      game.shake *= 0.85;
+      game.shake *= 0.86;
     } else {
       game.shake = 0;
     }
-    camera.position.set(camX, camY);
-    playerNode.position.set(px, py);
+    camera.scale.set(game.zoom);
+    camera.position.set(
+      app.screen.width / 2 + camX * game.zoom,
+      app.screen.height / 2 + camY * game.zoom,
+    );
+
+    // Player: idle bob + hit flash.
+    const bob = reduced ? 0 : Math.sin(game.t * 4) * 1.6;
+    bishopSprite.position.set(0, bob);
+    if (game.playerFlash > 0) {
+      game.playerFlash -= dt;
+      bishopSprite.tint = COLOR_LOSS;
+    } else {
+      bishopSprite.tint = 0xffffff;
+    }
+    playerGlow.alpha = reduced ? 0.5 : 0.5 + Math.sin(game.t * 3) * 0.12;
+    playerNode.position.set(pxr, pyr);
 
     const ea = w.enemies.pool.active;
     for (let i = 0; i < ea.length; i += 1) {
       const s = enemySprites[i]!;
       if (ea[i] === 1) {
-        const a = ALL_ARCHETYPES[w.enemies.type[i]!]!;
-        s.texture = shapeTex[a.shape];
-        s.tint = a.color;
-        const sc = w.enemies.radius[i]! / ENEMY_REF;
-        s.scale.set(sc);
+        const type = w.enemies.type[i]!;
+        s.texture = archetypeTex[type]!;
+        s.scale.set((w.enemies.radius[i]! * ENEMY_VIS) / PIECE_R);
         s.position.set(
           lerp(w.enemies.prevX[i]!, w.enemies.x[i]!, alpha),
           lerp(w.enemies.prevY[i]!, w.enemies.y[i]!, alpha),
@@ -537,7 +917,9 @@ async function init(): Promise<void> {
     for (let i = 0; i < pa.length; i += 1) {
       const s = projSprites[i]!;
       if (pa[i] === 1) {
-        s.scale.set(w.projectiles.radius[i]! / PROJ_REF);
+        const sc = w.projectiles.radius[i]! / PROJ_REF;
+        s.rotation = Math.atan2(w.projectiles.vy[i]!, w.projectiles.vx[i]!);
+        s.scale.set(reduced ? sc : sc * 1.5, sc);
         s.position.set(
           lerp(w.projectiles.prevX[i]!, w.projectiles.x[i]!, alpha),
           lerp(w.projectiles.prevY[i]!, w.projectiles.y[i]!, alpha),
@@ -552,6 +934,9 @@ async function init(): Promise<void> {
     for (let i = 0; i < ga.length; i += 1) {
       const s = gemSprites[i]!;
       if (ga[i] === 1) {
+        const pulse = reduced ? 1 : 1 + Math.sin(game.t * 5 + i) * 0.12;
+        s.scale.set(pulse);
+        if (!reduced) s.rotation = game.t * 1.5;
         s.position.set(
           lerp(w.gems.prevX[i]!, w.gems.x[i]!, alpha),
           lerp(w.gems.prevY[i]!, w.gems.y[i]!, alpha),
@@ -561,6 +946,21 @@ async function init(): Promise<void> {
         s.visible = false;
       }
     }
+
+    updateParticles(dt);
+
+    // Screen overlays (sized to the viewport each frame).
+    const W = app.screen.width;
+    const H = app.screen.height;
+    const diag = Math.hypot(W, H) * 1.05;
+    vignette.position.set(W / 2, H / 2);
+    vignette.width = diag;
+    vignette.height = diag;
+    if (game.flash > 0) game.flash -= dt;
+    hitFlash.position.set(W / 2, H / 2);
+    hitFlash.width = diag;
+    hitFlash.height = diag;
+    hitFlash.alpha = Math.max(0, game.flash);
   }
 
   function updateHud(): void {

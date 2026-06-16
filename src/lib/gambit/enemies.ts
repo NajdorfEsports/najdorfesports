@@ -21,7 +21,7 @@ export const ARCHETYPES: EnemyArchetype[] = [
     radius: 13,
     contactDamage: 6,
     gemValue: 1,
-    color: 0x8a8f98,
+    color: 0xb9c2d6,
     shape: 'triangle',
   },
   {

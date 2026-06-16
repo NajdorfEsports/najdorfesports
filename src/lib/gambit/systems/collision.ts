@@ -6,6 +6,7 @@
  * caller stops stepping.
  */
 import { MAGNET_SPEED, PLAYER_IFRAME } from '../constants';
+import { ALL_ARCHETYPES } from '../enemies';
 import type { World } from '../types';
 import { addXp } from './progression';
 
@@ -54,6 +55,7 @@ export function updateCollision(world: World, dt: number): void {
           x: enemies.x[j]!,
           y: enemies.y[j]!,
           elite: enemies.elite[j] === 1,
+          color: ALL_ARCHETYPES[enemies.type[j]!]!.color,
         });
         player.kills += 1;
         enemies.pool.kill(j);
@@ -103,7 +105,7 @@ export function updateCollision(world: World, dt: number): void {
     const d = Math.hypot(dx, dy);
     if (d <= pickupR) {
       addXp(player, gems.value[i]!, events);
-      events.push({ type: 'pickup', value: gems.value[i]! });
+      events.push({ type: 'pickup', value: gems.value[i]!, x: player.x, y: player.y });
       gems.pool.kill(i);
     } else if (d <= magnetR && d > 0) {
       const m = (MAGNET_SPEED * dt) / d;
