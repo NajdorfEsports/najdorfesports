@@ -15,6 +15,12 @@
  * step-derived), and the loop clamps + caps catch-up so a backgrounded tab can
  * never spiral.
  */
+// CRITICAL: this side-effecting import swaps PixiJS v8's `new Function`-based
+// uniform/shader/UBO/particle code generation for non-eval polyfills. Without
+// it, app.init() throws under the site CSP (script-src 'self', no
+// 'unsafe-eval') and the canvas never boots. Must load before `Application`.
+// Do not remove without relaxing the CSP (which we do not want to do).
+import 'pixi.js/unsafe-eval';
 import { Application, Container, Graphics, Sprite, type Texture } from 'pixi.js';
 import {
   ARENA_HALF,
