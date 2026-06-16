@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import GambitPageBody from '../../../components/page/GambitPageBody.astro';
+import { useT, getLocale } from '../../../i18n';
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+---
+
+<BaseLayout title={t.pageMeta.gambitTitle} description={t.pageMeta.gambitDescription}>
+  <GambitPageBody />
+</BaseLayout>

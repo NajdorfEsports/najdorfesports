@@ -71,6 +71,10 @@ export const zhTW: Strings = {
     owdleTitle: 'OWdle：每日 Overwatch 猜英雄遊戲',
     owdleDescription:
       '從定位、出身、生命值、攻擊類型等線索猜出隱藏的《鬥陣特攻》英雄。Najdorf Esports 的免費每日遊戲，無廣告、無追蹤。',
+    // DRAFT PENDING RIRI NATIVE REVIEW (Gambit meta)
+    gambitTitle: 'Gambit：每日生存 Roguelite',
+    gambitDescription:
+      'Gambit 是 Najdorf Esports 推出的免費西洋棋主題生存 Roguelite。撐過敵潮、升級並打造你的 build。每日新的固定種子對局，無廣告、無追蹤。',
   },
 
   news: {
@@ -454,7 +458,7 @@ export const zhTW: Strings = {
     hub: {
       eyebrow: '遊戲',
       heading: '遊戲',
-      sub: '來自戰隊的每日《鬥陣特攻》小遊戲。免費遊玩，無廣告，不追蹤。',
+      sub: '來自戰隊的每日小遊戲。免費遊玩，無廣告，不追蹤。',
       crosswordTitle: '每日迷你填字',
       crosswordDesc:
         '一份輕巧的《鬥陣特攻》填字遊戲：英雄、地圖、術語與電競歷史。三種難度，每天更新。',
@@ -466,6 +470,12 @@ export const zhTW: Strings = {
         '猜出今天的隱藏《鬥陣特攻》英雄。每次猜測會比對七項屬性：定位、出身、生命值、推出年份等。每天一位英雄，全球同題。',
       owdleCta: '猜今天的英雄',
       newHeroDaily: '每日新英雄',
+      // DRAFT PENDING RIRI NATIVE REVIEW (Gambit hub card)
+      gambitTitle: 'Gambit',
+      gambitDesc:
+        '以西洋棋為主題的生存類 Roguelite。在棋盤上撐過敵潮、升級並打造你的 build。每日一局固定種子，人人相同。',
+      gambitCta: '開始遊戲',
+      newDailyRun: '每日新對局',
     },
     crossword: {
       eyebrow: '每日遊戲',
@@ -588,6 +598,71 @@ export const zhTW: Strings = {
       disclaimer:
         'This is an unofficial fan-made game. It is not affiliated with, endorsed by, or sponsored by Blizzard Entertainment. Overwatch is a trademark of Blizzard Entertainment, Inc. All hero names and related facts are the property of their respective owners.',
       dataCredit: '英雄資料來自社群 OverFast API，並輔以人工整理。',
+    },
+
+    // DRAFT PENDING RIRI NATIVE REVIEW (Gambit game)
+    gambit: {
+      eyebrow: '每日遊戲',
+      heading: 'Gambit',
+      intro:
+        '以西洋棋為主題的生存類 Roguelite。在棋盤上撐過敵潮、升級並打造你的 build。每日一局固定種子，人人相同。',
+      noJsNotice:
+        '本遊戲需要 JavaScript，完全在你的瀏覽器內執行；不會傳送任何資料，只有最佳時間與升級會儲存在這台裝置上。',
+      controlsHint: '使用 WASD 或方向鍵移動。觸控時於畫面任意處拖曳即可移動。武器會自動開火。',
+      playLabel: '開始遊戲',
+      retryLabel: '再玩一次',
+      backLabel: '返回',
+      dailyLabel: '每日一局',
+      bestLabel: '最佳',
+      noBest: '尚無紀錄',
+      standardLabel: '標準模式',
+      standardHint: '關閉永久升級：純技術對局。',
+      currencyLabel: '碎片',
+      shopHeading: '永久升級',
+      shopHint: '花費對局獲得的碎片。這些只會降低下限，永不提高上限：每一局不靠升級也能取勝。',
+      buyLabel: '購買',
+      maxedLabel: '已滿級',
+      pauseLabel: '暫停',
+      resumeLabel: '繼續',
+      pausedHeading: '已暫停',
+      giveUpLabel: '結束對局',
+      levelUpHeading: '升級',
+      levelUpSub: '擇一',
+      hudLevel: '等級',
+      hudKills: '擊倒',
+      overHeading: '對局結束',
+      survivedLabel: '存活',
+      levelReachedLabel: '達到等級',
+      killsLabel: '擊倒',
+      earnedLabel: '獲得碎片',
+      newBest: '最佳時間更新！',
+      nextLabel: '下一局倒數',
+      howToHeading: '玩法',
+      howTo1: '移動以閃避。武器會自動朝最近的敵人開火。盡可能撐久一點。',
+      howTo2: '被擊倒的敵人會掉落經驗碎片。收集以升級，再從三個升級中擇一，打造你的 build。',
+      howTo3:
+        '難度全程持續攀升，因此強力升級換來的是時間而非安全。每日新的固定種子對局於美東午夜更新。',
+      howTo4: '最佳時間與永久升級僅儲存在此瀏覽器，永不離開你的裝置。',
+      disclaimer:
+        'Gambit 是 Najdorf Esports 原創的遊戲，與任何其他遊戲均無隸屬、背書或衍生關係；所有名稱、角色與美術皆為原創。',
+      upgrades: {
+        damage: { name: '利刃', desc: '弩矢造成更多傷害。' },
+        firerate: { name: '疾發', desc: '更頻繁地發射弩矢。' },
+        multishot: { name: '分裂矢', desc: '額外發射一支弩矢。' },
+        pierce: { name: '穿刺', desc: '弩矢可多貫穿一名敵人。' },
+        area: { name: '重矢', desc: '更大、更具威力的弩矢。' },
+        velocity: { name: '疾飛', desc: '弩矢飛行更快。' },
+        swift: { name: '疾步', desc: '移動更快。' },
+        magnet: { name: '廣納', desc: '從更遠處吸取碎片。' },
+        fortify: { name: '強化', desc: '提升生命上限並回復。' },
+        regen: { name: '癒合', desc: '隨時間緩慢回復生命。' },
+      },
+      powerups: {
+        might: { name: '威力', desc: '每局開始時擁有更多傷害。' },
+        vigor: { name: '活力', desc: '每局開始時擁有更多生命。' },
+        haste: { name: '迅捷', desc: '每局開始時移動更快。' },
+        greed: { name: '貪婪', desc: '每局開始時從更遠處吸取碎片。' },
+      },
     },
   },
 

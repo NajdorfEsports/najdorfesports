@@ -40,6 +40,7 @@
     "@astrojs/sitemap": "^3.7.3",
     "@tailwindcss/vite": "^4.1.0",
     "astro": "^6.4.6",
+    "pixi.js": "^8.19.0",
     "tailwindcss": "^4.1.0"
   },
   "devDependencies": {

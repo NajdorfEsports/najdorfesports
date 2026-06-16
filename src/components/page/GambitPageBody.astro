@@ -1,0 +1,506 @@
+---
+/**
+ * Gambit, the chess-motif survivor roguelite (/games/gambit/), shared by all
+ * three locales. Same architecture as OWdle/crossword: everything that can be
+ * server-rendered is (heading, how-to, the start/level-up/pause/over overlays,
+ * the PowerUps shop, the disclaimer), all localized through useT. The engine
+ * (src/scripts/gambit.ts, a processed module, CSP-clean) mounts a PixiJS canvas
+ * into the hidden shell and carries the whole simulation in its bundle, so the
+ * page makes zero runtime requests.
+ *
+ * No-JS doctrine: the fallback notice, how-to, and disclaimer render by default;
+ * the interactive shell starts [hidden] and is revealed BY the engine once Pixi
+ * boots (the OWdle inverse-reveal). A blocked script never strands content.
+ *
+ * IP posture: 100% original (chess motif, original names/art); the disclaimer
+ * states it is not affiliated with or based on any other game.
+ */
+import SectionHeader from '../ui/SectionHeader.astro';
+import { getLocale, useT } from '../../i18n';
+import { POWERUPS } from '../../lib/gambit/powerups';
+
+const locale = getLocale(Astro);
+const t = useT(locale);
+const c = t.games.gambit;
+
+// Strings the engine needs at runtime (level-up card names + a few labels).
+const l10n = {
+  upgrades: c.upgrades,
+  buy: c.buyLabel,
+  maxed: c.maxedLabel,
+  newBest: c.newBest,
+};
+---
+
+<section class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 pt-10 pb-16">
+  <SectionHeader heading={c.heading} eyebrow={c.eyebrow} level="h1" />
+  <p class="mt-4 max-w-2xl text-[var(--color-text-dim)]">{c.intro}</p>
+
+  <div id="gambit-app" data-l10n={JSON.stringify(l10n)}>
+    {/* Visible until the engine boots (no-JS or a blocked script). */}
+    <div
+      class="mt-8 max-w-2xl rounded border border-[var(--color-border)] bg-[var(--color-surface)] p-4 text-sm text-[var(--color-text-dim)]"
+      data-gg-fallback
+    >
+      {c.noJsNotice}
+    </div>
+
+    <div class="mt-8" hidden data-gg-ui>
+      <div
+        class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-[var(--color-text-dim)] tabular-nums"
+      >
+        <span>{c.dailyLabel} <span data-gg-daynum>#--</span></span>
+        <span>{c.bestLabel}: <span data-gg-best>{c.noBest}</span></span>
+        <span>{c.nextLabel}: <span data-gg-countdown>--:--:--</span></span>
+      </div>
+
+      <div class="gg-stage mt-3" data-gg-stage>
+        {/* HUD overlay (shown while playing). */}
+        <div class="gg-hud" hidden data-gg-hud>
+          <div class="gg-hud-top">
+            <span class="gg-hud-time tabular-nums" data-gg-time>0:00</span>
+            <span class="gg-hud-stat">{c.hudLevel} <b data-gg-level>1</b></span>
+            <span class="gg-hud-stat">{c.hudKills} <b data-gg-kills>0</b></span>
+            <button type="button" class="gg-btn gg-btn-sm" data-gg-pause>{c.pauseLabel}</button>
+          </div>
+          <div class="gg-bars">
+            <div class="gg-bar gg-bar-hp"><span data-gg-hp style="width:100%"></span></div>
+            <div class="gg-bar gg-bar-xp"><span data-gg-xp style="width:0%"></span></div>
+          </div>
+        </div>
+
+        {/* Start overlay. */}
+        <div class="gg-overlay" data-gg-start>
+          <div class="gg-panel">
+            <button type="button" class="gg-btn gg-btn-primary gg-btn-lg" data-gg-play>
+              {c.playLabel}
+            </button>
+            <button
+              type="button"
+              class="gg-toggle"
+              aria-pressed="false"
+              data-gg-standard
+              title={c.standardHint}
+            >
+              {c.standardLabel}
+            </button>
+            <p class="gg-hint">{c.controlsHint}</p>
+
+            <div class="gg-shop">
+              <h2 class="gg-shop-head">
+                {c.shopHeading}
+                <span class="gg-cost" data-gg-currency>◆ 0</span>
+              </h2>
+              <p class="gg-shop-hint">{c.shopHint}</p>
+              <div class="gg-shop-grid">
+                {
+                  POWERUPS.map((pu) => (
+                    <div class="gg-shop-row">
+                      <div class="gg-shop-info">
+                        <span class="gg-shop-name">
+                          {c.powerups[pu.id as keyof typeof c.powerups].name}
+                          <span class="gg-shop-lvl" data-gg-pu-level={pu.id}>
+                            0/{pu.maxLevel}
+                          </span>
+                        </span>
+                        <span class="gg-shop-desc">
+                          {c.powerups[pu.id as keyof typeof c.powerups].desc}
+                        </span>
+                      </div>
+                      <button type="button" class="gg-btn gg-btn-sm" data-gg-pu-buy={pu.id}>
+                        {c.buyLabel}{' '}
+                        <span class="gg-cost" data-gg-pu-cost={pu.id}>
+                          ◆ --
+                        </span>
+                      </button>
+                    </div>
+                  ))
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Level-up overlay. */}
+        <div class="gg-overlay" hidden data-gg-levelup>
+          <div class="gg-panel">
+            <p class="gg-overlay-head">{c.levelUpHeading}</p>
+            <p class="gg-overlay-sub">{c.levelUpSub}</p>
+            <div class="gg-cards" data-gg-cards></div>
+          </div>
+        </div>
+
+        {/* Pause overlay. */}
+        <div class="gg-overlay" hidden data-gg-pausescreen>
+          <div class="gg-panel">
+            <p class="gg-overlay-head">{c.pausedHeading}</p>
+            <div class="gg-row">
+              <button type="button" class="gg-btn gg-btn-primary" data-gg-resume>
+                {c.resumeLabel}
+              </button>
+              <button type="button" class="gg-btn" data-gg-end>{c.giveUpLabel}</button>
+            </div>
+          </div>
+        </div>
+
+        {/* Run-over summary. */}
+        <div class="gg-overlay" hidden data-gg-over>
+          <div class="gg-panel">
+            <p class="gg-overlay-head">{c.overHeading}</p>
+            <p class="gg-newbest" hidden data-gg-newbest>{c.newBest}</p>
+            <dl class="gg-summary tabular-nums">
+              <div><dt>{c.survivedLabel}</dt><dd data-gg-r-time>0:00</dd></div>
+              <div><dt>{c.levelReachedLabel}</dt><dd data-gg-r-level>1</dd></div>
+              <div><dt>{c.killsLabel}</dt><dd data-gg-r-kills>0</dd></div>
+              <div><dt>{c.earnedLabel}</dt><dd data-gg-r-earned>0</dd></div>
+            </dl>
+            <div class="gg-row">
+              <button type="button" class="gg-btn gg-btn-primary" data-gg-retry>
+                {c.retryLabel}
+              </button>
+              <button type="button" class="gg-btn" data-gg-back>{c.backLabel}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="mt-12 max-w-2xl">
+    <h2 class="font-display text-xl tracking-wide">{c.howToHeading}</h2>
+    <ul class="mt-3 space-y-2 text-sm leading-relaxed text-[var(--color-text-dim)]">
+      <li>{c.howTo1}</li>
+      <li>{c.howTo2}</li>
+      <li>{c.howTo3}</li>
+      <li>{c.howTo4}</li>
+    </ul>
+  </section>
+
+  <footer class="mt-12 max-w-2xl border-t border-[var(--color-border)] pt-4">
+    <p class="text-xs leading-relaxed text-[var(--color-text-dim)]">{c.disclaimer}</p>
+  </footer>
+</section>
+
+<style>
+  .gg-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    max-height: 72vh;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    background: var(--color-bg);
+    box-shadow: var(--shadow-card);
+    touch-action: none;
+  }
+  .gg-stage :global(canvas) {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .gg-hud {
+    position: absolute;
+    inset: 0 0 auto 0;
+    z-index: 2;
+    padding: 0.625rem 0.75rem;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgb(0 0 0 / 0.45), transparent);
+  }
+  .gg-hud-top {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--color-text);
+  }
+  .gg-hud-time {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    letter-spacing: 0.03em;
+  }
+  .gg-hud-stat {
+    color: var(--color-text-dim);
+  }
+  .gg-hud-stat b {
+    color: var(--color-text);
+    font-weight: 700;
+  }
+  .gg-hud-top .gg-btn {
+    margin-left: auto;
+    pointer-events: auto;
+  }
+  .gg-bars {
+    margin-top: 0.5rem;
+    display: grid;
+    gap: 0.25rem;
+  }
+  .gg-bar {
+    height: 0.5rem;
+    border-radius: 0.25rem;
+    background: color-mix(in oklab, var(--color-surface-2) 80%, transparent);
+    overflow: hidden;
+  }
+  .gg-bar span {
+    display: block;
+    height: 100%;
+    transition: width 120ms linear;
+  }
+  .gg-bar-hp span {
+    background: linear-gradient(
+      90deg,
+      var(--color-win),
+      color-mix(in oklab, var(--color-win) 60%, var(--color-accent))
+    );
+  }
+  .gg-bar-xp span {
+    background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
+  }
+
+  .gg-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: color-mix(in srgb, var(--color-bg) 72%, transparent);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    overflow-y: auto;
+  }
+  .gg-panel {
+    width: 100%;
+    max-width: 30rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: center;
+  }
+  .gg-overlay-head {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    letter-spacing: 0.03em;
+    color: var(--color-text);
+  }
+  .gg-overlay-sub {
+    font-size: 0.875rem;
+    color: var(--color-text-dim);
+    margin-top: -0.5rem;
+  }
+  .gg-hint {
+    font-size: 0.8125rem;
+    color: var(--color-text-dim);
+    max-width: 26rem;
+  }
+  .gg-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .gg-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.875rem;
+    min-height: 2.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-text-dim);
+    background: var(--color-surface);
+    cursor: pointer;
+    transition:
+      color 120ms ease-out,
+      border-color 120ms ease-out,
+      transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .gg-btn:hover {
+    color: var(--color-text);
+    border-color: var(--color-accent-2);
+  }
+  .gg-btn:active {
+    transform: translateY(1px);
+  }
+  .gg-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+  .gg-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  .gg-btn-primary {
+    color: var(--color-text);
+    border-color: var(--color-accent);
+    background: color-mix(in oklab, var(--color-accent) 22%, var(--color-surface));
+  }
+  .gg-btn-lg {
+    min-height: 3rem;
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+  }
+  .gg-btn-sm {
+    min-height: 2.25rem;
+    padding: 0.375rem 0.625rem;
+    font-size: 0.75rem;
+  }
+  .gg-cost {
+    color: var(--color-accent-2);
+    font-weight: 700;
+  }
+
+  .gg-toggle {
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.375rem 0.875rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-dim);
+    background: var(--color-surface);
+    cursor: pointer;
+  }
+  .gg-toggle[aria-pressed='true'] {
+    border-color: var(--color-accent);
+    color: var(--color-accent-2);
+    background: color-mix(in oklab, var(--color-accent) 14%, var(--color-surface));
+  }
+
+  .gg-shop {
+    width: 100%;
+    margin-top: 0.5rem;
+    text-align: left;
+  }
+  .gg-shop-head {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    letter-spacing: 0.03em;
+    color: var(--color-text);
+  }
+  .gg-shop-hint {
+    margin-top: 0.25rem;
+    font-size: 0.6875rem;
+    color: var(--color-text-dim);
+  }
+  .gg-shop-grid {
+    margin-top: 0.5rem;
+    display: grid;
+    gap: 0.375rem;
+  }
+  .gg-shop-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.625rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    background: color-mix(in oklab, var(--color-surface) 80%, transparent);
+  }
+  .gg-shop-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .gg-shop-name {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .gg-shop-lvl {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-text-dim);
+  }
+  .gg-shop-desc {
+    font-size: 0.6875rem;
+    color: var(--color-text-dim);
+  }
+
+  .gg-cards {
+    display: grid;
+    gap: 0.625rem;
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 640px) {
+    .gg-cards {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .gg-cards :global(.gg-card) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    background: var(--color-surface);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      border-color 120ms ease-out,
+      transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .gg-cards :global(.gg-card:hover) {
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+  }
+  .gg-cards :global(.gg-card:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  .gg-cards :global(.gg-card-name) {
+    font-weight: 700;
+    color: var(--color-text);
+    font-size: 0.875rem;
+  }
+  .gg-cards :global(.gg-card-desc) {
+    font-size: 0.75rem;
+    color: var(--color-text-dim);
+  }
+
+  .gg-newbest {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--color-win);
+  }
+  .gg-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem 1.5rem;
+    width: 100%;
+    max-width: 22rem;
+  }
+  .gg-summary div {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+  }
+  .gg-summary dt {
+    color: var(--color-text-dim);
+  }
+  .gg-summary dd {
+    font-weight: 700;
+    color: var(--color-text);
+  }
+</style>
+
+<script>
+  // Engine: PixiJS canvas, fixed-step sim, input, HUD, overlays, localStorage.
+  // Processed module (bundled to /_astro/*), keeping the no-inline-JS CSP.
+  import '../../scripts/gambit.ts';
+</script>

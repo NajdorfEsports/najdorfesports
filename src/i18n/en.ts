@@ -67,6 +67,9 @@ export const en = {
     owdleTitle: 'OWdle: Daily Overwatch Hero Guessing Game',
     owdleDescription:
       'Guess the secret Overwatch hero from attribute clues: role, origin, HP, attack type, and more. A free daily game from Najdorf Esports, no ads, no tracking.',
+    gambitTitle: 'Gambit: Daily Survivor Roguelite',
+    gambitDescription:
+      'Gambit is a free chess-motif survivor roguelite from Najdorf Esports. Outlast the swarm, level up, and build your run. A new seeded daily, no ads, no tracking.',
   },
 
   /** News index + article chrome. Article bodies are per-locale markdown
@@ -526,7 +529,7 @@ export const en = {
     hub: {
       eyebrow: 'Games',
       heading: 'Games',
-      sub: 'Daily Overwatch games from the org. Free, no ads, nothing tracked.',
+      sub: 'Daily games from the org. Free, no ads, nothing tracked.',
       crosswordTitle: 'Daily Mini Crossword',
       crosswordDesc:
         'A bite-size Overwatch crossword: heroes, maps, callouts, and esports history. Three difficulties, a fresh grid every day.',
@@ -537,6 +540,11 @@ export const en = {
         'Guess the secret Overwatch hero. Every guess grades seven attributes, from role and origin to HP and release year. One hero a day, same for everyone.',
       owdleCta: "Guess today's hero",
       newHeroDaily: 'New hero daily',
+      gambitTitle: 'Gambit',
+      gambitDesc:
+        'A chess-motif survivor roguelite. Outlast the swarm on the board, level up, and build your run. One seeded daily, the same for everyone.',
+      gambitCta: 'Start a run',
+      newDailyRun: 'New run daily',
     },
     crossword: {
       eyebrow: 'Daily game',
@@ -663,6 +671,79 @@ export const en = {
       disclaimer:
         'This is an unofficial fan-made game. It is not affiliated with, endorsed by, or sponsored by Blizzard Entertainment. Overwatch is a trademark of Blizzard Entertainment, Inc. All hero names and related facts are the property of their respective owners.',
       dataCredit: 'Hero data via the community OverFast API, with hand-curated additions.',
+    },
+
+    /** /games/gambit/, the chess-motif survivor roguelite. The engine
+     *  (src/scripts/gambit.ts) reads the upgrade name+desc map and a few
+     *  dynamic labels via data-l10n; the rest is server-rendered here. All
+     *  original: no Blizzard-derived names, art, or content. */
+    gambit: {
+      eyebrow: 'Daily game',
+      heading: 'Gambit',
+      intro:
+        'A chess-motif survivor roguelite. Outlast the swarm on the board, level up, and build your run. One seeded daily, the same for everyone.',
+      noJsNotice:
+        'This game needs JavaScript. It runs entirely in your browser; nothing is sent anywhere, and only your best time and upgrades are saved on this device.',
+      controlsHint:
+        'Move with WASD or the arrow keys. On touch, drag anywhere to move. Your weapon fires on its own.',
+      playLabel: 'Start run',
+      retryLabel: 'Play again',
+      backLabel: 'Back',
+      dailyLabel: 'Daily run',
+      bestLabel: 'Best',
+      noBest: 'None yet',
+      standardLabel: 'Standard run',
+      standardHint: 'Permanent upgrades off: a pure skill run.',
+      currencyLabel: 'Shards',
+      shopHeading: 'Permanent upgrades',
+      shopHint:
+        'Spend shards earned from runs. These lower the floor, never the ceiling: every run is winnable with none.',
+      buyLabel: 'Buy',
+      maxedLabel: 'Maxed',
+      pauseLabel: 'Pause',
+      resumeLabel: 'Resume',
+      pausedHeading: 'Paused',
+      giveUpLabel: 'End run',
+      levelUpHeading: 'Level up',
+      levelUpSub: 'Choose one',
+      hudLevel: 'Lv',
+      hudKills: 'Kills',
+      overHeading: 'Run over',
+      survivedLabel: 'Survived',
+      levelReachedLabel: 'Level reached',
+      killsLabel: 'Defeated',
+      earnedLabel: 'Shards earned',
+      newBest: 'New best time!',
+      nextLabel: 'Next daily in',
+      howToHeading: 'How to play',
+      howTo1:
+        'Move to dodge. Your weapon auto-fires at the nearest foe. Survive as long as you can.',
+      howTo2:
+        'Defeated foes drop shards of experience. Collect them to level up, then pick one of three upgrades to shape your run.',
+      howTo3:
+        'Difficulty climbs the whole run, so a strong upgrade buys time, not safety. A new seeded run lands daily at midnight US Eastern.',
+      howTo4:
+        'Best time and permanent upgrades are stored only in this browser and never leave your device.',
+      disclaimer:
+        'Gambit is an original game made by Najdorf Esports. It is not affiliated with, endorsed by, or based on any other game; all names, characters, and art are original.',
+      upgrades: {
+        damage: { name: 'Sharpened Edge', desc: 'Bolts deal more damage.' },
+        firerate: { name: 'Quickening', desc: 'Fire bolts more often.' },
+        multishot: { name: 'Split Bolt', desc: 'Fire an additional bolt.' },
+        pierce: { name: 'Piercing Tip', desc: 'Bolts pass through one more foe.' },
+        area: { name: 'Heavy Bolt', desc: 'Bigger, harder-hitting bolts.' },
+        velocity: { name: 'True Flight', desc: 'Bolts travel faster.' },
+        swift: { name: 'Fleet Step', desc: 'Move faster.' },
+        magnet: { name: 'Wider Reach', desc: 'Draw in shards from farther away.' },
+        fortify: { name: 'Reinforce', desc: 'Raise maximum health and heal.' },
+        regen: { name: 'Mending', desc: 'Slowly recover health over time.' },
+      },
+      powerups: {
+        might: { name: 'Might', desc: 'Begin every run with more damage.' },
+        vigor: { name: 'Vigor', desc: 'Begin every run with more health.' },
+        haste: { name: 'Haste', desc: 'Begin every run moving faster.' },
+        greed: { name: 'Greed', desc: 'Begin every run drawing shards from farther.' },
+      },
     },
   },
 
