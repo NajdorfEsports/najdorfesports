@@ -18,17 +18,21 @@
 import SectionHeader from '../ui/SectionHeader.astro';
 import { getLocale, useT } from '../../i18n';
 import { POWERUPS } from '../../lib/gambit/powerups';
+import { HEROES } from '../../lib/gambit/heroes';
 
 const locale = getLocale(Astro);
 const t = useT(locale);
 const c = t.games.gambit;
+const heroList = Object.values(HEROES);
 
 // Strings the engine needs at runtime (level-up card names + a few labels).
 const l10n = {
   upgrades: c.upgrades,
+  heroes: c.heroes,
   buy: c.buyLabel,
   maxed: c.maxedLabel,
   newBest: c.newBest,
+  unlockHeading: c.unlockHeading,
 };
 ---
 
@@ -55,6 +59,34 @@ const l10n = {
       </div>
 
       <div class="gg-stage mt-3" data-gg-stage>
+        {/* Always-on view controls (zoom + fullscreen). */}
+        <div class="gg-controls">
+          <button
+            type="button"
+            class="gg-iconbtn"
+            data-gg-zoomout
+            aria-label={c.zoomOutLabel}
+            title={c.zoomOutLabel}>&minus;</button
+          >
+          <button
+            type="button"
+            class="gg-iconbtn"
+            data-gg-zoomin
+            aria-label={c.zoomInLabel}
+            title={c.zoomInLabel}>+</button
+          >
+          <button
+            type="button"
+            class="gg-iconbtn"
+            data-gg-fullscreen
+            aria-label={c.fullscreenLabel}
+            title={c.fullscreenLabel}>&#x26F6;</button
+          >
+        </div>
+
+        {/* Reaper telegraph banner. */}
+        <div class="gg-warn" hidden data-gg-warn>{c.reaperWarning}</div>
+
         {/* HUD overlay (shown while playing). */}
         <div class="gg-hud" hidden data-gg-hud>
           <div class="gg-hud-top">
@@ -72,6 +104,23 @@ const l10n = {
         {/* Start overlay. */}
         <div class="gg-overlay" data-gg-start>
           <div class="gg-panel">
+            <div class="gg-heroes">
+              <span class="gg-heroes-label">{c.heroLabel}</span>
+              <div class="gg-heroes-row">
+                {
+                  heroList.map((h) => (
+                    <button
+                      type="button"
+                      class="gg-hero"
+                      data-gg-hero={h.id}
+                      title={c.heroes[h.id as keyof typeof c.heroes].desc}
+                    >
+                      {c.heroes[h.id as keyof typeof c.heroes].name}
+                    </button>
+                  ))
+                }
+              </div>
+            </div>
             <button type="button" class="gg-btn gg-btn-primary gg-btn-lg" data-gg-play>
               {c.playLabel}
             </button>
@@ -143,10 +192,26 @@ const l10n = {
           </div>
         </div>
 
+        {/* Victory overlay (20-minute survival). */}
+        <div class="gg-overlay" hidden data-gg-win>
+          <div class="gg-panel">
+            <p class="gg-overlay-head gg-win-head">{c.winHeading}</p>
+            <p class="gg-hint">{c.winBody}</p>
+            <p class="gg-unlock" hidden data-gg-unlock></p>
+            <div class="gg-row">
+              <button type="button" class="gg-btn gg-btn-primary" data-gg-continue>
+                {c.continueLabel}
+              </button>
+              <button type="button" class="gg-btn" data-gg-finish>{c.finishLabel}</button>
+            </div>
+          </div>
+        </div>
+
         {/* Run-over summary. */}
         <div class="gg-overlay" hidden data-gg-over>
           <div class="gg-panel">
             <p class="gg-overlay-head">{c.overHeading}</p>
+            <p class="gg-victory" hidden data-gg-victory>{c.victoryLabel}</p>
             <p class="gg-newbest" hidden data-gg-newbest>{c.newBest}</p>
             <dl class="gg-summary tabular-nums">
               <div><dt>{c.survivedLabel}</dt><dd data-gg-r-time>0:00</dd></div>
@@ -185,14 +250,24 @@ const l10n = {
   .gg-stage {
     position: relative;
     width: 100%;
-    aspect-ratio: 16 / 10;
-    max-height: 72vh;
+    aspect-ratio: 16 / 9;
+    max-height: 82vh;
+    min-height: 24rem;
     overflow: hidden;
     border: 1px solid var(--color-border);
     border-radius: 0.75rem;
     background: var(--color-bg);
     box-shadow: var(--shadow-card);
     touch-action: none;
+  }
+  .gg-stage:fullscreen {
+    aspect-ratio: auto;
+    max-height: none;
+    min-height: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    border: 0;
   }
   .gg-stage :global(canvas) {
     position: absolute;
@@ -496,6 +571,127 @@ const l10n = {
   .gg-summary dd {
     font-weight: 700;
     color: var(--color-text);
+  }
+
+  /* View controls (zoom + fullscreen), always on, top-right of the stage. */
+  .gg-controls {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 4;
+    display: flex;
+    gap: 0.25rem;
+  }
+  .gg-iconbtn {
+    width: 2rem;
+    height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border);
+    border-radius: 0.375rem;
+    background: color-mix(in srgb, var(--color-surface) 80%, transparent);
+    color: var(--color-text-dim);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .gg-iconbtn:hover {
+    color: var(--color-text);
+    border-color: var(--color-accent-2);
+  }
+  .gg-iconbtn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Reaper telegraph banner. */
+  .gg-warn {
+    position: absolute;
+    top: 18%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--color-loss);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+    color: var(--color-loss);
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 12px color-mix(in oklab, var(--color-loss) 70%, transparent);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .gg-warn:not([hidden]) {
+      animation: gg-warn-pulse 1s ease-in-out infinite;
+    }
+    @keyframes gg-warn-pulse {
+      50% {
+        opacity: 0.5;
+      }
+    }
+  }
+
+  /* Hero picker (start screen). */
+  .gg-heroes {
+    width: 100%;
+    text-align: center;
+  }
+  .gg-heroes-label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-dim);
+  }
+  .gg-heroes-row {
+    margin-top: 0.375rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+  .gg-hero {
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--color-text-dim);
+    background: var(--color-surface);
+    cursor: pointer;
+  }
+  .gg-hero[aria-pressed='true'] {
+    border-color: var(--color-accent);
+    color: var(--color-text);
+    background: color-mix(in oklab, var(--color-accent) 18%, var(--color-surface));
+  }
+  .gg-hero:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .gg-hero-lock {
+    font-size: 0.625rem;
+    font-weight: 600;
+    color: var(--color-text-dim);
+    margin-left: 0.375rem;
+  }
+
+  .gg-win-head {
+    color: var(--color-win);
+  }
+  .gg-unlock {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--color-accent-2);
+  }
+  .gg-victory {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    color: var(--color-win);
   }
 </style>
 

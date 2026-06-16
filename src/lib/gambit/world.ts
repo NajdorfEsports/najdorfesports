@@ -6,7 +6,16 @@
  * Pure: no DOM, no Pixi, no wall-clock. Survival time is derived from the step
  * count, so a paused or backgrounded game contributes nothing.
  */
-import { ARENA_HALF, DT, DT_MS, GRID_CELL, currencyForRun, xpForLevel } from './constants';
+import {
+  ARENA_HALF,
+  CRIT_MULT,
+  DT,
+  DT_MS,
+  GRID_CELL,
+  RUN_WIN_SECONDS,
+  currencyForRun,
+  xpForLevel,
+} from './constants';
 import { SpatialGrid } from './grid';
 import { DEFAULT_HERO } from './heroes';
 import { Pool } from './pool';
@@ -92,7 +101,7 @@ export function createWorld(
     xpToNext: xpForLevel(1),
     iframes: 0,
     basePickupRadius: 16,
-    baseMagnetRadius: 130,
+    baseMagnetRadius: 470,
     kills: 0,
     cooldown: 0,
     weaponId: hero.weaponId,
@@ -107,6 +116,10 @@ export function createWorld(
       magnetMult: 1,
       maxHpBonus: 0,
       regenPerSec: 0,
+      splash: 0,
+      critChance: 0,
+      critMult: CRIT_MULT,
+      orbiters: 0,
     },
   };
   applyPowerups(player, powerupLevels);
@@ -119,9 +132,10 @@ export function createWorld(
     projectiles: makeProjectileStore(MAX_PROJECTILES),
     gems: makeGemStore(MAX_GEMS),
     grid: new SpatialGrid(ARENA_HALF, GRID_CELL),
-    director: { credits: 0, nextEventIndex: 0 },
+    director: { credits: 0, nextEventIndex: 0, reaperDone: false },
     time: { stepCount: 0, elapsedS: 0 },
     dead: false,
+    won: false,
     events: [],
   };
 }
@@ -135,6 +149,10 @@ export function step(world: World): void {
   updateMovement(world, DT);
   updateWeapon(world, DT);
   updateCollision(world, DT);
+  if (!world.won && world.time.elapsedS >= RUN_WIN_SECONDS) {
+    world.won = true;
+    world.events.push({ type: 'win' });
+  }
 }
 
 export function runResult(world: World): RunResult {
@@ -143,6 +161,7 @@ export function runResult(world: World): RunResult {
     survivalMs,
     level: world.player.level,
     kills: world.player.kills,
-    currencyEarned: currencyForRun(survivalMs, world.player.kills),
+    won: world.won,
+    currencyEarned: currencyForRun(survivalMs, world.player.kills, world.won),
   };
 }

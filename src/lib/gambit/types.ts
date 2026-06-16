@@ -27,6 +27,12 @@ export interface PlayerMods {
   magnetMult: number;
   maxHpBonus: number;
   regenPerSec: number;
+  /** Heavy Bolt splash radius (0 = no splash). */
+  splash: number;
+  critChance: number;
+  critMult: number;
+  /** Number of orbiting blades (the second weapon). */
+  orbiters: number;
 }
 
 export interface Player {
@@ -119,6 +125,8 @@ export interface DirectorState {
   credits: number;
   /** Index of the next scheduled minute-marker event. */
   nextEventIndex: number;
+  /** Whether the climax Reaper has already been spawned. */
+  reaperDone: boolean;
 }
 
 export type SimEvent =
@@ -127,6 +135,8 @@ export type SimEvent =
   | { type: 'hit'; x: number; y: number }
   | { type: 'pickup'; value: number; x: number; y: number }
   | { type: 'shoot'; x: number; y: number; angle: number }
+  | { type: 'spawn'; x: number; y: number; reaper: boolean }
+  | { type: 'win' }
   | { type: 'died' };
 
 export interface RunResult {
@@ -134,6 +144,7 @@ export interface RunResult {
   level: number;
   kills: number;
   currencyEarned: number;
+  won: boolean;
 }
 
 export interface StoredState {
@@ -145,6 +156,14 @@ export interface StoredState {
   powerups: Record<string, number>;
   /** When true, runs ignore PowerUps (the pure skill challenge). */
   standard: boolean;
+  /** Number of runs won (survived to the win mark). */
+  wins: number;
+  /** Currently selected hero id. */
+  hero: string;
+  /** Hero ids the player has unlocked. */
+  unlockedHeroes: string[];
+  /** Persisted camera zoom preference. */
+  userZoom: number;
 }
 
 /** Struct-of-arrays store for one swarm population. */
@@ -201,6 +220,8 @@ export interface World {
   director: DirectorState;
   time: { stepCount: number; elapsedS: number };
   dead: boolean;
+  /** Set once the run reaches the win mark; play continues into endless. */
+  won: boolean;
   /** Drained by the caller after every step. */
   events: SimEvent[];
 }

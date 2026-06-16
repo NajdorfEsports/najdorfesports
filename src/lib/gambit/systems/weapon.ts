@@ -5,7 +5,7 @@
  * every upgrade is felt here. Projectiles expire by travel distance or arena
  * bounds.
  */
-import { ARENA_HALF } from '../constants';
+import { ARENA_HALF, damageForLevel } from '../constants';
 import type { World } from '../types';
 import { WEAPONS } from '../weapons';
 
@@ -57,7 +57,11 @@ function fire(world: World, target: number): void {
   const { player, enemies } = world;
   const def = WEAPONS[player.weaponId]!;
   const m = player.mods;
-  const damage = def.baseDamage * m.damageMult;
+  // Damage scales with player LEVEL, so leveling is the core power curve and
+  // keeps pace with the (plateauing) enemy HP scaling. Crit rolls per shot from
+  // the seeded stream, so the daily stays reproducible.
+  let damage = def.baseDamage * m.damageMult * damageForLevel(player.level);
+  if (m.critChance > 0 && world.rng.chance(m.critChance)) damage *= m.critMult;
   const speed = def.baseProjectileSpeed * m.projectileSpeedMult;
   const radius = def.projectileRadius * Math.sqrt(m.areaMult);
   const pierce = def.basePierce + m.pierce;

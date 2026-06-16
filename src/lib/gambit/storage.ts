@@ -11,7 +11,27 @@ import type { StoredState } from './types';
 export const STORAGE_KEY = 'najdorf:gambit:v1';
 
 export function emptyState(): StoredState {
-  return { version: 1, bestMs: 0, currency: 0, powerups: {}, standard: false };
+  return {
+    version: 1,
+    bestMs: 0,
+    currency: 0,
+    powerups: {},
+    standard: false,
+    wins: 0,
+    hero: 'bishop',
+    unlockedHeroes: ['bishop'],
+    userZoom: 1,
+  };
+}
+
+const KNOWN_HEROES = ['bishop', 'knight'];
+
+function sanitizeHeroes(input: unknown): string[] {
+  const out = new Set(['bishop']);
+  if (Array.isArray(input)) {
+    for (const h of input) if (typeof h === 'string' && KNOWN_HEROES.includes(h)) out.add(h);
+  }
+  return [...out];
 }
 
 function sanitizePowerups(input: unknown): Record<string, number> {
@@ -32,12 +52,19 @@ export function deserialize(raw: string | null): StoredState {
   try {
     const o = JSON.parse(raw) as Record<string, unknown>;
     if (!o || o.version !== 1) return emptyState();
+    const unlockedHeroes = sanitizeHeroes(o.unlockedHeroes);
+    const hero = typeof o.hero === 'string' && unlockedHeroes.includes(o.hero) ? o.hero : 'bishop';
+    const zoom = typeof o.userZoom === 'number' && Number.isFinite(o.userZoom) ? o.userZoom : 1;
     return {
       version: 1,
       bestMs: typeof o.bestMs === 'number' && o.bestMs >= 0 ? o.bestMs : 0,
       currency: typeof o.currency === 'number' && o.currency >= 0 ? Math.floor(o.currency) : 0,
       powerups: sanitizePowerups(o.powerups),
       standard: o.standard === true,
+      wins: typeof o.wins === 'number' && o.wins >= 0 ? Math.floor(o.wins) : 0,
+      hero,
+      unlockedHeroes,
+      userZoom: Math.min(1.6, Math.max(0.6, zoom)),
     };
   } catch {
     return emptyState();

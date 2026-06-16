@@ -37,6 +37,7 @@ import {
   COLOR_BOARD_DARK,
   COLOR_BOARD_LIGHT,
   COLOR_LOSS,
+  COLOR_ORBIT,
   COLOR_WIN,
   DT_MS,
   MAX_ENEMIES,
@@ -44,10 +45,12 @@ import {
   MAX_GEMS,
   MAX_PROJECTILES,
   MAX_STEPS,
+  ORBIT_ANGULAR,
+  ORBIT_RADIUS,
 } from '../lib/gambit/constants';
 import { dailySeed, dayNumber, nyDate, secondsToNyMidnight } from '../lib/gambit/daily';
 import { ALL_ARCHETYPES } from '../lib/gambit/enemies';
-import { DEFAULT_HERO } from '../lib/gambit/heroes';
+import { DEFAULT_HERO, HEROES } from '../lib/gambit/heroes';
 import { POWERUPS, powerupCost } from '../lib/gambit/powerups';
 import { STORAGE_KEY, deserialize, emptyState, serialize } from '../lib/gambit/storage';
 import { applyUpgrade, offerChoices } from '../lib/gambit/systems/progression';
@@ -56,9 +59,11 @@ import { createWorld, runResult, step } from '../lib/gambit/world';
 
 interface L10n {
   upgrades: Record<string, { name: string; desc: string }>;
+  heroes: Record<string, { name: string; desc: string }>;
   buy: string;
   maxed: string;
   newBest: string;
+  unlockHeading: string;
 }
 
 /** Design radius the piece silhouettes are baked to (texture-space px). */
@@ -190,9 +195,11 @@ function bishopPath(c: Pen, cx: number, cy: number, R: number): void {
 const PIECE_BY_ID: Record<string, (c: Pen, cx: number, cy: number, R: number) => void> = {
   pawn: pawnPath,
   runner: knightPath,
+  shade: bishopPath,
   brute: rookPath,
   knight: queenPath,
   elite: kingPath,
+  reaper: kingPath,
 };
 
 async function init(): Promise<void> {
@@ -211,6 +218,8 @@ async function init(): Promise<void> {
   const levelOverlay = q('[data-gg-levelup]');
   const pauseOverlay = q('[data-gg-pausescreen]');
   const overOverlay = q('[data-gg-over]');
+  const winOverlay = q('[data-gg-win]');
+  const warnEl = q('[data-gg-warn]');
   const cardsBox = q('[data-gg-cards]');
 
   const elTime = q('[data-gg-time]');
@@ -294,6 +303,32 @@ async function init(): Promise<void> {
     line: 2.5,
     fillTop: '#ffffff',
     fillBottom: css(COLOR_ACCENT2),
+  });
+  const knightHeroTex = pieceTex(knightPath, css(COLOR_ORBIT), {
+    glow: 14,
+    line: 2.5,
+    fillTop: '#ffffff',
+    fillBottom: css(COLOR_ORBIT),
+  });
+  const heroTex: Record<string, Texture> = { bishop: bishopTex, knight: knightHeroTex };
+
+  // Orbiting blade (the orbiters weapon).
+  const orbiterTex = canvasTex(28, 28, (c, w) => {
+    const r = w / 2;
+    const gl = c.createRadialGradient(r, r, 0, r, r, r);
+    gl.addColorStop(0, 'rgba(139,233,255,0.95)');
+    gl.addColorStop(1, 'rgba(139,233,255,0)');
+    c.fillStyle = gl;
+    c.fillRect(0, 0, w, w);
+    const k = 6;
+    c.beginPath();
+    c.moveTo(r, r - k);
+    c.lineTo(r + k, r);
+    c.lineTo(r, r + k);
+    c.lineTo(r - k, r);
+    c.closePath();
+    c.fillStyle = '#eaffff';
+    c.fill();
   });
 
   // Soft radial glow (additive sparks, auras).
@@ -410,6 +445,17 @@ async function init(): Promise<void> {
   const playerNode = new Container();
   playerNode.addChild(playerGlow, bishopSprite);
   camera.addChild(playerNode, fxLayer);
+
+  // Orbiting blades (shown when the orbiters upgrade is taken).
+  const orbiterSprites: Sprite[] = [];
+  for (let i = 0; i < 3; i += 1) {
+    const s = new Sprite(orbiterTex);
+    s.anchor.set(0.5);
+    s.blendMode = 'add';
+    s.visible = false;
+    camera.addChild(s);
+    orbiterSprites.push(s);
+  }
 
   // Screen-fixed overlays (above the world; HUD is DOM above the canvas).
   const vignette = new Sprite(edgeTex);
@@ -535,7 +581,7 @@ async function init(): Promise<void> {
     world: null as World | null,
     running: false,
     paused: false,
-    overlay: 'start' as 'start' | 'levelup' | 'pause' | 'over' | null,
+    overlay: 'start' as 'start' | 'levelup' | 'pause' | 'over' | 'win' | null,
     taken: {} as Record<string, number>,
     levelQueue: [] as number[],
     accumulator: 0,
@@ -543,6 +589,8 @@ async function init(): Promise<void> {
     zoom: 1,
     flash: 0,
     playerFlash: 0,
+    warn: 0,
+    winPending: false,
     t: 0,
     dtSec: 0,
   };
@@ -629,14 +677,45 @@ async function init(): Promise<void> {
     show(levelOverlay, which === 'levelup');
     show(pauseOverlay, which === 'pause');
     show(overOverlay, which === 'over');
-    show(hud, game.running && which !== 'start' && which !== 'over');
+    show(winOverlay, which === 'win');
+    show(hud, game.running && which !== 'start' && which !== 'over' && which !== 'win');
   }
 
   // --- Run lifecycle ---
   function buildWorld(): World {
     const seed = dailySeed(nyDate());
     const pus = saved.standard ? {} : saved.powerups;
-    return createWorld(seed, DEFAULT_HERO, pus);
+    const hero = HEROES[saved.hero] ?? DEFAULT_HERO;
+    return createWorld(seed, hero, pus);
+  }
+
+  /** Point the player sprite at the selected hero. */
+  function applyHero(): void {
+    const hero = HEROES[saved.hero] ?? DEFAULT_HERO;
+    bishopSprite.texture = heroTex[hero.id] ?? bishopTex;
+    bishopSprite.scale.set((hero.radius * ENEMY_VIS) / PIECE_R);
+    playerGlow.scale.set((hero.radius * 4.6) / 24);
+    playerGlow.tint = hero.id === 'knight' ? COLOR_ORBIT : COLOR_ACCENT;
+  }
+
+  /** Reflect unlocked/selected hero state on the start-screen buttons. */
+  function refreshHeroes(): void {
+    for (const hero of Object.values(HEROES)) {
+      const btn = q<HTMLButtonElement>(`[data-gg-hero="${hero.id}"]`);
+      if (!btn) continue;
+      const unlocked = saved.unlockedHeroes.includes(hero.id);
+      btn.disabled = !unlocked;
+      btn.setAttribute('aria-pressed', saved.hero === hero.id ? 'true' : 'false');
+      const existing = btn.querySelector('.gg-hero-lock');
+      if (!unlocked && !existing) {
+        const lock = document.createElement('span');
+        lock.className = 'gg-hero-lock';
+        lock.textContent = '🔒';
+        btn.appendChild(lock);
+      } else if (unlocked && existing) {
+        existing.remove();
+      }
+    }
   }
 
   function startRun(): void {
@@ -646,10 +725,35 @@ async function init(): Promise<void> {
     game.shake = 0;
     game.flash = 0;
     game.zoom = 1;
+    game.warn = 0;
+    game.winPending = false;
+    applyHero();
     game.world = buildWorld();
     game.running = true;
     game.paused = false;
     setOverlay(null);
+  }
+
+  /** Reached the win mark: record the win, unlock the Knight, show the screen. */
+  function openWin(): void {
+    saved.wins += 1;
+    let unlockedNow = false;
+    if (!saved.unlockedHeroes.includes('knight')) {
+      saved.unlockedHeroes.push('knight');
+      unlockedNow = true;
+    }
+    store.save(saved);
+    refreshHeroes();
+    const un = q('[data-gg-unlock]');
+    if (un) {
+      if (unlockedNow) {
+        un.textContent = `${l10n.unlockHeading}: ${l10n.heroes.knight?.name ?? 'Knight'}`;
+        show(un, true);
+      } else {
+        show(un, false);
+      }
+    }
+    setOverlay('win');
   }
 
   function autoPause(): void {
@@ -681,6 +785,7 @@ async function init(): Promise<void> {
       set('[data-gg-r-kills]', String(r.kills));
       set('[data-gg-r-earned]', `◆ ${r.currencyEarned}`);
       show(q('[data-gg-newbest]'), isBest);
+      show(q('[data-gg-victory]'), r.won);
     }
     setOverlay('over');
   }
@@ -762,6 +867,16 @@ async function init(): Promise<void> {
           COLOR_WIN,
           false,
         );
+      } else if (ev.type === 'spawn') {
+        if (ev.reaper) {
+          game.warn = 4;
+          if (!reduced) game.flash = 0.5;
+          spawnParticle(ev.x, ev.y, 0, 0, 0.7, 40, 320, COLOR_LOSS, true);
+        } else {
+          spawnParticle(ev.x, ev.y, 0, 0, 0.5, 28, 150, COLOR_ACCENT, true);
+        }
+      } else if (ev.type === 'win') {
+        game.winPending = true;
       }
     }
   }
@@ -822,6 +937,36 @@ async function init(): Promise<void> {
     store.save(saved);
   });
 
+  function setZoom(z: number): void {
+    saved.userZoom = Math.min(1.6, Math.max(0.6, Math.round(z * 100) / 100));
+    store.save(saved);
+  }
+  for (const hero of Object.values(HEROES)) {
+    const btn = q<HTMLButtonElement>(`[data-gg-hero="${hero.id}"]`);
+    btn?.addEventListener('click', () => {
+      if (!saved.unlockedHeroes.includes(hero.id)) return;
+      saved.hero = hero.id;
+      store.save(saved);
+      refreshHeroes();
+      applyHero();
+    });
+  }
+  q('[data-gg-zoomin]')?.addEventListener('click', () => setZoom(saved.userZoom + 0.15));
+  q('[data-gg-zoomout]')?.addEventListener('click', () => setZoom(saved.userZoom - 0.15));
+  q('[data-gg-fullscreen]')?.addEventListener('click', () => {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else stage.requestFullscreen().catch(() => {});
+  });
+  q('[data-gg-continue]')?.addEventListener('click', () => {
+    if (game.overlay !== 'win') return;
+    game.accumulator = 0;
+    setOverlay(null);
+  });
+  q('[data-gg-finish]')?.addEventListener('click', () => {
+    if (game.overlay !== 'win') return;
+    endRun();
+  });
+
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) autoPause();
   });
@@ -850,7 +995,17 @@ async function init(): Promise<void> {
           break;
         }
         if (game.levelQueue.length > 0) {
-          openLevelup();
+          // Once every upgrade is maxed there is nothing to offer; level up
+          // silently instead of opening an empty chooser.
+          if (offerChoices(w.seed, game.levelQueue[0]!, game.taken).length > 0) {
+            openLevelup();
+            break;
+          }
+          game.levelQueue.length = 0;
+        }
+        if (game.winPending) {
+          game.winPending = false;
+          openWin();
           break;
         }
       }
@@ -878,11 +1033,9 @@ async function init(): Promise<void> {
     } else {
       game.shake = 0;
     }
-    camera.scale.set(game.zoom);
-    camera.position.set(
-      app.screen.width / 2 + camX * game.zoom,
-      app.screen.height / 2 + camY * game.zoom,
-    );
+    const sc = game.zoom * saved.userZoom;
+    camera.scale.set(sc);
+    camera.position.set(app.screen.width / 2 + camX * sc, app.screen.height / 2 + camY * sc);
 
     // Player: idle bob + hit flash.
     const bob = reduced ? 0 : Math.sin(game.t * 4) * 1.6;
@@ -947,6 +1100,21 @@ async function init(): Promise<void> {
       }
     }
 
+    // Orbiting blades around the player.
+    const oc = w.player.mods.orbiters;
+    for (let i = 0; i < orbiterSprites.length; i += 1) {
+      const s = orbiterSprites[i]!;
+      if (i < oc) {
+        const a = game.t * ORBIT_ANGULAR + (i / oc) * Math.PI * 2;
+        s.position.set(pxr + Math.cos(a) * ORBIT_RADIUS, pyr + Math.sin(a) * ORBIT_RADIUS);
+        s.rotation = a;
+        s.scale.set(reduced ? 1 : 1 + Math.sin(game.t * 8 + i) * 0.15);
+        s.visible = true;
+      } else {
+        s.visible = false;
+      }
+    }
+
     updateParticles(dt);
 
     // Screen overlays (sized to the viewport each frame).
@@ -961,6 +1129,14 @@ async function init(): Promise<void> {
     hitFlash.width = diag;
     hitFlash.height = diag;
     hitFlash.alpha = Math.max(0, game.flash);
+
+    // Reaper telegraph banner.
+    if (game.warn > 0) {
+      game.warn -= dt;
+      show(warnEl, true);
+    } else {
+      show(warnEl, false);
+    }
   }
 
   function updateHud(): void {
@@ -980,6 +1156,8 @@ async function init(): Promise<void> {
     elBest.textContent =
       saved.bestMs > 0 ? formatClock(Math.floor(saved.bestMs / 1000)) : (elBest.textContent ?? '');
   renderShop();
+  refreshHeroes();
+  applyHero();
   game.world = buildWorld(); // idle preview behind the start overlay
   setOverlay('start');
 

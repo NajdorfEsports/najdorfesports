@@ -37,6 +37,10 @@ function freshPlayer(): Player {
       magnetMult: 1,
       maxHpBonus: 0,
       regenPerSec: 0,
+      splash: 0,
+      critChance: 0,
+      critMult: 2.25,
+      orbiters: 0,
     },
   };
 }

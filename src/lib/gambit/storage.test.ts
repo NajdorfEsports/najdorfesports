@@ -9,6 +9,10 @@ describe('storage', () => {
       currency: 80,
       powerups: { might: 2 },
       standard: true,
+      wins: 3,
+      hero: 'knight',
+      unlockedHeroes: ['bishop', 'knight'],
+      userZoom: 1.1,
     };
     expect(deserialize(serialize(s))).toEqual(s);
   });

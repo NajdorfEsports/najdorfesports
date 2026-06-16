@@ -17,19 +17,19 @@ export const MAX_STEPS = 5;
 export const ARENA_HALF = 1400;
 
 export const MAX_ENEMIES = 600;
-export const MAX_PROJECTILES = 400;
-export const MAX_GEMS = 800;
+export const MAX_PROJECTILES = 500;
+export const MAX_GEMS = 900;
 
 /** Uniform collision grid cell size (~2x the largest common collider). */
 export const GRID_CELL = 72;
 
 /** Enemies spawn on a ring this far from the player (just off-screen on desktop). */
-export const SPAWN_DIST = 780;
+export const SPAWN_DIST = 820;
 
 /** Seconds of invulnerability after taking a contact hit. */
 export const PLAYER_IFRAME = 0.65;
 /** Gems within magnet range home in at this speed (world units/sec). */
-export const MAGNET_SPEED = 640;
+export const MAGNET_SPEED = 720;
 
 // Brand palette (ints for Pixi; CSS vars carry the same hexes in the DOM HUD).
 export const COLOR_BG = 0x0b0b0f;
@@ -43,36 +43,70 @@ export const COLOR_GEM = 0x6b8dff;
 export const COLOR_PROJECTILE = 0xe9ecf1;
 export const COLOR_PLAYER = 0xe9ecf1;
 export const COLOR_PLAYER_RING = 0x215bff;
+export const COLOR_ORBIT = 0x8be9ff;
+export const COLOR_REAPER = 0xff2d55;
+export const COLOR_CRIT = 0xffd24a;
 
 /** Director credit accrual at difficulty coefficient 1 (credits/second). */
-export const DIRECTOR_BASE_RATE = 1.15;
+export const DIRECTOR_BASE_RATE = 1.25;
 
 export const START_CURRENCY = 0;
 
+/** A run is "won" at this mark; play continues into endless after. */
+export const RUN_WIN_SECONDS = 20 * 60;
+/** The Reaper (climax boss) spawns shortly before the win mark. */
+export const REAPER_SECONDS = 19 * 60 + 15;
+
+/** Orbiting-blade weapon (the "orbiters" upgrade and the Rook hero). */
+export const ORBIT_RADIUS = 78;
+export const ORBIT_ANGULAR = 2.6; // radians/sec
+export const ORBIT_DPS = 64; // base, before damageMult + level scaling
+export const ORBIT_HIT_RADIUS = 20;
+
+/** Crit: base multiplier; chance comes from the crit upgrade. */
+export const CRIT_MULT = 2.25;
+/** Heavy Bolt splash: fraction of the hit's damage dealt to nearby enemies. */
+export const SPLASH_FRACTION = 0.55;
+
 /**
- * Smoothly accelerating difficulty over a run. ~1 at t0, ~2 by 60s, ~4 by
- * 150s, ~8 by 300s. Non-decreasing, so the threat always rises.
+ * Smoothly accelerating difficulty over a run. Drives swarm density via the
+ * director credit rate; non-decreasing, so the threat always rises.
  */
 export function difficultyCoeff(elapsedS: number): number {
-  return 1 + elapsedS / 60 + (elapsedS / 150) ** 2;
+  return 1 + elapsedS / 70 + (elapsedS / 165) ** 2;
 }
 
-/** Spawned enemy HP scales up with elapsed time so the mix never gets stale. */
+/**
+ * Enemy HP scaling: grows then plateaus (~6x by 20 min) so late enemies stay
+ * killable instead of becoming bullet-sponges. Player damage scales with LEVEL
+ * (see damageForLevel) to keep pace, so leveling is what makes you stronger.
+ */
 export function enemyHpScale(elapsedS: number): number {
-  return 1 + elapsedS / 150;
+  return Math.min(6, 1 + elapsedS / 260);
 }
 
 /** Contact damage scales gently so late hits sting without one-shotting. */
 export function enemyDamageScale(elapsedS: number): number {
-  return 1 + elapsedS / 420;
+  return 1 + elapsedS / 540;
 }
 
-/** Strictly increasing XP required to clear each level. */
+/** Enemies speed up modestly over a run, so move speed stays relevant late. */
+export function enemySpeedScale(elapsedS: number): number {
+  return 1 + Math.min(elapsedS, 1200) / 2200;
+}
+
+/** Player damage multiplier from level: leveling is the core power curve. */
+export function damageForLevel(level: number): number {
+  return 1 + level * 0.06;
+}
+
+/** XP required to clear each level. Flatter than a hard quadratic so leveling
+ * stays snappy deep into a run (paired with richer gem values). */
 export function xpForLevel(level: number): number {
-  return Math.round(5 + level * 4 + level * level * 0.6);
+  return Math.round(5 + level * 4 + level * level * 0.12);
 }
 
-/** Run-end currency: rewards how well you actually played, not time hoarded. */
-export function currencyForRun(survivalMs: number, kills: number): number {
-  return Math.floor(survivalMs / 6000) + Math.floor(kills / 8);
+/** Run-end currency: rewards how well you actually played, plus a win bonus. */
+export function currencyForRun(survivalMs: number, kills: number, won: boolean): number {
+  return Math.floor(survivalMs / 5000) + Math.floor(kills / 6) + (won ? 60 : 0);
 }
