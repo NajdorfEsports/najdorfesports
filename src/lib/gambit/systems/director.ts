@@ -2,8 +2,10 @@
  * Seeded spawn director. Credits accrue with a time-based difficulty
  * coefficient and are spent on eligible-and-affordable archetypes; cheap fodder
  * is culled over time so the mix escalates. A fixed minute-marker schedule
- * layers in elites, and a one-time Reaper spawns near the win mark for the
- * climax. Enemy speed scales up over the run so move speed stays relevant. The
+ * layers in elites; a trio of closing-Wall rings in the back half forces the
+ * player off any camped tile; and the climax Queen runs a phased fight (chase,
+ * then summon-adds, then enrage). After the win mark, endless Queens keep
+ * arriving. Enemy speed scales up over the run so move speed stays relevant. The
  * entity cap is the self-throttle: at cap, credits bank. Everything draws from
  * world.rng, so the daily run is reproducible.
  */
@@ -11,6 +13,7 @@ import {
   ARENA_HALF,
   DIRECTOR_BASE_RATE,
   MAX_ENEMIES,
+  REAPER_CRUISE,
   REAPER_SECONDS,
   SPAWN_DIST,
   difficultyCoeff,
@@ -18,7 +21,16 @@ import {
   enemyHpScale,
   enemySpeedScale,
 } from '../constants';
-import { ALL_ARCHETYPES, ELITE_INDEX, REAPER_INDEX, eligibleArchetypes } from '../enemies';
+import {
+  ALL_ARCHETYPES,
+  BRUTE_INDEX,
+  ELITE_INDEX,
+  REAPER,
+  REAPER_INDEX,
+  SHADE_INDEX,
+  WALL_INDEX,
+  eligibleArchetypes,
+} from '../enemies';
 import type { World } from '../types';
 
 /** Seconds between scheduled elite events. */
@@ -29,44 +41,157 @@ const FIRST_EVENT_S = 90;
 /** Brutes that escort each elite. */
 const ELITE_ESCORT = 3;
 
+/** Closing-Wall ring events: a tight ring of tough bodies around the player. */
+const WALL_TIMES = [330, 450, 540];
+const WALL_RING_COUNT = 40;
+const WALL_RING_RADIUS = SPAWN_DIST * 0.7;
+
+/** Queen fight: HP-fraction thresholds and the add-summon cadence. */
+const QUEEN_PHASE1_FRAC = 0.6; // below this she summons adds
+const QUEEN_ENRAGE_FRAC = 0.25; // below this she enrages (more, faster adds)
+const QUEEN_ADD_INTERVAL = 11; // seconds between add waves in phase 1
+const QUEEN_ADD_COUNT = 4; // shades per wave
+/** A maxed kill-cone retargets onto adds, so a light kill-scaling keeps the
+ *  Queen's wall proportional to the player's farmed power (capped, never a sponge). */
+const QUEEN_KILL_HP_CAP = 4000;
+
+/** Endless: after the win mark, a new Queen every interval, each tankier. */
+const ENDLESS_QUEEN_INTERVAL = 75;
+const ENDLESS_QUEEN_HP_STEP = 1.3;
+
 function clamp(v: number, lo: number, hi: number): number {
   return v < lo ? lo : v > hi ? hi : v;
 }
 
-function spawnEnemy(world: World, typeIndex: number): void {
+/** Spawn one enemy of `typeIndex`. Without an explicit position it appears on
+ *  the off-screen ring around the player. Returns the pool slot, or -1 at cap. */
+function spawnEnemy(world: World, typeIndex: number, px?: number, py?: number): number {
   const { enemies, player, rng } = world;
   const i = enemies.pool.spawn();
-  if (i < 0) return;
+  if (i < 0) return -1;
   const a = ALL_ARCHETYPES[typeIndex]!;
   const elapsed = world.time.elapsedS;
-  const angle = rng.range(0, Math.PI * 2);
-  const x = clamp(player.x + Math.cos(angle) * SPAWN_DIST, -ARENA_HALF, ARENA_HALF);
-  const y = clamp(player.y + Math.sin(angle) * SPAWN_DIST, -ARENA_HALF, ARENA_HALF);
+  let x: number;
+  let y: number;
+  if (px !== undefined && py !== undefined) {
+    x = clamp(px, -ARENA_HALF, ARENA_HALF);
+    y = clamp(py, -ARENA_HALF, ARENA_HALF);
+  } else {
+    const angle = rng.range(0, Math.PI * 2);
+    x = clamp(player.x + Math.cos(angle) * SPAWN_DIST, -ARENA_HALF, ARENA_HALF);
+    y = clamp(player.y + Math.sin(angle) * SPAWN_DIST, -ARENA_HALF, ARENA_HALF);
+  }
+  const isReaper = a.id === 'reaper';
   enemies.x[i] = x;
   enemies.y[i] = y;
   enemies.prevX[i] = x;
   enemies.prevY[i] = y;
-  // The Reaper keeps its fixed HP; everything else scales with elapsed time.
-  enemies.hp[i] = a.id === 'reaper' ? a.hp : a.hp * enemyHpScale(elapsed);
+  enemies.vx[i] = 0;
+  enemies.vy[i] = 0;
+  // The Queen's HP/speed/damage are set directly (not time-scaled); everything
+  // else scales with elapsed time.
+  enemies.hp[i] = isReaper ? a.hp : a.hp * enemyHpScale(elapsed);
   enemies.radius[i] = a.radius;
-  enemies.speed[i] = a.speed * enemySpeedScale(elapsed);
-  enemies.damage[i] = a.contactDamage * enemyDamageScale(elapsed);
+  enemies.speed[i] = isReaper ? REAPER_CRUISE : a.speed * enemySpeedScale(elapsed);
+  enemies.damage[i] = isReaper ? a.contactDamage : a.contactDamage * enemyDamageScale(elapsed);
   enemies.gem[i] = a.gemValue;
   enemies.type[i] = typeIndex;
   enemies.elite[i] = a.elite ? 1 : 0;
-  if (a.elite) world.events.push({ type: 'spawn', x, y, reaper: a.id === 'reaper' });
+  if (a.elite) world.events.push({ type: 'spawn', x, y, reaper: isReaper });
+  return i;
+}
+
+/** Spawn a Queen with the given HP multiplier. `track` wires the climax-fight
+ *  state (phases, add summons); endless Queens are fire-and-forget. */
+function spawnQueen(world: World, hpMult: number, track: boolean): void {
+  const { player, director } = world;
+  const i = spawnEnemy(world, REAPER_INDEX);
+  if (i < 0) return;
+  const hp = (REAPER.hp + Math.min(player.kills, QUEEN_KILL_HP_CAP)) * hpMult;
+  world.enemies.hp[i] = hp;
+  if (track) {
+    director.reaperIndex = i;
+    director.reaperMaxHp = hp;
+    director.reaperPhase = 0;
+    director.reaperAddTimer = QUEEN_ADD_INTERVAL;
+  }
+}
+
+/** A closing ring of Wall bodies centered on the player's current position. */
+function spawnWallRing(world: World): void {
+  const { player } = world;
+  for (let k = 0; k < WALL_RING_COUNT; k += 1) {
+    const a = (k / WALL_RING_COUNT) * Math.PI * 2;
+    spawnEnemy(
+      world,
+      WALL_INDEX,
+      player.x + Math.cos(a) * WALL_RING_RADIUS,
+      player.y + Math.sin(a) * WALL_RING_RADIUS,
+    );
+  }
+}
+
+/** Advance the living climax Queen: phase transitions and add summons. */
+function updateQueenFight(world: World, dt: number): void {
+  const { director, enemies, player, rng } = world;
+  const r = director.reaperIndex;
+  if (r < 0) return;
+  if (enemies.pool.active[r] !== 1 || enemies.type[r] !== REAPER_INDEX) {
+    director.reaperIndex = -1; // the Queen has fallen
+    return;
+  }
+  const frac = director.reaperMaxHp > 0 ? enemies.hp[r]! / director.reaperMaxHp : 1;
+  director.reaperPhase = frac < QUEEN_ENRAGE_FRAC ? 2 : frac < QUEEN_PHASE1_FRAC ? 1 : 0;
+  if (director.reaperPhase >= 1) {
+    director.reaperAddTimer -= dt;
+    if (director.reaperAddTimer <= 0) {
+      const enraged = director.reaperPhase === 2;
+      const count = enraged ? QUEEN_ADD_COUNT + 2 : QUEEN_ADD_COUNT;
+      for (let k = 0; k < count; k += 1) {
+        const a = rng.range(0, Math.PI * 2);
+        const rad = SPAWN_DIST * 0.55;
+        spawnEnemy(world, SHADE_INDEX, player.x + Math.cos(a) * rad, player.y + Math.sin(a) * rad);
+      }
+      director.reaperAddTimer = enraged ? QUEEN_ADD_INTERVAL * 0.55 : QUEEN_ADD_INTERVAL;
+    }
+  }
 }
 
 export function updateDirector(world: World, dt: number): void {
   const { director, rng, enemies } = world;
   const elapsed = world.time.elapsedS;
 
-  director.credits += DIRECTOR_BASE_RATE * difficultyCoeff(elapsed) * dt;
+  // While the climax Queen is alive she is the spotlight: throttle the ambient
+  // swarm so the final minute is a duel (Queen + her adds), not Queen-on-top-of
+  // a capped horde. The swarm thins as the player clears it, opening space.
+  const rate = director.reaperIndex >= 0 ? DIRECTOR_BASE_RATE * 0.3 : DIRECTOR_BASE_RATE;
+  director.credits += rate * difficultyCoeff(elapsed) * dt;
 
-  // One-time climax: the Reaper.
+  // One-time climax: the Queen, one minute before the win mark.
   if (!director.reaperDone && elapsed >= REAPER_SECONDS) {
-    spawnEnemy(world, REAPER_INDEX);
+    spawnQueen(world, 1, true);
     director.reaperDone = true;
+  }
+  // The living climax Queen runs her phased fight.
+  if (director.reaperIndex >= 0) updateQueenFight(world, dt);
+
+  // Endless: after the win mark, escalating Queens keep coming.
+  if (world.won) {
+    director.endlessTimer -= dt;
+    if (director.endlessTimer <= 0) {
+      director.endlessQueens += 1;
+      spawnQueen(world, ENDLESS_QUEEN_HP_STEP ** director.endlessQueens, false);
+      director.endlessTimer = ENDLESS_QUEEN_INTERVAL;
+    }
+  }
+
+  // Closing-Wall ring events (forced repositioning in the back half).
+  while (
+    director.nextWallIndex < WALL_TIMES.length &&
+    elapsed >= WALL_TIMES[director.nextWallIndex]!
+  ) {
+    spawnWallRing(world);
+    director.nextWallIndex += 1;
   }
 
   // Scheduled elite events (power-spike pacing), spawned outside the budget.
@@ -74,15 +199,14 @@ export function updateDirector(world: World, dt: number): void {
   while (elapsed >= FIRST_EVENT_S + director.nextEventIndex * EVENT_INTERVAL) {
     const eliteCount = elapsed >= 420 ? 2 : 1;
     for (let e = 0; e < eliteCount; e += 1) spawnEnemy(world, ELITE_INDEX);
-    const bruteIndex = ALL_ARCHETYPES.findIndex((a) => a.id === 'brute');
-    for (let k = 0; k < ELITE_ESCORT; k += 1) spawnEnemy(world, bruteIndex);
+    for (let k = 0; k < ELITE_ESCORT; k += 1) spawnEnemy(world, BRUTE_INDEX);
     director.nextEventIndex += 1;
   }
 
   // Budget spend: keep buying affordable enemies until broke or at cap.
   const eligible = eligibleArchetypes(elapsed);
   if (eligible.length === 0) return;
-  let guard = 96;
+  let guard = 128;
   while (guard > 0 && enemies.pool.count < MAX_ENEMIES) {
     guard -= 1;
     const affordable = eligible.filter((a) => a.cost <= director.credits);

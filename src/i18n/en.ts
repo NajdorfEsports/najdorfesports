@@ -722,7 +722,7 @@ export const en = {
       zoomInLabel: 'Zoom in',
       zoomOutLabel: 'Zoom out',
       fullscreenLabel: 'Fullscreen',
-      reaperWarning: 'The Reaper approaches',
+      reaperWarning: 'The Queen approaches',
       endlessTag: 'Endless',
       winHeading: 'You survived!',
       winBody: 'You reached the 10-minute mark. Keep going into endless, or finish here.',
@@ -763,11 +763,11 @@ export const en = {
       heroes: {
         bishop: {
           name: 'Bishop',
-          desc: 'A precise long-range striker: heavy crits, plus a small heal on every kill, so it picks the swarm off from a safe distance. Steady and forgiving.',
+          desc: 'A precise long-range striker and a true glass cannon: heavy crits and the longest reach, but no way to heal. Keep moving and pick the swarm off from a safe distance.',
         },
         knight: {
           name: 'Knight',
-          desc: 'Fast and aggressive: a close-range spread, quicker fire, and healing on every kill. Fragile, so dive in and keep killing. Win a run to unlock.',
+          desc: 'Fast and aggressive: a close-range 4-shot fan, quicker fire, and healing on every kill. Dive into the swarm and keep killing to stay alive. Win a run to unlock.',
         },
       },
     },

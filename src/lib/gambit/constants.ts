@@ -16,7 +16,7 @@ export const MAX_STEPS = 5;
 /** Half-width of the square arena, in world units. The player is clamped inside. */
 export const ARENA_HALF = 1400;
 
-export const MAX_ENEMIES = 650;
+export const MAX_ENEMIES = 820;
 export const MAX_PROJECTILES = 500;
 export const MAX_GEMS = 900;
 
@@ -28,8 +28,13 @@ export const SPAWN_DIST = 820;
 
 /** Seconds of invulnerability after taking a contact hit. */
 export const PLAYER_IFRAME = 0.65;
-/** Mending regen only applies after holding still this many seconds. */
-export const STILL_HEAL_DELAY = 2.5;
+/** Mending regen only applies after holding still this many seconds. Long
+ *  enough that it cannot be micro-tapped between dodges in a dense swarm. */
+export const STILL_HEAL_DELAY = 3.5;
+/** Mending is suppressed when at least this many enemies are within
+ *  MENDING_BLOCK_R of the player: you heal by EARNING space, not by parking. */
+export const MENDING_BLOCK_COUNT = 6;
+export const MENDING_BLOCK_R = 140;
 /** Gems within magnet range home in at this speed (world units/sec). */
 export const MAGNET_SPEED = 720;
 
@@ -50,7 +55,7 @@ export const COLOR_REAPER = 0xff2d55;
 export const COLOR_CRIT = 0xffd24a;
 
 /** Director credit accrual at difficulty coefficient 1 (credits/second). */
-export const DIRECTOR_BASE_RATE = 1.3;
+export const DIRECTOR_BASE_RATE = 1.7;
 
 export const START_CURRENCY = 0;
 
@@ -65,6 +70,20 @@ export const ORBIT_ANGULAR = 2.6; // radians/sec
 export const ORBIT_DPS = 64; // base, before damageMult + level scaling
 export const ORBIT_HIT_RADIUS = 20;
 
+/** The Queen's steered movement. She cruises at CRUISE, accelerating toward
+ *  LOCK_SPEED when within LOCK_DIST of the player; her heading turns at most
+ *  TURN rad/s, so a sideways juke makes her overshoot (the skill counterplay). */
+export const REAPER_CRUISE = 240;
+export const REAPER_LOCK_SPEED = 312;
+export const REAPER_LOCK_DIST = 600;
+export const REAPER_TURN = 2.6;
+export const REAPER_ACCEL = 340;
+
+/** The Lancer's charge: within LUNGE_DIST it surges to min(cruise*MULT, CAP). */
+export const LANCER_LUNGE_DIST = 340;
+export const LANCER_LUNGE_MULT = 1.9;
+export const LANCER_LUNGE_CAP = 360;
+
 /** Crit: base multiplier; chance comes from the crit upgrade. */
 export const CRIT_MULT = 2.25;
 /** Heavy Bolt splash: fraction of the hit's damage dealt to nearby enemies. */
@@ -75,7 +94,7 @@ export const SPLASH_FRACTION = 0.55;
  * director credit rate; non-decreasing, so the threat always rises.
  */
 export function difficultyCoeff(elapsedS: number): number {
-  return 1 + elapsedS / 72 + (elapsedS / 160) ** 2;
+  return 1 + elapsedS / 60 + (elapsedS / 118) ** 2;
 }
 
 /**
@@ -84,7 +103,7 @@ export function difficultyCoeff(elapsedS: number): number {
  * (see damageForLevel) to keep pace, so leveling is what makes you stronger.
  */
 export function enemyHpScale(elapsedS: number): number {
-  return Math.min(6, 1 + elapsedS / 260);
+  return Math.min(7, 1 + elapsedS / 300);
 }
 
 /** Contact damage scales gently so late hits sting without one-shotting. */
@@ -95,7 +114,7 @@ export function enemyDamageScale(elapsedS: number): number {
 /** Enemies speed up over a run, reaching "in your face" pace by the late game
  *  so move speed and active kiting matter (tuned for a 10-minute run). */
 export function enemySpeedScale(elapsedS: number): number {
-  return 1 + Math.min(elapsedS, 600) / 1300;
+  return 1 + Math.min(elapsedS, 600) / 1000;
 }
 
 /** Player damage from LEVEL is intentionally flat (1x): damage comes only from

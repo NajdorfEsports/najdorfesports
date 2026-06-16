@@ -11,14 +11,14 @@ import type { UpgradeCard } from './types';
 
 export const UPGRADES: UpgradeCard[] = [
   { id: 'damage', tags: ['offense'], maxStacks: 8, apply: (m) => void (m.damageMult += 0.25) },
-  { id: 'firerate', tags: ['offense'], maxStacks: 6, apply: (m) => void (m.fireRateMult += 0.16) },
+  { id: 'firerate', tags: ['offense'], maxStacks: 6, apply: (m) => void (m.fireRateMult *= 1.12) },
   {
     id: 'multishot',
     tags: ['offense'],
     maxStacks: 4,
     apply: (m) => void (m.extraProjectiles += 1),
   },
-  { id: 'pierce', tags: ['offense'], maxStacks: 4, apply: (m) => void (m.pierce += 1) },
+  { id: 'pierce', tags: ['offense'], maxStacks: 3, apply: (m) => void (m.pierce += 1) },
   {
     id: 'area',
     tags: ['offense'],
@@ -41,7 +41,7 @@ export const UPGRADES: UpgradeCard[] = [
   {
     id: 'fortify',
     tags: ['defense'],
-    maxStacks: 6,
+    maxStacks: 8,
     apply: (m, p) => {
       m.maxHpBonus += 25;
       p.maxHp += 25;

@@ -193,10 +193,60 @@ const l10n = {
         {/* Victory overlay (20-minute survival). */}
         <div class="gg-overlay" hidden data-gg-win>
           <div class="gg-panel">
-            <svg class="gg-checkmate" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <svg class="gg-king" viewBox="0 0 240 320" fill="none" aria-hidden="true">
+              <defs>
+                <linearGradient
+                  id="ggKingBody"
+                  x1="0"
+                  y1="56"
+                  x2="0"
+                  y2="306"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop offset="0" stop-color="#ffffff"></stop>
+                  <stop offset="0.5" stop-color="#e8ecf6"></stop>
+                  <stop offset="1" stop-color="#a7b2cc"></stop>
+                </linearGradient>
+                <radialGradient id="ggKingGlow" cx="0.5" cy="0.5" r="0.5">
+                  <stop offset="0" stop-color="var(--color-accent)" stop-opacity="0.6"></stop>
+                  <stop offset="1" stop-color="var(--color-accent)" stop-opacity="0"></stop>
+                </radialGradient>
+                <radialGradient id="ggKingShadow" cx="0.5" cy="0.5" r="0.5">
+                  <stop offset="0" stop-color="#000000" stop-opacity="0.5"></stop>
+                  <stop offset="1" stop-color="#000000" stop-opacity="0"></stop>
+                </radialGradient>
+              </defs>
+              <ellipse cx="120" cy="305" rx="86" ry="15" fill="url(#ggKingShadow)"></ellipse>
+              <g fill="#5a6275" opacity="0.34">
+                <g transform="translate(56 296) rotate(-74)">
+                  <circle cx="0" cy="-15" r="5.5"></circle>
+                  <path d="M -8 9 L 8 9 L 4.5 -9 L -4.5 -9 Z"></path>
+                </g>
+                <g transform="translate(188 299) rotate(68)">
+                  <circle cx="0" cy="-13" r="4.8"></circle>
+                  <path d="M -7 8 L 7 8 L 4 -8 L -4 -8 Z"></path>
+                </g>
+              </g>
+              <circle cx="120" cy="38" r="48" fill="url(#ggKingGlow)"></circle>
               <path
-                d="M6 22 L18 22 L16 10 L8 10 Z M8 10 L16 10 L15 7 L9 7 Z M11 7 L13 7 L13 1.5 L11 1.5 Z M9.5 4 L14.5 4 L14.5 2.8 L9.5 2.8 Z"
-              ></path>
+                class="gg-king-body"
+                d="M 105 92.5 Q 120 89 135 92.5 Q 150 96 143.5 106.5 Q 137 117 147.5 133.5 Q 158 150 148.5 166 Q 139 182 138.5 204 Q 138 226 144.5 239 Q 151 252 162.5 264.5 Q 174 277 172 288 Q 170 299 145 301 Q 120 303 95 301 Q 70 299 68 288 Q 66 277 77.5 264.5 Q 89 252 95.5 239 Q 102 226 101.5 204 Q 101 182 91.5 166 Q 82 150 92.5 133.5 Q 103 117 96.5 106.5 Q 90 96 105 92.5 Z"
+                fill="url(#ggKingBody)"
+                stroke="#c4cde0"
+                stroke-width="1.5"
+                stroke-opacity="0.45"></path>
+              <circle
+                cx="120"
+                cy="74"
+                r="12.5"
+                fill="url(#ggKingBody)"
+                stroke="#c4cde0"
+                stroke-width="1.5"
+                stroke-opacity="0.45"></circle>
+              <path
+                class="gg-king-cross"
+                d="M 113 62 L 113 43 L 99 43 L 99 31 L 113 31 L 113 17 Q 120 10 127 17 L 127 31 L 141 31 L 141 43 L 127 43 L 127 62 Z"
+                fill="var(--color-accent)"></path>
             </svg>
             <p class="gg-overlay-head gg-win-head">{c.winHeading}</p>
             <p class="gg-hint">{c.winBody}</p>
@@ -718,22 +768,32 @@ const l10n = {
   .gg-win-head {
     color: var(--color-win);
   }
-  /* Toppled king = checkmate. Falls over on the victory screen. */
-  .gg-checkmate {
-    width: 3.25rem;
-    height: 3.25rem;
-    color: var(--color-win);
-    transform: rotate(74deg);
-    transform-origin: 50% 82%;
-    filter: drop-shadow(0 0 10px color-mix(in oklab, var(--color-win) 55%, transparent));
+  /* The lone surviving king, standing over a cleared board: checkmate. */
+  .gg-king {
+    width: 7rem;
+    height: auto;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
   }
   @media (prefers-reduced-motion: no-preference) {
-    [data-gg-win]:not([hidden]) .gg-checkmate {
-      animation: gg-topple 0.75s cubic-bezier(0.34, 1.45, 0.5, 1) both;
+    [data-gg-win]:not([hidden]) .gg-king {
+      animation: gg-king-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
-    @keyframes gg-topple {
+    [data-gg-win]:not([hidden]) .gg-king-cross {
+      animation: gg-king-shine 1.8s ease-in-out 0.5s infinite;
+    }
+    @keyframes gg-king-rise {
       from {
-        transform: rotate(0deg);
+        opacity: 0;
+        transform: translateY(14px) scale(0.92);
+      }
+    }
+    @keyframes gg-king-shine {
+      0%,
+      100% {
+        filter: drop-shadow(0 0 2px color-mix(in oklab, var(--color-accent) 50%, transparent));
+      }
+      50% {
+        filter: drop-shadow(0 0 7px color-mix(in oklab, var(--color-accent) 85%, transparent));
       }
     }
   }

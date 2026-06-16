@@ -131,8 +131,22 @@ export interface DirectorState {
   credits: number;
   /** Index of the next scheduled minute-marker event. */
   nextEventIndex: number;
-  /** Whether the climax Reaper has already been spawned. */
+  /** Whether the climax Queen has already been spawned. */
   reaperDone: boolean;
+  /** Index of the next scheduled closing-wall ring event. */
+  nextWallIndex: number;
+  /** Enemy-pool slot of the living climax Queen, or -1 when none is alive. */
+  reaperIndex: number;
+  /** The climax Queen's spawn HP, for computing phase thresholds. */
+  reaperMaxHp: number;
+  /** Queen fight phase: 0 chase, 1 summon-adds, 2 enrage. */
+  reaperPhase: number;
+  /** Seconds until the Queen's next add-summon. */
+  reaperAddTimer: number;
+  /** Seconds until the next endless Queen spawns (after the win mark). */
+  endlessTimer: number;
+  /** Count of endless Queens spawned, used to escalate each one. */
+  endlessQueens: number;
 }
 
 export type SimEvent =
@@ -180,6 +194,10 @@ export interface EnemyStore {
   y: Float32Array;
   prevX: Float32Array;
   prevY: Float32Array;
+  /** Velocity, used only by steered bosses (the Queen) for momentum/overshoot;
+   *  plain seekers ignore it and move straight toward the player. */
+  vx: Float32Array;
+  vy: Float32Array;
   hp: Float32Array;
   radius: Float32Array;
   speed: Float32Array;

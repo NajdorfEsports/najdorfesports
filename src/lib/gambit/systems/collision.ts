@@ -8,6 +8,8 @@
  */
 import {
   MAGNET_SPEED,
+  MENDING_BLOCK_COUNT,
+  MENDING_BLOCK_R,
   ORBIT_ANGULAR,
   ORBIT_DPS,
   ORBIT_HIT_RADIUS,
@@ -180,9 +182,25 @@ export function updateCollision(world: World, dt: number): void {
     }
   }
 
-  // Mending regen: only kicks in once you have held still long enough, so
-  // healing is a deliberate, risky choice (stop moving in the swarm).
-  if (!world.dead && player.mods.regenPerSec > 0 && player.stillTime >= STILL_HEAL_DELAY) {
-    player.hp = Math.min(player.maxHp, player.hp + player.mods.regenPerSec * dt);
+  // Mending regen: a deliberate, risky choice. It needs you held still long
+  // enough AND a cleared pocket (few enemies nearby), and it is fully off while
+  // the climax Queen is alive. So healing rewards EARNING space, never parking
+  // in a swarm or out-sustaining the final boss.
+  if (
+    !world.dead &&
+    player.mods.regenPerSec > 0 &&
+    player.stillTime >= STILL_HEAL_DELAY &&
+    world.director.reaperIndex < 0
+  ) {
+    let near = 0;
+    grid.queryNeighbors(player.x, player.y, (j) => {
+      if (enemies.pool.active[j] !== 1) return;
+      const dx = enemies.x[j]! - player.x;
+      const dy = enemies.y[j]! - player.y;
+      if (dx * dx + dy * dy <= MENDING_BLOCK_R * MENDING_BLOCK_R) near += 1;
+    });
+    if (near < MENDING_BLOCK_COUNT) {
+      player.hp = Math.min(player.maxHp, player.hp + player.mods.regenPerSec * dt);
+    }
   }
 }

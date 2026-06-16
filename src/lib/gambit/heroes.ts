@@ -6,16 +6,16 @@
  */
 import type { HeroDef } from './types';
 
-// Bishop: a precise long-range striker. Crits hard and recovers a little on each
-// kill, so it survives by picking enemies off at range rather than diving in.
-// The steady, safe option, and the one that ships unlocked.
+// Bishop: a precise long-range striker and a true glass cannon. It crits hard
+// and out-ranges everything, but has NO innate sustain: standing still in a
+// swarm is lethal, so it lives by spacing and footwork. Ships unlocked.
 export const BISHOP: HeroDef = {
   id: 'bishop',
   weaponId: 'bolt',
-  baseHp: 110,
+  baseHp: 100,
   baseSpeed: 236,
   radius: 16,
-  mods: { critChance: 0.12, lifestealOnKill: 0.25 },
+  mods: { critChance: 0.12 },
 };
 
 // Knight: fast and aggressive (close-range 4-shot fan, faster fire), and it heals
@@ -24,10 +24,10 @@ export const BISHOP: HeroDef = {
 export const KNIGHT: HeroDef = {
   id: 'knight',
   weaponId: 'spread',
-  baseHp: 90,
+  baseHp: 100,
   baseSpeed: 280,
   radius: 15,
-  mods: { lifestealOnKill: 0.7, fireRateMult: 0.18 },
+  mods: { lifestealOnKill: 0.35, fireRateMult: 0.18 },
 };
 
 export const HEROES: Record<string, HeroDef> = {

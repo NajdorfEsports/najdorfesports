@@ -18,11 +18,13 @@ describe('eligibleArchetypes (culling)', () => {
   it('unlocks over time and culls cheap fodder', () => {
     const early = eligibleArchetypes(0).map((a) => a.id);
     expect(early).toContain('pawn');
-    expect(early).not.toContain('brute'); // unlocks at 75s
+    expect(early).not.toContain('brute'); // unlocks at 70s
+    expect(early).not.toContain('lancer'); // unlocks at 360s
 
-    const late = eligibleArchetypes(400).map((a) => a.id);
-    expect(late).not.toContain('pawn'); // culled after 190s
+    const late = eligibleArchetypes(560).map((a) => a.id);
+    expect(late).not.toContain('pawn'); // culled after 540s
     expect(late).toContain('knight');
+    expect(late).toContain('lancer'); // a late-game charger
   });
 });
 

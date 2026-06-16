@@ -644,7 +644,8 @@ export const zhTW: Strings = {
       zoomInLabel: '放大',
       zoomOutLabel: '縮小',
       fullscreenLabel: '全螢幕',
-      reaperWarning: '死神逼近',
+      // DRAFT PENDING RIRI NATIVE REVIEW
+      reaperWarning: '皇后逼近',
       endlessTag: '無盡',
       winHeading: '你撐住了！',
       winBody: '你撐過了 10 分鐘大關。繼續進入無盡模式，或在此結束。',
@@ -683,11 +684,12 @@ export const zhTW: Strings = {
         // DRAFT PENDING RIRI NATIVE REVIEW
         bishop: {
           name: '主教',
-          desc: '精準的遠程射手：暴擊強勁，且每次擊殺都會回復少量生命，能在安全距離外逐一擊倒敵群。穩健而寬容。',
+          desc: '精準的遠程射手，是純粹的脆皮輸出：暴擊強勁、射程最遠，但無法回復生命。持續走位，從安全距離外逐一擊倒敵群。',
         },
+        // DRAFT PENDING RIRI NATIVE REVIEW
         knight: {
           name: '騎士',
-          desc: '快速且具侵略性：近距離散射、更快的攻擊速度，並在每次擊殺時回復生命。較為脆弱，因此要勇於突進並持續擊殺。贏得一局以解鎖。',
+          desc: '快速且具侵略性：近距離四連散射、更快的攻擊速度，並在每次擊殺時回復生命。衝進敵群並持續擊殺以維持生命。贏得一局以解鎖。',
         },
       },
     },

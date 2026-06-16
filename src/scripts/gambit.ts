@@ -197,6 +197,8 @@ const PIECE_BY_ID: Record<string, (c: Pen, cx: number, cy: number, R: number) =>
   runner: knightPath,
   shade: bishopPath,
   brute: rookPath,
+  lancer: knightPath,
+  wall: rookPath,
   knight: kingPath,
   elite: kingPath,
   reaper: queenPath,
