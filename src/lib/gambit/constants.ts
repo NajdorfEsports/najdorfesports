@@ -89,6 +89,25 @@ export const CRIT_MULT = 2.25;
 /** Heavy Bolt splash: fraction of the hit's damage dealt to nearby enemies. */
 export const SPLASH_FRACTION = 0.55;
 
+/** Build slots: you can own this many distinct weapons and passives. The caps
+ *  are what make each level-up a real opportunity-cost choice. */
+export const WEAPON_SLOTS = 6;
+export const PASSIVE_SLOTS = 6;
+
+/** Elites are real minibosses: HP is the live-scaled brute times this, no hit
+ *  may remove more than HIT_CAP_FRAC of their max HP (so a maxed cone can't
+ *  delete them in 1-2 shots), and ARMOR is subtracted before the cap (punishes
+ *  many-small-projectile builds, rewarding diverse damage). */
+export const ELITE_HP_MULT = 8;
+export const ELITE_HIT_CAP_FRAC = 0.05;
+export const ELITE_ARMOR = 8;
+/** Living elites summon a few adds on this cadence (the auto-weapon retargets
+ *  onto them, so the elite survives by position, not by a bigger HP bar). Kept
+ *  modest and spawned at range so it pressures without instantly burying a
+ *  no-sustain hero. */
+export const ELITE_SUMMON_INTERVAL = 9;
+export const ELITE_ADD_COUNT = 2;
+
 /**
  * Smoothly accelerating difficulty over a run. Drives swarm density via the
  * director credit rate; non-decreasing, so the threat always rises.
@@ -127,7 +146,7 @@ export function damageForLevel(_level: number): number {
 /** XP required to clear each level. Flatter than a hard quadratic so leveling
  * stays snappy deep into a run (paired with richer gem values). */
 export function xpForLevel(level: number): number {
-  return Math.round(5 + level * 4 + level * level * 0.12);
+  return Math.round(6 + level * 5 + level * level * 0.24);
 }
 
 /** Run-end currency: rewards how well you actually played, plus a win bonus. */

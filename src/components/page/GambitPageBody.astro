@@ -28,11 +28,16 @@ const heroList = Object.values(HEROES);
 // Strings the engine needs at runtime (level-up card names + a few labels).
 const l10n = {
   upgrades: c.upgrades,
+  weapons: c.weapons,
+  evolutions: c.evolutions,
   heroes: c.heroes,
   buy: c.buyLabel,
   maxed: c.maxedLabel,
   newBest: c.newBest,
   unlockHeading: c.unlockHeading,
+  newWeaponTag: c.newWeaponTag,
+  evolutionTag: c.evolutionTag,
+  levelTag: c.levelTag,
 };
 ---
 
@@ -632,6 +637,29 @@ const l10n = {
   .gg-cards :global(.gg-card-desc) {
     font-size: 0.75rem;
     color: var(--color-text-dim);
+  }
+  /* A small eyebrow tag above the name (NEW WEAPON / EVOLUTION / Lv n -> m). */
+  .gg-cards :global(.gg-card-tag) {
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-accent-2);
+  }
+  /* Weapon cards lean on the brand blue; evolution cards are gold and glow. */
+  .gg-cards :global(.gg-card-weapon) {
+    border-color: color-mix(in oklab, var(--color-accent) 55%, var(--color-border));
+  }
+  .gg-cards :global(.gg-card-evo) {
+    border-color: #f5c451;
+    background: color-mix(in oklab, #f5c451 12%, var(--color-surface));
+  }
+  .gg-cards :global(.gg-card-evo .gg-card-tag),
+  .gg-cards :global(.gg-card-evo .gg-card-name) {
+    color: #f5c451;
+  }
+  .gg-cards :global(.gg-card-evo:hover) {
+    border-color: #ffd87a;
   }
 
   .gg-newbest {

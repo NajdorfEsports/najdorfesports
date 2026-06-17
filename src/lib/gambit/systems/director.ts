@@ -12,6 +12,10 @@
 import {
   ARENA_HALF,
   DIRECTOR_BASE_RATE,
+  ELITE_ADD_COUNT,
+  ELITE_ARMOR,
+  ELITE_HP_MULT,
+  ELITE_SUMMON_INTERVAL,
   MAX_ENEMIES,
   REAPER_CRUISE,
   REAPER_SECONDS,
@@ -32,6 +36,8 @@ import {
   eligibleArchetypes,
 } from '../enemies';
 import type { World } from '../types';
+
+const BRUTE_BASE_HP = ALL_ARCHETYPES[BRUTE_INDEX]!.hp;
 
 /** Seconds between scheduled elite events. */
 const EVENT_INTERVAL = 60;
@@ -82,15 +88,24 @@ function spawnEnemy(world: World, typeIndex: number, px?: number, py?: number): 
     y = clamp(player.y + Math.sin(angle) * SPAWN_DIST, -ARENA_HALF, ARENA_HALF);
   }
   const isReaper = a.id === 'reaper';
+  const isElite = a.id === 'elite';
   enemies.x[i] = x;
   enemies.y[i] = y;
   enemies.prevX[i] = x;
   enemies.prevY[i] = y;
   enemies.vx[i] = 0;
   enemies.vy[i] = 0;
-  // The Queen's HP/speed/damage are set directly (not time-scaled); everything
-  // else scales with elapsed time.
-  enemies.hp[i] = isReaper ? a.hp : a.hp * enemyHpScale(elapsed);
+  // The Queen's HP is set directly (not time-scaled); a minibossy elite scales
+  // off the LIVE brute HP so it stays proportionally tough the whole run (its
+  // per-hit cap in collision.ts is what stops a maxed cone deleting it);
+  // everything else scales with elapsed time.
+  let hp: number;
+  if (isReaper) hp = a.hp;
+  else if (isElite) hp = BRUTE_BASE_HP * enemyHpScale(elapsed) * ELITE_HP_MULT;
+  else hp = a.hp * enemyHpScale(elapsed);
+  enemies.hp[i] = hp;
+  enemies.maxHp[i] = hp;
+  enemies.armor[i] = isElite ? ELITE_ARMOR : 0;
   enemies.radius[i] = a.radius;
   enemies.speed[i] = isReaper ? REAPER_CRUISE : a.speed * enemySpeedScale(elapsed);
   enemies.damage[i] = isReaper ? a.contactDamage : a.contactDamage * enemyDamageScale(elapsed);
@@ -109,6 +124,7 @@ function spawnQueen(world: World, hpMult: number, track: boolean): void {
   if (i < 0) return;
   const hp = (REAPER.hp + Math.min(player.kills, QUEEN_KILL_HP_CAP)) * hpMult;
   world.enemies.hp[i] = hp;
+  world.enemies.maxHp[i] = hp;
   if (track) {
     director.reaperIndex = i;
     director.reaperMaxHp = hp;
@@ -128,6 +144,25 @@ function spawnWallRing(world: World): void {
       player.x + Math.cos(a) * WALL_RING_RADIUS,
       player.y + Math.sin(a) * WALL_RING_RADIUS,
     );
+  }
+}
+
+/** Living elites periodically summon adds near the player. The auto-weapon
+ *  retargets onto the adds, so an elite survives by pulling fire, not by a
+ *  bigger HP bar, and a stationary player gets boxed in. */
+function updateEliteSummons(world: World, dt: number): void {
+  const { director, enemies, player } = world;
+  director.eliteSummonTimer -= dt;
+  if (director.eliteSummonTimer > 0) return;
+  director.eliteSummonTimer = ELITE_SUMMON_INTERVAL;
+  const active = enemies.pool.active;
+  for (let i = 0; i < active.length; i += 1) {
+    if (active[i] !== 1 || enemies.type[i] !== ELITE_INDEX) continue;
+    for (let k = 0; k < ELITE_ADD_COUNT; k += 1) {
+      const a = world.rng.range(0, Math.PI * 2);
+      const rad = SPAWN_DIST * 0.62;
+      spawnEnemy(world, SHADE_INDEX, player.x + Math.cos(a) * rad, player.y + Math.sin(a) * rad);
+    }
   }
 }
 
@@ -175,6 +210,9 @@ export function updateDirector(world: World, dt: number): void {
   // The living climax Queen runs her phased fight.
   if (director.reaperIndex >= 0) updateQueenFight(world, dt);
 
+  // Living elites summon adds (the mid-game miniboss threat).
+  updateEliteSummons(world, dt);
+
   // Endless: after the win mark, escalating Queens keep coming.
   if (world.won) {
     director.endlessTimer -= dt;
@@ -203,7 +241,10 @@ export function updateDirector(world: World, dt: number): void {
     director.nextEventIndex += 1;
   }
 
-  // Budget spend: keep buying affordable enemies until broke or at cap.
+  // Budget spend: keep buying affordable enemies until broke or at cap. The
+  // pick is uniform over the eligible mix; mid-game variety comes from culling
+  // pawns out (enemies.ts), not from over-buying heavies (that just makes a
+  // tanky wall that accumulates to the cap).
   const eligible = eligibleArchetypes(elapsed);
   if (eligible.length === 0) return;
   let guard = 128;

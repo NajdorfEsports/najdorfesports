@@ -6,7 +6,7 @@
  * identically. Used by sim/harness.test.ts and world.test.ts.
  */
 import { DEFAULT_HERO } from '../heroes';
-import { applyUpgrade, offerChoices } from '../systems/progression';
+import { applyCard, offerChoices } from '../systems/progression';
 import type { RunResult, World } from '../types';
 import { createWorld, runResult, step } from '../world';
 
@@ -57,8 +57,8 @@ export function runSeed(
     step(world);
     for (const ev of world.events) {
       if (ev.type === 'levelup') {
-        const choices = offerChoices(world.seed, ev.level, taken);
-        if (choices.length > 0) applyUpgrade(world.player, taken, choices[0]!);
+        const choices = offerChoices(world.seed, ev.level, world.player, taken);
+        if (choices.length > 0) applyCard(world, taken, choices[0]!);
       }
     }
   }

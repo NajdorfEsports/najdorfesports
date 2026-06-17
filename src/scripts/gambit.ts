@@ -53,17 +53,24 @@ import { ALL_ARCHETYPES } from '../lib/gambit/enemies';
 import { DEFAULT_HERO, HEROES } from '../lib/gambit/heroes';
 import { POWERUPS, powerupCost } from '../lib/gambit/powerups';
 import { STORAGE_KEY, deserialize, emptyState, serialize } from '../lib/gambit/storage';
-import { applyUpgrade, offerChoices } from '../lib/gambit/systems/progression';
-import type { StoredState, World } from '../lib/gambit/types';
+import { applyCard, offerChoices } from '../lib/gambit/systems/progression';
+import { resolveAoe } from '../lib/gambit/systems/weapon';
+import type { OfferCard, StoredState, World } from '../lib/gambit/types';
+import { WEAPONS } from '../lib/gambit/weapons';
 import { createWorld, runResult, step } from '../lib/gambit/world';
 
 interface L10n {
   upgrades: Record<string, { name: string; desc: string }>;
+  weapons: Record<string, { name: string; desc: string }>;
+  evolutions: Record<string, { name: string; desc: string }>;
   heroes: Record<string, { name: string; desc: string }>;
   buy: string;
   maxed: string;
   newBest: string;
   unlockHeading: string;
+  newWeaponTag: string;
+  evolutionTag: string;
+  levelTag: string;
 }
 
 /** Design radius the piece silhouettes are baked to (texture-space px). */
@@ -382,15 +389,37 @@ async function init(): Promise<void> {
   });
 
   // Glowing bolt (horizontal capsule); rotated + stretched to velocity.
-  const projTex = canvasTex(40, 18, (c, w, h) => {
-    const cy = h / 2;
-    c.shadowColor = css(COLOR_ACCENT2);
-    c.shadowBlur = 6;
-    c.fillStyle = '#eef3ff';
-    c.beginPath();
-    c.roundRect(4, cy - 4, w - 8, 8, 4);
-    c.fill();
-    c.fill();
+  function mkProjTex(fill: string, glow: string): Texture {
+    return canvasTex(40, 18, (c, w, h) => {
+      const cy = h / 2;
+      c.shadowColor = glow;
+      c.shadowBlur = 6;
+      c.fillStyle = fill;
+      c.beginPath();
+      c.roundRect(4, cy - 4, w - 8, 8, 4);
+      c.fill();
+      c.fill();
+    });
+  }
+  const projTex = mkProjTex('#eef3ff', css(COLOR_ACCENT2));
+  // One texture per projectile kind (index matches KIND_INDEX in weapon.ts):
+  // 0 bolt (white), 1 radial (soft blue), 2 lance (bright blue), 3 seeker (violet).
+  const projKindTex: Texture[] = [
+    projTex,
+    mkProjTex(css(COLOR_ACCENT2), css(COLOR_ACCENT2)),
+    mkProjTex('#dbe6ff', css(COLOR_ACCENT)),
+    mkProjTex('#d8c6ff', '#9b6bff'),
+  ];
+
+  // Soft additive ring for the aura weapons (Sanctum / Communion).
+  const auraTex = canvasTex(128, 128, (c, w) => {
+    const r = w / 2;
+    const g = c.createRadialGradient(r, r, r * 0.45, r, r, r);
+    g.addColorStop(0, 'rgba(107,141,255,0)');
+    g.addColorStop(0.8, 'rgba(107,141,255,0.18)');
+    g.addColorStop(1, 'rgba(107,141,255,0)');
+    c.fillStyle = g;
+    c.fillRect(0, 0, w, w);
   });
 
   // Edge texture for the vignette + hit-flash (transparent center -> white edge).
@@ -448,9 +477,16 @@ async function init(): Promise<void> {
   playerNode.addChild(playerGlow, bishopSprite);
   camera.addChild(playerNode, fxLayer);
 
-  // Orbiting blades (shown when the orbiters upgrade is taken).
+  // Aura field (Sanctum / Communion), drawn under the player.
+  const auraSprite = new Sprite(auraTex);
+  auraSprite.anchor.set(0.5);
+  auraSprite.blendMode = 'add';
+  auraSprite.visible = false;
+  camera.addChild(auraSprite);
+
+  // Orbiting blades (shown when the Carousel weapon is owned).
   const orbiterSprites: Sprite[] = [];
-  for (let i = 0; i < 3; i += 1) {
+  for (let i = 0; i < 8; i += 1) {
     const s = new Sprite(orbiterTex);
     s.anchor.set(0.5);
     s.blendMode = 'add';
@@ -799,16 +835,47 @@ async function init(): Promise<void> {
     setOverlay('levelup');
     renderCards();
   }
+  /** Resolve a card's display name, description, eyebrow tag, and CSS class. */
+  function cardInfo(card: OfferCard): { name: string; desc: string; tag: string; cls: string } {
+    if (card.kind === 'evolution') {
+      const e = l10n.evolutions[card.ref] ?? { name: card.ref, desc: '' };
+      return { name: e.name, desc: e.desc, tag: l10n.evolutionTag, cls: 'gg-card gg-card-evo' };
+    }
+    if (card.kind === 'newWeapon') {
+      const wd = l10n.weapons[card.ref] ?? { name: card.ref, desc: '' };
+      return {
+        name: wd.name,
+        desc: wd.desc,
+        tag: l10n.newWeaponTag,
+        cls: 'gg-card gg-card-weapon',
+      };
+    }
+    if (card.kind === 'levelWeapon') {
+      const wd = l10n.weapons[card.ref] ?? { name: card.ref, desc: '' };
+      const owned = game.world?.player.weapons.find((w) => w.id === card.ref);
+      const lv = owned ? owned.level : 1;
+      const tag = l10n.levelTag.replace('{n}', String(lv)).replace('{m}', String(lv + 1));
+      return { name: wd.name, desc: wd.desc, tag, cls: 'gg-card gg-card-weapon' };
+    }
+    const info = l10n.upgrades[card.ref] ?? { name: card.ref, desc: '' };
+    return { name: info.name, desc: info.desc, tag: '', cls: 'gg-card' };
+  }
   function renderCards(): void {
     if (!cardsBox || !game.world) return;
     const level = game.levelQueue[0] ?? game.world.player.level;
-    const ids = offerChoices(game.world.seed, level, game.taken);
+    const cards = offerChoices(game.world.seed, level, game.world.player, game.taken);
     cardsBox.replaceChildren();
-    for (const id of ids) {
-      const info = l10n.upgrades[id] ?? { name: id, desc: '' };
+    for (const card of cards) {
+      const info = cardInfo(card);
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'gg-card';
+      btn.className = info.cls;
+      if (info.tag) {
+        const tag = document.createElement('span');
+        tag.className = 'gg-card-tag';
+        tag.textContent = info.tag;
+        btn.appendChild(tag);
+      }
       const name = document.createElement('span');
       name.className = 'gg-card-name';
       name.textContent = info.name;
@@ -816,13 +883,13 @@ async function init(): Promise<void> {
       desc.className = 'gg-card-desc';
       desc.textContent = info.desc;
       btn.append(name, desc);
-      btn.addEventListener('click', () => pickCard(id));
+      btn.addEventListener('click', () => pickCard(card));
       cardsBox.appendChild(btn);
     }
   }
-  function pickCard(id: string): void {
+  function pickCard(card: OfferCard): void {
     if (!game.world) return;
-    applyUpgrade(game.world.player, game.taken, id);
+    applyCard(game.world, game.taken, card);
     game.levelQueue.shift();
     if (game.levelQueue.length > 0) {
       renderCards();
@@ -1028,7 +1095,7 @@ async function init(): Promise<void> {
         if (game.levelQueue.length > 0) {
           // Once every upgrade is maxed there is nothing to offer; level up
           // silently instead of opening an empty chooser.
-          if (offerChoices(w.seed, game.levelQueue[0]!, game.taken).length > 0) {
+          if (offerChoices(w.seed, game.levelQueue[0]!, w.player, game.taken).length > 0) {
             openLevelup();
             break;
           }
@@ -1102,6 +1169,7 @@ async function init(): Promise<void> {
       const s = projSprites[i]!;
       if (pa[i] === 1) {
         const sc = w.projectiles.radius[i]! / PROJ_REF;
+        s.texture = projKindTex[w.projectiles.kind[i]!] ?? projTex;
         s.rotation = Math.atan2(w.projectiles.vy[i]!, w.projectiles.vx[i]!);
         s.scale.set(reduced ? sc : sc * 1.5, sc);
         s.position.set(
@@ -1131,19 +1199,38 @@ async function init(): Promise<void> {
       }
     }
 
-    // Orbiting blades around the player.
-    const oc = w.player.mods.orbiters;
+    // Orbiting blades (Carousel weapon): count + radius from its level.
+    let oc = 0;
+    let orbR = ORBIT_RADIUS;
+    const carousel = w.player.weapons.find((x) => WEAPONS[x.id]?.kind === 'orbital');
+    if (carousel) {
+      const aoe = resolveAoe(WEAPONS[carousel.id]!, carousel.level, w.player.mods);
+      oc = Math.min(orbiterSprites.length, Math.max(1, Math.round(aoe.count)));
+      orbR = aoe.radius;
+    }
     for (let i = 0; i < orbiterSprites.length; i += 1) {
       const s = orbiterSprites[i]!;
       if (i < oc) {
         const a = game.t * ORBIT_ANGULAR + (i / oc) * Math.PI * 2;
-        s.position.set(pxr + Math.cos(a) * ORBIT_RADIUS, pyr + Math.sin(a) * ORBIT_RADIUS);
+        s.position.set(pxr + Math.cos(a) * orbR, pyr + Math.sin(a) * orbR);
         s.rotation = a;
         s.scale.set(reduced ? 1 : 1 + Math.sin(game.t * 8 + i) * 0.15);
         s.visible = true;
       } else {
         s.visible = false;
       }
+    }
+
+    // Aura field (Sanctum / Communion): a soft ring at its radius.
+    const auraW = w.player.weapons.find((x) => WEAPONS[x.id]?.kind === 'aura');
+    if (auraW) {
+      const aoe = resolveAoe(WEAPONS[auraW.id]!, auraW.level, w.player.mods);
+      auraSprite.position.set(pxr, pyr);
+      auraSprite.scale.set((aoe.radius * 2) / 128);
+      auraSprite.alpha = reduced ? 0.5 : 0.5 + Math.sin(game.t * 3) * 0.12;
+      auraSprite.visible = true;
+    } else {
+      auraSprite.visible = false;
     }
 
     updateParticles(dt);

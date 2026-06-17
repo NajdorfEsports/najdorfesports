@@ -16,8 +16,8 @@
 import { describe, expect, it } from 'vitest';
 import { RUN_WIN_SECONDS } from '../constants';
 import { BISHOP, KNIGHT } from '../heroes';
-import { applyUpgrade, offerChoices } from '../systems/progression';
-import type { HeroDef, World } from '../types';
+import { applyCard, offerChoices } from '../systems/progression';
+import type { HeroDef, OfferCard, World } from '../types';
 import { createWorld, step } from '../world';
 
 type Move = (w: World) => { x: number; y: number };
@@ -70,24 +70,83 @@ const lazyTurret: Move = (world) => {
 const kite: Move = (world) => fieldKite(world, 320);
 const closeKite: Move = (world) => fieldKite(world, 170);
 
-// The four dominant offensive upgrades, then the rest: the abused build.
+// The greedy offense build a turtle would chase, best-for-standing-still first:
+// the Lance evolution, the 360 Volley (hits every side while stationary), then
+// raw offense, then the rest. If even this can't carry a turtle, the structural
+// fix holds.
 const PRIORITY = [
+  'evoLance',
+  'volley',
   'multishot',
   'firerate',
-  'pierce',
-  'velocity',
+  'area',
   'damage',
   'crit',
-  'area',
-  'orbiters',
+  'wrath',
+  'pierce',
+  'carousel',
+  'bolt',
+  'oracle',
+  'sanctum',
+  'gambit',
+  'velocity',
   'swift',
   'fortify',
   'regen',
+  'armor',
+  'evasion',
+  'revival',
   'magnet',
 ];
-function pickGreedy(choices: string[]): string {
-  for (const id of PRIORITY) if (choices.includes(id)) return id;
-  return choices[0]!;
+/** The greedy turtle: pure offense, best-for-standing-still first. The EXPLOIT. */
+function pickGreedy(cards: OfferCard[]): OfferCard {
+  for (const ref of PRIORITY) {
+    const c = cards.find((x) => x.ref === ref);
+    if (c) return c;
+  }
+  return cards[0]!;
+}
+
+function byPriority(cards: OfferCard[], prio: string[]): OfferCard | undefined {
+  for (const ref of prio) {
+    const c = cards.find((x) => x.ref === ref);
+    if (c) return c;
+  }
+  return undefined;
+}
+const DEF = ['revival', 'fortify', 'armor', 'regen'];
+const BAL = [
+  'evoLance',
+  'evoCommunion',
+  'volley',
+  'carousel',
+  'multishot',
+  'firerate',
+  'damage',
+  'area',
+  'crit',
+  'wrath',
+  'pierce',
+  'sanctum',
+  'oracle',
+  'bolt',
+  'gambit',
+  'swift',
+  'velocity',
+  'magnet',
+  'evasion',
+];
+/** A thoughtful build (skilled play): a small survival floor, then ramp damage
+ *  and coverage. This is what the agency layer is FOR. */
+function pickBalanced(cards: OfferCard[], taken: Record<string, number>): OfferCard {
+  const evo = cards.find((c) => c.kind === 'evolution');
+  if (evo) return evo;
+  const defTaken = DEF.reduce((a, id) => a + (taken[id] ?? 0), 0);
+  if (defTaken < 3) {
+    const d = byPriority(cards, DEF);
+    if (d) return d;
+  }
+  return byPriority(cards, BAL) ?? cards[0]!;
 }
 
 interface Outcome {
@@ -96,8 +155,9 @@ interface Outcome {
   reachedQueen: boolean;
 }
 
-/** Play one bounded run: stops at death or the win mark (no endless). */
-function run(seed: number, hero: HeroDef, move: Move): Outcome {
+/** Play one bounded run: stops at death or the win mark (no endless). The greedy
+ *  bot models the turtle exploit; the balanced bot models thoughtful play. */
+function run(seed: number, hero: HeroDef, move: Move, greedy: boolean): Outcome {
   const world = createWorld(seed, hero, {});
   const taken: Record<string, number> = {};
   const maxSteps = 60 * 60 * 11;
@@ -108,8 +168,10 @@ function run(seed: number, hero: HeroDef, move: Move): Outcome {
     step(world);
     for (const ev of world.events) {
       if (ev.type === 'levelup') {
-        const choices = offerChoices(world.seed, ev.level, taken);
-        if (choices.length > 0) applyUpgrade(world.player, taken, pickGreedy(choices));
+        const choices = offerChoices(world.seed, ev.level, world.player, taken);
+        if (choices.length > 0) {
+          applyCard(world, taken, greedy ? pickGreedy(choices) : pickBalanced(choices, taken));
+        }
       }
     }
   }
@@ -124,13 +186,13 @@ const TIMEOUT = 60_000;
 
 describe('anti-turtle balance tripwire', () => {
   it(
-    'standing perfectly still never wins and almost never reaches the Queen',
+    'standing still + greedy offense never wins and almost never reaches the Queen',
     () => {
       let wins = 0;
       let reached = 0;
       for (const hero of [BISHOP, KNIGHT]) {
         for (const s of SEEDS) {
-          const r = run(s, hero, turret);
+          const r = run(s, hero, turret, true);
           if (r.won) wins += 1;
           if (r.reachedQueen) reached += 1;
         }
@@ -142,11 +204,11 @@ describe('anti-turtle balance tripwire', () => {
   );
 
   it(
-    'a near-stationary turtle (the owner exploit) never wins',
+    'a near-stationary turtle (the owner exploit) never wins, even with the rich pool',
     () => {
       let wins = 0;
       for (const hero of [BISHOP, KNIGHT]) {
-        for (const s of SEEDS) if (run(s, hero, lazyTurret).won) wins += 1;
+        for (const s of SEEDS) if (run(s, hero, lazyTurret, true).won) wins += 1;
       }
       expect(wins).toBe(0);
     },
@@ -154,20 +216,20 @@ describe('anti-turtle balance tripwire', () => {
   );
 
   it(
-    'an active wide-kiting Bishop still reaches the climax Queen',
+    'a Bishop on a thoughtful build reaches the climax Queen by playing actively',
     () => {
       let reached = 0;
-      for (const s of SEEDS) if (run(s, BISHOP, kite).reachedQueen) reached += 1;
-      expect(reached).toBeGreaterThanOrEqual(2); // most of 3: the fix is positional
+      for (const s of SEEDS) if (run(s, BISHOP, closeKite, false).reachedQueen) reached += 1;
+      expect(reached).toBeGreaterThanOrEqual(2); // most of 3: build + movement, not turtling
     },
     TIMEOUT,
   );
 
   it(
-    'the run is winnable for a hero played to its strength (aggressive Knight)',
+    'the run is winnable on a thoughtful build played actively (Knight)',
     () => {
       let wins = 0;
-      for (const s of SEEDS) if (run(s, KNIGHT, closeKite).won) wins += 1;
+      for (const s of SEEDS) if (run(s, KNIGHT, kite, false).won) wins += 1;
       expect(wins).toBeGreaterThanOrEqual(1);
     },
     TIMEOUT,

@@ -1,27 +1,29 @@
 /**
  * Collision and pickups. Rebuilds the enemy grid, then resolves: projectile ->
- * enemy hits (damage, Heavy Bolt splash, pierce), the orbiting-blade weapon
- * (continuous contact damage), enemy -> player contact (gated by i-frames), and
- * gem magnet + pickup (XP and level-ups). Elites and the Reaper drop a gem
- * "chest" on death. Health regen lands last. Death sets world.dead and emits
- * `died`; the caller stops stepping.
+ * enemy hits (damage, splash, pierce, with an elite armor + per-hit cap so
+ * minibosses survive focused fire), the orbital and aura weapons (continuous
+ * damage from the player's owned weapons), enemy -> player contact (gated by
+ * i-frames, reduced by armor, negated by dodge, and survivable once via a
+ * revival charge), and gem magnet + pickup (XP and level-ups). Elites and the
+ * Queen drop a gem "chest" on death. Mending regen lands last. Death sets
+ * world.dead and emits `died`; the caller stops stepping.
  */
 import {
+  ELITE_HIT_CAP_FRAC,
   MAGNET_SPEED,
   MENDING_BLOCK_COUNT,
   MENDING_BLOCK_R,
   ORBIT_ANGULAR,
-  ORBIT_DPS,
   ORBIT_HIT_RADIUS,
-  ORBIT_RADIUS,
   PLAYER_IFRAME,
   SPLASH_FRACTION,
   STILL_HEAL_DELAY,
-  damageForLevel,
 } from '../constants';
 import { ALL_ARCHETYPES } from '../enemies';
 import type { World } from '../types';
+import { WEAPONS } from '../weapons';
 import { addXp } from './progression';
+import { resolveAoe } from './weapon';
 
 function spawnGem(world: World, x: number, y: number, value: number): void {
   const g = world.gems;
@@ -32,6 +34,21 @@ function spawnGem(world: World, x: number, y: number, value: number): void {
   g.prevX[i] = x;
   g.prevY[i] = y;
   g.value[i] = value;
+}
+
+/** Apply `raw` damage to enemy j. Elites subtract armor and cap each DISCRETE
+ *  hit at a fraction of their max HP, so no single shot deletes a miniboss;
+ *  continuous damage (orbital/aura) bypasses the cap but still chips them. */
+function damageEnemy(world: World, j: number, raw: number, discrete: boolean): void {
+  const { enemies } = world;
+  let dmg = raw;
+  if (discrete && enemies.elite[j] === 1) {
+    dmg = Math.max(1, dmg - enemies.armor[j]!);
+    const cap = enemies.maxHp[j]! * ELITE_HIT_CAP_FRAC;
+    if (dmg > cap) dmg = cap;
+  }
+  enemies.hp[j] = enemies.hp[j]! - dmg;
+  if (enemies.hp[j]! <= 0) killEnemy(world, j);
 }
 
 /** Kill enemy j: drop its gem(s) (a scattered chest for elites), emit, recycle. */
@@ -76,7 +93,7 @@ export function updateCollision(world: World, dt: number): void {
     if (eActive[i] === 1) grid.insert(i, enemies.x[i]!, enemies.y[i]!);
   }
 
-  // Projectile -> enemy (with Heavy Bolt splash).
+  // Projectile -> enemy (with splash).
   const splashR = player.mods.splash;
   const pActive = projectiles.pool.active;
   for (let p = 0; p < pActive.length; p += 1) {
@@ -94,8 +111,7 @@ export function updateCollision(world: World, dt: number): void {
       const dmg = projectiles.damage[p]!;
       const hx = enemies.x[j]!;
       const hy = enemies.y[j]!;
-      enemies.hp[j] = enemies.hp[j]! - dmg;
-      if (enemies.hp[j]! <= 0) killEnemy(world, j);
+      damageEnemy(world, j, dmg, true);
       if (splashR > 0) {
         const sd = dmg * SPLASH_FRACTION;
         grid.queryNeighbors(hx, hy, (k) => {
@@ -103,8 +119,7 @@ export function updateCollision(world: World, dt: number): void {
           const sdx = enemies.x[k]! - hx;
           const sdy = enemies.y[k]! - hy;
           if (sdx * sdx + sdy * sdy > splashR * splashR) return;
-          enemies.hp[k] = enemies.hp[k]! - sd;
-          if (enemies.hp[k]! <= 0) killEnemy(world, k);
+          damageEnemy(world, k, sd, true);
         });
       }
       if (projectiles.pierce[p]! > 0) {
@@ -116,23 +131,38 @@ export function updateCollision(world: World, dt: number): void {
     if (dead) projectiles.pool.kill(p);
   }
 
-  // Orbiting blades: continuous contact damage around the player.
-  const orbiters = player.mods.orbiters;
-  if (orbiters > 0) {
-    const odmg = ORBIT_DPS * player.mods.damageMult * damageForLevel(player.level) * dt;
-    const baseA = world.time.elapsedS * ORBIT_ANGULAR;
-    for (let o = 0; o < orbiters; o += 1) {
-      const a = baseA + (o / orbiters) * Math.PI * 2;
-      const ox = player.x + Math.cos(a) * ORBIT_RADIUS;
-      const oy = player.y + Math.sin(a) * ORBIT_RADIUS;
-      grid.queryNeighbors(ox, oy, (k) => {
+  // Orbital + aura weapons: continuous damage from the player's owned weapons.
+  for (const w of player.weapons) {
+    const def = WEAPONS[w.id];
+    if (!def) continue;
+    if (def.kind === 'orbital') {
+      const { count, dps, radius } = resolveAoe(def, w.level, player.mods);
+      const odmg = dps * dt;
+      const blades = Math.max(1, Math.round(count));
+      const baseA = world.time.elapsedS * ORBIT_ANGULAR;
+      for (let o = 0; o < blades; o += 1) {
+        const a = baseA + (o / blades) * Math.PI * 2;
+        const ox = player.x + Math.cos(a) * radius;
+        const oy = player.y + Math.sin(a) * radius;
+        grid.queryNeighbors(ox, oy, (k) => {
+          if (enemies.pool.active[k] !== 1) return;
+          const rr = enemies.radius[k]! + ORBIT_HIT_RADIUS;
+          const dx = enemies.x[k]! - ox;
+          const dy = enemies.y[k]! - oy;
+          if (dx * dx + dy * dy > rr * rr) return;
+          damageEnemy(world, k, odmg, false);
+        });
+      }
+    } else if (def.kind === 'aura') {
+      const { dps, radius } = resolveAoe(def, w.level, player.mods);
+      const admg = dps * dt;
+      grid.queryNeighbors(player.x, player.y, (k) => {
         if (enemies.pool.active[k] !== 1) return;
-        const rr = enemies.radius[k]! + ORBIT_HIT_RADIUS;
-        const dx = enemies.x[k]! - ox;
-        const dy = enemies.y[k]! - oy;
+        const rr = enemies.radius[k]! + radius;
+        const dx = enemies.x[k]! - player.x;
+        const dy = enemies.y[k]! - player.y;
         if (dx * dx + dy * dy > rr * rr) return;
-        enemies.hp[k] = enemies.hp[k]! - odmg;
-        if (enemies.hp[k]! <= 0) killEnemy(world, k);
+        damageEnemy(world, k, admg, false);
       });
     }
   }
@@ -150,12 +180,21 @@ export function updateCollision(world: World, dt: number): void {
       player.iframes = PLAYER_IFRAME;
     });
     if (hitDamage > 0) {
-      player.hp -= hitDamage;
-      events.push({ type: 'hit', x: player.x, y: player.y });
-      if (player.hp <= 0) {
-        player.hp = 0;
-        world.dead = true;
-        events.push({ type: 'died' });
+      const dodged = player.mods.dodgeChance > 0 && world.rng.chance(player.mods.dodgeChance);
+      if (!dodged) {
+        player.hp -= Math.max(1, hitDamage - player.mods.armor);
+        events.push({ type: 'hit', x: player.x, y: player.y });
+        if (player.hp <= 0) {
+          if (player.mods.revivalCharges > 0) {
+            player.mods.revivalCharges -= 1;
+            player.hp = player.maxHp * 0.5;
+            player.iframes = PLAYER_IFRAME * 3; // brief mercy after an undeath
+          } else {
+            player.hp = 0;
+            world.dead = true;
+            events.push({ type: 'died' });
+          }
+        }
       }
     }
   }

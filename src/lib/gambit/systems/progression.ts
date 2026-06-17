@@ -1,107 +1,176 @@
 /**
- * XP, level-ups, and the level-up card draw: the agency layer's pure core.
- * `rollChoices` is deterministic over (rng state, taken stacks) so the seeded
- * daily offers everyone the same cards: it samples distinct eligible upgrades
- * weighted toward the player's dominant tag, then guarantees a wildcard
- * (an off-dominant option when one exists) so a build never feels solved. Every
- * card is a real upgrade, so there are no trap or all-dead draws.
+ * XP, level-ups, and the level-up offer: the agency layer. A level-up draws
+ * three cards from FOUR sources, gated by the build slots so each pick is a real
+ * opportunity cost:
+ *   - a brand-new weapon (only while you have a free weapon slot),
+ *   - leveling a weapon you already own,
+ *   - a passive (only a new one while you have a free passive slot; otherwise a
+ *     deeper stack of one you own),
+ *   - an evolution (a gold card, guaranteed when its base weapon is maxed and
+ *     its catalyst passive is stacked enough).
+ * The draw is deterministic over (seed, level, build history) so the seeded
+ * daily offers everyone the same choices. Every card is real: no trap, no dead
+ * draw. Weapons are weighted up so build variety surfaces; defense is weighted
+ * up when you are light on it so survival options compete with raw damage.
  */
-import { xpForLevel } from '../constants';
+import { PASSIVE_SLOTS, WEAPON_SLOTS, xpForLevel } from '../constants';
+import { EVOLUTIONS } from '../evolutions';
 import { makeRng } from '../rng';
-import type { Player, SimEvent, UpgradeTag } from '../types';
+import type { OfferCard, Player, SimEvent, World } from '../types';
+import { BASE_WEAPON_IDS, WEAPONS } from '../weapons';
 import { UPGRADES, UPGRADE_BY_ID } from '../upgrades';
 
-const TAGS: UpgradeTag[] = ['offense', 'defense', 'utility'];
+/** Distinct passives the player has taken at least once. */
+function passiveCount(taken: Record<string, number>): number {
+  let n = 0;
+  for (const u of UPGRADES) if ((taken[u.id] ?? 0) > 0) n += 1;
+  return n;
+}
 
-/** The tag the player has invested the most stacks in, or null if none yet. */
-export function dominantTag(taken: Record<string, number>): UpgradeTag | null {
-  const totals: Record<UpgradeTag, number> = { offense: 0, defense: 0, utility: 0 };
-  for (const card of UPGRADES) {
-    const stacks = taken[card.id] ?? 0;
-    if (stacks > 0) for (const tag of card.tags) totals[tag] += stacks;
+/** Total defensive stacks taken (drives the survival-option weighting). */
+function defenseStacks(taken: Record<string, number>): number {
+  let n = 0;
+  for (const u of UPGRADES) if (u.tags.includes('defense')) n += taken[u.id] ?? 0;
+  return n;
+}
+
+function ownsWeapon(player: Player, id: string): boolean {
+  return player.weapons.some((w) => w.id === id);
+}
+
+/** Evolutions whose prerequisites are met right now and aren't already owned. */
+export function availableEvolutions(player: Player, taken: Record<string, number>): string[] {
+  const out: string[] = [];
+  for (const e of EVOLUTIONS) {
+    if (ownsWeapon(player, e.evolvedWeaponId)) continue;
+    const base = player.weapons.find((w) => w.id === e.baseWeaponId);
+    const def = WEAPONS[e.baseWeaponId];
+    if (!base || !def || base.level < def.maxLevel) continue;
+    if ((taken[e.catalystId] ?? 0) < e.catalystThreshold) continue;
+    out.push(e.id);
   }
-  let best: UpgradeTag | null = null;
-  let bestN = 0;
-  for (const tag of TAGS) {
-    if (totals[tag] > bestN) {
-      bestN = totals[tag];
-      best = tag;
-    }
-  }
-  return best;
+  return out;
 }
 
 interface Weighted {
-  id: string;
-  tags: UpgradeTag[];
+  card: OfferCard;
   w: number;
 }
 
-/** Three distinct, eligible, useful upgrade ids for a level-up choice. */
+/** Build the three offered cards from the four sources, weighted and deduped. */
 export function rollChoices(
   rng: { nextFloat(): number; nextInt(n: number): number },
+  player: Player,
   taken: Record<string, number>,
+  banished: Set<string> = new Set(),
   count = 3,
-): string[] {
-  const eligible = UPGRADES.filter((u) => (taken[u.id] ?? 0) < u.maxStacks);
-  if (eligible.length <= count) return eligible.map((u) => u.id);
+): OfferCard[] {
+  const out: OfferCard[] = [];
 
-  const dom = dominantTag(taken);
-  const pool: Weighted[] = eligible.map((u) => ({
-    id: u.id,
-    tags: u.tags,
-    w: 1 + (dom && u.tags.includes(dom) ? 1.4 : 0),
-  }));
+  // 1) Evolution: guaranteed if available (so the player SEES their plan land).
+  const evos = availableEvolutions(player, taken).filter((id) => !banished.has(`evo:${id}`));
+  if (evos.length > 0) {
+    const id = evos[rng.nextInt(evos.length)]!;
+    out.push({ key: `evo:${id}`, kind: 'evolution', ref: id });
+  }
 
-  const chosen: Weighted[] = [];
-  while (chosen.length < count && pool.length > 0) {
-    const total = pool.reduce((s, x) => s + x.w, 0);
+  // 2) Candidate pool.
+  const pool: Weighted[] = [];
+  // New weapons (only with a free weapon slot).
+  if (player.weapons.length < WEAPON_SLOTS) {
+    for (const id of BASE_WEAPON_IDS) {
+      if (ownsWeapon(player, id) || banished.has(id)) continue;
+      pool.push({ card: { key: id, kind: 'newWeapon', ref: id }, w: 2.4 });
+    }
+  }
+  // Level an owned weapon.
+  for (const w of player.weapons) {
+    const def = WEAPONS[w.id];
+    if (!def || w.level >= def.maxLevel) continue;
+    const key = `lvl:${w.id}`;
+    if (banished.has(key)) continue;
+    pool.push({ card: { key, kind: 'levelWeapon', ref: w.id }, w: 1.7 });
+  }
+  // Passives (a new one only with a free passive slot; else deepen an owned one).
+  const owned = passiveCount(taken);
+  const lightOnDefense = defenseStacks(taken) < 2;
+  for (const u of UPGRADES) {
+    if ((taken[u.id] ?? 0) >= u.maxStacks || banished.has(u.id)) continue;
+    const have = (taken[u.id] ?? 0) > 0;
+    if (owned >= PASSIVE_SLOTS && !have) continue;
+    let w = u.tags.includes('defense') ? 1.2 : u.tags.includes('utility') ? 1.0 : 0.9;
+    if (lightOnDefense && u.tags.includes('defense')) w += 0.8; // surface survival picks
+    pool.push({ card: { key: u.id, kind: 'passive', ref: u.id }, w });
+  }
+
+  // 3) Weighted sample to fill the draw.
+  while (out.length < count && pool.length > 0) {
+    let total = 0;
+    for (const x of pool) total += x.w;
     let r = rng.nextFloat() * total;
     let idx = 0;
     for (; idx < pool.length - 1; idx += 1) {
       r -= pool[idx]!.w;
       if (r <= 0) break;
     }
-    chosen.push(pool[idx]!);
+    out.push(pool[idx]!.card);
     pool.splice(idx, 1);
   }
-
-  // Wildcard guarantee: if every offered card shares the dominant tag and an
-  // off-tag upgrade is available, swap the last pick for one, so the draw
-  // always presents a real alternative direction.
-  if (dom) {
-    const hasOff = chosen.some((c) => !c.tags.includes(dom));
-    if (!hasOff) {
-      const chosenIds = new Set(chosen.map((c) => c.id));
-      const candidates = eligible.filter((u) => !u.tags.includes(dom) && !chosenIds.has(u.id));
-      if (candidates.length > 0) {
-        const wild = candidates[rng.nextInt(candidates.length)]!;
-        chosen[chosen.length - 1] = { id: wild.id, tags: wild.tags, w: 1 };
-      }
-    }
-  }
-
-  return chosen.map((c) => c.id);
+  return out;
 }
 
 /**
  * Level-up offers from a per-level stream independent of the director's RNG.
  * Keyed by (seed, level), so a given player's run replays identically while the
- * offers still adapt to their build (`taken`). Decoupling from world.rng means
- * card draws never perturb the spawn sequence and vice versa, no matter when a
- * player happens to level up.
+ * offers adapt to their build (`player`, `taken`).
  */
-export function offerChoices(seed: number, level: number, taken: Record<string, number>): string[] {
+export function offerChoices(
+  seed: number,
+  level: number,
+  player: Player,
+  taken: Record<string, number>,
+  banished: Set<string> = new Set(),
+): OfferCard[] {
   const mixed = (seed ^ Math.imul(level + 1, 0x9e3779b1)) >>> 0;
-  return rollChoices(makeRng(mixed), taken);
+  return rollChoices(makeRng(mixed), player, taken, banished);
 }
 
-/** Apply a chosen card and record the stack. */
+/** Apply a chosen passive card and record the stack (hyperbolic cards read it). */
 export function applyUpgrade(player: Player, taken: Record<string, number>, id: string): void {
   const card = UPGRADE_BY_ID[id];
   if (!card) return;
-  card.apply(player.mods, player);
+  card.apply(player.mods, player, taken[id] ?? 0);
   taken[id] = (taken[id] ?? 0) + 1;
+}
+
+/** Apply any offered card: acquire/level a weapon, take a passive, or evolve. */
+export function applyCard(world: World, taken: Record<string, number>, card: OfferCard): void {
+  const { player } = world;
+  if (card.kind === 'passive') {
+    applyUpgrade(player, taken, card.ref);
+    return;
+  }
+  if (card.kind === 'newWeapon') {
+    if (!ownsWeapon(player, card.ref) && player.weapons.length < WEAPON_SLOTS) {
+      player.weapons.push({ id: card.ref, level: 1, cooldown: 0 });
+    }
+    return;
+  }
+  if (card.kind === 'levelWeapon') {
+    const w = player.weapons.find((x) => x.id === card.ref);
+    const def = WEAPONS[card.ref];
+    if (w && def && w.level < def.maxLevel) w.level += 1;
+    return;
+  }
+  // Evolution: replace the base weapon in its slot with the evolved form.
+  const evo = EVOLUTIONS.find((e) => e.id === card.ref);
+  if (!evo) return;
+  const w = player.weapons.find((x) => x.id === evo.baseWeaponId);
+  if (!w) return;
+  w.id = evo.evolvedWeaponId;
+  w.level = 1;
+  w.cooldown = 0;
+  evo.grant?.(player.mods);
 }
 
 /** Credit XP and emit one levelup event per level crossed. */

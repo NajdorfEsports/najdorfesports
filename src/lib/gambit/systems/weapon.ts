@@ -1,28 +1,68 @@
 /**
- * Auto-firing weapon. Advances live projectiles, then fires on cadence at the
- * nearest enemy, fanning out extra projectiles within the weapon's spread.
- * Per-shot stats combine the WeaponDef bases with the run's PlayerMods, so
- * every upgrade is felt here. Projectiles expire by travel distance or arena
- * bounds.
+ * Auto-firing weapons. The player owns several weapons (player.weapons), each
+ * fired on its own cadence and dispatched by behavior (WeaponKind):
+ *   - bolt:   a fan at the nearest enemy.
+ *   - radial: a 360-degree nova.
+ *   - lance:  a tight line along the player's AIM (rewards moving).
+ *   - seeker: homing bolts.
+ *   - orbital/aura: not projectiles; they resolve in systems/collision.ts.
+ * Resolved per-shot stats combine each weapon's per-level growth with the run's
+ * global PlayerMods, so leveling a weapon AND stacking passives are both felt.
  */
-import { ARENA_HALF, damageForLevel } from '../constants';
-import type { World } from '../types';
+import { ARENA_HALF } from '../constants';
+import type { PlayerMods, ResolvedShot, WeaponDef, World } from '../types';
 import { WEAPONS } from '../weapons';
+
+/** Per-shot stats for a projectile weapon at a given level + global mods. */
+export function resolveWeapon(def: WeaponDef, level: number, mods: PlayerMods): ResolvedShot {
+  const n = level - 1;
+  const pl = def.perLevel;
+  return {
+    damage: def.baseDamage + (pl.damage ?? 0) * n,
+    projectiles: def.baseProjectiles + (pl.projectiles ?? 0) * n + mods.extraProjectiles,
+    interval: def.baseInterval * Math.pow(pl.interval ?? 1, n),
+    pierce: def.basePierce + (pl.pierce ?? 0) * n + mods.pierce,
+    radius: def.projectileRadius * Math.pow(pl.radius ?? 1, n) * Math.sqrt(mods.areaMult),
+    range: def.baseRange * Math.pow(pl.range ?? 1, n),
+    speed: def.baseProjectileSpeed * mods.projectileSpeedMult,
+  };
+}
+
+/** Blade count / DPS / radius for an orbital or aura weapon (used by collision). */
+export function resolveAoe(
+  def: WeaponDef,
+  level: number,
+  mods: PlayerMods,
+): { count: number; dps: number; radius: number } {
+  const n = level - 1;
+  const pl = def.perLevel;
+  return {
+    count: def.baseProjectiles + (pl.projectiles ?? 0) * n,
+    dps: (def.baseDamage + (pl.damage ?? 0) * n) * mods.damageMult,
+    radius: def.baseRange * Math.pow(pl.radius ?? 1, n) * Math.sqrt(mods.areaMult),
+  };
+}
+
+/** Find an owned weapon by id (for collision-resolved orbital/aura weapons). */
+export function findWeapon(world: World, id: string): { level: number } | undefined {
+  return world.player.weapons.find((w) => w.id === id);
+}
 
 function spawnProjectile(
   world: World,
-  x: number,
-  y: number,
   vx: number,
   vy: number,
   damage: number,
   radius: number,
   pierce: number,
   life: number,
+  homing: number,
+  kind: number,
 ): void {
   const p = world.projectiles;
   const i = p.pool.spawn();
   if (i < 0) return;
+  const { x, y } = world.player;
   p.x[i] = x;
   p.y[i] = y;
   p.prevX[i] = x;
@@ -33,6 +73,8 @@ function spawnProjectile(
   p.radius[i] = radius;
   p.pierce[i] = pierce;
   p.life[i] = life;
+  p.homing[i] = homing;
+  p.kind[i] = kind;
 }
 
 function nearestEnemy(world: World): number {
@@ -53,52 +95,97 @@ function nearestEnemy(world: World): number {
   return best;
 }
 
-function fire(world: World, target: number): void {
-  const { player, enemies } = world;
-  const def = WEAPONS[player.weaponId]!;
-  const m = player.mods;
-  // Damage scales with player LEVEL, so leveling is the core power curve and
-  // keeps pace with the (plateauing) enemy HP scaling. Crit rolls per shot from
-  // the seeded stream, so the daily stays reproducible.
-  let damage = def.baseDamage * m.damageMult * damageForLevel(player.level);
-  if (m.critChance > 0 && world.rng.chance(m.critChance)) damage *= m.critMult;
-  const speed = def.baseProjectileSpeed * m.projectileSpeedMult;
-  const radius = def.projectileRadius * Math.sqrt(m.areaMult);
-  const pierce = def.basePierce + m.pierce;
-  const count = def.baseProjectiles + m.extraProjectiles;
+/** Render-tint index per weapon, so projectiles read distinctly. Mirrors the
+ *  baked texture order in src/scripts/gambit.ts. */
+const KIND_INDEX: Record<string, number> = {
+  bolt: 0,
+  radial: 1,
+  lance: 2,
+  seeker: 3,
+};
 
-  const dx = enemies.x[target]! - player.x;
-  const dy = enemies.y[target]! - player.y;
-  const base = Math.atan2(dy, dx);
+/** Fire one projectile weapon this activation. Orbital/aura do nothing here. */
+function fireWeapon(world: World, def: WeaponDef, stats: ResolvedShot): void {
+  const { player, enemies } = world;
+  const m = player.mods;
+  let damage = stats.damage * m.damageMult;
+  if (m.critChance > 0 && world.rng.chance(m.critChance)) damage *= m.critMult;
+  const count = Math.max(1, Math.round(stats.projectiles));
+  const tint = KIND_INDEX[def.kind] ?? 0;
+
+  // Choose the base aim angle by behavior.
+  let base: number;
+  if (def.kind === 'lance') {
+    base = Math.atan2(player.aimY, player.aimX);
+  } else {
+    const target = nearestEnemy(world);
+    if (target < 0 && def.kind !== 'radial') return; // nothing to shoot at
+    base =
+      target >= 0
+        ? Math.atan2(enemies.y[target]! - player.y, enemies.x[target]! - player.x)
+        : Math.atan2(player.aimY, player.aimX);
+  }
   world.events.push({ type: 'shoot', x: player.x, y: player.y, angle: base });
+
   const spread = (def.spreadDeg * Math.PI) / 180;
   for (let k = 0; k < count; k += 1) {
-    const offset = count === 1 ? 0 : (k / (count - 1) - 0.5) * spread * (count - 1);
-    const angle = base + offset;
+    let angle: number;
+    if (def.kind === 'radial') {
+      angle = (k / count) * Math.PI * 2; // even 360 ring
+    } else if (count === 1) {
+      angle = base;
+    } else {
+      angle = base + (k / (count - 1) - 0.5) * spread * (count - 1);
+    }
     spawnProjectile(
       world,
-      player.x,
-      player.y,
-      Math.cos(angle) * speed,
-      Math.sin(angle) * speed,
+      Math.cos(angle) * stats.speed,
+      Math.sin(angle) * stats.speed,
       damage,
-      radius,
-      pierce,
-      def.baseRange,
+      stats.radius,
+      stats.pierce,
+      stats.range,
+      def.homingTurn,
+      tint,
     );
   }
 }
 
 export function updateWeapon(world: World, dt: number): void {
-  const { player, projectiles } = world;
+  const { player, projectiles, enemies } = world;
 
-  // Advance and expire projectiles.
+  // Advance and expire projectiles (homing ones steer toward the nearest foe).
   const active = projectiles.pool.active;
   const bound = ARENA_HALF + 80;
+  let homingTarget = -1;
   for (let i = 0; i < active.length; i += 1) {
     if (active[i] !== 1) continue;
     projectiles.prevX[i] = projectiles.x[i]!;
     projectiles.prevY[i] = projectiles.y[i]!;
+    const turn = projectiles.homing[i]!;
+    if (turn > 0) {
+      if (homingTarget < 0 || enemies.pool.active[homingTarget] !== 1) {
+        homingTarget = nearestEnemy(world);
+      }
+      if (homingTarget >= 0) {
+        const vx = projectiles.vx[i]!;
+        const vy = projectiles.vy[i]!;
+        const sp = Math.hypot(vx, vy) || 1;
+        const dx = enemies.x[homingTarget]! - projectiles.x[i]!;
+        const dy = enemies.y[homingTarget]! - projectiles.y[i]!;
+        const dl = Math.hypot(dx, dy) || 1;
+        const cross = (vx / sp) * (dy / dl) - (vy / sp) * (dx / dl);
+        const dot = (vx / sp) * (dx / dl) + (vy / sp) * (dy / dl);
+        let a = Math.atan2(cross, dot);
+        const max = turn * dt;
+        if (a > max) a = max;
+        else if (a < -max) a = -max;
+        const cs = Math.cos(a);
+        const sn = Math.sin(a);
+        projectiles.vx[i] = vx * cs - vy * sn;
+        projectiles.vy[i] = vx * sn + vy * cs;
+      }
+    }
     const stepX = projectiles.vx[i]! * dt;
     const stepY = projectiles.vy[i]! * dt;
     projectiles.x[i] = projectiles.x[i]! + stepX;
@@ -111,12 +198,18 @@ export function updateWeapon(world: World, dt: number): void {
     }
   }
 
-  // Fire on cadence.
-  player.cooldown -= dt;
-  if (player.cooldown <= 0) {
-    const def = WEAPONS[player.weaponId]!;
-    player.cooldown = def.baseInterval / player.mods.fireRateMult;
-    const target = nearestEnemy(world);
-    if (target >= 0) fire(world, target);
+  // Fire each owned weapon on its own cadence.
+  for (const w of player.weapons) {
+    const def = WEAPONS[w.id];
+    if (!def) continue;
+    w.cooldown -= dt;
+    if (w.cooldown > 0) continue;
+    if (def.kind === 'orbital' || def.kind === 'aura') {
+      w.cooldown = 0.25; // a slow tick; the weapon resolves continuously in collision
+      continue;
+    }
+    const stats = resolveWeapon(def, w.level, player.mods);
+    w.cooldown = stats.interval / player.mods.fireRateMult;
+    fireWeapon(world, def, stats);
   }
 }

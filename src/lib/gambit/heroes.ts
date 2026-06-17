@@ -18,12 +18,13 @@ export const BISHOP: HeroDef = {
   mods: { critChance: 0.12 },
 };
 
-// Knight: fast and aggressive (close-range 4-shot fan, faster fire), and it heals
-// hard on every kill, so diving into the swarm sustains it. Trades range and HP
-// for that aggression: higher ceiling, riskier, the reward for winning a run.
+// Knight: fast and aggressive. Starts with the Gambit lance, which fires along
+// your aim, so his identity (dive in, point your body at the threat) is enforced
+// from level 1. Heals on every kill and fires fast; trades range for it. Unlock
+// by winning a run.
 export const KNIGHT: HeroDef = {
   id: 'knight',
-  weaponId: 'spread',
+  weaponId: 'gambit',
   baseHp: 100,
   baseSpeed: 280,
   radius: 15,

@@ -79,12 +79,17 @@ export function updateMovement(world: World, dt: number): void {
   player.prevX = player.x;
   player.prevY = player.y;
   const ilen = Math.hypot(player.inputX, player.inputY);
-  if (ilen > 0.01) player.stillTime = 0;
-  else player.stillTime += dt;
-  if (ilen > 0) {
+  if (ilen > 0.01) {
+    player.stillTime = 0;
+    // Aim follows your heading and persists while still, so movement-direction
+    // weapons (the lance) fire one frozen arc for a stationary player.
+    player.aimX = player.inputX / ilen;
+    player.aimY = player.inputY / ilen;
     const speed = player.baseSpeed * player.mods.moveSpeedMult;
     player.x = clamp(player.x + (player.inputX / ilen) * speed * dt, -ARENA_HALF, ARENA_HALF);
     player.y = clamp(player.y + (player.inputY / ilen) * speed * dt, -ARENA_HALF, ARENA_HALF);
+  } else {
+    player.stillTime += dt;
   }
 
   const active = enemies.pool.active;

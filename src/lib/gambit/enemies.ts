@@ -16,7 +16,7 @@ export const ARCHETYPES: EnemyArchetype[] = [
     id: 'pawn',
     cost: 1,
     unlockAt: 0,
-    cullAfter: 540,
+    cullAfter: 360,
     hp: 11,
     speed: 72,
     radius: 13,

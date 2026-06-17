@@ -685,7 +685,7 @@ export const en = {
       noJsNotice:
         'This game needs JavaScript. It runs entirely in your browser; nothing is sent anywhere, and only your best time and upgrades are saved on this device.',
       controlsHint:
-        'Move with WASD or the arrow keys. On touch, drag anywhere to move. Your weapon fires on its own.',
+        'Move with WASD or the arrow keys. On touch, drag anywhere to move. Your weapons fire on their own; collect more as you level.',
       playLabel: 'Start run',
       retryLabel: 'Play again',
       backLabel: 'Back',
@@ -730,29 +730,60 @@ export const en = {
       finishLabel: 'Finish run',
       unlockHeading: 'New hero unlocked',
       howToHeading: 'How to play',
-      howTo1:
-        'Move to dodge. Your weapon auto-fires at the nearest foe. Survive as long as you can.',
+      howTo1: 'Move to dodge. Your weapons auto-fire on their own. Survive as long as you can.',
       howTo2:
-        'Defeated foes drop shards of experience. Collect them to level up, then pick one of three upgrades to shape your run.',
+        'Defeated foes drop shards of experience. Collect them to level up, then take a new weapon, level one you own, or pick an upgrade to shape your build.',
       howTo3:
         'Difficulty climbs the whole run, so a strong upgrade buys time, not safety. A new seeded run lands daily at midnight US Eastern.',
       howTo4:
         'Best time and permanent upgrades are stored only in this browser and never leave your device.',
       disclaimer:
         'Gambit is an original game made by Najdorf Esports. It is not affiliated with, endorsed by, or based on any other game; all names, characters, and art are original.',
+      newWeaponTag: 'New weapon',
+      evolutionTag: 'Evolution',
+      levelTag: 'Lv {n} → {m}',
+      weapons: {
+        bolt: { name: 'The Bolt', desc: 'A precise bolt at the nearest foe.' },
+        volley: { name: 'Battery', desc: 'A ring of bolts fired in every direction.' },
+        carousel: { name: 'Carousel', desc: 'Orbiting blades that shred anything they touch.' },
+        gambit: { name: "Knight's Gambit", desc: 'A piercing lance fired the way you move.' },
+        sanctum: { name: "Bishop's Sanctum", desc: 'A field that steadily burns nearby foes.' },
+        oracle: { name: 'Oracle', desc: 'Homing bolts that chase down stragglers.' },
+        lance: { name: 'Lance', desc: 'An unstoppable railgun fired the way you move.' },
+        communion: { name: 'Communion', desc: 'A burning field that heals you on every kill.' },
+      },
+      evolutions: {
+        evoLance: {
+          name: 'Lance',
+          desc: 'Evolve the Bolt with Piercing: an unstoppable directional railgun.',
+        },
+        evoCommunion: {
+          name: 'Communion',
+          desc: 'Evolve the Sanctum with Mending: the field now heals on every kill.',
+        },
+      },
       upgrades: {
-        damage: { name: 'Sharpened Edge', desc: 'Bolts deal more damage.' },
-        firerate: { name: 'Quickening', desc: 'Fire bolts more often.' },
-        multishot: { name: 'Split Bolt', desc: 'Fire an additional bolt.' },
-        pierce: { name: 'Piercing Tip', desc: 'Bolts pass through one more foe.' },
-        area: { name: 'Heavy Bolt', desc: 'Bigger bolts that splash damage to nearby foes.' },
+        damage: { name: 'Might', desc: 'All weapons deal more damage.' },
+        firerate: { name: 'Quickening', desc: 'All weapons fire more often.' },
+        multishot: { name: 'Multishot', desc: 'Projectile weapons fire one more shot.' },
+        pierce: { name: 'Piercing', desc: 'Projectiles pass through one more foe.' },
+        area: { name: 'Heavy Shot', desc: 'Bigger projectiles, splash, and wider area weapons.' },
         crit: { name: 'Keen Eye', desc: 'A chance to land critical hits for big extra damage.' },
-        orbiters: { name: 'Orbiters', desc: 'Adds an orbiting blade that shreds nearby foes.' },
-        velocity: { name: 'True Flight', desc: 'Bolts travel faster.' },
+        wrath: { name: 'Wrath', desc: 'Critical hits deal even more damage.' },
+        velocity: { name: 'True Flight', desc: 'Projectiles travel faster.' },
         swift: { name: 'Fleet Step', desc: 'Move faster.' },
         magnet: { name: 'Wider Reach', desc: 'Draw in shards from farther away.' },
         fortify: { name: 'Reinforce', desc: 'Raise maximum health and heal.' },
-        regen: { name: 'Mending', desc: 'Recover health, but only while you hold still.' },
+        regen: {
+          name: 'Mending',
+          desc: 'Recover health, but only in a cleared pocket while still.',
+        },
+        armor: { name: 'Plating', desc: 'Reduce the damage of every hit you take.' },
+        evasion: { name: 'Evasion', desc: 'A chance to dodge an incoming hit entirely.' },
+        revival: {
+          name: 'Second Life',
+          desc: 'Once per run, cheat death and revive at half health.',
+        },
       },
       powerups: {
         might: { name: 'Might', desc: 'Begin every run with more damage.' },
@@ -767,7 +798,7 @@ export const en = {
         },
         knight: {
           name: 'Knight',
-          desc: 'Fast and aggressive: a close-range 4-shot fan, quicker fire, and healing on every kill. Dive into the swarm and keep killing to stay alive. Win a run to unlock.',
+          desc: 'Fast and aggressive: he opens with the Gambit lance fired the way you move, attacks quickly, and heals on every kill. Dive in, point your body at the swarm, and keep killing. Win a run to unlock.',
         },
       },
     },

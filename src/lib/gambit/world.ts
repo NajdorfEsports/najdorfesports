@@ -11,6 +11,7 @@ import {
   CRIT_MULT,
   DT,
   DT_MS,
+  ELITE_SUMMON_INTERVAL,
   GRID_CELL,
   RUN_WIN_SECONDS,
   currencyForRun,
@@ -46,6 +47,8 @@ function makeEnemyStore(cap: number): EnemyStore {
     vx: new Float32Array(cap),
     vy: new Float32Array(cap),
     hp: new Float32Array(cap),
+    maxHp: new Float32Array(cap),
+    armor: new Float32Array(cap),
     radius: new Float32Array(cap),
     speed: new Float32Array(cap),
     damage: new Float32Array(cap),
@@ -68,6 +71,8 @@ function makeProjectileStore(cap: number): ProjectileStore {
     damage: new Float32Array(cap),
     radius: new Float32Array(cap),
     pierce: new Float32Array(cap),
+    homing: new Float32Array(cap),
+    kind: new Uint8Array(cap),
   };
 }
 
@@ -106,8 +111,9 @@ export function createWorld(
     basePickupRadius: 16,
     baseMagnetRadius: 150,
     kills: 0,
-    cooldown: 0,
-    weaponId: hero.weaponId,
+    aimX: 0,
+    aimY: 1,
+    weapons: [{ id: hero.weaponId, level: 1, cooldown: 0 }],
     mods: {
       damageMult: 1,
       fireRateMult: 1,
@@ -122,8 +128,10 @@ export function createWorld(
       splash: 0,
       critChance: 0,
       critMult: CRIT_MULT,
-      orbiters: 0,
       lifestealOnKill: 0,
+      armor: 0,
+      dodgeChance: 0,
+      revivalCharges: 0,
     },
   };
   applyPowerups(player, powerupLevels);
@@ -152,6 +160,7 @@ export function createWorld(
       reaperAddTimer: 0,
       endlessTimer: 0,
       endlessQueens: 0,
+      eliteSummonTimer: ELITE_SUMMON_INTERVAL,
     },
     time: { stepCount: 0, elapsedS: 0 },
     dead: false,

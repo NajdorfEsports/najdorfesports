@@ -608,7 +608,8 @@ export const zhCN: Strings = {
         '以国际象棋为主题的生存类 Roguelite。在棋盘上撑过敌潮、升级并打造你的 build。每日一局固定种子，人人相同。',
       noJsNotice:
         '本游戏需要 JavaScript，完全在你的浏览器内运行；不会发送任何数据，只有最佳时间与升级会保存在这台设备上。',
-      controlsHint: '使用 WASD 或方向键移动。触控时在画面任意处拖动即可移动。武器会自动开火。',
+      controlsHint:
+        '使用 WASD 或方向键移动。触控时在画面任意处拖动即可移动。武器会自动开火；升级时可收集更多武器。',
       playLabel: '开始游戏',
       retryLabel: '再玩一次',
       backLabel: '返回',
@@ -653,26 +654,51 @@ export const zhCN: Strings = {
       finishLabel: '结束本局',
       unlockHeading: '解锁新英雄',
       howToHeading: '玩法',
-      howTo1: '移动以闪避。武器会自动朝最近的敌人开火。尽量撑得更久。',
-      howTo2: '被击倒的敌人会掉落经验碎片。收集以升级，再从三个升级中择一，打造你的 build。',
+      howTo1: '移动以闪避。你的武器会自动开火。尽量撑得更久。',
+      howTo2:
+        '被击倒的敌人会掉落经验碎片。收集以升级，再取得新武器、提升已有武器，或选择升级，打造你的 build。',
       howTo3:
         '难度全程持续攀升，因此强力升级换来的是时间而非安全。每日新的固定种子对局于美东午夜更新。',
       howTo4: '最佳时间与永久升级仅保存在此浏览器，永不离开你的设备。',
       disclaimer:
         'Gambit 是 Najdorf Esports 原创的游戏，与任何其他游戏均无隶属、背书或衍生关系；所有名称、角色与美术皆为原创。',
+      // DRAFT PENDING RIRI NATIVE REVIEW
+      newWeaponTag: '新武器',
+      evolutionTag: '进化',
+      levelTag: '等级 {n} → {m}',
+      // DRAFT PENDING RIRI NATIVE REVIEW
+      weapons: {
+        bolt: { name: '弩矢', desc: '朝最近的敌人射出一道精准弩矢。' },
+        volley: { name: '排炮', desc: '朝四面八方射出一圈弩矢。' },
+        carousel: { name: '旋轮', desc: '环绕的飞刃，撕裂任何触碰到的敌人。' },
+        gambit: { name: '骑士弃兵', desc: '沿你的移动方向射出贯穿长枪。' },
+        sanctum: { name: '主教圣域', desc: '持续灼烧附近敌人的力场。' },
+        oracle: { name: '神谕', desc: '自动追踪漏网之鱼的导引弩矢。' },
+        lance: { name: '长枪', desc: '沿你的移动方向射出无法阻挡的轨道炮。' },
+        communion: { name: '圣餐', desc: '会在每次击杀时治愈你的灼烧力场。' },
+      },
+      // DRAFT PENDING RIRI NATIVE REVIEW
+      evolutions: {
+        evoLance: { name: '长枪', desc: '以穿刺进化弩矢：无法阻挡的定向轨道炮。' },
+        evoCommunion: { name: '圣餐', desc: '以愈合进化圣域：力场将在每次击杀时治愈你。' },
+      },
+      // DRAFT PENDING RIRI NATIVE REVIEW
       upgrades: {
-        damage: { name: '利刃', desc: '弩矢造成更多伤害。' },
-        firerate: { name: '疾发', desc: '更频繁地发射弩矢。' },
-        multishot: { name: '分裂矢', desc: '额外发射一支弩矢。' },
-        pierce: { name: '穿刺', desc: '弩矢可多贯穿一名敌人。' },
-        area: { name: '重矢', desc: '更大的弩矢，并对附近敌人造成溅射伤害。' },
+        damage: { name: '威力', desc: '所有武器造成更多伤害。' },
+        firerate: { name: '疾发', desc: '所有武器更频繁开火。' },
+        multishot: { name: '多重射击', desc: '投射型武器多射出一发。' },
+        pierce: { name: '穿刺', desc: '投射物可多贯穿一名敌人。' },
+        area: { name: '重击', desc: '更大的投射物、溅射，以及更广的范围武器。' },
         crit: { name: '锐眼', desc: '有几率打出暴击，造成大量额外伤害。' },
-        orbiters: { name: '环刃', desc: '增加一把环绕飞刃，撕裂附近敌人。' },
-        velocity: { name: '疾飞', desc: '弩矢飞行更快。' },
+        wrath: { name: '震怒', desc: '暴击造成更多伤害。' },
+        velocity: { name: '疾飞', desc: '投射物飞行更快。' },
         swift: { name: '疾步', desc: '移动更快。' },
         magnet: { name: '广纳', desc: '从更远处吸取碎片。' },
         fortify: { name: '强化', desc: '提升生命上限并回复。' },
-        regen: { name: '愈合', desc: '回复生命，但仅在你停下不动时生效。' },
+        regen: { name: '愈合', desc: '回复生命，但仅在清空的空当中静止时生效。' },
+        armor: { name: '镀甲', desc: '减少你受到的每次伤害。' },
+        evasion: { name: '闪避', desc: '有几率完全闪避一次来袭攻击。' },
+        revival: { name: '重生', desc: '每局一次，欺骗死亡并以半血复活。' },
       },
       powerups: {
         might: { name: '威力', desc: '每局开始时拥有更多伤害。' },
@@ -689,7 +715,7 @@ export const zhCN: Strings = {
         // DRAFT PENDING RIRI NATIVE REVIEW
         knight: {
           name: '骑士',
-          desc: '快速且具侵略性：近距离四连散射、更快的攻击速度，并在每次击杀时回复生命。冲进敌群并持续击杀以维持生命。赢得一局以解锁。',
+          desc: '快速且具侵略性：他以沿移动方向射出的骑士弃兵长枪开场，攻击迅速，并在每次击杀时回复生命。冲进敌群、将身体对准威胁并持续击杀。赢得一局以解锁。',
         },
       },
     },

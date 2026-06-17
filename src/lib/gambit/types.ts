@@ -31,10 +31,43 @@ export interface PlayerMods {
   splash: number;
   critChance: number;
   critMult: number;
-  /** Number of orbiting blades (the second weapon). */
-  orbiters: number;
   /** Flat HP healed each time an enemy is killed (Knight passive). */
   lifestealOnKill: number;
+  /** Flat damage subtracted from each incoming contact hit (Armor passive). */
+  armor: number;
+  /** Chance (0..1) to negate an incoming contact hit entirely (Evasion). */
+  dodgeChance: number;
+  /** Auto-revivals banked: on death, spend one to return at half HP (Revival). */
+  revivalCharges: number;
+}
+
+/** Behavior family for a weapon; drives how systems/weapon.ts fires it. */
+export type WeaponKind =
+  | 'bolt' // nearest-target fan (the original)
+  | 'radial' // 360-degree nova burst
+  | 'orbital' // orbiting contact blades
+  | 'lance' // a piercing line along the player's aim
+  | 'aura' // a persistent damage field around the player
+  | 'seeker'; // homing bolts
+
+/** One weapon the player owns, with its own level and cooldown. */
+export interface OwnedWeapon {
+  /** Key into the WEAPONS table. */
+  id: string;
+  level: number;
+  /** Seconds until this weapon next fires. */
+  cooldown: number;
+}
+
+/** A projectile weapon's resolved per-shot stats (level + global mods). */
+export interface ResolvedShot {
+  damage: number;
+  projectiles: number;
+  interval: number;
+  pierce: number;
+  radius: number;
+  range: number;
+  speed: number;
 }
 
 export interface Player {
@@ -59,9 +92,12 @@ export interface Player {
   basePickupRadius: number;
   baseMagnetRadius: number;
   kills: number;
-  /** Weapon cooldown remaining, in seconds. */
-  cooldown: number;
-  weaponId: string;
+  /** Aim direction (normalized): the last movement heading, persisted while
+   *  still. Movement-direction weapons (lance) fire along it. */
+  aimX: number;
+  aimY: number;
+  /** Owned weapons, each fired on its own cadence by systems/weapon.ts. */
+  weapons: OwnedWeapon[];
   mods: PlayerMods;
 }
 
@@ -87,6 +123,9 @@ export interface EnemyArchetype {
 
 export interface WeaponDef {
   id: string;
+  kind: WeaponKind;
+  /** Highest level this weapon reaches; the level cap interacts with the slot cap. */
+  maxLevel: number;
   baseInterval: number;
   baseDamage: number;
   baseProjectileSpeed: number;
@@ -96,6 +135,19 @@ export interface WeaponDef {
   baseRange: number;
   projectileRadius: number;
   spreadDeg: number;
+  /** Homing turn rate (rad/s) for seeker projectiles; 0 for everything else. */
+  homingTurn: number;
+  /** Render tint (0xRRGGBB) so each weapon's projectiles read distinctly. */
+  tint: number;
+  /** Per-LEVEL growth applied on top of the base (level 1 = base). */
+  perLevel: {
+    damage?: number; // +flat per level
+    projectiles?: number; // +count per level
+    interval?: number; // *= per level (e.g. 0.94 = 6% faster)
+    pierce?: number; // +flat per level
+    radius?: number; // *= per level
+    range?: number; // *= per level
+  };
 }
 
 export interface HeroDef {
@@ -114,8 +166,20 @@ export interface UpgradeCard {
   id: string;
   tags: UpgradeTag[];
   maxStacks: number;
-  /** Pure mutation applied when the card is chosen. */
-  apply: (mods: PlayerMods, player: Player) => void;
+  /** Pure mutation applied when the card is chosen. `stacks` is how many were
+   *  already taken (0 on the first), so a card can give diminishing returns. */
+  apply: (mods: PlayerMods, player: Player, stacks: number) => void;
+}
+
+/** One level-up choice. `kind` lets the renderer style weapon vs passive vs
+ *  evolution cards distinctly, and the applier knows what to do with `ref`. */
+export type OfferKind = 'newWeapon' | 'levelWeapon' | 'passive' | 'evolution';
+export interface OfferCard {
+  /** Stable key for the card (also the i18n lookup base). */
+  key: string;
+  kind: OfferKind;
+  /** Weapon id, passive id, or evolution id depending on `kind`. */
+  ref: string;
 }
 
 export interface PowerUpDef {
@@ -147,6 +211,8 @@ export interface DirectorState {
   endlessTimer: number;
   /** Count of endless Queens spawned, used to escalate each one. */
   endlessQueens: number;
+  /** Seconds until living elites next summon adds. */
+  eliteSummonTimer: number;
 }
 
 export type SimEvent =
@@ -199,6 +265,10 @@ export interface EnemyStore {
   vx: Float32Array;
   vy: Float32Array;
   hp: Float32Array;
+  /** Spawn HP, for the elite per-hit damage cap (no enemy dies in one shot). */
+  maxHp: Float32Array;
+  /** Flat damage subtracted from each hit before the cap (elites only). */
+  armor: Float32Array;
   radius: Float32Array;
   speed: Float32Array;
   damage: Float32Array;
@@ -222,6 +292,10 @@ export interface ProjectileStore {
   radius: Float32Array;
   /** Remaining enemies this projectile may still pass through. */
   pierce: Float32Array;
+  /** Homing turn rate (rad/s); 0 for straight-flying projectiles. */
+  homing: Float32Array;
+  /** Render-tint index (which weapon fired it). */
+  kind: Uint8Array;
 }
 
 export interface GemStore {
