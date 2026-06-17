@@ -271,16 +271,25 @@ preview` and the Playwright e2e server, nothing more.
 - Brand colors live in `src/styles/tokens.css` and `global.css`:
   `--color-accent` (primary, blue `#215BFF`) and `--color-accent-2`
   (secondary, soft blue `#6B8DFF`). Both cascade into every component.
-- The bishop logo is **strictly black and white**. The canonical raster
-  source is `public/branding/najdorf-esports-logo.png` (transparent bg,
-  opaque black artwork). `scripts/generate-og.mjs` derives every raster
-  output from that single file (PWA icons, `bishop-logo.png`, and
-  `bishop-logo-dark.png` for dark-bg uses via `.negate({alpha:false})`).
-  Logo never gets tinted blue; brand blue is for UI accents only. The
-  HEADER serves an astro:assets-optimized copy from
-  `src/assets/branding/`; the public file keeps its stable URL for the
-  press kit and OG pipeline. The bishop is also never run through the
-  `.ink-img` duotone (that treatment is for Blizzard art only).
+- The bishop logo is a **black bishop with brand-blue accents** (the flame
+  highlight and the reaching hand) over a black/white chess cross, updated
+  from the old strictly-black-and-white mark on 2026-06-17. The canonical
+  raster source is `public/branding/najdorf-esports-logo.png` (transparent
+  bg, opaque color artwork, the mark only, no wordmark text).
+  `scripts/generate-og.mjs` derives every raster output from that single
+  file: PWA / Apple icons and the off-site `bishop-logo.png` flatten the
+  color mark onto a white tile; `bishop-logo-dark.png` (site header + OG
+  cards) is the **white-bishop + blue-accent** dark-surface variant,
+  produced by `recolorWhiteBlue` (a per-pixel recolor that turns the black
+  body white while keeping the blue, NOT the old `.negate()`, which would
+  flip the blue to amber). Don't reintroduce a negate; the source is now
+  color. The HEADER serves an astro:assets-optimized copy at
+  `src/assets/branding/bishop-logo-dark.png`; after a `build:og` re-copy it
+  from the regenerated `public/branding/bishop-logo-dark.png`. The public
+  file keeps its stable URL for the press kit and OG pipeline. The bishop is
+  still never run through the `.ink-img` duotone (that treatment is for
+  Blizzard art only). The new source artwork was extracted from the owner's
+  full-color lockups (white background knocked out to transparent).
 - Cache-bust the og:image URLs by bumping `OG_VERSION` in
   `BaseLayout.astro` whenever OG art changes; otherwise Discord/Slack/X
   serve stale unfurl cards from their CDN caches.

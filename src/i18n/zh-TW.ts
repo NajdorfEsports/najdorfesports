@@ -257,8 +257,9 @@ export const zhTW: Strings = {
     title: '媒體與品牌素材包',
     intro: '報導或介紹 Najdorf Esports 所需的一切。採訪或本頁未涵蓋的事項，請來信至',
     assetsHeading: '品牌素材',
+    // DRAFT PENDING RIRI NATIVE REVIEW
     assetsNote:
-      '請為主教標誌保留足夠留白，不要更改其顏色（標誌嚴格採用黑白），也不要拉伸或旋轉。文字標誌可使用品牌藍，或在深色背景上使用白色。',
+      '請為主教標誌保留足夠留白，不要拉伸、旋轉或更改其顏色：淺色背景請使用全彩標誌（黑色主教搭配品牌藍點綴），深色背景請使用藍白變體。文字標誌可使用品牌藍，或在深色背景上使用白色。',
     downloadHeading: '標誌檔案',
     colorsHeading: '品牌色',
     colorPrimary: '主色',

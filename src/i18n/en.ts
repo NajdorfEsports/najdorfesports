@@ -273,7 +273,7 @@ export const en = {
       'Everything you need to write about or feature Najdorf Esports. For interviews or anything not covered here, email us at',
     assetsHeading: 'Brand assets',
     assetsNote:
-      'Give the bishop logo clear space, do not recolor it (it is strictly black and white), and do not stretch or rotate it. The wordmark may be used in the brand blue, or in white on dark backgrounds.',
+      'Give the bishop logo clear space and do not stretch, rotate, or recolor it: use the full-color mark (a black bishop with brand-blue accents) on light backgrounds, and the white-and-blue variant on dark ones. The wordmark may be used in the brand blue, or in white on dark backgrounds.',
     downloadHeading: 'Logo files',
     colorsHeading: 'Brand colors',
     colorPrimary: 'Primary',

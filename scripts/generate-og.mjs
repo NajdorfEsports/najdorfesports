@@ -29,10 +29,10 @@ const NEWS_DIR = join(ROOT, 'src', 'content', 'news');
  *  rail and the eyebrow color, primary blue by default, soft blue as the
  *  secondary, split for posts that span both.
  *
- *  `bishopUri` is a data: URI of the owner's bishop logo (the white-on-
- *  transparent variant derived from najdorf-esports-logo.png). Embedding
- *  the real artwork rather than redrawing a hand-coded SVG approximation
- *  keeps the OG unfurl visually identical to the in-site logo. */
+ *  `bishopUri` is a data: URI of the owner's bishop logo (the white-bishop +
+ *  blue-accent dark-surface variant derived from najdorf-esports-logo.png).
+ *  Embedding the real artwork rather than redrawing a hand-coded SVG
+ *  approximation keeps the OG unfurl visually identical to the in-site logo. */
 function ogSvg({ eyebrow, title, tone = 'primary' }, bishopUri) {
   const accentTop = '#215BFF';
   const accentBot = '#6B8DFF';
@@ -80,7 +80,7 @@ function ogSvg({ eyebrow, title, tone = 'primary' }, bishopUri) {
   </g>
 
   <!-- Small org bishop, top-left. Embeds the owner's actual logo PNG
-       (white-on-transparent variant) so the OG unfurl matches what's
+       (white-bishop + blue-accent variant) so the OG unfurl matches what's
        in the site header rather than a hand-drawn approximation. Sized
        to fit alongside the title column without overlap. -->
   <image href="${bishopUri}" x="78" y="190" width="142" height="162" preserveAspectRatio="xMidYMid meet"/>
@@ -196,20 +196,52 @@ function layoutTitle(title) {
 // ---------------------------------------------------------------------------
 // Bishop logo: source-of-truth raster
 // ---------------------------------------------------------------------------
-// The owner's hand-drawn bishop + X-chess mark, kept strictly black & white.
-// Source is transparent-bg + opaque black artwork, keeping the source
+// The owner's bishop + X-chess mark: a black bishop with brand-blue accents
+// (the flame highlight and the reaching hand) over a black/white chess cross.
+// Source is transparent-bg + opaque color artwork, keeping the source
 // transparent gives the pipeline freedom to composite onto whatever surface
-// each derivative needs.
+// each derivative needs (white tile for icons, recolored for dark surfaces).
 //
 // Re-drop an updated PNG at this path (same dimensions or scaled) and a
 // single `npm run build:og` re-derives the full output set.
 const SOURCE_LOGO = join(PUBLIC, 'branding', 'najdorf-esports-logo.png');
 
+// Brand blue, --color-accent (#215BFF). The accent the dark-surface recolor
+// must preserve.
+const BRAND_BLUE = [33, 91, 255];
+
+/** Recolor the transparent color source for dark surfaces: the black bishop
+ *  body becomes near-white while the brand-blue accents are kept as-is, so the
+ *  mark reads on the near-black site header and OG cards. A plain channel
+ *  negate (the old strictly-B&W trick) would flip the blue to amber, so the
+ *  blue is detected and preserved per pixel; the source alpha is untouched, so
+ *  the silhouette and anti-aliasing stay pixel-identical. */
+async function recolorWhiteBlue(srcPath) {
+  const { data, info } = await sharp(srcPath)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const ch = info.channels;
+  const out = Buffer.alloc(data.length);
+  for (let i = 0; i < data.length; i += ch) {
+    const r = data[i],
+      g = data[i + 1],
+      b = data[i + 2];
+    const isBlue = b > 120 && b - r > 40 && b - g > 25;
+    const [nr, ng, nb] = isBlue ? BRAND_BLUE : [245, 245, 245];
+    out[i] = nr;
+    out[i + 1] = ng;
+    out[i + 2] = nb;
+    out[i + 3] = data[i + 3];
+  }
+  return sharp(out, { raw: { width: info.width, height: info.height, channels: ch } }).png();
+}
+
 /** Generate the raster logo outputs from the source PNG.
  *
- *  All outputs flatten the transparent source onto white, PWA / Apple
- *  touch icons need a solid background (iOS strips alpha), and the
- *  off-site square logo reads cleanly as a B&W card on any host
+ *  The square outputs flatten the transparent source onto white, PWA /
+ *  Apple touch icons need a solid background (iOS strips alpha), and the
+ *  off-site square logo reads cleanly as a color card on any host
  *  (Discord, X, GitHub org).
  *
  *  If a future surface needs the transparent source directly, it can
@@ -242,15 +274,14 @@ async function deriveBishopAssets() {
     console.log(`Wrote ${join(PUBLIC, filename)}`);
   }
 
-  // bishop-logo-dark.png, white-on-transparent variant for use on dark
-  // surfaces (site header, future dark contexts). `.negate({alpha:false})`
-  // inverts the RGB channels (black → white) while leaving the alpha
-  // mask untouched, so the silhouette stays pixel-identical to the source.
+  // bishop-logo-dark.png, the white-bishop + blue-accent variant for dark
+  // surfaces (site header, OG cards). Recolored, not negated, so the brand
+  // blue survives (negate would turn it amber); see recolorWhiteBlue. The
+  // source alpha is preserved, so the silhouette stays pixel-identical.
   // No resize: the consumer (e.g. <img height>) scales it to fit.
-  await sharp(SOURCE_LOGO)
-    .negate({ alpha: false })
-    .png()
-    .toFile(join(PUBLIC, 'branding', 'bishop-logo-dark.png'));
+  await (
+    await recolorWhiteBlue(SOURCE_LOGO)
+  ).toFile(join(PUBLIC, 'branding', 'bishop-logo-dark.png'));
   console.log(`Wrote ${join(PUBLIC, 'branding', 'bishop-logo-dark.png')}`);
 }
 

@@ -257,8 +257,9 @@ export const zhCN: Strings = {
     title: '媒体与品牌素材包',
     intro: '报道或介绍 Najdorf Esports 所需的一切。采访或本页未涵盖的事项，请来信至',
     assetsHeading: '品牌素材',
+    // DRAFT PENDING RIRI NATIVE REVIEW
     assetsNote:
-      '请为主教标志保留足够留白，不要更改其颜色（标志严格采用黑白），也不要拉伸或旋转。文字标志可使用品牌蓝，或在深色背景上使用白色。',
+      '请为主教标志保留足够留白，不要拉伸、旋转或更改其颜色：浅色背景请使用全彩标志（黑色主教搭配品牌蓝点缀），深色背景请使用蓝白变体。文字标志可使用品牌蓝，或在深色背景上使用白色。',
     downloadHeading: '标志文件',
     colorsHeading: '品牌色',
     colorPrimary: '主色',
