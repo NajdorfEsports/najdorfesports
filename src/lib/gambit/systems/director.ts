@@ -1,13 +1,14 @@
 /**
- * Seeded spawn director. Credits accrue with a time-based difficulty
- * coefficient and are spent on eligible-and-affordable archetypes; cheap fodder
- * is culled over time so the mix escalates. A fixed minute-marker schedule
- * layers in elites; a trio of closing-Wall rings in the back half forces the
- * player off any camped tile; and the climax Queen runs a phased fight (chase,
- * then summon-adds, then enrage). After the win mark, endless Queens keep
- * arriving. Enemy speed scales up over the run so move speed stays relevant. The
- * entity cap is the self-throttle: at cap, credits bank. Everything draws from
- * world.rng, so the daily run is reproducible.
+ * Seeded spawn director. Credits accrue with a time-based difficulty coefficient
+ * and are spent on eligible-and-affordable archetypes (the mix escalates as
+ * pricier types unlock). The ambient swarm spawns in WAVES with a short lull
+ * between them (a breather). A fixed minute-marker schedule layers in elites; a
+ * trio of closing-Wall rings in the back half forces the player off any camped
+ * tile; and the climax Queen runs a phased fight (chase, then summon-adds, then
+ * enrage). After the win mark, endless Queens keep arriving. Enemy speed scales
+ * up over the run so move speed stays relevant. The entity cap is the
+ * self-throttle: at cap, credits bank. Everything draws from world.rng, so the
+ * daily run is reproducible.
  */
 import {
   ARENA_HALF,
@@ -20,6 +21,8 @@ import {
   REAPER_CRUISE,
   REAPER_SECONDS,
   SPAWN_DIST,
+  WAVE_LULL,
+  WAVE_PERIOD,
   difficultyCoeff,
   enemyDamageScale,
   enemyHpScale,
@@ -196,11 +199,17 @@ export function updateDirector(world: World, dt: number): void {
   const { director, rng, enemies } = world;
   const elapsed = world.time.elapsedS;
 
+  // Wave lull: every WAVE_PERIOD the ambient swarm pauses for WAVE_LULL so the
+  // player can clear the screen and breathe. Suppressed during the climax/endless
+  // (that finale is continuous); elites and Wall rings ignore it (wave markers).
+  const inLull =
+    director.reaperIndex < 0 && !world.won && elapsed % WAVE_PERIOD >= WAVE_PERIOD - WAVE_LULL;
+
   // While the climax Queen is alive she is the spotlight: throttle the ambient
   // swarm so the final minute is a duel (Queen + her adds), not Queen-on-top-of
   // a capped horde. The swarm thins as the player clears it, opening space.
   const rate = director.reaperIndex >= 0 ? DIRECTOR_BASE_RATE * 0.3 : DIRECTOR_BASE_RATE;
-  director.credits += rate * difficultyCoeff(elapsed) * dt;
+  if (!inLull) director.credits += rate * difficultyCoeff(elapsed) * dt;
 
   // One-time climax: the Queen, one minute before the win mark.
   if (!director.reaperDone && elapsed >= REAPER_SECONDS) {
@@ -245,6 +254,8 @@ export function updateDirector(world: World, dt: number): void {
   // pick is uniform over the eligible mix; mid-game variety comes from culling
   // pawns out (enemies.ts), not from over-buying heavies (that just makes a
   // tanky wall that accumulates to the cap).
+  // Ambient swarm spawning pauses during a wave lull (the breather).
+  if (inLull) return;
   const eligible = eligibleArchetypes(elapsed);
   if (eligible.length === 0) return;
   let guard = 128;

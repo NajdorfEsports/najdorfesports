@@ -7,7 +7,7 @@
 
 /** Visible build tag so a player can tell which deployed version is live. BUMP
  *  this on every gameplay/balance change so the on-screen number changes. */
-export const GAMBIT_VERSION = 'v2026.06.17-r2';
+export const GAMBIT_VERSION = 'v2026.06.17-r3';
 
 /** Projectiles a weapon fires beyond its own base count (from the Multishot
  *  passive) deal this fraction of full damage, so Multishot adds coverage and
@@ -66,6 +66,12 @@ export const COLOR_CRIT = 0xffd24a;
 /** Director credit accrual at difficulty coefficient 1 (credits/second). */
 export const DIRECTOR_BASE_RATE = 1.25;
 
+/** Waves: the ambient swarm spawns for (WAVE_PERIOD - WAVE_LULL) seconds, then
+ *  pauses for WAVE_LULL so the player can clear the screen and breathe before the
+ *  next wave. Scheduled elites/walls ignore the lull (they are the wave markers). */
+export const WAVE_PERIOD = 48;
+export const WAVE_LULL = 7;
+
 export const START_CURRENCY = 0;
 
 /** A run is "won" at this mark; play continues into endless after. */
@@ -107,7 +113,7 @@ export const PASSIVE_SLOTS = 6;
  *  more player damage = a faster kill, no caps. ARMOR shaves a flat amount off
  *  each discrete hit, rewarding big-hit builds over many-small-projectile spam,
  *  but never gates total damage. */
-export const ELITE_HP_MULT = 24;
+export const ELITE_HP_MULT = 18;
 export const ELITE_ARMOR = 6;
 /** Living elites summon a few melee adds on this cadence (reinforcements that
  *  also pull the auto-weapon's fire, so the elite survives by position). */

@@ -38,6 +38,14 @@ function ownsWeapon(player: Player, id: string): boolean {
   return player.weapons.some((w) => w.id === id);
 }
 
+/** Whether a BASE weapon is effectively owned: directly, or via its evolved form
+ *  (an evolution upgrades the weapon in place, so the base must never reappear as
+ *  a brand-new pickup). */
+function hasBaseWeapon(player: Player, baseId: string): boolean {
+  if (ownsWeapon(player, baseId)) return true;
+  return EVOLUTIONS.some((e) => e.baseWeaponId === baseId && ownsWeapon(player, e.evolvedWeaponId));
+}
+
 /** Evolutions whose prerequisites are met right now and aren't already owned. */
 export function availableEvolutions(player: Player, taken: Record<string, number>): string[] {
   const out: string[] = [];
@@ -79,7 +87,7 @@ export function rollChoices(
   // New weapons (only with a free weapon slot).
   if (player.weapons.length < WEAPON_SLOTS) {
     for (const id of BASE_WEAPON_IDS) {
-      if (ownsWeapon(player, id) || banished.has(id)) continue;
+      if (hasBaseWeapon(player, id) || banished.has(id)) continue;
       pool.push({ card: { key: id, kind: 'newWeapon', ref: id }, w: 2.4 });
     }
   }
@@ -162,13 +170,15 @@ export function applyCard(world: World, taken: Record<string, number>, card: Off
     if (w && def && w.level < def.maxLevel) w.level += 1;
     return;
   }
-  // Evolution: replace the base weapon in its slot with the evolved form.
+  // Evolution: replace the base weapon in its slot with the evolved form, at its
+  // full level (evolutions arrive maxed). The base never reappears in offers
+  // because hasBaseWeapon() treats the evolved form as owning the base.
   const evo = EVOLUTIONS.find((e) => e.id === card.ref);
   if (!evo) return;
   const w = player.weapons.find((x) => x.id === evo.baseWeaponId);
   if (!w) return;
   w.id = evo.evolvedWeaponId;
-  w.level = 1;
+  w.level = WEAPONS[evo.evolvedWeaponId]?.maxLevel ?? 1;
   w.cooldown = 0;
   evo.grant?.(player.mods);
 }

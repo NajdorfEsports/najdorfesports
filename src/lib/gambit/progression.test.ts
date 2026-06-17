@@ -67,12 +67,19 @@ describe('applyCard', () => {
     expect(w.player.weapons.find((x) => x.id === 'bolt')!.level).toBe(2);
   });
 
-  it('evolves the base weapon in place and grants its bonus', () => {
+  it('evolves the base weapon in place, maxed, and stops re-offering the base', () => {
     const w = createWorld(1, BISHOP);
     w.player.weapons.find((x) => x.id === 'bolt')!.level = WEAPONS.bolt!.maxLevel;
     applyCard(w, { pierce: 3 }, { key: 'evo:evoLance', kind: 'evolution', ref: 'evoLance' });
-    expect(w.player.weapons.some((x) => x.id === 'lance')).toBe(true);
+    const lance = w.player.weapons.find((x) => x.id === 'lance');
+    expect(lance).toBeDefined();
+    expect(lance!.level).toBe(WEAPONS.lance!.maxLevel); // arrives maxed
     expect(w.player.weapons.some((x) => x.id === 'bolt')).toBe(false);
+    // The base weapon must never reappear as a brand-new pickup once evolved.
+    for (let seed = 0; seed < 25; seed += 1) {
+      const cards = rollChoices(makeRng(seed), w.player, { pierce: 3 });
+      expect(cards.some((c) => c.kind === 'newWeapon' && c.ref === 'bolt')).toBe(false);
+    }
   });
 });
 
