@@ -12,7 +12,7 @@ import type { HeroDef } from './types';
 export const BISHOP: HeroDef = {
   id: 'bishop',
   weaponId: 'bolt',
-  baseHp: 100,
+  baseHp: 150,
   baseSpeed: 236,
   radius: 16,
   mods: { critChance: 0.12 },
@@ -28,7 +28,7 @@ export const KNIGHT: HeroDef = {
   baseHp: 100,
   baseSpeed: 280,
   radius: 15,
-  mods: { lifestealOnKill: 0.35, fireRateMult: 0.18 },
+  mods: { lifestealOnKill: 0.22, fireRateMult: 0.18 },
 };
 
 export const HEROES: Record<string, HeroDef> = {

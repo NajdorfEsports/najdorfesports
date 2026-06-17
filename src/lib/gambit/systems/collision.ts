@@ -9,8 +9,6 @@
  * world.dead and emits `died`; the caller stops stepping.
  */
 import {
-  DT,
-  SINGLE_HIT_CAP_MULT,
   MAGNET_SPEED,
   MENDING_BLOCK_COUNT,
   MENDING_BLOCK_R,
@@ -37,32 +35,14 @@ function spawnGem(world: World, x: number, y: number, value: number): void {
   g.value[i] = value;
 }
 
-/** Apply `raw` damage to enemy j. Bosses (dpsFrac > 0) subtract armor and then
- *  obey a per-SECOND damage cap: at most maxHp*dpsFrac per second can be dealt,
- *  so a boss lasts a fixed DURATION no matter how many hits/sec the player lands
- *  (a per-HIT cap fails: a multi-weapon build lands 20+ hits/sec). The fight is
- *  thus spent dodging its attacks, not racing a DPS bar. Fodder is uncapped. */
+/** Apply `raw` damage to enemy j. Honest HP: more damage = faster kill (no caps).
+ *  Armored enemies (elites) shave a flat amount off each DISCRETE hit, which
+ *  rewards big-hit builds over many-small-projectile spam, but never gates total
+ *  damage. Continuous damage (orbital/aura) ignores armor. */
 function damageEnemy(world: World, j: number, raw: number, discrete: boolean): void {
   const { enemies } = world;
-  let dmg = raw;
-  const frac = enemies.dpsFrac[j]!;
-  if (frac > 0) {
-    if (discrete) dmg = Math.max(1, dmg - enemies.armor[j]!);
-    const stepBudget = enemies.maxHp[j]! * frac * DT;
-    // Clamp any single hit so one crit burst can't leak past the per-step budget.
-    const singleCap = stepBudget * SINGLE_HIT_CAP_MULT;
-    if (dmg > singleCap) dmg = singleCap;
-    const step = world.time.stepCount;
-    if (enemies.dmgStep[j]! !== step) {
-      enemies.dmgStep[j] = step;
-      enemies.dmgAccum[j] = 0;
-    }
-    const remaining = stepBudget - enemies.dmgAccum[j]!;
-    if (remaining <= 0) return;
-    if (dmg > remaining) dmg = remaining;
-    enemies.dmgAccum[j] = enemies.dmgAccum[j]! + dmg;
-  }
-  enemies.hp[j] = enemies.hp[j]! - dmg;
+  const armor = discrete ? enemies.armor[j]! : 0;
+  enemies.hp[j] = enemies.hp[j]! - Math.max(1, raw - armor);
   if (enemies.hp[j]! <= 0) killEnemy(world, j);
 }
 

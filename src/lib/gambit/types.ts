@@ -119,15 +119,6 @@ export interface EnemyArchetype {
   color: number;
   shape: EnemyShape;
   elite?: boolean;
-  /** Ranged enemies kite at distance and fire bolts instead of meleeing. */
-  ranged?: boolean;
-  /** Seconds between shots (ranged only). */
-  fireInterval?: number;
-  /** Preferred distance kept from the player (ranged only). */
-  kiteDist?: number;
-  /** Bolt speed and pre-scale damage (ranged only). */
-  projSpeed?: number;
-  projDamage?: number;
 }
 
 export interface WeaponDef {
@@ -274,18 +265,10 @@ export interface EnemyStore {
   vx: Float32Array;
   vy: Float32Array;
   hp: Float32Array;
-  /** Spawn HP, the basis for the per-second damage cap (so a boss lasts a target
-   *  duration no matter how high the player's DPS is). */
+  /** Spawn HP (for elite HP-bar rendering and derived effects). */
   maxHp: Float32Array;
   /** Flat damage subtracted from each hit (elites/bosses). */
   armor: Float32Array;
-  /** Per-SECOND damage cap as a fraction of maxHp; 0 = uncapped (fodder). */
-  dpsFrac: Float32Array;
-  /** Last sim step this enemy took damage, and how much, for the per-step budget. */
-  dmgStep: Int32Array;
-  dmgAccum: Float32Array;
-  /** Seconds until this enemy's next ranged attack (ranged enemies + the Queen). */
-  fireTimer: Float32Array;
   radius: Float32Array;
   speed: Float32Array;
   damage: Float32Array;
@@ -324,22 +307,6 @@ export interface GemStore {
   value: Float32Array;
 }
 
-/** Hostile bullets fired by ranged enemies and the Queen. The player must dodge
- *  these regardless of how fast it clears the melee swarm. */
-export interface EnemyProjectileStore {
-  pool: Pool;
-  x: Float32Array;
-  y: Float32Array;
-  prevX: Float32Array;
-  prevY: Float32Array;
-  vx: Float32Array;
-  vy: Float32Array;
-  /** Remaining lifetime in seconds. */
-  life: Float32Array;
-  damage: Float32Array;
-  radius: Float32Array;
-}
-
 export interface World {
   /** The daily seed, kept so level-up offers can use an independent stream. */
   seed: number;
@@ -347,7 +314,6 @@ export interface World {
   player: Player;
   enemies: EnemyStore;
   projectiles: ProjectileStore;
-  enemyProjectiles: EnemyProjectileStore;
   gems: GemStore;
   grid: SpatialGrid;
   director: DirectorState;

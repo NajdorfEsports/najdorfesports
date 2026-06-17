@@ -93,27 +93,6 @@ export const ARCHETYPES: EnemyArchetype[] = [
     color: 0xf59e0b,
     shape: 'diamond',
   },
-  {
-    // Diviner: a ranged caster. It keeps its distance (see movement.ts) and fires
-    // aimed bolts you must dodge, so the player cannot just out-DPS the melee
-    // rush and stand still. Fragile, but it forces movement at any clear speed.
-    id: 'caster',
-    cost: 4,
-    unlockAt: 100,
-    cullAfter: null,
-    hp: 26, // dies fast on purpose: the BOLT is the threat, not the body
-    speed: 96,
-    radius: 14,
-    contactDamage: 8,
-    gemValue: 8,
-    color: 0xff6b3d, // reserved hostile-orange, distinct from melee colors
-    shape: 'pentagon',
-    ranged: true,
-    fireInterval: 2,
-    kiteDist: 360,
-    projSpeed: 200, // ~0.8x player: a moving player threads it, a still one is hit
-    projDamage: 14,
-  },
 ];
 
 export const ELITE: EnemyArchetype = {
@@ -159,7 +138,7 @@ export const REAPER: EnemyArchetype = {
   cost: 0,
   unlockAt: 0,
   cullAfter: null,
-  hp: 14000,
+  hp: 16000,
   speed: 240,
   radius: 42,
   contactDamage: 40,
@@ -175,7 +154,6 @@ export const ELITE_INDEX = ALL_ARCHETYPES.indexOf(ELITE);
 export const WALL_INDEX = ALL_ARCHETYPES.indexOf(WALL);
 export const REAPER_INDEX = ALL_ARCHETYPES.indexOf(REAPER);
 export const LANCER_INDEX = ALL_ARCHETYPES.findIndex((a) => a.id === 'lancer');
-export const CASTER_INDEX = ALL_ARCHETYPES.findIndex((a) => a.id === 'caster');
 export const SHADE_INDEX = ALL_ARCHETYPES.findIndex((a) => a.id === 'shade');
 export const BRUTE_INDEX = ALL_ARCHETYPES.findIndex((a) => a.id === 'brute');
 

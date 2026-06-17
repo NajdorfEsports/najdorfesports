@@ -23,7 +23,7 @@ export const UPGRADES: UpgradeCard[] = [
   {
     id: 'multishot',
     tags: ['offense'],
-    maxStacks: 4,
+    maxStacks: 2,
     apply: (m) => void (m.extraProjectiles += 1),
   },
   { id: 'pierce', tags: ['offense'], maxStacks: 3, apply: (m) => void (m.pierce += 1) },

@@ -16,9 +16,8 @@ export const MAX_STEPS = 5;
 /** Half-width of the square arena, in world units. The player is clamped inside. */
 export const ARENA_HALF = 1400;
 
-export const MAX_ENEMIES = 820;
+export const MAX_ENEMIES = 440;
 export const MAX_PROJECTILES = 500;
-export const MAX_ENEMY_PROJECTILES = 360;
 export const MAX_GEMS = 900;
 
 /** Uniform collision grid cell size (~2x the largest common collider). */
@@ -56,7 +55,7 @@ export const COLOR_REAPER = 0xff2d55;
 export const COLOR_CRIT = 0xffd24a;
 
 /** Director credit accrual at difficulty coefficient 1 (credits/second). */
-export const DIRECTOR_BASE_RATE = 1.7;
+export const DIRECTOR_BASE_RATE = 1.25;
 
 export const START_CURRENCY = 0;
 
@@ -95,39 +94,14 @@ export const SPLASH_FRACTION = 0.55;
 export const WEAPON_SLOTS = 6;
 export const PASSIVE_SLOTS = 6;
 
-/** Elites are real minibosses: HP is the live-scaled brute times this. The key
- *  durability lever is a per-SECOND damage cap (DPS_FRAC of max HP): no matter
- *  how high the player's multi-weapon DPS climbs, a boss takes at least
- *  1/DPS_FRAC seconds to kill, so the fight lasts a fixed DURATION and is spent
- *  DODGING its attacks, not racing a DPS bar. A per-hit cap fails here because a
- *  multi-weapon build lands 20+ hits/sec. ARMOR shaves each hit on top. */
-export const ELITE_HP_MULT = 8;
-export const ELITE_ARMOR = 8;
-/** Per-second damage cap fractions: elite ~7s to kill, the Queen ~28s. */
-export const ELITE_DPS_FRAC = 0.14;
-export const QUEEN_DPS_FRAC = 0.035;
-/** A single hit may deal at most this multiple of the per-STEP budget, so one
- *  crit burst can't spike through before the per-second accumulator saturates
- *  (the leak that let a multi-weapon build melt the Queen in seconds). */
-export const SINGLE_HIT_CAP_MULT = 2.5;
-
-/** Hostile bullets (ranged enemies + the Queen). Speeds are at/under the player's
- *  base move speed so a moving player can dodge but a still one is hit. Damage is
- *  scary-but-survivable (armor + i-frames apply). Elites fire a slow telegraphed
- *  spread; the Queen's pattern escalates by phase (see systems/enemyfire.ts). */
-export const ENEMY_BOLT_RADIUS = 9;
-export const ENEMY_BOLT_LIFE = 4;
-export const QUEEN_FIRE_INTERVAL = 2.3;
-export const QUEEN_BOLT_SPEED = 240;
-export const QUEEN_BOLT_DAMAGE = 22;
-/** Elites loose an aimed spread on this cadence once they are alive. */
-export const ELITE_FIRE_INTERVAL = 3.4;
-export const ELITE_BOLT_SPEED = 230;
-export const ELITE_BOLT_DAMAGE = 18;
-/** Living elites summon a few adds on this cadence (the auto-weapon retargets
- *  onto them, so the elite survives by position, not by a bigger HP bar). Kept
- *  modest and spawned at range so it pressures without instantly burying a
- *  no-sustain hero. */
+/** Elites are real minibosses with HONEST HP (the live-scaled brute times this):
+ *  more player damage = a faster kill, no caps. ARMOR shaves a flat amount off
+ *  each discrete hit, rewarding big-hit builds over many-small-projectile spam,
+ *  but never gates total damage. */
+export const ELITE_HP_MULT = 16;
+export const ELITE_ARMOR = 6;
+/** Living elites summon a few melee adds on this cadence (reinforcements that
+ *  also pull the auto-weapon's fire, so the elite survives by position). */
 export const ELITE_SUMMON_INTERVAL = 9;
 export const ELITE_ADD_COUNT = 2;
 
@@ -136,16 +110,18 @@ export const ELITE_ADD_COUNT = 2;
  * director credit rate; non-decreasing, so the threat always rises.
  */
 export function difficultyCoeff(elapsedS: number): number {
-  return 1 + elapsedS / 60 + (elapsedS / 118) ** 2;
+  return 1 + elapsedS / 65 + (elapsedS / 135) ** 2;
 }
 
 /**
- * Enemy HP scaling: grows then plateaus (~6x by 20 min) so late enemies stay
- * killable instead of becoming bullet-sponges. Player damage scales with LEVEL
- * (see damageForLevel) to keep pace, so leveling is what makes you stronger.
+ * Enemy HP scaling. Starts at ~1.8x so even early enemies take a few hits (not
+ * one), and climbs to roughly track the player's build power so enemies keep
+ * dying in a few hits the whole run instead of being deleted on sight. Player
+ * damage does NOT scale with level (damageForLevel is flat 1); all power comes
+ * from upgrades, so this curve is balanced against a typical built loadout.
  */
 export function enemyHpScale(elapsedS: number): number {
-  return Math.min(7, 1 + elapsedS / 300);
+  return Math.min(9, 1.7 + elapsedS / 140);
 }
 
 /** Contact damage scales gently so late hits sting without one-shotting. */

@@ -42,9 +42,7 @@ function nearest(world: World): { dist: number; bx: number; by: number } {
   return { dist: Math.sqrt(best), bx, by };
 }
 
-/** Flee the inverse-square field of nearby enemy bodies AND hostile bolts (the
- *  active dodger), steering to the open gap. Weighting bolts higher than bodies
- *  is what proves the run is beatable by movement, not by ignoring fire. */
+/** Flee the inverse-square field of nearby enemies (steer to the open gap). */
 function fieldKite(world: World, radius: number): { x: number; y: number } {
   const { player, enemies } = world;
   const active = enemies.pool.active;
@@ -57,17 +55,6 @@ function fieldKite(world: World, radius: number): { x: number; y: number } {
     const d2 = dx * dx + dy * dy;
     if (d2 > radius * radius || d2 < 1) continue;
     const w = 1 / d2;
-    rx += dx * w;
-    ry += dy * w;
-  }
-  const ep = world.enemyProjectiles.pool.active;
-  for (let i = 0; i < ep.length; i += 1) {
-    if (ep[i] !== 1) continue;
-    const dx = player.x - world.enemyProjectiles.x[i]!;
-    const dy = player.y - world.enemyProjectiles.y[i]!;
-    const d2 = dx * dx + dy * dy;
-    if (d2 > 230 * 230 || d2 < 1) continue;
-    const w = 3.5 / d2;
     rx += dx * w;
     ry += dy * w;
   }
@@ -216,7 +203,7 @@ describe('anti-turtle balance tripwire', () => {
   );
 
   it(
-    'a near-stationary turtle never wins and dies fast to hostile fire',
+    'a near-stationary turtle never wins and is overrun by the swarm early',
     () => {
       let wins = 0;
       let total = 0;
@@ -230,7 +217,7 @@ describe('anti-turtle balance tripwire', () => {
         }
       }
       expect(wins).toBe(0);
-      // Ranged casters (not just the swarm) now overrun a near-still player early.
+      // The tougher swarm reaches and overruns a near-still player; turtling fails.
       expect(total / count).toBeLessThan(240); // avg death well under 4 minutes
     },
     TIMEOUT,

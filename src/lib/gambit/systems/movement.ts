@@ -18,7 +18,7 @@ import {
   REAPER_LOCK_SPEED,
   REAPER_TURN,
 } from '../constants';
-import { ALL_ARCHETYPES, LANCER_INDEX, REAPER_INDEX } from '../enemies';
+import { LANCER_INDEX, REAPER_INDEX } from '../enemies';
 import type { World } from '../types';
 
 function clamp(v: number, lo: number, hi: number): number {
@@ -107,27 +107,12 @@ export function updateMovement(world: World, dt: number): void {
     const dy = player.y - enemies.y[i]!;
     const d = Math.hypot(dx, dy) || 1;
     let speed = enemies.speed[i]!;
-    let dirX = dx / d;
-    let dirY = dy / d;
-    const a = ALL_ARCHETYPES[enemies.type[i]!]!;
-    if (a.ranged) {
-      // Caster: keep a standoff band and STRAFE (orbit) so it never freezes into
-      // a face-tankable target and keeps a clear firing line.
-      const want = a.kiteDist ?? 360;
-      const radial = d < want * 0.7 ? -1 : d > want * 1.25 ? 1 : 0;
-      const sx = -dirY;
-      const sy = dirX;
-      const vx = dirX * radial + sx * 0.55;
-      const vy = dirY * radial + sy * 0.55;
-      const vl = Math.hypot(vx, vy) || 1;
-      dirX = vx / vl;
-      dirY = vy / vl;
-    } else if (enemies.type[i] === LANCER_INDEX && d < LANCER_LUNGE_DIST) {
-      // Lancer: surge toward the player once it has closed inside lunge range.
+    // Lancer: surge toward the player once it has closed inside lunge range.
+    if (enemies.type[i] === LANCER_INDEX && d < LANCER_LUNGE_DIST) {
       speed = Math.min(speed * LANCER_LUNGE_MULT, LANCER_LUNGE_CAP);
     }
     const stepLen = speed * dt;
-    enemies.x[i] = enemies.x[i]! + dirX * stepLen;
-    enemies.y[i] = enemies.y[i]! + dirY * stepLen;
+    enemies.x[i] = enemies.x[i]! + (dx / d) * stepLen;
+    enemies.y[i] = enemies.y[i]! + (dy / d) * stepLen;
   }
 }
