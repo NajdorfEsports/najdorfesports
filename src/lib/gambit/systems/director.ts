@@ -14,9 +14,13 @@ import {
   DIRECTOR_BASE_RATE,
   ELITE_ADD_COUNT,
   ELITE_ARMOR,
+  ELITE_DPS_FRAC,
+  ELITE_FIRE_INTERVAL,
   ELITE_HP_MULT,
   ELITE_SUMMON_INTERVAL,
   MAX_ENEMIES,
+  QUEEN_DPS_FRAC,
+  QUEEN_FIRE_INTERVAL,
   REAPER_CRUISE,
   REAPER_SECONDS,
   SPAWN_DIST,
@@ -106,6 +110,17 @@ function spawnEnemy(world: World, typeIndex: number, px?: number, py?: number): 
   enemies.hp[i] = hp;
   enemies.maxHp[i] = hp;
   enemies.armor[i] = isElite ? ELITE_ARMOR : 0;
+  // Per-second damage cap (bosses last a fixed duration) + fire cadence.
+  enemies.dpsFrac[i] = isReaper ? QUEEN_DPS_FRAC : isElite ? ELITE_DPS_FRAC : 0;
+  enemies.dmgStep[i] = -1;
+  enemies.dmgAccum[i] = 0;
+  enemies.fireTimer[i] = isReaper
+    ? QUEEN_FIRE_INTERVAL
+    : isElite
+      ? ELITE_FIRE_INTERVAL
+      : a.ranged
+        ? (a.fireInterval ?? 2.5)
+        : 0;
   enemies.radius[i] = a.radius;
   enemies.speed[i] = isReaper ? REAPER_CRUISE : a.speed * enemySpeedScale(elapsed);
   enemies.damage[i] = isReaper ? a.contactDamage : a.contactDamage * enemyDamageScale(elapsed);
@@ -247,13 +262,25 @@ export function updateDirector(world: World, dt: number): void {
   // tanky wall that accumulates to the cap).
   const eligible = eligibleArchetypes(elapsed);
   if (eligible.length === 0) return;
+  // Hold ranged casters to ~22% of the live population (shooters at the back,
+  // melee in front): without this, uniform picking over-represents them.
+  let rangedLive = 0;
+  const eActive = enemies.pool.active;
+  for (let i = 0; i < eActive.length; i += 1) {
+    if (eActive[i] === 1 && ALL_ARCHETYPES[enemies.type[i]!]!.ranged) rangedLive += 1;
+  }
   let guard = 128;
   while (guard > 0 && enemies.pool.count < MAX_ENEMIES) {
     guard -= 1;
-    const affordable = eligible.filter((a) => a.cost <= director.credits);
+    let affordable = eligible.filter((a) => a.cost <= director.credits);
     if (affordable.length === 0) break;
+    if (rangedLive >= Math.min(28, Math.floor(enemies.pool.count * 0.14))) {
+      affordable = affordable.filter((a) => !a.ranged);
+      if (affordable.length === 0) break;
+    }
     const arche = rng.pick(affordable);
     director.credits -= arche.cost;
+    if (arche.ranged) rangedLive += 1;
     spawnEnemy(world, ALL_ARCHETYPES.indexOf(arche));
   }
 }

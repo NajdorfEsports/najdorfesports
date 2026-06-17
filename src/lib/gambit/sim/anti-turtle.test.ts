@@ -42,7 +42,9 @@ function nearest(world: World): { dist: number; bx: number; by: number } {
   return { dist: Math.sqrt(best), bx, by };
 }
 
-/** Flee the inverse-square field of nearby enemies (steer to the open gap). */
+/** Flee the inverse-square field of nearby enemy bodies AND hostile bolts (the
+ *  active dodger), steering to the open gap. Weighting bolts higher than bodies
+ *  is what proves the run is beatable by movement, not by ignoring fire. */
 function fieldKite(world: World, radius: number): { x: number; y: number } {
   const { player, enemies } = world;
   const active = enemies.pool.active;
@@ -58,6 +60,17 @@ function fieldKite(world: World, radius: number): { x: number; y: number } {
     rx += dx * w;
     ry += dy * w;
   }
+  const ep = world.enemyProjectiles.pool.active;
+  for (let i = 0; i < ep.length; i += 1) {
+    if (ep[i] !== 1) continue;
+    const dx = player.x - world.enemyProjectiles.x[i]!;
+    const dy = player.y - world.enemyProjectiles.y[i]!;
+    const d2 = dx * dx + dy * dy;
+    if (d2 > 230 * 230 || d2 < 1) continue;
+    const w = 3.5 / d2;
+    rx += dx * w;
+    ry += dy * w;
+  }
   const rl = Math.hypot(rx, ry) || 1;
   return { x: rx / rl - player.x * 0.0012, y: ry / rl - player.y * 0.0012 };
 }
@@ -68,7 +81,6 @@ const lazyTurret: Move = (world) => {
   return n.dist < 90 ? { x: -n.bx, y: -n.by } : { x: 0, y: 0 };
 };
 const kite: Move = (world) => fieldKite(world, 320);
-const closeKite: Move = (world) => fieldKite(world, 170);
 
 // The greedy offense build a turtle would chase, best-for-standing-still first:
 // the Lance evolution, the 360 Volley (hits every side while stationary), then
@@ -204,23 +216,22 @@ describe('anti-turtle balance tripwire', () => {
   );
 
   it(
-    'a near-stationary turtle (the owner exploit) never wins, even with the rich pool',
+    'a near-stationary turtle never wins and dies fast to hostile fire',
     () => {
       let wins = 0;
+      let total = 0;
+      let count = 0;
       for (const hero of [BISHOP, KNIGHT]) {
-        for (const s of SEEDS) if (run(s, hero, lazyTurret, true).won) wins += 1;
+        for (const s of SEEDS) {
+          const r = run(s, hero, lazyTurret, true);
+          if (r.won) wins += 1;
+          total += r.sec;
+          count += 1;
+        }
       }
       expect(wins).toBe(0);
-    },
-    TIMEOUT,
-  );
-
-  it(
-    'a Bishop on a thoughtful build reaches the climax Queen by playing actively',
-    () => {
-      let reached = 0;
-      for (const s of SEEDS) if (run(s, BISHOP, closeKite, false).reachedQueen) reached += 1;
-      expect(reached).toBeGreaterThanOrEqual(2); // most of 3: build + movement, not turtling
+      // Ranged casters (not just the swarm) now overrun a near-still player early.
+      expect(total / count).toBeLessThan(240); // avg death well under 4 minutes
     },
     TIMEOUT,
   );
@@ -229,8 +240,26 @@ describe('anti-turtle balance tripwire', () => {
     'the run is winnable on a thoughtful build played actively (Knight)',
     () => {
       let wins = 0;
-      for (const s of SEEDS) if (run(s, KNIGHT, kite, false).won) wins += 1;
+      let reached = 0;
+      for (const s of SEEDS) {
+        const r = run(s, KNIGHT, kite, false);
+        if (r.won) wins += 1;
+        if (r.reachedQueen) reached += 1;
+      }
+      expect(reached).toBeGreaterThanOrEqual(2); // active play reaches the climax
       expect(wins).toBeGreaterThanOrEqual(1);
+    },
+    TIMEOUT,
+  );
+
+  it(
+    'the glass-cannon Bishop survives deep into the run by actively dodging',
+    () => {
+      // The no-sustain Bishop is the demanding hero; with active dodging it must
+      // at least reach the dense back half, not collapse early like a turtle.
+      let deep = 0;
+      for (const s of SEEDS) if (run(s, BISHOP, kite, false).sec >= 240) deep += 1;
+      expect(deep).toBeGreaterThanOrEqual(2); // most of 3 reach 4:00+
     },
     TIMEOUT,
   );

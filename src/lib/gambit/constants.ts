@@ -18,6 +18,7 @@ export const ARENA_HALF = 1400;
 
 export const MAX_ENEMIES = 820;
 export const MAX_PROJECTILES = 500;
+export const MAX_ENEMY_PROJECTILES = 360;
 export const MAX_GEMS = 900;
 
 /** Uniform collision grid cell size (~2x the largest common collider). */
@@ -94,13 +95,35 @@ export const SPLASH_FRACTION = 0.55;
 export const WEAPON_SLOTS = 6;
 export const PASSIVE_SLOTS = 6;
 
-/** Elites are real minibosses: HP is the live-scaled brute times this, no hit
- *  may remove more than HIT_CAP_FRAC of their max HP (so a maxed cone can't
- *  delete them in 1-2 shots), and ARMOR is subtracted before the cap (punishes
- *  many-small-projectile builds, rewarding diverse damage). */
+/** Elites are real minibosses: HP is the live-scaled brute times this. The key
+ *  durability lever is a per-SECOND damage cap (DPS_FRAC of max HP): no matter
+ *  how high the player's multi-weapon DPS climbs, a boss takes at least
+ *  1/DPS_FRAC seconds to kill, so the fight lasts a fixed DURATION and is spent
+ *  DODGING its attacks, not racing a DPS bar. A per-hit cap fails here because a
+ *  multi-weapon build lands 20+ hits/sec. ARMOR shaves each hit on top. */
 export const ELITE_HP_MULT = 8;
-export const ELITE_HIT_CAP_FRAC = 0.05;
 export const ELITE_ARMOR = 8;
+/** Per-second damage cap fractions: elite ~7s to kill, the Queen ~28s. */
+export const ELITE_DPS_FRAC = 0.14;
+export const QUEEN_DPS_FRAC = 0.035;
+/** A single hit may deal at most this multiple of the per-STEP budget, so one
+ *  crit burst can't spike through before the per-second accumulator saturates
+ *  (the leak that let a multi-weapon build melt the Queen in seconds). */
+export const SINGLE_HIT_CAP_MULT = 2.5;
+
+/** Hostile bullets (ranged enemies + the Queen). Speeds are at/under the player's
+ *  base move speed so a moving player can dodge but a still one is hit. Damage is
+ *  scary-but-survivable (armor + i-frames apply). Elites fire a slow telegraphed
+ *  spread; the Queen's pattern escalates by phase (see systems/enemyfire.ts). */
+export const ENEMY_BOLT_RADIUS = 9;
+export const ENEMY_BOLT_LIFE = 4;
+export const QUEEN_FIRE_INTERVAL = 2.3;
+export const QUEEN_BOLT_SPEED = 240;
+export const QUEEN_BOLT_DAMAGE = 22;
+/** Elites loose an aimed spread on this cadence once they are alive. */
+export const ELITE_FIRE_INTERVAL = 3.4;
+export const ELITE_BOLT_SPEED = 230;
+export const ELITE_BOLT_DAMAGE = 18;
 /** Living elites summon a few adds on this cadence (the auto-weapon retargets
  *  onto them, so the elite survives by position, not by a bigger HP bar). Kept
  *  modest and spawned at range so it pressures without instantly burying a

@@ -38,9 +38,11 @@ import {
   COLOR_BOARD_LIGHT,
   COLOR_LOSS,
   COLOR_ORBIT,
+  COLOR_REAPER,
   COLOR_WIN,
   DT_MS,
   MAX_ENEMIES,
+  MAX_ENEMY_PROJECTILES,
   MAX_FRAME_MS,
   MAX_GEMS,
   MAX_PROJECTILES,
@@ -205,6 +207,7 @@ const PIECE_BY_ID: Record<string, (c: Pen, cx: number, cy: number, R: number) =>
   shade: bishopPath,
   brute: rookPath,
   lancer: knightPath,
+  caster: bishopPath,
   wall: rookPath,
   knight: kingPath,
   elite: kingPath,
@@ -411,6 +414,21 @@ async function init(): Promise<void> {
     mkProjTex('#d8c6ff', '#9b6bff'),
   ];
 
+  // Hostile bullet: a crimson glowing orb, clearly distinct from the player's bolts.
+  const enemyBoltTex = canvasTex(26, 26, (c, w) => {
+    const r = w / 2;
+    const g = c.createRadialGradient(r, r, 0, r, r, r);
+    g.addColorStop(0, '#ffd2dc');
+    g.addColorStop(0.35, css(COLOR_REAPER));
+    g.addColorStop(1, 'rgba(255,45,85,0)');
+    c.fillStyle = g;
+    c.fillRect(0, 0, w, w);
+    c.beginPath();
+    c.arc(r, r, r * 0.34, 0, Math.PI * 2);
+    c.fillStyle = '#fff0f3';
+    c.fill();
+  });
+
   // Soft additive ring for the aura weapons (Sanctum / Communion).
   const auraTex = canvasTex(128, 128, (c, w) => {
     const r = w / 2;
@@ -520,6 +538,7 @@ async function init(): Promise<void> {
   };
   const enemySprites = mkPool(MAX_ENEMIES, archetypeTex[0]!, enemyLayer);
   const projSprites = mkPool(MAX_PROJECTILES, projTex, projLayer);
+  const enemyBoltSprites = mkPool(MAX_ENEMY_PROJECTILES, enemyBoltTex, projLayer);
   const gemSprites = mkPool(MAX_GEMS, gemTex, gemLayer);
 
   // --- Particle system (pooled, additive) ---
@@ -1175,6 +1194,23 @@ async function init(): Promise<void> {
         s.position.set(
           lerp(w.projectiles.prevX[i]!, w.projectiles.x[i]!, alpha),
           lerp(w.projectiles.prevY[i]!, w.projectiles.y[i]!, alpha),
+        );
+        s.visible = true;
+      } else {
+        s.visible = false;
+      }
+    }
+
+    // Hostile bolts (ranged enemies + the Queen).
+    const epa = w.enemyProjectiles.pool.active;
+    for (let i = 0; i < epa.length; i += 1) {
+      const s = enemyBoltSprites[i]!;
+      if (epa[i] === 1) {
+        const sc = (w.enemyProjectiles.radius[i]! * 2.2) / 26;
+        s.scale.set(reduced ? sc : sc * (1 + Math.sin(game.t * 12 + i) * 0.1));
+        s.position.set(
+          lerp(w.enemyProjectiles.prevX[i]!, w.enemyProjectiles.x[i]!, alpha),
+          lerp(w.enemyProjectiles.prevY[i]!, w.enemyProjectiles.y[i]!, alpha),
         );
         s.visible = true;
       } else {

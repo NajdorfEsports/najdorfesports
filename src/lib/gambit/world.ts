@@ -25,8 +25,10 @@ import { makeRng } from './rng';
 import { updateCollision } from './systems/collision';
 import { updateDirector } from './systems/director';
 import { updateMovement } from './systems/movement';
+import { updateEnemyFire } from './systems/enemyfire';
 import { updateWeapon } from './systems/weapon';
 import type {
+  EnemyProjectileStore,
   EnemyStore,
   GemStore,
   HeroDef,
@@ -35,7 +37,7 @@ import type {
   RunResult,
   World,
 } from './types';
-import { MAX_ENEMIES, MAX_GEMS, MAX_PROJECTILES } from './constants';
+import { MAX_ENEMIES, MAX_ENEMY_PROJECTILES, MAX_GEMS, MAX_PROJECTILES } from './constants';
 
 function makeEnemyStore(cap: number): EnemyStore {
   return {
@@ -49,6 +51,10 @@ function makeEnemyStore(cap: number): EnemyStore {
     hp: new Float32Array(cap),
     maxHp: new Float32Array(cap),
     armor: new Float32Array(cap),
+    dpsFrac: new Float32Array(cap),
+    dmgStep: new Int32Array(cap),
+    dmgAccum: new Float32Array(cap),
+    fireTimer: new Float32Array(cap),
     radius: new Float32Array(cap),
     speed: new Float32Array(cap),
     damage: new Float32Array(cap),
@@ -73,6 +79,21 @@ function makeProjectileStore(cap: number): ProjectileStore {
     pierce: new Float32Array(cap),
     homing: new Float32Array(cap),
     kind: new Uint8Array(cap),
+  };
+}
+
+function makeEnemyProjectileStore(cap: number): EnemyProjectileStore {
+  return {
+    pool: new Pool(cap),
+    x: new Float32Array(cap),
+    y: new Float32Array(cap),
+    prevX: new Float32Array(cap),
+    prevY: new Float32Array(cap),
+    vx: new Float32Array(cap),
+    vy: new Float32Array(cap),
+    life: new Float32Array(cap),
+    damage: new Float32Array(cap),
+    radius: new Float32Array(cap),
   };
 }
 
@@ -147,6 +168,7 @@ export function createWorld(
     player,
     enemies: makeEnemyStore(MAX_ENEMIES),
     projectiles: makeProjectileStore(MAX_PROJECTILES),
+    enemyProjectiles: makeEnemyProjectileStore(MAX_ENEMY_PROJECTILES),
     gems: makeGemStore(MAX_GEMS),
     grid: new SpatialGrid(ARENA_HALF, GRID_CELL),
     director: {
@@ -178,6 +200,7 @@ export function step(world: World): void {
   updateMovement(world, DT);
   updateWeapon(world, DT);
   updateCollision(world, DT);
+  updateEnemyFire(world, DT);
   if (!world.won && world.time.elapsedS >= RUN_WIN_SECONDS) {
     world.won = true;
     world.events.push({ type: 'win' });

@@ -9,7 +9,8 @@
  * world.dead and emits `died`; the caller stops stepping.
  */
 import {
-  ELITE_HIT_CAP_FRAC,
+  DT,
+  SINGLE_HIT_CAP_MULT,
   MAGNET_SPEED,
   MENDING_BLOCK_COUNT,
   MENDING_BLOCK_R,
@@ -36,19 +37,55 @@ function spawnGem(world: World, x: number, y: number, value: number): void {
   g.value[i] = value;
 }
 
-/** Apply `raw` damage to enemy j. Elites subtract armor and cap each DISCRETE
- *  hit at a fraction of their max HP, so no single shot deletes a miniboss;
- *  continuous damage (orbital/aura) bypasses the cap but still chips them. */
+/** Apply `raw` damage to enemy j. Bosses (dpsFrac > 0) subtract armor and then
+ *  obey a per-SECOND damage cap: at most maxHp*dpsFrac per second can be dealt,
+ *  so a boss lasts a fixed DURATION no matter how many hits/sec the player lands
+ *  (a per-HIT cap fails: a multi-weapon build lands 20+ hits/sec). The fight is
+ *  thus spent dodging its attacks, not racing a DPS bar. Fodder is uncapped. */
 function damageEnemy(world: World, j: number, raw: number, discrete: boolean): void {
   const { enemies } = world;
   let dmg = raw;
-  if (discrete && enemies.elite[j] === 1) {
-    dmg = Math.max(1, dmg - enemies.armor[j]!);
-    const cap = enemies.maxHp[j]! * ELITE_HIT_CAP_FRAC;
-    if (dmg > cap) dmg = cap;
+  const frac = enemies.dpsFrac[j]!;
+  if (frac > 0) {
+    if (discrete) dmg = Math.max(1, dmg - enemies.armor[j]!);
+    const stepBudget = enemies.maxHp[j]! * frac * DT;
+    // Clamp any single hit so one crit burst can't leak past the per-step budget.
+    const singleCap = stepBudget * SINGLE_HIT_CAP_MULT;
+    if (dmg > singleCap) dmg = singleCap;
+    const step = world.time.stepCount;
+    if (enemies.dmgStep[j]! !== step) {
+      enemies.dmgStep[j] = step;
+      enemies.dmgAccum[j] = 0;
+    }
+    const remaining = stepBudget - enemies.dmgAccum[j]!;
+    if (remaining <= 0) return;
+    if (dmg > remaining) dmg = remaining;
+    enemies.dmgAccum[j] = enemies.dmgAccum[j]! + dmg;
   }
   enemies.hp[j] = enemies.hp[j]! - dmg;
   if (enemies.hp[j]! <= 0) killEnemy(world, j);
+}
+
+/** Apply an incoming hit to the player: dodge negates it, armor reduces it, and
+ *  a revival charge cheats death once. Sets i-frames so one hit lands per beat.
+ *  Shared by melee contact and enemy bullets (systems/enemyfire.ts). */
+export function hitPlayer(world: World, raw: number): void {
+  const { player, events } = world;
+  player.iframes = PLAYER_IFRAME;
+  if (player.mods.dodgeChance > 0 && world.rng.chance(player.mods.dodgeChance)) return;
+  player.hp -= Math.max(1, raw - player.mods.armor);
+  events.push({ type: 'hit', x: player.x, y: player.y });
+  if (player.hp <= 0) {
+    if (player.mods.revivalCharges > 0) {
+      player.mods.revivalCharges -= 1;
+      player.hp = player.maxHp * 0.5;
+      player.iframes = PLAYER_IFRAME * 3; // brief mercy after an undeath
+    } else {
+      player.hp = 0;
+      world.dead = true;
+      events.push({ type: 'died' });
+    }
+  }
 }
 
 /** Kill enemy j: drop its gem(s) (a scattered chest for elites), emit, recycle. */
@@ -167,36 +204,18 @@ export function updateCollision(world: World, dt: number): void {
     }
   }
 
-  // Enemy -> player (first overlap only; i-frames suppress the rest).
+  // Enemy melee -> player (first overlap only; i-frames suppress the rest).
   if (player.iframes <= 0) {
     let hitDamage = 0;
     grid.queryNeighbors(player.x, player.y, (j) => {
-      if (player.iframes > 0 || enemies.pool.active[j] !== 1) return;
+      if (enemies.pool.active[j] !== 1) return;
       const rr = enemies.radius[j]! + player.radius;
       const dx = enemies.x[j]! - player.x;
       const dy = enemies.y[j]! - player.y;
       if (dx * dx + dy * dy > rr * rr) return;
       hitDamage = enemies.damage[j]!;
-      player.iframes = PLAYER_IFRAME;
     });
-    if (hitDamage > 0) {
-      const dodged = player.mods.dodgeChance > 0 && world.rng.chance(player.mods.dodgeChance);
-      if (!dodged) {
-        player.hp -= Math.max(1, hitDamage - player.mods.armor);
-        events.push({ type: 'hit', x: player.x, y: player.y });
-        if (player.hp <= 0) {
-          if (player.mods.revivalCharges > 0) {
-            player.mods.revivalCharges -= 1;
-            player.hp = player.maxHp * 0.5;
-            player.iframes = PLAYER_IFRAME * 3; // brief mercy after an undeath
-          } else {
-            player.hp = 0;
-            world.dead = true;
-            events.push({ type: 'died' });
-          }
-        }
-      }
-    }
+    if (hitDamage > 0) hitPlayer(world, hitDamage);
   }
 
   // Gems: magnet pull, then pickup -> XP.
