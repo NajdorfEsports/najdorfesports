@@ -20,15 +20,16 @@ export const BISHOP: HeroDef = {
 
 // Knight: fast and aggressive. Starts with the Gambit lance, which fires along
 // your aim, so his identity (dive in, point your body at the threat) is enforced
-// from level 1. Heals on every kill and fires fast; trades range for it. Unlock
-// by winning a run.
+// from level 1. Fires fast and moves fast; trades range and sustain for it. He
+// has NO innate sustain: lifesteal is earned only by evolving Communion (see
+// evolutions.ts). Unlock by winning a run.
 export const KNIGHT: HeroDef = {
   id: 'knight',
   weaponId: 'gambit',
-  baseHp: 100,
+  baseHp: 110,
   baseSpeed: 280,
   radius: 15,
-  mods: { lifestealOnKill: 0.22, fireRateMult: 0.18 },
+  mods: { fireRateMult: 0.18 },
 };
 
 export const HEROES: Record<string, HeroDef> = {

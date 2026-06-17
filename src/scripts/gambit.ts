@@ -50,6 +50,7 @@ import {
 } from '../lib/gambit/constants';
 import { dailySeed, dayNumber, nyDate, secondsToNyMidnight } from '../lib/gambit/daily';
 import { ALL_ARCHETYPES } from '../lib/gambit/enemies';
+import { EVOLUTIONS } from '../lib/gambit/evolutions';
 import { DEFAULT_HERO, HEROES } from '../lib/gambit/heroes';
 import { POWERUPS, powerupCost } from '../lib/gambit/powerups';
 import { STORAGE_KEY, deserialize, emptyState, serialize } from '../lib/gambit/storage';
@@ -71,6 +72,15 @@ interface L10n {
   newWeaponTag: string;
   evolutionTag: string;
   levelTag: string;
+  stats: {
+    time: string;
+    level: string;
+    weapons: string;
+    upgrades: string;
+    evolutions: string;
+    ready: string;
+    none: string;
+  };
 }
 
 /** Design radius the piece silhouettes are baked to (texture-space px). */
@@ -468,8 +478,8 @@ async function init(): Promise<void> {
   playerGlow.anchor.set(0.5);
   playerGlow.blendMode = 'add';
   playerGlow.tint = COLOR_ACCENT;
-  playerGlow.scale.set((DEFAULT_HERO.radius * 4.6) / 24);
-  playerGlow.alpha = 0.6;
+  playerGlow.scale.set((DEFAULT_HERO.radius * 3) / 24);
+  playerGlow.alpha = 0.35;
   const bishopSprite = new Sprite(bishopTex);
   bishopSprite.anchor.set(0.5);
   bishopSprite.scale.set((DEFAULT_HERO.radius * ENEMY_VIS) / PIECE_R);
@@ -717,6 +727,75 @@ async function init(): Promise<void> {
     show(overOverlay, which === 'over');
     show(winOverlay, which === 'win');
     show(hud, game.running && which !== 'start' && which !== 'over' && which !== 'win');
+    if (which === 'pause') renderStats();
+  }
+
+  // --- Pause stat sheet: time, level, weapons + levels, upgrades + stacks, and
+  // each evolution's recipe with live progress so the player can see how to earn it.
+  const statsBox = q('[data-gg-stats]');
+  function statLine(label: string, body: string): HTMLElement {
+    const row = document.createElement('div');
+    row.className = 'gg-stat-row';
+    const k = document.createElement('span');
+    k.className = 'gg-stat-key';
+    k.textContent = label;
+    const v = document.createElement('span');
+    v.className = 'gg-stat-val';
+    v.textContent = body;
+    row.append(k, v);
+    return row;
+  }
+  function renderStats(): void {
+    if (!statsBox || !game.world) return;
+    const w = game.world;
+    const s = l10n.stats;
+    const wname = (id: string): string => l10n.weapons[id]?.name ?? id;
+    const pname = (id: string): string => l10n.upgrades[id]?.name ?? id;
+    statsBox.replaceChildren();
+
+    statsBox.appendChild(
+      statLine(
+        s.time,
+        `${formatClock(Math.floor(w.time.elapsedS))}    ${s.level} ${w.player.level}`,
+      ),
+    );
+    statsBox.appendChild(
+      statLine(s.weapons, w.player.weapons.map((x) => `${wname(x.id)} Lv${x.level}`).join(', ')),
+    );
+    const passives = Object.entries(game.taken)
+      .filter(([, n]) => n > 0)
+      .map(([id, n]) => `${pname(id)} x${n}`);
+    statsBox.appendChild(statLine(s.upgrades, passives.length ? passives.join(', ') : s.none));
+
+    // Evolutions: recipe + progress, or "Ready!" when both prerequisites are met.
+    const evoWrap = document.createElement('div');
+    evoWrap.className = 'gg-stat-evos';
+    const head = document.createElement('div');
+    head.className = 'gg-stat-key';
+    head.textContent = s.evolutions;
+    evoWrap.appendChild(head);
+    for (const e of EVOLUTIONS) {
+      const owned = w.player.weapons.find((x) => x.id === e.baseWeaponId);
+      const def = WEAPONS[e.baseWeaponId];
+      const wLv = owned ? owned.level : 0;
+      const wMax = def ? def.maxLevel : 0;
+      const cat = game.taken[e.catalystId] ?? 0;
+      const evolved = w.player.weapons.some((x) => x.id === e.evolvedWeaponId);
+      const ready = !evolved && owned && wLv >= wMax && cat >= e.catalystThreshold;
+      const line = document.createElement('div');
+      line.className = ready ? 'gg-stat-evo gg-stat-evo-ready' : 'gg-stat-evo';
+      const evoName = l10n.evolutions[e.id]?.name ?? e.id;
+      const recipe = `${wname(e.baseWeaponId)} Lv${Math.min(wLv, wMax)}/${wMax} + ${pname(
+        e.catalystId,
+      )} ${Math.min(cat, e.catalystThreshold)}/${e.catalystThreshold}`;
+      line.textContent = evolved
+        ? `${evoName} ✓`
+        : ready
+          ? `${evoName}: ${s.ready}`
+          : `${evoName}: ${recipe}`;
+      evoWrap.appendChild(line);
+    }
+    statsBox.appendChild(evoWrap);
   }
 
   // --- Run lifecycle ---
@@ -734,7 +813,7 @@ async function init(): Promise<void> {
     const hero = HEROES[saved.hero] ?? DEFAULT_HERO;
     bishopSprite.texture = heroTex[hero.id] ?? bishopTex;
     bishopSprite.scale.set((hero.radius * ENEMY_VIS) / PIECE_R);
-    playerGlow.scale.set((hero.radius * 4.6) / 24);
+    playerGlow.scale.set((hero.radius * 3) / 24);
     playerGlow.tint = hero.id === 'knight' ? COLOR_ORBIT : COLOR_ACCENT;
   }
 
@@ -1144,7 +1223,7 @@ async function init(): Promise<void> {
     } else {
       bishopSprite.tint = 0xffffff;
     }
-    playerGlow.alpha = reduced ? 0.5 : 0.5 + Math.sin(game.t * 3) * 0.12;
+    playerGlow.alpha = reduced ? 0.32 : 0.32 + Math.sin(game.t * 3) * 0.07;
     playerNode.position.set(pxr, pyr);
 
     const ea = w.enemies.pool.active;

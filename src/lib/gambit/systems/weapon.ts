@@ -9,7 +9,7 @@
  * Resolved per-shot stats combine each weapon's per-level growth with the run's
  * global PlayerMods, so leveling a weapon AND stacking passives are both felt.
  */
-import { ARENA_HALF } from '../constants';
+import { ARENA_HALF, MULTISHOT_EXTRA_DAMAGE } from '../constants';
 import type { PlayerMods, ResolvedShot, WeaponDef, World } from '../types';
 import { WEAPONS } from '../weapons';
 
@@ -17,9 +17,11 @@ import { WEAPONS } from '../weapons';
 export function resolveWeapon(def: WeaponDef, level: number, mods: PlayerMods): ResolvedShot {
   const n = level - 1;
   const pl = def.perLevel;
+  const own = def.baseProjectiles + (pl.projectiles ?? 0) * n;
   return {
     damage: def.baseDamage + (pl.damage ?? 0) * n,
-    projectiles: def.baseProjectiles + (pl.projectiles ?? 0) * n + mods.extraProjectiles,
+    projectiles: own + mods.extraProjectiles,
+    ownProjectiles: own,
     interval: def.baseInterval * Math.pow(pl.interval ?? 1, n),
     pierce: def.basePierce + (pl.pierce ?? 0) * n + mods.pierce,
     radius: def.projectileRadius * Math.pow(pl.radius ?? 1, n) * Math.sqrt(mods.areaMult),
@@ -111,6 +113,7 @@ function fireWeapon(world: World, def: WeaponDef, stats: ResolvedShot): void {
   let damage = stats.damage * m.damageMult;
   if (m.critChance > 0 && world.rng.chance(m.critChance)) damage *= m.critMult;
   const count = Math.max(1, Math.round(stats.projectiles));
+  const own = Math.max(1, Math.round(stats.ownProjectiles));
   const tint = KIND_INDEX[def.kind] ?? 0;
 
   // Choose the base aim angle by behavior.
@@ -137,11 +140,13 @@ function fireWeapon(world: World, def: WeaponDef, stats: ResolvedShot): void {
     } else {
       angle = base + (k / (count - 1) - 0.5) * spread * (count - 1);
     }
+    // The weapon's own shots hit full; Multishot extras (k >= own) hit for half.
+    const shotDamage = k < own ? damage : damage * MULTISHOT_EXTRA_DAMAGE;
     spawnProjectile(
       world,
       Math.cos(angle) * stats.speed,
       Math.sin(angle) * stats.speed,
-      damage,
+      shotDamage,
       stats.radius,
       stats.pierce,
       stats.range,

@@ -40,7 +40,7 @@ function weapon(def: Partial<WeaponDef> & Pick<WeaponDef, 'id' | 'kind'>): Weapo
 export const BOLT = weapon({
   id: 'bolt',
   kind: 'bolt',
-  maxLevel: 6,
+  maxLevel: 5,
   baseInterval: 0.5,
   baseDamage: 16,
   baseProjectileSpeed: 600,
@@ -97,7 +97,7 @@ export const GAMBIT = weapon({
 export const SANCTUM = weapon({
   id: 'sanctum',
   kind: 'aura',
-  maxLevel: 5,
+  maxLevel: 4,
   baseInterval: 1, // unused: resolves continuously in collision.ts
   baseDamage: 30, // aura DPS base
   baseProjectiles: 0,

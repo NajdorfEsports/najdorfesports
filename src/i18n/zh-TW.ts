@@ -629,6 +629,16 @@ export const zhTW: Strings = {
       resumeLabel: '繼續',
       pausedHeading: '已暫停',
       giveUpLabel: '結束對局',
+      // DRAFT PENDING RIRI NATIVE REVIEW
+      stats: {
+        time: '時間',
+        level: '等級',
+        weapons: '武器',
+        upgrades: '升級',
+        evolutions: '進化',
+        ready: '可進化！',
+        none: '尚無',
+      },
       levelUpHeading: '升級',
       levelUpSub: '擇一',
       hudLevel: '等級',

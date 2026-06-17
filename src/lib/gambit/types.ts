@@ -62,7 +62,11 @@ export interface OwnedWeapon {
 /** A projectile weapon's resolved per-shot stats (level + global mods). */
 export interface ResolvedShot {
   damage: number;
+  /** Total projectiles fired (own + Multishot extras). */
   projectiles: number;
+  /** The weapon's OWN projectiles (full damage); any beyond this are Multishot
+   *  extras that deal MULTISHOT_EXTRA_DAMAGE of full. */
+  ownProjectiles: number;
   interval: number;
   pierce: number;
   radius: number;

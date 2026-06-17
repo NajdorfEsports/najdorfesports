@@ -5,6 +5,15 @@
  * they mirror the brand tokens in src/styles/global.css.
  */
 
+/** Visible build tag so a player can tell which deployed version is live. BUMP
+ *  this on every gameplay/balance change so the on-screen number changes. */
+export const GAMBIT_VERSION = 'v2026.06.17-r2';
+
+/** Projectiles a weapon fires beyond its own base count (from the Multishot
+ *  passive) deal this fraction of full damage, so Multishot adds coverage and
+ *  chip without multiplying single-target burst. */
+export const MULTISHOT_EXTRA_DAMAGE = 0.5;
+
 /** Fixed simulation timestep. The sim only ever advances by DT seconds. */
 export const DT_MS = 1000 / 60;
 export const DT = DT_MS / 1000;
@@ -98,7 +107,7 @@ export const PASSIVE_SLOTS = 6;
  *  more player damage = a faster kill, no caps. ARMOR shaves a flat amount off
  *  each discrete hit, rewarding big-hit builds over many-small-projectile spam,
  *  but never gates total damage. */
-export const ELITE_HP_MULT = 16;
+export const ELITE_HP_MULT = 24;
 export const ELITE_ARMOR = 6;
 /** Living elites summon a few melee adds on this cadence (reinforcements that
  *  also pull the auto-weapon's fire, so the elite survives by position). */

@@ -28,7 +28,7 @@ export const EVOLUTIONS: EvolutionDef[] = [
     id: 'evoLance',
     baseWeaponId: 'bolt',
     catalystId: 'pierce',
-    catalystThreshold: 3,
+    catalystThreshold: 2,
     evolvedWeaponId: 'lance',
   },
   // Communion: the Sanctum aura gains heal-on-kill, so wading through a horde
@@ -37,10 +37,10 @@ export const EVOLUTIONS: EvolutionDef[] = [
     id: 'evoCommunion',
     baseWeaponId: 'sanctum',
     catalystId: 'regen',
-    catalystThreshold: 3,
+    catalystThreshold: 2,
     evolvedWeaponId: 'communion',
     grant: (m) => {
-      m.lifestealOnKill += 0.3;
+      m.lifestealOnKill += 0.4;
     },
   },
 ];

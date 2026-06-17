@@ -14,15 +14,16 @@ describe('difficultyCoeff', () => {
   });
 });
 
-describe('eligibleArchetypes (culling)', () => {
-  it('unlocks over time and culls cheap fodder', () => {
+describe('eligibleArchetypes (unlocks)', () => {
+  it('unlocks archetypes over time; cheap fodder is not culled', () => {
     const early = eligibleArchetypes(0).map((a) => a.id);
     expect(early).toContain('pawn');
     expect(early).not.toContain('brute'); // unlocks at 70s
-    expect(early).not.toContain('lancer'); // unlocks at 360s
+    expect(early).not.toContain('lancer'); // unlocks at 240s
 
     const late = eligibleArchetypes(560).map((a) => a.id);
-    expect(late).not.toContain('pawn'); // culled after 540s
+    // Pawns now spawn the whole run (no cull) so density keeps climbing, not dips.
+    expect(late).toContain('pawn');
     expect(late).toContain('knight');
     expect(late).toContain('lancer'); // a late-game charger
   });

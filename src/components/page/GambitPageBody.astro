@@ -19,6 +19,7 @@ import SectionHeader from '../ui/SectionHeader.astro';
 import { getLocale, useT } from '../../i18n';
 import { POWERUPS } from '../../lib/gambit/powerups';
 import { HEROES } from '../../lib/gambit/heroes';
+import { GAMBIT_VERSION } from '../../lib/gambit/constants';
 
 const locale = getLocale(Astro);
 const t = useT(locale);
@@ -38,6 +39,7 @@ const l10n = {
   newWeaponTag: c.newWeaponTag,
   evolutionTag: c.evolutionTag,
   levelTag: c.levelTag,
+  stats: c.stats,
 };
 ---
 
@@ -64,6 +66,8 @@ const l10n = {
       </div>
 
       <div class="gg-stage mt-3" data-gg-stage>
+        {/* Always-visible build tag so the player knows which deployed version is live. */}
+        <span class="gg-version">{GAMBIT_VERSION}</span>
         {/* Always-on view controls (zoom + fullscreen). */}
         <div class="gg-controls">
           <button
@@ -182,10 +186,11 @@ const l10n = {
           </div>
         </div>
 
-        {/* Pause overlay. */}
+        {/* Pause overlay, with a run stat sheet (filled by the engine on pause). */}
         <div class="gg-overlay" hidden data-gg-pausescreen>
-          <div class="gg-panel">
+          <div class="gg-panel gg-panel-wide">
             <p class="gg-overlay-head">{c.pausedHeading}</p>
+            <div class="gg-stats" data-gg-stats></div>
             <div class="gg-row">
               <button type="button" class="gg-btn gg-btn-primary" data-gg-resume>
                 {c.resumeLabel}
@@ -418,6 +423,66 @@ const l10n = {
     align-items: center;
     gap: 0.75rem;
     text-align: center;
+  }
+  .gg-panel-wide {
+    max-width: 34rem;
+  }
+  /* Always-visible build tag, low-key in the stage corner. */
+  .gg-version {
+    position: absolute;
+    left: 0.5rem;
+    bottom: 0.4rem;
+    z-index: 5;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--color-text-dim);
+    opacity: 0.6;
+    pointer-events: none;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Pause stat sheet. */
+  .gg-stats {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    text-align: left;
+    font-size: 0.8125rem;
+  }
+  .gg-stats :global(.gg-stat-row) {
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
+    border-top: 1px solid var(--color-border);
+    padding-top: 0.4rem;
+  }
+  .gg-stats :global(.gg-stat-key) {
+    flex: 0 0 5.5rem;
+    font-weight: 700;
+    color: var(--color-text-dim);
+    text-transform: uppercase;
+    font-size: 0.6875rem;
+    letter-spacing: 0.05em;
+  }
+  .gg-stats :global(.gg-stat-val) {
+    flex: 1;
+    color: var(--color-text);
+  }
+  .gg-stats :global(.gg-stat-evos) {
+    border-top: 1px solid var(--color-border);
+    padding-top: 0.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .gg-stats :global(.gg-stat-evo) {
+    font-size: 0.75rem;
+    color: var(--color-text-dim);
+  }
+  .gg-stats :global(.gg-stat-evo-ready) {
+    color: #f5c451;
+    font-weight: 700;
   }
   .gg-overlay-head {
     font-family: var(--font-display);

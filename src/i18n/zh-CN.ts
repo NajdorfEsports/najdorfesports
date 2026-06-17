@@ -629,6 +629,16 @@ export const zhCN: Strings = {
       resumeLabel: '继续',
       pausedHeading: '已暂停',
       giveUpLabel: '结束对局',
+      // DRAFT PENDING RIRI NATIVE REVIEW
+      stats: {
+        time: '时间',
+        level: '等级',
+        weapons: '武器',
+        upgrades: '升级',
+        evolutions: '进化',
+        ready: '可进化！',
+        none: '尚无',
+      },
       levelUpHeading: '升级',
       levelUpSub: '择一',
       hudLevel: '等级',
