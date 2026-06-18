@@ -1,0 +1,214 @@
+---
+/**
+ * Original animated backgrounds for the three game cards on /games/. Each is a
+ * decorative, aria-hidden, pure-CSS layer (no client JS, no Overwatch imagery):
+ *   - crossword: a faint cell grid with a few cells filling in sequence
+ *   - owdle: a row of guess tiles that flip and reveal through brand colors
+ *   - gambit: a faint chessboard with a drifting "swarm" of sparks
+ * Mount as the first child of a position:relative card; keep the card content
+ * in a sibling that stacks above. A corner mask keeps the headline legible, and
+ * every loop freezes to a composed still under prefers-reduced-motion.
+ */
+interface Props {
+  game: 'crossword' | 'owdle' | 'gambit';
+}
+const { game } = Astro.props;
+---
+
+<div class:list={['game-bg', `game-bg--${game}`]} aria-hidden="true">
+  {
+    game === 'crossword' && (
+      <>
+        <span class="cw-cell" style="right:8%;bottom:14%;--d:0s" />
+        <span class="cw-cell" style="right:22%;bottom:30%;--d:1.2s" />
+        <span class="cw-cell" style="right:14%;bottom:46%;--d:2.4s" />
+        <span class="cw-cell" style="right:30%;bottom:14%;--d:3.4s" />
+      </>
+    )
+  }
+  {
+    game === 'owdle' && (
+      <div class="owdle-row">
+        <span class="ow-tile" style="--d:0s" />
+        <span class="ow-tile" style="--d:0.45s" />
+        <span class="ow-tile" style="--d:0.9s" />
+        <span class="ow-tile" style="--d:1.35s" />
+        <span class="ow-tile" style="--d:1.8s" />
+      </div>
+    )
+  }
+  {
+    game === 'gambit' && (
+      <>
+        <span class="gb-board" />
+        <span class="gb-spark" style="left:62%;bottom:18%;--d:0s;--dx:-18px" />
+        <span class="gb-spark" style="left:74%;bottom:30%;--d:1.6s;--dx:-26px" />
+        <span class="gb-spark" style="left:86%;bottom:22%;--d:3.1s;--dx:-30px" />
+        <span class="gb-spark alt" style="left:68%;bottom:40%;--d:2.2s;--dx:-14px" />
+      </>
+    )
+  }
+</div>
+
+<style>
+  /* Concentrate the decoration toward the bottom-right so the title + body on
+     the upper-left stay clean. */
+  .game-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    -webkit-mask-image: radial-gradient(125% 125% at 100% 100%, #000 26%, transparent 80%);
+    mask-image: radial-gradient(125% 125% at 100% 100%, #000 26%, transparent 80%);
+  }
+
+  /* ---------- crossword: cell grid + filling cells ---------- */
+  .game-bg--crossword {
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        color-mix(in oklab, var(--color-accent) 13%, transparent) 0 1px,
+        transparent 1px 26px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        color-mix(in oklab, var(--color-accent) 13%, transparent) 0 1px,
+        transparent 1px 26px
+      );
+    opacity: 0.7;
+  }
+  .cw-cell {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 1px;
+    background: color-mix(in oklab, var(--color-accent) 26%, transparent);
+    opacity: 0.16;
+    animation: cw-fill 6.5s var(--ease-standard) infinite;
+    animation-delay: var(--d, 0s);
+  }
+  @keyframes cw-fill {
+    0%,
+    100% {
+      opacity: 0.14;
+    }
+    45%,
+    65% {
+      opacity: 0.55;
+    }
+  }
+
+  /* ---------- owdle: flip-reveal guess tiles ---------- */
+  .owdle-row {
+    position: absolute;
+    right: 7%;
+    bottom: 16%;
+    display: flex;
+    gap: 7px;
+  }
+  .ow-tile {
+    width: 25px;
+    height: 25px;
+    border: 1.5px solid var(--color-border);
+    border-radius: 2px;
+    background: transparent;
+    animation: ow-reveal 5.4s var(--ease-out) infinite;
+    animation-delay: var(--d, 0s);
+  }
+  @keyframes ow-reveal {
+    0%,
+    14% {
+      transform: scaleY(1);
+      border-color: var(--color-border);
+      background: transparent;
+    }
+    22% {
+      transform: scaleY(0.12);
+    }
+    36%,
+    58% {
+      transform: scaleY(1);
+      border-color: var(--color-accent-2);
+      background: color-mix(in oklab, var(--color-accent-2) 30%, transparent);
+    }
+    74%,
+    90% {
+      border-color: var(--color-accent);
+      background: color-mix(in oklab, var(--color-accent) 34%, transparent);
+    }
+    100% {
+      border-color: var(--color-border);
+      background: transparent;
+    }
+  }
+
+  /* ---------- gambit: faint chessboard + drifting swarm sparks ---------- */
+  .gb-board {
+    position: absolute;
+    inset: 0;
+    background-image: conic-gradient(
+      color-mix(in oklab, var(--color-accent) 8%, transparent) 0 25%,
+      transparent 0 50%,
+      color-mix(in oklab, var(--color-accent) 8%, transparent) 0 75%,
+      transparent 0
+    );
+    background-size: 44px 44px;
+    opacity: 0.8;
+  }
+  .gb-spark {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 6px 1px color-mix(in oklab, var(--color-accent) 70%, transparent);
+    opacity: 0;
+    animation: gb-swarm 6s ease-in infinite;
+    animation-delay: var(--d, 0s);
+  }
+  .gb-spark.alt {
+    background: var(--color-accent-2);
+    box-shadow: 0 0 6px 1px color-mix(in oklab, var(--color-accent-2) 70%, transparent);
+  }
+  @keyframes gb-swarm {
+    0% {
+      opacity: 0;
+      transform: translate(0, 8px) scale(0.6);
+    }
+    20% {
+      opacity: 0.9;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--dx, -20px), -42px) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cw-cell,
+    .ow-tile,
+    .gb-spark {
+      animation: none !important;
+    }
+    .cw-cell {
+      opacity: 0.3;
+    }
+    .ow-tile {
+      transform: none !important;
+    }
+    /* A composed still: the first two tiles resolved, the rest empty. */
+    .ow-tile:nth-child(1) {
+      border-color: var(--color-accent);
+      background: color-mix(in oklab, var(--color-accent) 30%, transparent);
+    }
+    .ow-tile:nth-child(2) {
+      border-color: var(--color-accent-2);
+      background: color-mix(in oklab, var(--color-accent-2) 26%, transparent);
+    }
+    .gb-spark {
+      opacity: 0.5;
+      transform: translate(var(--dx, -20px), -20px) scale(1);
+    }
+  }
+</style>
