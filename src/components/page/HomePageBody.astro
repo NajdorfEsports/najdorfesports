@@ -116,6 +116,18 @@ const nextFilm = nextMatch
   data-hero-default
   class="relative overflow-hidden isolate border-b border-(--color-border)"
 >
+  {
+    /* Ambient motion layer (decorative): a drifting accent glow, a sparse
+       particle field, and a cursor-follow glow. Sits below the texture grid
+       and content. The particles + cursor tracking are added by
+       src/scripts/hero-ambient.ts and disabled under reduced motion; with JS
+       off this is just the static glow. */
+  }
+  <div class="hero-ambient" aria-hidden="true">
+    <div class="hero-glow"></div>
+    <div class="hero-particles" data-hero-particles></div>
+    <div class="hero-cursor-glow" data-hero-cursor></div>
+  </div>
   <div class="texture-board" aria-hidden="true"></div>
   {
     /* The architectural bishop: oversized, faint linework, deliberately
@@ -439,7 +451,16 @@ const nextFilm = nextMatch
 </section>
 
 <div class="reveal">
-  <SponsorsRow sponsors={sponsorsData as Sponsor[]} />
+  <SponsorsRow
+    sponsors={sponsorsData as Sponsor[]}
+    invite={{
+      eyebrow: t.sponsorInvite.eyebrow,
+      heading: t.sponsorInvite.heading,
+      body: t.sponsorInvite.body,
+      cta: t.sponsorInvite.cta,
+      href: pathFor(locale, '/partners/'),
+    }}
+  />
 </div>
 
 <div class="reveal">
@@ -457,3 +478,7 @@ const nextFilm = nextMatch
     color: color-mix(in oklab, var(--color-accent-2) 60%, var(--color-text-dim));
   }
 </style>
+
+<script>
+  import '../../scripts/hero-ambient.ts';
+</script>

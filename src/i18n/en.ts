@@ -432,6 +432,26 @@ export const en = {
     cta: 'See the match',
   },
 
+  /** Sponsor-facing "by the numbers" strip (StatStrip) on About + Partners.
+   *  All figures are real or derived (see lib/derived-stats.ts). */
+  statStrip: {
+    byTheNumbers: 'By the numbers',
+    players: 'Players',
+    countries: 'Countries',
+    winRate: 'Win rate',
+    matchesPlayed: 'Matches played',
+    peakViewers: 'Peak viewers',
+  },
+
+  /** Founding-partners invite shown on the home page in place of the (still
+   *  empty) sponsor wall. Public-facing; no fake logos, just an open call. */
+  sponsorInvite: {
+    eyebrow: 'Partners',
+    heading: 'Founding partner slots are open',
+    body: 'No logos here yet, and that is deliberate. Be the first brand on the jersey as we build through OWCS Pacific.',
+    cta: 'Partner with us',
+  },
+
   /** /matches page chrome (header, stat strip, attribution). */
   matches: {
     metaDescription: (league: string) =>
@@ -439,6 +459,8 @@ export const en = {
     eyebrow: (league: string, year: number) => `Schedule · ${league} ${year}`,
     upcoming: 'Upcoming',
     recordLabel: 'Record',
+    /** Label above the recent-form W/L pills in the /matches header. */
+    formLabel: 'Recent form',
     record: (wins: number, losses: number) => `${wins}W – ${losses}L`,
     /** Split variant of `record` for the /matches header stat, where the
      *  wins half renders in brand blue and the losses half in loss red.

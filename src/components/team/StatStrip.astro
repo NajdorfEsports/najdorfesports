@@ -1,0 +1,88 @@
+---
+/**
+ * Sponsor-facing "by the numbers" strip. A row of hairline-divided cells, each
+ * a big count-up figure over a small label. The SERVER renders the final value
+ * (prefix + value + suffix) so the right number shows with no JS and on slow
+ * JS; the shared count-up module (src/scripts/count-up.ts) only enhances it,
+ * counting up when the strip scrolls into view. Reduced motion snaps to the
+ * final value. Feed it real / derived numbers only (see lib/derived-stats.ts).
+ */
+interface Stat {
+  value: number;
+  label: string;
+  /** Appended after the digits, kept by count-up (e.g. "%"). */
+  suffix?: string;
+  /** Prepended before the digits, kept by count-up. */
+  prefix?: string;
+}
+interface Props {
+  stats: Stat[];
+  /** Optional small eyebrow above the strip. */
+  eyebrow?: string;
+}
+const { stats, eyebrow } = Astro.props;
+---
+
+{
+  stats.length > 0 && (
+    <div class="stat-strip-wrap">
+      {eyebrow && <p class="eyebrow stat-strip-eyebrow">{eyebrow}</p>}
+      <dl class="stat-strip">
+        {stats.map((s) => (
+          <div class="stat-strip__cell">
+            <dd
+              class="stat-strip__num font-display"
+              data-count-up
+              data-target={s.value}
+              data-count-prefix={s.prefix}
+              data-count-suffix={s.suffix}
+            >
+              {s.prefix}
+              {s.value}
+              {s.suffix}
+            </dd>
+            <dt class="stat-strip__label">{s.label}</dt>
+          </div>
+        ))}
+      </dl>
+    </div>
+  )
+}
+
+<style>
+  .stat-strip-eyebrow {
+    margin-bottom: 0.875rem;
+  }
+  /* Hairline dividers come from a 1px gap over a border-colored backdrop. */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  @media (min-width: 640px) {
+    .stat-strip {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  .stat-strip__cell {
+    background: var(--color-surface);
+    padding: 1.5rem 1.25rem;
+  }
+  .stat-strip__num {
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    line-height: 1;
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-strip__label {
+    margin-top: 0.6rem;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--color-text-dim);
+  }
+</style>

@@ -4,8 +4,18 @@ import type { Sponsor } from '../../data/site';
 interface Props {
   sponsors: ReadonlyArray<Sponsor>;
   heading?: string;
+  /** Shown in place of the (still empty) sponsor wall: an open call for
+   *  founding partners. No placeholder logos, just an invitation. Omit it to
+   *  keep the original behavior of hiding the section entirely when empty. */
+  invite?: {
+    eyebrow?: string;
+    heading: string;
+    body: string;
+    cta: string;
+    href: string;
+  };
 }
-const { sponsors, heading = 'Partners' } = Astro.props;
+const { sponsors, heading = 'Partners', invite } = Astro.props;
 
 const tiers = ['primary', 'partner', 'community'] as const;
 const grouped: Partial<Record<(typeof tiers)[number] | 'unranked', Sponsor[]>> = {};
@@ -32,6 +42,41 @@ const gapByTier: Record<string, string> = {
   unranked: 'gap-x-8',
 };
 ---
+
+{
+  sponsors.length === 0 && invite && (
+    <section
+      class="mx-auto max-w-[var(--max-content)] px-4 sm:px-6 mt-16"
+      aria-label={invite.heading}
+    >
+      <a href={invite.href} class="founding-invite surface-hover group">
+        <span class="founding-invite__mark" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            width="28"
+            height="28"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 3l5 6-5 6-5-6z" />
+            <path d="M7 21h10" />
+          </svg>
+        </span>
+        <span class="founding-invite__body">
+          {invite.eyebrow && <span class="founding-invite__eyebrow">{invite.eyebrow}</span>}
+          <span class="founding-invite__heading">{invite.heading}</span>
+          <span class="founding-invite__text">{invite.body}</span>
+        </span>
+        <span class="founding-invite__cta link-arrow has-glyph">
+          <span>{invite.cta}</span>
+        </span>
+      </a>
+    </section>
+  )
+}
 
 {
   sponsors.length > 0 && (
@@ -92,3 +137,72 @@ const gapByTier: Record<string, string> = {
     </section>
   )
 }
+
+<style>
+  /* Founding-partners invite (shown only while there are no sponsors). */
+  .founding-invite {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.25rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 1.75rem 1.5rem;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+  @media (min-width: 640px) {
+    .founding-invite {
+      flex-direction: row;
+      align-items: center;
+      text-align: left;
+      gap: 1.5rem;
+      padding: 1.75rem 2rem;
+    }
+  }
+  .founding-invite__mark {
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 0.5rem;
+    background: color-mix(in oklab, var(--color-accent) 14%, var(--color-surface-2));
+    color: var(--color-accent-2);
+  }
+  .founding-invite__body {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .founding-invite__eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--color-accent-2);
+  }
+  .founding-invite__heading {
+    font-family: var(--font-display);
+    letter-spacing: 0.01em;
+    font-size: 1.25rem;
+  }
+  .founding-invite__text {
+    color: var(--color-text-dim);
+    line-height: 1.5;
+    max-width: 52ch;
+  }
+  .founding-invite__cta {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent-2);
+  }
+  .founding-invite:hover .founding-invite__cta {
+    color: var(--color-accent);
+  }
+</style>

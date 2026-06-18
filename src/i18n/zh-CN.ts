@@ -389,12 +389,32 @@ export const zhCN: Strings = {
     cta: '查看比赛',
   },
 
+  // DRAFT PENDING RIRI NATIVE REVIEW
+  statStrip: {
+    byTheNumbers: '数据一览',
+    players: '选手',
+    countries: '国家',
+    winRate: '胜率',
+    matchesPlayed: '出场场数',
+    peakViewers: '峰值观众',
+  },
+
+  // DRAFT PENDING RIRI NATIVE REVIEW
+  sponsorInvite: {
+    eyebrow: '合作伙伴',
+    heading: '创始伙伴名额开放中',
+    body: '这里还没有任何标志，这是有意为之。在我们征战 OWCS Pacific 的路上，成为第一个出现在队服上的品牌。',
+    cta: '与我们合作',
+  },
+
   matches: {
     metaDescription: (league) =>
       `Najdorf Esports 在 ${league} 第二阶段的即将赛程与近期战绩。完整赛程、地图比分、对手信息，以及每场系列赛的观赛链接。`,
     eyebrow: (league, year) => `赛程 · ${league} ${year}`,
     upcoming: '即将开打',
     recordLabel: '战绩',
+    // DRAFT PENDING RIRI NATIVE REVIEW
+    formLabel: '近期战况',
     record: (wins, losses) => `${wins} 胜 ${losses} 负`,
     // Verbatim fragments of the reviewed `record` string above (no new
     // wording), split so the /matches header can color the two halves.

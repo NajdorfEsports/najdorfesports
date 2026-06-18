@@ -24,7 +24,11 @@ const allMatches = loadMatches();
 // Bucketing + records come from src/lib/matches.ts (unit tested). The
 // past list keeps unscored matches in their tournament sections, where
 // MatchCard renders them as a neutral TBD; records count finals only.
-const { upcoming, past } = splitMatches(allMatches, Date.now());
+const { upcoming, past, completed } = splitMatches(allMatches, Date.now());
+
+// Recent form: the last five decided series as W/L pills, newest first, for an
+// at-a-glance read of how the team is trending. Drawn-only matches are skipped.
+const recentForm = completed.filter((m) => m.result === 'win' || m.result === 'loss').slice(0, 5);
 
 // Group past matches by tournament so each stage has its own section.
 const pastByTournament = new Map<string, MatchEntry[]>();
@@ -63,7 +67,7 @@ const pastSections = Array.from(pastByTournament.entries()).map(([tournament, ma
       </div>
       {
         (hasRecord || upcoming.length > 0) && (
-          <dl class="flex items-center gap-8 text-sm">
+          <dl class="flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
             {upcoming.length > 0 && (
               <div>
                 <dt class="text-(--color-text-dim) uppercase tracking-wider text-[0.65rem]">
@@ -89,12 +93,63 @@ const pastSections = Array.from(pastByTournament.entries()).map(([tournament, ma
                 </dd>
               </div>
             )}
+            {recentForm.length > 0 && (
+              <div>
+                <dt class="text-(--color-text-dim) uppercase tracking-wider text-[0.65rem]">
+                  {t.matches.formLabel}
+                </dt>
+                <dd
+                  class="mt-1.5 flex items-center gap-1.5"
+                  aria-label={recentForm
+                    .map((m) => (m.result === 'win' ? t.match.win : t.match.loss))
+                    .join(' ')}
+                >
+                  {recentForm.map((m) => (
+                    <span
+                      class:list={[
+                        'form-pill',
+                        m.result === 'win' ? 'form-pill--w' : 'form-pill--l',
+                      ]}
+                      aria-hidden="true"
+                    >
+                      {m.result === 'win' ? t.match.win : t.match.loss}
+                    </span>
+                  ))}
+                </dd>
+              </div>
+            )}
           </dl>
         )
       }
     </div>
   </div>
 </section>
+
+<style>
+  /* Recent-form pills in the schedule header: W in brand blue, L in loss red,
+     matching the split record above. */
+  .form-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid;
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .form-pill--w {
+    color: var(--color-accent-2);
+    border-color: color-mix(in oklab, var(--color-accent-2) 50%, transparent);
+  }
+  .form-pill--l {
+    color: var(--color-loss);
+    border-color: color-mix(in oklab, var(--color-loss) 45%, transparent);
+  }
+</style>
 
 <section class="reveal mx-auto max-w-(--max-content) px-4 sm:px-6 mt-10">
   <SectionHeader heading={t.matches.upcoming}>

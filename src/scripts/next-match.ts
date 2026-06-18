@@ -26,7 +26,20 @@ function init(): void {
   const secs = slot('secs');
 
   const pad = (n: number): string => String(Math.max(0, n)).padStart(2, '0');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let intervalId: ReturnType<typeof setInterval> | null = null;
+
+  // Update a digit and flip it only when its value actually changed, so the
+  // card feels alive without animating every tick when nothing moves. No flip
+  // under reduced motion (the value still updates).
+  const setDigit = (el: HTMLElement | null, val: string): void => {
+    if (!el || el.textContent === val) return;
+    el.textContent = val;
+    if (reduced) return;
+    el.classList.remove('is-flip');
+    void el.offsetWidth; // reflow so the animation restarts on every change
+    el.classList.add('is-flip');
+  };
 
   const stop = (): void => {
     if (intervalId !== null) {
@@ -39,10 +52,10 @@ function init(): void {
     const diff = Math.max(0, target - Date.now());
     const sec = Math.floor(diff / 1000);
 
-    if (days) days.textContent = pad(Math.floor(sec / 86400));
-    if (hours) hours.textContent = pad(Math.floor((sec % 86400) / 3600));
-    if (mins) mins.textContent = pad(Math.floor((sec % 3600) / 60));
-    if (secs) secs.textContent = pad(sec % 60);
+    setDigit(days, pad(Math.floor(sec / 86400)));
+    setDigit(hours, pad(Math.floor((sec % 86400) / 3600)));
+    setDigit(mins, pad(Math.floor((sec % 3600) / 60)));
+    setDigit(secs, pad(sec % 60));
 
     // Pulse intensifies near zero: 2.4s far out -> ~0.4s in the final minute.
     let pulse = 2.4;

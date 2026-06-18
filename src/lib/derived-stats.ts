@@ -64,6 +64,43 @@ export function mapBreakdown(completed: ReadonlyArray<MatchEntry>): MapRecord[] 
   );
 }
 
+/**
+ * Headline team numbers for the sponsor-facing "by the numbers" strip on the
+ * Partners and About pages. Everything is real or directly derived: the peak
+ * is the largest logged OWCS Pacific broadcast peak (self-hiding when none is
+ * logged), the win rate is the team series record, and players/countries come
+ * from the active roster. No invented or per-player figures.
+ */
+export interface HeadlineStats {
+  peakViewers: number | null;
+  matchesPlayed: number;
+  winRatePct: number | null;
+  countries: number;
+  players: number;
+}
+
+export function headlineStats(
+  matches: ReadonlyArray<MatchEntry>,
+  roster: ReadonlyArray<{ role: string; country?: string }>,
+  now: number,
+): HeadlineStats {
+  const completed = completedMatches(matches, now);
+  const { wins, losses } = recordOf(completed);
+  const decided = wins + losses;
+  const peaks = matches
+    .map((m) => m.broadcastPeakViewers)
+    .filter((n): n is number => typeof n === 'number');
+  const players = roster.filter((p) => ['Tank', 'DPS', 'Support', 'Flex'].includes(p.role));
+  const countries = new Set(players.map((p) => p.country).filter(Boolean));
+  return {
+    peakViewers: peaks.length ? Math.max(...peaks) : null,
+    matchesPlayed: completed.length,
+    winRatePct: decided > 0 ? Math.round((wins / decided) * 100) : null,
+    countries: countries.size,
+    players: players.length,
+  };
+}
+
 /** The current win or loss streak, or null with no completed matches. */
 export function currentStreak(
   completed: ReadonlyArray<MatchEntry>,

@@ -478,6 +478,8 @@ const data = match
     border: 1px solid rgba(99, 134, 255, 0.18);
     padding: 18px 0 14px;
     overflow: hidden;
+    /* Depth for the digit flip (nmFlip rotateX). */
+    perspective: 600px;
     clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
   }
   .nm-panel::before {
@@ -671,9 +673,32 @@ const data = match
     }
   }
 
+  /* Digit flip: next-match.ts toggles .is-flip when a digit's value changes.
+     nmPulse is re-declared alongside nmFlip so the glow pulse continues after
+     the (finite) flip ends, even while the class lingers. */
+  .nm-digit.is-flip {
+    animation:
+      nmFlip 0.42s cubic-bezier(0.2, 0.7, 0.2, 1),
+      nmPulse var(--nm-pulse, 2.4s) ease-in-out infinite;
+  }
+  @keyframes nmFlip {
+    0% {
+      transform: rotateX(0);
+    }
+    45% {
+      transform: rotateX(-90deg);
+      opacity: 0.35;
+    }
+    100% {
+      transform: rotateX(0);
+      opacity: 1;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .nm-glowring,
     .nm-digit,
+    .nm-digit.is-flip,
     .nm-sweep {
       animation: none !important;
     }

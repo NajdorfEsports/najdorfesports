@@ -8,13 +8,28 @@
  * aria-hidden margin annotation (the org's namesake, locale-neutral).
  */
 import Button from '../ui/Button.astro';
+import StatStrip from '../team/StatStrip.astro';
 import { site } from '../../data/site';
 import { fullLine } from '../../lib/notation';
 import { getLocale, pathFor, useT } from '../../i18n';
+import { loadMatches, loadRoster } from '../../data/loaders';
+import { headlineStats } from '../../lib/derived-stats';
 
 const locale = getLocale(Astro);
 const t = useT(locale);
 const rosterHref = pathFor(locale, '/roster/');
+
+// "By the numbers" snapshot so the story is not a wall of prose. Real /
+// derived only (see lib/derived-stats.ts); the peak self-hides when unlogged.
+const hs = headlineStats(loadMatches(), loadRoster(), Date.now());
+const aboutStats = [
+  { value: hs.players, label: t.statStrip.players },
+  { value: hs.countries, label: t.statStrip.countries },
+  ...(hs.winRatePct != null
+    ? [{ value: hs.winRatePct, label: t.statStrip.winRate, suffix: '%' }]
+    : []),
+  ...(hs.peakViewers != null ? [{ value: hs.peakViewers, label: t.statStrip.peakViewers }] : []),
+];
 ---
 
 <section class="relative isolate overflow-hidden border-b border-(--color-border)">
@@ -29,6 +44,10 @@ const rosterHref = pathFor(locale, '/roster/');
 </section>
 
 <section class="mx-auto max-w-3xl px-4 sm:px-6 pb-16">
+  <div class="mt-10">
+    <StatStrip stats={aboutStats} eyebrow={t.statStrip.byTheNumbers} />
+  </div>
+
   <section class="mt-12 relative">
     <p class="about-notation" aria-hidden="true">{fullLine()}</p>
     <h2 class="font-display text-(length:--text-h2) tracking-wide">{t.about.storyHeading}</h2>

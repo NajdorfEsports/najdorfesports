@@ -549,6 +549,126 @@
   }
 }
 
+/* ───────────────────────────────────────────────────────────────────────────
+ * Home hero ambient motion (decorative, home only)
+ *   A drifting accent glow + a sparse particle field sit behind the wordmark,
+ *   and a cursor-follow glow tracks a fine pointer. All purely decorative: the
+ *   hero is fully meaningful with this layer absent (no-JS visitors get a
+ *   static glow and no particles). The particle spans are created at runtime
+ *   by src/scripts/hero-ambient.ts, so their styles MUST live here in global
+ *   scope (Astro component-scoped styles never reach runtime-injected nodes).
+ *   Motion is gated on prefers-reduced-motion and uses transform/opacity only.
+ * ─────────────────────────────────────────────────────────────────────────── */
+@layer utilities {
+  .hero-ambient {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .hero-glow {
+    position: absolute;
+    inset: -20%;
+    background:
+      radial-gradient(
+        40% 50% at 28% 32%,
+        color-mix(in oklab, var(--color-accent) 26%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        46% 56% at 76% 64%,
+        color-mix(in oklab, var(--color-accent-2) 16%, transparent),
+        transparent 70%
+      );
+    filter: blur(8px);
+  }
+  .hero-particles {
+    position: absolute;
+    inset: 0;
+  }
+  .hero-pt {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--color-accent-2) 80%, #fff);
+    box-shadow: 0 0 8px color-mix(in oklab, var(--color-accent-2) 70%, transparent);
+    opacity: 0;
+  }
+  .hero-cursor-glow {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 360px;
+    height: 360px;
+    border-radius: 9999px;
+    background: radial-gradient(
+      circle,
+      color-mix(in oklab, var(--color-accent) 20%, transparent),
+      transparent 60%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+    will-change: transform, opacity;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-glow {
+      animation: hero-glow-drift 16s ease-in-out infinite alternate;
+    }
+    .hero-pt {
+      animation: hero-pt-float linear infinite;
+    }
+  }
+  @keyframes hero-glow-drift {
+    from {
+      transform: translate3d(-3%, -2%, 0) scale(1);
+    }
+    to {
+      transform: translate3d(4%, 3%, 0) scale(1.08);
+    }
+  }
+  @keyframes hero-pt-float {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 14px, 0);
+    }
+    12% {
+      opacity: 0.7;
+    }
+    88% {
+      opacity: 0.7;
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(0, -120px, 0);
+    }
+  }
+
+  /* Section-header rule draw-in. The hairline rule under each heading starts
+     collapsed and draws left-to-right when its header scrolls into view
+     (reveal.ts adds .is-drawn). Gated on scripting so a no-JS visitor always
+     sees the full rule; a 3s failsafe mirrors the .reveal contract so a
+     blocked script never leaves it collapsed. Decorative + aria-hidden. */
+  .section-header__rule {
+    transform-origin: left;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @media (scripting: enabled) {
+    .section-header__rule:not(.is-drawn) {
+      transform: scaleX(0);
+      animation: rule-draw-failsafe 0s linear 3s forwards;
+    }
+  }
+  @keyframes rule-draw-failsafe {
+    to {
+      transform: scaleX(1);
+    }
+  }
+  .section-header__rule.is-drawn {
+    transform: scaleX(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   /* Sitewide safety net: dial every animation and transition to a single
    * frame. Catches anything we forgot to opt into the named overrides below. */
@@ -585,5 +705,17 @@
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;
+  }
+  /* Decorative draw-in / ambient motion: settle to the final, legible state. */
+  .section-header__rule {
+    transform: none !important;
+    transition: none !important;
+  }
+  .hero-glow,
+  .hero-pt {
+    animation: none !important;
+  }
+  .hero-cursor-glow {
+    opacity: 0 !important;
   }
 }
