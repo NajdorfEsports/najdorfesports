@@ -220,6 +220,9 @@ export const zhTW: Strings = {
       'Najdorf Esports 是一支征戰 OWCS Pacific 的獨立《鬥陣特攻》戰隊。我們在第二階段前接手了 Rankers 的陣容，並以此為起點，打造一支登上 OWCS Pacific 官方轉播的區域型隊伍。',
     standing:
       '我們仍在起步階段，與其誇大，不如把話說清楚。這套陣容在 OWCS Pacific 第一階段（代表 Rankers）拿下第 3 名，目前正在第二階段主賽事中。以下是我們以現有規模能真正提供的內容。',
+    // DRAFT PENDING RIRI NATIVE REVIEW
+    statsNote: (asOf: string) =>
+      `數據來自 2026 OWCS Pacific，截至 ${asOf}。所列任何轉播觀看數均為 OWCS Pacific 官方轉播的觸及，而非我們自有頻道。`,
     offerHeading: '我們能提供什麼',
     offerNote:
       '我們是一支觀眾持續成長的新戰隊，而非一線聯盟戰隊。以下是我們今天就能交付的權益，並會隨著我們成長而擴大。',

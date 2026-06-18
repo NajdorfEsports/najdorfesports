@@ -7,7 +7,9 @@
  */
 import { site } from '../../data/site';
 import { getLocale, useT } from '../../i18n';
+import { formatDate } from '../../i18n/format';
 import StatStrip from '../team/StatStrip.astro';
+import PieceBackdrop from '../brand/PieceBackdrop.astro';
 import { loadMatches, loadRoster } from '../../data/loaders';
 import { headlineStats } from '../../lib/derived-stats';
 
@@ -50,11 +52,16 @@ const partnerStats = [
   { value: hs.matchesPlayed, label: t.statStrip.matchesPlayed },
   { value: hs.countries, label: t.statStrip.countries },
 ];
+
+// Recency stamp for the scorecard. The site is static, so "as of" tracks the
+// build/data-refresh month (the weekly Liquipedia rebuild advances it).
+const statsAsOf = formatDate(new Date(), locale, { month: 'long', year: 'numeric' });
 ---
 
 <section class="relative isolate overflow-hidden border-b border-(--color-border)">
   <div class="texture-board" aria-hidden="true"></div>
-  <div class="mx-auto max-w-3xl px-4 sm:px-6 pt-12 pb-10">
+  <PieceBackdrop piece="Bishop" seed="partners" hatch={false} />
+  <div class="relative mx-auto max-w-3xl px-4 sm:px-6 pt-12 pb-10">
     <p class="eyebrow">{t.partners.eyebrow}</p>
     <h1 class="font-display text-(length:--text-h1) mt-2 tracking-wide leading-none">
       {t.partners.title}
@@ -70,6 +77,9 @@ const partnerStats = [
 
   <div class="mt-10">
     <StatStrip stats={partnerStats} eyebrow={t.statStrip.byTheNumbers} />
+    <p class="mt-4 max-w-prose text-xs leading-relaxed text-(--color-text-dim)">
+      {t.partners.statsNote(statsAsOf)}
+    </p>
   </div>
 
   <section class="mt-12">
@@ -91,10 +101,21 @@ const partnerStats = [
   </section>
 
   <section
-    class="mt-12 border-l-4 border-[var(--color-accent)] bg-[var(--color-surface)] px-5 py-5 rounded-r-md"
+    class="relative isolate mt-12 overflow-hidden rounded-r-md border-l-4 border-[var(--color-accent)] bg-[var(--color-surface)] px-5 py-5"
   >
-    <h2 class="font-display text-xl tracking-wide">{t.partners.foundingHeading}</h2>
-    <p class="text-[var(--color-text-dim)] mt-2 leading-relaxed">{t.partners.foundingBody}</p>
+    <PieceBackdrop
+      piece="King"
+      seed="founding"
+      sheen={false}
+      hatch={false}
+      embers={2}
+      ghostPos="right:-4%;bottom:-30%;width:34%"
+      ghostOpacity={0.06}
+    />
+    <div class="relative">
+      <h2 class="font-display text-xl tracking-wide">{t.partners.foundingHeading}</h2>
+      <p class="text-[var(--color-text-dim)] mt-2 leading-relaxed">{t.partners.foundingBody}</p>
+    </div>
   </section>
 
   <section class="mt-12">

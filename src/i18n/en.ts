@@ -232,6 +232,8 @@ export const en = {
       'Najdorf Esports is an independent Overwatch organization competing in OWCS Pacific. We acquired the Rankers roster ahead of Stage 2 and are building from there: a regional team playing on the official OWCS Pacific broadcast.',
     standing:
       'We are early, and we would rather be precise about that than oversell it. The roster placed 3rd in OWCS Pacific Stage 1 (as Rankers) and is in the Stage 2 main event now. What follows is what we can genuinely deliver at our current size.',
+    statsNote: (asOf: string) =>
+      `Figures from OWCS Pacific 2026, as of ${asOf}. Any broadcast viewership shown is the OWCS Pacific broadcast's reach, not our own channel.`,
     offerHeading: 'What we offer',
     offerNote:
       'A new org with a growing audience, not a tier-one franchise. This is the inventory we can deliver today, and it grows as we do.',
