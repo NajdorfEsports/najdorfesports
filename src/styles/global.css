@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import './tokens.css';
+@import './motion.css';
 
 /*
  * Self-hosted fonts. Anton and Inter both ship under SIL Open Font License

@@ -1,0 +1,111 @@
+---
+/**
+ * Ambient backdrop composer for the motion system. Drops the shared motion
+ * layers (sheen, diagonal-hatch sweep, drifting embers, geometric shards, and
+ * an optional faint ghost piece) into an absolutely-positioned aria-hidden box.
+ * Mount it as the first child of a `position: relative` container; put the real
+ * content above it (and a scrim between, where legibility needs it).
+ *
+ * Pure build-time output: no client JS. Ember/shard placement is generated from
+ * a seeded PRNG so a given (piece, seed) always renders the same HTML, and the
+ * whole layer freezes to a composed still under prefers-reduced-motion (see
+ * motion.css). Intensity scales with the piece's importance (Pawn -> King).
+ */
+import ChessPiece from './ChessPiece.astro';
+import {
+  PIECE_META,
+  mulberry32,
+  seedFrom,
+  emberSpecs,
+  shardSpecs,
+  type PieceName,
+} from '../../lib/pieces';
+
+interface Props {
+  /** Importance driver: sets ember/shard counts and the ghost silhouette. */
+  piece?: PieceName;
+  /** Deterministic placement seed (string or number). Defaults to the piece. */
+  seed?: string | number;
+  /** Override ember count (default from the piece's importance). */
+  embers?: number;
+  /** Override shard tier 1..4 (default from the piece's importance). */
+  dots?: number;
+  sheen?: boolean;
+  hatch?: boolean;
+  hatchOpacity?: number;
+  /** Render the faint ghost piece (default true when `piece` is set). */
+  ghost?: boolean;
+  /** CSS for the ghost wrapper (position + size). */
+  ghostPos?: string;
+  ghostOpacity?: number;
+  /** Let the ghost piece sway (default static). */
+  ghostSway?: boolean;
+  class?: string;
+}
+
+const {
+  piece,
+  seed,
+  embers,
+  dots,
+  sheen = true,
+  hatch = true,
+  hatchOpacity = 0.4,
+  ghost,
+  ghostPos = 'right:-6%;bottom:-14%;width:46%',
+  ghostOpacity = 0.08,
+  ghostSway = false,
+  class: className,
+} = Astro.props;
+
+const meta = piece ? PIECE_META[piece] : PIECE_META.Bishop;
+const emberCount = embers ?? meta.embers;
+const shardTier = dots ?? meta.dots;
+
+const rng = mulberry32(seedFrom(seed ?? piece ?? 'naj'));
+const embers_ = emberSpecs(emberCount, rng);
+const shards_ = shardSpecs(shardTier, meta.sdur, rng);
+
+const showGhost = (ghost ?? piece != null) && piece != null;
+---
+
+<div class:list={['naj-backdrop', className]} aria-hidden="true">
+  {sheen && <div class="naj-sheen" />}
+  {hatch && <div class="naj-hatch" style={`opacity:${hatchOpacity}`} />}
+
+  <div class="naj-fx">
+    {
+      embers_.map((e) => (
+        <span
+          class:list={['naj-ember', e.alt && 'alt']}
+          style={`left:${e.left}%;bottom:8%;--dur:${e.dur}s;--delay:${e.delay}s;--drift:${e.drift}px;--rise:${e.rise}px;--rmx:${e.rmx}px;--rmy:${e.rmy}px`}
+        />
+      ))
+    }
+    {
+      shards_.map((s) => (
+        <span
+          class="naj-shard"
+          style={`width:${s.size}px;height:${s.size}px;left:${s.left}%;top:${s.top}%;--sdur:${s.sdur};--sx:${s.sx}px;--sy:${s.sy}px;--delay:${s.delay}s`}
+        />
+      ))
+    }
+  </div>
+
+  {
+    showGhost && piece && (
+      <div class="naj-ghost" style={`${ghostPos};opacity:${ghostOpacity}`}>
+        <ChessPiece piece={piece} treatment="ghost" sway={ghostSway} width="100%" />
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .naj-backdrop {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+</style>

@@ -9,6 +9,14 @@
   --shadow-card: 0 1px 0 0 var(--color-border), 0 6px 24px -8px rgba(0, 0, 0, 0.6);
   --max-content: 72rem;
 
+  /* Motion easings, named for the brand's one motion register ("things
+   * settle into place"). The repo previously inlined these literals; the
+   * motion layer (motion.css) and the design-system utilities read them by
+   * name. --ease-out is the house "settle in" curve; --ease-standard drives
+   * underlines and other linear-ish transitions. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+
   /* Brand colors for the third-party platforms we link out to. Defined
    * once so a future brand refresh (Discord's blurple shift, Twitch's
    * purple, etc.) is one edit instead of seven. Consumers: SocialRow,

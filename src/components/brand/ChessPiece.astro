@@ -1,0 +1,106 @@
+---
+/**
+ * One chess piece as inline SVG (viewBox 0 0 64 96, stroke currentColor).
+ * Treatments: `white` (clean line, fill:none), `black` (cobalt hatch fill),
+ * `ghost` (fainter hatch, for faint backdrops). Set the parent's `color` to
+ * tint the line. Line-art only: a piece is NEVER inked solid, recolored, or
+ * stretched (the bishop-mark rule extends to all six).
+ *
+ * Decorative by default (aria-hidden). Pass `label` to make it meaningful
+ * (e.g. a role-signature piece on a player header), which sets an accessible
+ * name via role="img".
+ *
+ * Motion: pass `sway` to give it the idle base-pivot sway from motion.css,
+ * scaled by the piece's importance. Default is static (no animation), which is
+ * also the reduced-motion resting state.
+ */
+import {
+  HEADS,
+  PEDESTAL,
+  PIECE_META,
+  nextPieceUid,
+  type PieceName,
+  type Treatment,
+} from '../../lib/pieces';
+
+interface Props {
+  piece: PieceName;
+  treatment?: Treatment;
+  /** Idle base-pivot sway (motion.css), scaled by importance. Default static. */
+  sway?: boolean;
+  /** Width/height. Default fills the container width, height from viewBox. */
+  width?: number | string;
+  height?: number | string;
+  strokeWidth?: number;
+  /** Accessible name. When set the piece is meaningful (role="img"); else aria-hidden. */
+  label?: string;
+  class?: string;
+}
+
+const {
+  piece,
+  treatment = 'white',
+  sway = false,
+  width = '100%',
+  height,
+  strokeWidth = 1.6,
+  label,
+  class: className,
+} = Astro.props;
+
+const meta = PIECE_META[piece];
+
+// Black/ghost treatments fill with a per-instance cobalt hatch pattern. A
+// unique id per render keeps url(#...) references from colliding on a page.
+const hatched = treatment === 'black' || treatment === 'ghost';
+const uid = hatched ? nextPieceUid() : '';
+const patternId = `naj-hatch-${uid}`;
+const fill = treatment === 'white' ? 'none' : `url(#${patternId})`;
+// The reference hatch: 135deg cobalt lines; ghost is finer + fainter.
+const hatchWidth = treatment === 'ghost' ? 7 : 6;
+const hatchStrokeWidth = treatment === 'ghost' ? 1 : 1.1;
+const hatchOpacity = treatment === 'ghost' ? 0.28 : 0.55;
+
+const swayStyle = sway ? `--swayAmp:${meta.amp};--swayDur:${meta.dur};--swayLift:-3px` : undefined;
+---
+
+<span class:list={['naj-piece', className]}>
+  <svg
+    width={width}
+    height={height}
+    viewBox="0 0 64 96"
+    fill={fill}
+    stroke="currentColor"
+    stroke-width={strokeWidth}
+    stroke-linejoin="round"
+    stroke-linecap="round"
+    role={label ? 'img' : undefined}
+    aria-label={label}
+    aria-hidden={label ? undefined : 'true'}
+  >
+    {
+      hatched && (
+        <defs>
+          <pattern
+            id={patternId}
+            patternUnits="userSpaceOnUse"
+            width={hatchWidth}
+            height={hatchWidth}
+            patternTransform="rotate(135)"
+          >
+            <line
+              x1="0"
+              y1="0"
+              x2="0"
+              y2={hatchWidth}
+              stroke="#6b8dff"
+              stroke-width={hatchStrokeWidth}
+              stroke-opacity={hatchOpacity}
+            />
+          </pattern>
+        </defs>
+      )
+    }
+    <g class:list={[sway && 'grp']} style={swayStyle} set:html={HEADS[piece] + PEDESTAL} />
+  </svg>
+</span>

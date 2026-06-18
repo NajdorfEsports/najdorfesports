@@ -56,12 +56,16 @@ until the owner approves the Cloudflare preview.
   - [x] Astro version consistency confirmed (single 6.4.6).
   - [x] Excluded gitignored `design-system/` from tsconfig so `astro check` stays
         clean (the reference bundle is never typechecked / shipped).
-- [ ] **Phase 2 - Motion foundation.** Port `_motion.css` -> `src/styles/motion.css`
-      (`.naj-*` ambient classes, keyframes, OS reduced-motion freeze), import into
-      global.css; add `--ease-out`/`--ease-standard` motion tokens. Build the six
-      chess-piece inline-SVG components (Pawn/Knight/Bishop/Rook/Queen/King;
-      white=line, black=hatch, ghost=faint) + `PieceBackdrop` ambient composer,
-      importance-by-intensity scale, reduced-motion safe, no client JS.
+- [x] **Phase 2 - Motion foundation.** Ported `_motion.css` -> `src/styles/motion.css`
+      (`.naj-*` ambient classes, keyframes, OS reduced-motion freeze, no manual
+      toggle/chip), imported into global.css; added `--ease-out`/`--ease-standard`
+      motion tokens to tokens.css. Built `src/lib/pieces.ts` (geometry + importance
+      META + seeded ember/shard generators) and `src/components/brand/`
+      `ChessPiece.astro` (six pieces; white/black/ghost; per-instance hatch
+      pattern; optional importance-scaled sway) + `PieceBackdrop.astro`
+      (build-time ambient composer, seeded + deterministic, no client JS).
+      Visually verified all six pieces + a King backdrop in the dev preview
+      (legible over motion); temp preview route removed before commit.
 - [ ] **Phase 3 - Per-page visuals (commit + Lighthouse per page).**
   - [ ] Home hero (frame-1): make-the-move one-shot -> ambient settle; remove
         cursor-follow glow; reduced-motion = resolved still.
