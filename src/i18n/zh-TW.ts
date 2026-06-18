@@ -123,6 +123,11 @@ export const zhTW: Strings = {
       subheading: '與我們 OWCS 亞太名單的選手進行一對一訓練。學會贏得比賽所需的站位、習慣與判斷。',
       cta: '認識教練',
     },
+    // DRAFT PENDING RIRI NATIVE REVIEW
+    promo: {
+      prev: '上一個棋子',
+      next: '下一個棋子',
+    },
     browse: {
       heading: '認識教練',
       lede: '選擇一位教練，挑選你的付款方式，然後預約你的第一堂課。',

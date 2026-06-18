@@ -15,6 +15,8 @@ import Button from '../ui/Button.astro';
 import CoachCard from '../coaching/CoachCard.astro';
 import CoachFilters from '../coaching/CoachFilters.astro';
 import BookingFlow from '../coaching/BookingFlow.astro';
+import PromotionStepper from '../coaching/PromotionStepper.astro';
+import PieceBackdrop from '../brand/PieceBackdrop.astro';
 import { COACHES, COACHING_DISCORD_INVITE } from '../../data/coaching';
 import { site } from '../../data/site';
 import { getLocale, useT } from '../../i18n';
@@ -42,20 +44,29 @@ const faqs = [
 ---
 
 <article>
-  {/* Hero on the board texture, matching the sitewide header band. */}
+  {
+    /* Hero: board texture + ambient backdrop, copy on the left and the chess
+     promotion stepper on the right (level up your play). */
+  }
   <section class="relative isolate overflow-hidden border-b border-(--color-border)">
     <div class="texture-board" aria-hidden="true"></div>
-    <div class="mx-auto max-w-(--max-content) px-4 sm:px-6 pt-12 pb-10">
-      <p class="eyebrow">{c.hero.eyebrow}</p>
-      <h1 class="font-display text-(length:--text-h1) mt-2 tracking-wide leading-none max-w-3xl">
-        {c.hero.heading}
-      </h1>
-      <p class="text-lg text-[var(--color-text)] mt-4 leading-relaxed max-w-2xl">
-        {c.hero.subheading}
-      </p>
-      <div class="mt-6">
-        <Button href="#coaches">{c.hero.cta}</Button>
+    <PieceBackdrop piece="Queen" seed="coaching" hatch={false} />
+    <div
+      class="relative mx-auto grid max-w-(--max-content) gap-8 px-4 sm:px-6 pt-12 pb-10 lg:grid-cols-[1.4fr_1fr] lg:items-center"
+    >
+      <div>
+        <p class="eyebrow">{c.hero.eyebrow}</p>
+        <h1 class="font-display text-(length:--text-h1) mt-2 tracking-wide leading-none max-w-3xl">
+          {c.hero.heading}
+        </h1>
+        <p class="text-lg text-[var(--color-text)] mt-4 leading-relaxed max-w-2xl">
+          {c.hero.subheading}
+        </p>
+        <div class="mt-6">
+          <Button href="#coaches">{c.hero.cta}</Button>
+        </div>
       </div>
+      <PromotionStepper prevLabel={c.promo.prev} nextLabel={c.promo.next} />
     </div>
   </section>
 
@@ -152,10 +163,12 @@ const faqs = [
   // bundled by Astro into a processed module so the CSP needs no
   // 'unsafe-inline'. It loads only on pages rendering this component.
   import '../../scripts/coaching.ts';
+  // Chess-promotion stepper in the hero (progressive enhancement).
+  import '../../scripts/promotion-stepper.ts';
 </script>
 
 <style>
-  /* FAQ accordion chrome. Native <details>, zero JS. */
+  /* FAQ accordion chrome. Native <details>, zero JS for the toggle. */
   .coaching-faq summary::-webkit-details-marker {
     display: none;
   }
@@ -165,6 +178,30 @@ const faqs = [
   .coaching-faq[open] .coaching-faq__chevron {
     transform: rotate(180deg);
   }
+
+  /* Animated content reveal (~250ms height + opacity). Modern browsers animate
+     the native ::details-content; allow the auto keyword to interpolate. Older
+     browsers ignore the pseudo and expand instantly (the toggle still works).
+     The whole effect is gated on no-preference, so reduced motion is instant. */
+  .coaching-faq {
+    interpolate-size: allow-keywords;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .coaching-faq::details-content {
+      opacity: 0;
+      block-size: 0;
+      overflow: hidden;
+      transition:
+        content-visibility 0.25s allow-discrete,
+        opacity 0.25s ease,
+        block-size 0.25s ease;
+    }
+    .coaching-faq[open]::details-content {
+      opacity: 1;
+      block-size: auto;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .coaching-faq__chevron {
       transition: none;

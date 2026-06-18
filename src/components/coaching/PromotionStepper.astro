@@ -1,0 +1,178 @@
+---
+/**
+ * Chess-promotion stepper: pawn -> knight -> bishop -> rook -> queen -> king,
+ * a visual metaphor for leveling up your play on the coaching hero. Progressive
+ * enhancement: with scripting OFF the stage shows the full ladder (all six
+ * pieces in a row) and the controls are hidden; with scripting ON it collapses
+ * to a single stepped piece with prev/next controls and a dot rail, crossfading
+ * ~360ms (instant under reduced motion). Driven by src/scripts/promotion-stepper.ts.
+ */
+import ChessPiece from '../brand/ChessPiece.astro';
+import { PIECE_ORDER } from '../../lib/pieces';
+
+interface Props {
+  prevLabel: string;
+  nextLabel: string;
+}
+const { prevLabel, nextLabel } = Astro.props;
+---
+
+<div class="promo" data-promo>
+  <div class="promo-stage">
+    {
+      PIECE_ORDER.map((p, i) => (
+        <div
+          class:list={['promo-piece', i === 0 && 'is-active']}
+          data-promo-piece
+          data-promo-label={p}
+        >
+          <ChessPiece piece={p} width={148} />
+        </div>
+      ))
+    }
+  </div>
+
+  <p class="promo-name" data-promo-name aria-hidden="true">{PIECE_ORDER[0]}</p>
+
+  <div class="promo-bar">
+    <button type="button" class="promo-btn" data-promo-prev aria-label={prevLabel}>
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M15 18l-6-6 6-6"></path>
+      </svg>
+    </button>
+    <div class="promo-dots" aria-hidden="true">
+      {
+        PIECE_ORDER.map((_, i) => (
+          <span class:list={['promo-dot', i === 0 && 'is-active']} data-promo-dot />
+        ))
+      }
+    </div>
+    <button type="button" class="promo-btn" data-promo-next aria-label={nextLabel}>
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M9 18l6-6-6-6"></path>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<style>
+  .promo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+    color: var(--color-accent-2);
+  }
+
+  /* No-JS base: the full pawn -> king ladder, controls hidden. */
+  .promo-stage {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .promo-piece {
+    width: 60px;
+  }
+  .promo-name,
+  .promo-bar {
+    display: none;
+  }
+
+  /* Scripting on: collapse to a single stepped piece with controls. */
+  @media (scripting: enabled) {
+    .promo-stage {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 100%;
+      min-height: 208px;
+    }
+    .promo-piece {
+      grid-area: 1 / 1;
+      width: 148px;
+      opacity: 0;
+      transform: translateY(6px) scale(0.96);
+      transition:
+        opacity 0.36s var(--ease-out),
+        transform 0.36s var(--ease-out);
+    }
+    .promo-piece.is-active {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .promo-name {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--color-accent-2);
+    }
+    .promo-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+  }
+
+  .promo-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    background: var(--color-surface);
+    color: var(--color-text-dim);
+    cursor: pointer;
+    transition:
+      border-color 0.2s ease-out,
+      color 0.2s ease-out;
+  }
+  .promo-btn:hover {
+    border-color: var(--color-accent-2);
+    color: var(--color-text);
+  }
+  .promo-dots {
+    display: flex;
+    gap: 0.45rem;
+  }
+  .promo-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-border);
+    transition: background 0.2s ease-out;
+  }
+  .promo-dot.is-active {
+    background: var(--color-accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .promo-piece {
+      transition: none;
+    }
+  }
+</style>

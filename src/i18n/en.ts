@@ -129,6 +129,11 @@ export const en = {
         'Train one-on-one with a competitor from our OWCS Asia Pacific roster. Learn the positioning, habits, and decisions that win games.',
       cta: 'Meet the coaches',
     },
+    /** Aria labels for the hero's chess-promotion stepper controls. */
+    promo: {
+      prev: 'Previous piece',
+      next: 'Next piece',
+    },
     browse: {
       heading: 'Meet the coaches',
       lede: 'Pick a coach, choose how you want to pay, then book your first session.',

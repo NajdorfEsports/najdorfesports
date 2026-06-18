@@ -123,6 +123,11 @@ export const zhCN: Strings = {
       subheading: '与我们 OWCS 亚太名单的选手进行一对一训练。学会赢得比赛所需的站位、习惯与判断。',
       cta: '认识教练',
     },
+    // DRAFT PENDING RIRI NATIVE REVIEW
+    promo: {
+      prev: '上一个棋子',
+      next: '下一个棋子',
+    },
     browse: {
       heading: '认识教练',
       lede: '选择一位教练，挑选你的付款方式，然后预约你的第一节课。',
