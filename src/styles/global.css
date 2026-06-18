@@ -548,6 +548,28 @@
       transform: translateY(0);
     }
   }
+
+  /* The architectural bishop "makes the move": it slides into its resting
+     square once on load, then holds. The base style (Tailwind opacity-[0.07],
+     no transform) IS the resolved end state, so reduced motion shows it
+     already in place. Decorative + aria-hidden; md+ only. */
+  .hero-bishop-move {
+    animation: hero-bishop-move 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    will-change: transform, opacity;
+  }
+  @keyframes hero-bishop-move {
+    from {
+      opacity: 0;
+      transform: translate(90px, 90px);
+    }
+    55% {
+      opacity: 0.07;
+    }
+    to {
+      opacity: 0.07;
+      transform: translate(0, 0);
+    }
+  }
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
@@ -595,22 +617,6 @@
     background: color-mix(in oklab, var(--color-accent-2) 80%, #fff);
     box-shadow: 0 0 8px color-mix(in oklab, var(--color-accent-2) 70%, transparent);
     opacity: 0;
-  }
-  .hero-cursor-glow {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 360px;
-    height: 360px;
-    border-radius: 9999px;
-    background: radial-gradient(
-      circle,
-      color-mix(in oklab, var(--color-accent) 20%, transparent),
-      transparent 60%
-    );
-    opacity: 0;
-    transition: opacity 0.3s ease-out;
-    will-change: transform, opacity;
   }
   @media (prefers-reduced-motion: no-preference) {
     .hero-glow {
@@ -707,6 +713,11 @@
     transform: none !important;
     animation: none !important;
   }
+  .hero-bishop-move {
+    animation: none !important;
+    transform: none !important;
+    opacity: 0.07 !important;
+  }
   /* Decorative draw-in / ambient motion: settle to the final, legible state. */
   .section-header__rule {
     transform: none !important;
@@ -715,8 +726,5 @@
   .hero-glow,
   .hero-pt {
     animation: none !important;
-  }
-  .hero-cursor-glow {
-    opacity: 0 !important;
   }
 }

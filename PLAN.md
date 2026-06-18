@@ -66,12 +66,17 @@ until the owner approves the Cloudflare preview.
       (build-time ambient composer, seeded + deterministic, no client JS).
       Visually verified all six pieces + a King backdrop in the dev preview
       (legible over motion); temp preview route removed before commit.
-- [ ] **Phase 3 - Per-page visuals (commit + Lighthouse per page).**
-  - [ ] Home hero (frame-1): make-the-move one-shot -> ambient settle; remove
-        cursor-follow glow; reduced-motion = resolved still.
+- [~] **Phase 3 - Per-page visuals (commit + Lighthouse per page).**
+  Lighthouse baseline (built dist): home perf 95 / CLS 0.000, news perf 100 /
+  CLS 0.000, both 0ms TBT. Motion is pure transform/opacity + inline SVG, so
+  CLS/TBT stay at zero.
+  - [x] Home hero (frame-1): bishop "make-the-move" travel-in one-shot, settles
+        to its resting square; removed the cursor-follow glow (markup, script,
+        CSS); reduced-motion = resolved still.
   - [ ] Next-match (frame-2): keep aesthetic; timezone selector (Intl, IANA);
         flip-on-change digits (<=150ms, reduced-motion = plain text).
-  - [ ] News cards (frame-3): piece backdrop per importance tier + scrim.
+  - [x] News cards (frame-3): backdrop piece per importance tier (King featured
+        -> Pawn) + ambient sheen; scrim/legibility preserved.
   - [ ] Roster header (frame-4): copyright-safe branded header (role field +
         piece + nameplate); removes Blizzard hero art from player pages.
   - [ ] Coaching (frame-5): elevated hero; chess-promotion stepper; FAQ accordion.

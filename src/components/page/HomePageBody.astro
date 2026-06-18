@@ -113,25 +113,25 @@ const nextFilm = nextMatch
   class="relative overflow-hidden isolate border-b border-(--color-border)"
 >
   {
-    /* Ambient motion layer (decorative): a drifting accent glow, a sparse
-       particle field, and a cursor-follow glow. Sits below the texture grid
-       and content. The particles + cursor tracking are added by
-       src/scripts/hero-ambient.ts and disabled under reduced motion; with JS
-       off this is just the static glow. */
+    /* Ambient motion layer (decorative): a drifting accent glow and a sparse
+       particle field. Sits below the texture grid and content. The particles
+       are added by src/scripts/hero-ambient.ts and disabled under reduced
+       motion; with JS off this is just the static glow. */
   }
   <div class="hero-ambient" aria-hidden="true">
     <div class="hero-glow"></div>
     <div class="hero-particles" data-hero-particles></div>
-    <div class="hero-cursor-glow" data-hero-cursor></div>
   </div>
   <div class="texture-board" aria-hidden="true"></div>
   {
     /* The architectural bishop: oversized, faint linework, deliberately
-      cropped by the section edge. Hidden from narrow viewports where it
-      would crowd the wordmark. */
+      cropped by the section edge. On load it "makes the move", sliding into
+      its resting square once (hero-bishop-move); reduced motion shows it
+      already in place. Hidden from narrow viewports where it would crowd the
+      wordmark. */
   }
   <div
-    class="absolute -right-16 -bottom-40 hidden md:block text-(--color-accent) opacity-[0.07]"
+    class="hero-bishop-move absolute -right-16 -bottom-40 hidden md:block text-(--color-accent) opacity-[0.07]"
     aria-hidden="true"
   >
     <BishopMark width={420} height={630} strokeWidth={1.2} />

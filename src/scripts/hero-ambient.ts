@@ -2,12 +2,11 @@
  * Home hero ambient motion. Processed module (CSP: script-src has no
  * 'unsafe-inline'), loaded only by the home page via HomePageBody's <script>.
  *
- * Two purely decorative enhancements layered behind the wordmark:
- *   1. A sparse particle field (transform/opacity only), paused while the hero
- *      is off-screen to spare the CPU.
- *   2. A cursor-follow glow, fine pointers only.
+ * One purely decorative enhancement layered behind the wordmark: a sparse
+ * particle field (transform/opacity only), paused while the hero is off-screen
+ * to spare the CPU.
  *
- * Both are no-ops under prefers-reduced-motion, and the hero is fully
+ * It is a no-op under prefers-reduced-motion, and the hero is fully
  * meaningful without this module: no content is injected, only ambient nodes.
  * Styles live in global.css (.hero-* ) because the particle spans are created
  * here at runtime and Astro's component-scoped styles never reach them.
@@ -17,7 +16,7 @@ function init(): void {
   if (!hero) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  // 1. Drifting particle field.
+  // Drifting particle field.
   const field = hero.querySelector<HTMLElement>('[data-hero-particles]');
   if (field && field.childElementCount === 0) {
     const COUNT = 26;
@@ -52,31 +51,6 @@ function init(): void {
       );
       io.observe(hero);
     }
-  }
-
-  // 2. Cursor-follow glow (fine pointers only; touch/coarse skip it).
-  const glow = hero.querySelector<HTMLElement>('[data-hero-cursor]');
-  if (glow && window.matchMedia('(pointer: fine)').matches) {
-    let raf = 0;
-    let px = 0;
-    let py = 0;
-    hero.addEventListener('pointermove', (e) => {
-      const r = hero.getBoundingClientRect();
-      px = e.clientX - r.left;
-      py = e.clientY - r.top;
-      if (!raf) {
-        raf = requestAnimationFrame(() => {
-          glow.style.transform = `translate(${px}px, ${py}px) translate(-50%, -50%)`;
-          raf = 0;
-        });
-      }
-    });
-    hero.addEventListener('pointerenter', () => {
-      glow.style.opacity = '1';
-    });
-    hero.addEventListener('pointerleave', () => {
-      glow.style.opacity = '0';
-    });
   }
 }
 
