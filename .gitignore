@@ -41,3 +41,6 @@ scripts/.cache/
 
 # lighthouse ci artifacts
 .lighthouseci/
+
+# design-system reference bundle (motion-system redesign): reference only, never shipped
+design-system/

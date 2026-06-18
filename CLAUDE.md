@@ -416,3 +416,48 @@ labelled as team results. Never invent per-player numbers.)
 that announces drops with the OWCS Pacific Stage 2 LAN. Don't backfill
 products data or convert the stub into a real catalog without being
 asked.
+
+## Redesign: motion system (branch `redesign/motion-system`, 2026-06-18)
+
+A motion + chess-piece visual layer added on top of the existing brand
+foundation. Reference bundle is vendored at `design-system/` (gitignored,
+never shipped). Tracked phase-by-phase in `PLAN.md`. Hard rules for this work:
+
+1. **No Blizzard / Overwatch IP in any NEW asset.** All new decoration is
+   original and brand-derived: the six chess pieces, the diagonal hatch, the
+   chessboard, ember/shard fields, geometric shapes in the brand palette.
+   (Leftover Blizzard art on the matches page map cards and the hero-pool
+   icons is unchanged this pass by owner decision; noted as a future item.)
+2. **Every animation respects reduced motion, OS setting only.** No visible
+   site toggle, no `.naj-rm` chip, no `body[data-reduced]` manual toggle.
+   Author motion so the base/static style IS the resolved end-state, then
+   freeze under `@media (prefers-reduced-motion: reduce)`. The sitewide
+   safety net at the end of `global.css` plus per-class `.naj-*` stills cover
+   it. Transform/opacity only.
+3. **Static + dependency-light.** No React, no `_ds_bundle.js` runtime, no new
+   client framework. The design-system components are React PREVIEWS; their
+   patterns are translated into Astro components + processed `<script>`s. No
+   new runtime dependency. The motion layer needs ZERO client JS (pure CSS
+   keyframes + build-time-generated ambient nodes).
+4. The repo ALREADY had the brand foundation (`.texture-board`, `.texture-diag`,
+   `.ink-*`, `.link-slide`, `.surface-hover`, `.btn-lift`, `.reveal`, and the
+   core UI components). The design system was derived FROM this repo, so the
+   new work is the `.naj-*` motion layer (`src/styles/motion.css`), the
+   `src/components/brand/` chess-piece family + `PieceBackdrop`, per-page
+   visuals, and the data automation. Confirm what exists before re-adding it.
+5. **The Astro "version split" does NOT exist here.** Single Astro 6.4.6;
+   nothing to migrate. The split was a stale artifact of the design snapshot.
+6. **The three "Next Match" fonts STAY.** Montserrat, Saira Condensed, and
+   Barlow are NOT unused: they exclusively power `NextMatchCountdown.astro`
+   (documented in the `global.css` font comment and commit 678d8ea, an
+   explicit owner decision to self-host them so the card matches the design).
+   The redesign brief called them "unused fonts" to remove; that premise is
+   false for this repo and removing them would break the Next Match card and
+   contradict "keep the existing aesthetic" for the next-match module. They
+   are kept. Anton + Inter remain the only site-wide faces; the other three
+   are deliberately scoped + subsetted to that one card. Flagged for owner.
+7. Branch `redesign/motion-system` is pushed for a Cloudflare preview and does
+   NOT merge to production until the owner approves the preview. The top
+   results ticker is out of scope and untouched. `CLAUDE.md` is appended to,
+   not overwritten (the brief said "write CLAUDE.md"; overwriting 25KB of
+   real project context would be destructive, so the rules live here instead).
