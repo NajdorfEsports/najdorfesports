@@ -79,7 +79,7 @@ const toggleBase =
           const duration = c.offerings.durationLabel(o.sessions, o.durationMin);
           const isPack = o.tier !== 'single';
           return (
-            <li class="flex flex-col bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5 shadow-[var(--shadow-card)]">
+            <li class="flex h-full flex-col bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-5 shadow-[var(--shadow-card)]">
               <div class="flex items-start justify-between gap-2">
                 <h4 class="font-display text-lg tracking-wide text-[var(--color-text)]">
                   {item.title}
@@ -96,11 +96,11 @@ const toggleBase =
               </div>
               <p class="mt-3 text-sm text-[var(--color-text-dim)] leading-relaxed">{item.blurb}</p>
               {isPack && (
-                <p class="mt-2 flex-1 text-xs text-[var(--color-text-dim)] leading-relaxed">
+                <p class="mt-2 text-xs text-[var(--color-text-dim)] leading-relaxed">
                   {c.offerings.packNote}
                 </p>
               )}
-              <div class="mt-4">
+              <div class="mt-auto pt-4">
                 {processors.map((p) => {
                   const link = linkFor(o, p.id);
                   if (!link) return null;

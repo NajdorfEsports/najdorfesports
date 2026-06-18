@@ -9,11 +9,10 @@
  * the owner wants staff presented exactly like the players.
  */
 import PlayerCard from '../player/PlayerCard.astro';
-import AchievementStrip from '../team/AchievementStrip.astro';
 import MatchTicker from '../match/MatchTicker.astro';
 import SectionHeader from '../ui/SectionHeader.astro';
 import { site, ROLE_ORDER, type RosterEntry, type Role } from '../../data/site';
-import { loadRoster, loadMatches, loadAchievements } from '../../data/loaders';
+import { loadRoster, loadMatches } from '../../data/loaders';
 import { getLocale, useT } from '../../i18n';
 
 const locale = getLocale(Astro);
@@ -21,7 +20,6 @@ const t = useT(locale);
 
 const roster = loadRoster();
 const matches = loadMatches();
-const achievements = loadAchievements();
 
 const PLAYER_ROLES: Role[] = ['Tank', 'DPS', 'Support', 'Flex'];
 
@@ -85,8 +83,6 @@ const regionLabel: string = (t.regions as Record<string, string>)[site.region] ?
     </div>
   </div>
 </section>
-
-<AchievementStrip achievements={achievements} />
 
 <section class="mx-auto max-w-(--max-content) px-4 sm:px-6 mt-12 space-y-12">
   {

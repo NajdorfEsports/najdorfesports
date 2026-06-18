@@ -7,16 +7,15 @@
  * Visual (2026-06 redesign): a full-width identity band of the player's
  * signature hero ART through the sitewide ink treatment (under Blizzard's
  * Fan Content Policy, never a photo), the handle at hero scale over it,
- * then the hero pool as portrait tiles, the derived TEAM stats panel
- * (src/lib/derived-stats.ts, honestly labelled), outbound links, and the
- * Liquipedia attribution the data requires. Degrades gracefully: a
+ * then the hero pool as portrait tiles, a per-player bio slot, outbound
+ * links, and the Liquipedia attribution the data requires. Degrades
+ * gracefully: a
  * brand-new player with no art and no socials still reads as an
  * intentional page.
  */
 import { Image } from 'astro:assets';
 import CountryFlag from '../player/CountryFlag.astro';
 import BishopMark from '../ui/BishopMark.astro';
-import PlayerStatsPanel from '../player/PlayerStatsPanel.astro';
 import { type RosterEntry, type Role } from '../../data/site';
 import { roleAccent, ageFromBirth } from '../../lib/player';
 import { resolveHeroIcons } from '../../lib/heroes';
@@ -181,7 +180,7 @@ const avatarAlt = t.player.avatarAlt(
     )
   }
 
-  <PlayerStatsPanel />
+  {/* Per-player bio slot is rendered in Phase 4 (bio + bioLang). */}
 
   {
     links.length > 0 && (
@@ -209,7 +208,7 @@ const avatarAlt = t.player.avatarAlt(
     )
   }
 
-  {/* Match data on this page comes from Liquipedia; attribution required. */}
+  {/* Player data on this page comes from Liquipedia; attribution required. */}
   <p class="mt-14 text-xs text-(--color-text-dim)">
     {t.matches.attribution.before}<a
       href="https://liquipedia.net/overwatch/"

@@ -8,11 +8,10 @@
  * section carries a half-move of the Najdorf line as a quiet aria-hidden
  * index (src/lib/notation.ts):
  *   1. e4      hero
- *   1... c5    match center (live/countdown + results + where to watch)
+ *   1... c5    match center (live/countdown + results)
  *   2. Nf3     roster preview
- *   2... d6    season so far (achievements + broadcast reach)
- *   3. d4      highlights
- *   3... cxd4  latest news
+ *   2... d6    highlights
+ *   3. d4      latest news
  * Sponsors and the community band close the page without indexes (they are
  * outro chrome, not chapters).
  */
@@ -20,12 +19,9 @@ import OWCSBadge from '../ui/OWCSBadge.astro';
 import NextMatchCountdown from '../match/NextMatchCountdown.astro';
 import MatchTicker from '../match/MatchTicker.astro';
 import LiveHero from '../match/LiveHero.astro';
-import WatchHub from '../match/WatchHub.astro';
 import RosterPreview from '../team/RosterPreview.astro';
-import AchievementStrip from '../team/AchievementStrip.astro';
 import HighlightsStrip from '../team/HighlightsStrip.astro';
 import SponsorsRow from '../team/SponsorsRow.astro';
-import BroadcastReach from '../team/BroadcastReach.astro';
 import CommunityCTA from '../team/CommunityCTA.astro';
 import Button from '../ui/Button.astro';
 import BishopMark from '../ui/BishopMark.astro';
@@ -381,10 +377,6 @@ const nextFilm = nextMatch
       }
     </div>
   </div>
-
-  <div class="mt-6">
-    <WatchHub compact />
-  </div>
 </section>
 
 {/* 2. Nf3: the roster slat rail. */}
@@ -392,27 +384,14 @@ const nextFilm = nextMatch
   <RosterPreview players={roster} move={moveLabel(2)} />
 </div>
 
-{/* 2... d6: season so far. */}
-<section class="reveal section" aria-label={t.achievement.ariaLabel}>
-  <SectionHeader
-    move={moveLabel(3)}
-    eyebrow={t.hero.subhead}
-    heading={t.achievement.recentResults}
-  />
-  <div class="mt-6 space-y-6">
-    <AchievementStrip achievements={achievements} compact />
-    <BroadcastReach compact />
-  </div>
-</section>
-
-{/* 3. d4: highlights, built for 9:16 film. */}
+{/* 2... d6: highlights, built for 9:16 film. */}
 <div class="reveal">
-  <HighlightsStrip move={moveLabel(4)} nextFilm={nextFilm} />
+  <HighlightsStrip move={moveLabel(3)} nextFilm={nextFilm} />
 </div>
 
-{/* 3... cxd4: latest news with real covers. */}
+{/* 3. d4: latest news with real covers. */}
 <section class="reveal section">
-  <SectionHeader move={moveLabel(5)} heading={t.home.latest}>
+  <SectionHeader move={moveLabel(4)} heading={t.home.latest}>
     <a
       href={newsHref}
       class="link-arrow has-glyph text-sm uppercase tracking-wider text-(--color-accent-2) hover:text-(--color-accent)"

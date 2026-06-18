@@ -31,9 +31,9 @@ export const zhTW: Strings = {
     dataCredit: '資料來源：Liquipedia · CC BY-SA 3.0',
   },
   hero: {
-    subhead: 'OWCS PACIFIC 2026',
+    subhead: 'OWCS PACIFIC · STAGE 2 · 2026',
     achievement: (placement, event) => `${event} ${placement}。`,
-    tagline: '備戰 6 月 4 日開打的 OWCS Pacific 第二階段。',
+    tagline: '現正征戰第二階段主賽事。', // DRAFT PENDING RIRI NATIVE REVIEW
     matchSchedule: '查看賽程',
     meetRoster: '認識選手',
   },

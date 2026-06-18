@@ -26,9 +26,9 @@ export const en = {
     dataCredit: 'Data: Liquipedia · CC BY-SA 3.0',
   },
   hero: {
-    subhead: 'OWCS PACIFIC 2026',
+    subhead: 'OWCS PACIFIC · STAGE 2 · 2026',
     achievement: (placement: string, event: string) => `${placement} at ${event}.`,
-    tagline: 'Headed to OWCS Pacific Stage 2 on June 4.',
+    tagline: 'Now competing in the Stage 2 main event.',
     matchSchedule: 'Match schedule',
     meetRoster: 'Meet the roster',
   },

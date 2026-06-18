@@ -34,19 +34,28 @@ until the owner approves the Cloudflare preview.
       `design-system/` + gitignore; confirm versions/paths/fonts; write
       CLAUDE.md redesign section + PLAN.md. Read-only recon workflow mapping all
       7 frames + every target page body + font/i18n audit.
-- [ ] **Phase 1 - Removals, cleanup, copy fixes.**
-  - [ ] Home: remove standalone "Where to watch" block (in-module Watch Live stays).
-  - [ ] Home: remove "Recent results / broadcast reach" section.
-  - [ ] Home: update hero eyebrow -> `OWCS PACIFIC · STAGE 2 · 2026`, status ->
-        `3rd at Stage 1 as Rankers. Now competing in the Stage 2 main event.`
-  - [ ] Roster index: remove "Recent results".
-  - [ ] Player page: remove team-record, recent-matches, map-record; keep header,
-        hero pool, socials; add bio placeholder slot.
-  - [ ] Games: remove "Travel with the team" block.
-  - [ ] Coaching: 3 pricing cards equal height + Book buttons aligned.
-  - [ ] Fonts: resolve Montserrat/Saira/Barlow per evidence (keep if used by the
-        Next Match card the owner wants preserved; remove only if truly dead).
-  - [ ] Confirm Astro version consistency (already single version).
+- [x] **Phase 1 - Removals, cleanup, copy fixes.**
+  - [x] Home: removed standalone WatchHub block (in-module Watch Live stays).
+  - [x] Home: removed "season so far" section (AchievementStrip + BroadcastReach);
+        renumbered the chess-move scoresheet indices so the Najdorf line stays
+        contiguous (highlights 4->3, news 5->4).
+  - [x] Home: hero eyebrow -> `OWCS PACIFIC · STAGE 2 · 2026`; stale "June 4"
+        tagline -> "Now competing in the Stage 2 main event." (en + zh-TW + zh-CN).
+        The "3rd at Stage 1 as Rankers" half is the existing data-driven
+        achievement line, kept dynamic. Exact wording flagged for owner.
+  - [x] Roster index: removed AchievementStrip ("Recent results") + dead imports.
+  - [x] Player page: removed PlayerStatsPanel (team-record + recent-matches +
+        map-record); kept header, hero pool, socials, Liquipedia attribution;
+        left a bio slot for Phase 4.
+  - [x] Games: removed CommunityCTA ("Travel with the team") from the games hub
+        (kept on home; component + i18n keys untouched).
+  - [x] Coaching: pricing cards equal height (h-full) + Book buttons bottom-aligned
+        (mt-auto), removed the misplaced flex-1 on the pack note.
+  - [x] Fonts: resolved with evidence -> KEEP Montserrat/Saira/Barlow (used only
+        by NextMatchCountdown per owner decision; the "unused" premise is false).
+  - [x] Astro version consistency confirmed (single 6.4.6).
+  - [x] Excluded gitignored `design-system/` from tsconfig so `astro check` stays
+        clean (the reference bundle is never typechecked / shipped).
 - [ ] **Phase 2 - Motion foundation.** Port `_motion.css` -> `src/styles/motion.css`
       (`.naj-*` ambient classes, keyframes, OS reduced-motion freeze), import into
       global.css; add `--ease-out`/`--ease-standard` motion tokens. Build the six

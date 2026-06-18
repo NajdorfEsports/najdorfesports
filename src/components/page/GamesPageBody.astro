@@ -1,11 +1,8 @@
 ---
 /**
  * /games/ hub, shared by all three locales. One card per game (the daily
- * crossword and OWdle); add a card here when game #3 ships. Closes
- * with the same community band as the home page so the games surface
- * doubles as a Discord funnel.
+ * crossword, OWdle, and Gambit); add a card here when game #4 ships.
  */
-import CommunityCTA from '../team/CommunityCTA.astro';
 import SectionHeader from '../ui/SectionHeader.astro';
 import { getLocale, pathFor, useT } from '../../i18n';
 
@@ -83,5 +80,3 @@ const g = t.games.hub;
     </a>
   </div>
 </section>
-
-<CommunityCTA />
