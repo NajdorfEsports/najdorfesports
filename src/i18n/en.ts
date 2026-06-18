@@ -528,6 +528,8 @@ export const en = {
   playerPage: {
     backToRoster: 'Back to roster',
     heroPool: 'Hero pool',
+    /** Label under the branded header's role-signature chess piece. */
+    signature: 'Signature',
     links: 'Links',
     realName: 'Real name',
     /** Derived team-stats panel. The note is the honesty rule made visible:

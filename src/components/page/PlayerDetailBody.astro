@@ -4,19 +4,19 @@
  * two localized mirrors. Driven entirely by the merged roster entry so it
  * stays in sync with the roster data.
  *
- * Visual (2026-06 redesign): a full-width identity band of the player's
- * signature hero ART through the sitewide ink treatment (under Blizzard's
- * Fan Content Policy, never a photo), the handle at hero scale over it,
- * then the hero pool as portrait tiles, a per-player bio slot, outbound
- * links, and the Liquipedia attribution the data requires. Degrades
- * gracefully: a
- * brand-new player with no art and no socials still reads as an
+ * Visual (motion-system redesign): a copyright-safe branded identity band,
+ * a role-tinted field with an animated diagonal hatch, the handle at hero
+ * scale beside the player's role-signature chess piece framed by concentric
+ * rings (no borrowed art). Then the hero pool as portrait tiles, a per-player
+ * bio slot, outbound links, and the Liquipedia attribution the data requires.
+ * Degrades gracefully: a brand-new player with no socials still reads as an
  * intentional page.
  */
 import { Image } from 'astro:assets';
 import CountryFlag from '../player/CountryFlag.astro';
-import BishopMark from '../ui/BishopMark.astro';
+import ChessPiece from '../brand/ChessPiece.astro';
 import { type RosterEntry, type Role } from '../../data/site';
+import { type PieceName } from '../../lib/pieces';
 import { roleAccent, ageFromBirth } from '../../lib/player';
 import { resolveHeroIcons } from '../../lib/heroes';
 import { getLocale, pathFor, useT } from '../../i18n';
@@ -31,7 +31,6 @@ const locale = getLocale(Astro);
 const t = useT(locale);
 
 const heroes = resolveHeroIcons(player.signatureHeroes);
-const bannerHero = heroes[0];
 
 const hasCountry = !!(player.country && player.country !== 'TBD');
 const countryName = displayCountry(player.countryCode, player.country, locale);
@@ -52,54 +51,38 @@ const links = [
 ].filter((l): l is { label: string; url: string } => l !== null);
 
 const rosterHref = pathFor(locale, '/roster/');
-const avatarAlt = t.player.avatarAlt(
-  player.handle,
-  t.roles[player.role as Role] ?? player.role,
-  bannerHero?.name,
-);
+
+// Each role gets a signature chess piece: the wall (Rook), the striker
+// (Knight), the long-range support (Bishop), the do-everything Flex (Queen),
+// and the staff who run the show (King / Queen). Reused across players in a
+// role; it is the brand's piece family, not a per-player stat.
+const ROLE_PIECE: Record<string, PieceName> = {
+  Tank: 'Rook',
+  DPS: 'Knight',
+  Support: 'Bishop',
+  Flex: 'Queen',
+  Coach: 'King',
+  Manager: 'Queen',
+};
+const signaturePiece: PieceName = ROLE_PIECE[player.role] ?? 'Bishop';
 ---
 
 {
-  /* Identity band: ink-treated signature-hero art, cropped wide, with the
-    nameplate overlapping its lower edge. */
+  /* Identity band: a copyright-safe branded header. A role-tinted field with
+    an animated diagonal hatch, the nameplate on the left, and the player's
+    role-signature chess piece framed by concentric rings on the right. No
+    borrowed art. */
 }
 <section
   class="player-banner relative isolate overflow-hidden border-b border-(--color-border)"
-  style={`--accent:${accent};`}
+  style={`--role:${accent};--accent:${accent};`}
 >
-  {
-    bannerHero ? (
-      <>
-        <Image
-          src={bannerHero.image}
-          alt=""
-          widths={[768, bannerHero.image.width]}
-          sizes="100vw"
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-          class="player-banner__art ink-img"
-          aria-hidden="true"
-        />
-        <div class="ink-wash" aria-hidden="true" />
-      </>
-    ) : (
-      <div class="texture-board" aria-hidden="true" />
-    )
-  }
-  <div class="player-banner__scrim" aria-hidden="true"></div>
-  {
-    !bannerHero && (
-      <div
-        class="absolute -right-10 -bottom-24 text-(--color-accent) opacity-[0.07]"
-        aria-hidden="true"
-      >
-        <BishopMark width={260} height={390} strokeWidth={1.2} />
-      </div>
-    )
-  }
+  <div class="player-banner__field" aria-hidden="true"></div>
+  <div class="player-banner__bars" aria-hidden="true">
+    <span class="naj-hatch"></span>
+  </div>
 
-  <div class="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 pt-10 pb-10 sm:pt-14">
+  <div class="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 pt-10 pb-10 sm:pt-12">
     <a
       href={rosterHref}
       class="link-arrow has-glyph text-xs uppercase tracking-wider text-(--color-accent-2) hover:text-(--color-accent) inline-flex"
@@ -107,46 +90,60 @@ const avatarAlt = t.player.avatarAlt(
       <span>{t.playerPage.backToRoster}</span>
     </a>
 
-    <h1
-      class="font-display text-(length:--text-h1) tracking-tight leading-none break-words mt-10 sm:mt-16"
-      aria-label={avatarAlt}
-    >
-      {player.handle}
-    </h1>
+    <div class="mt-8 grid items-center gap-8 sm:grid-cols-[1.5fr_1fr]">
+      <div class="min-w-0">
+        <h1 class="font-display text-(length:--text-h1) tracking-tight leading-none break-words">
+          {player.handle}
+        </h1>
 
-    <div class="mt-5 flex items-center gap-2 flex-wrap text-xs uppercase tracking-wider">
+        <div class="mt-5 flex items-center gap-2 flex-wrap text-xs uppercase tracking-wider">
+          {
+            roles.map((r) => {
+              const a = roleAccent(r);
+              return (
+                <span
+                  class="px-2.5 py-1 rounded-sm border font-semibold bg-(--color-bg)/60 backdrop-blur-sm"
+                  style={`color:${a};border-color:${a};`}
+                >
+                  {t.roles[r as Role] ?? r}
+                </span>
+              );
+            })
+          }
+          {
+            hasCountry && (
+              <span class="flex items-center gap-1.5 text-(--color-text-dim) ml-1 normal-case">
+                <CountryFlag code={player.countryCode} name={countryName} size="md" />
+                <span class="text-sm">{countryName}</span>
+              </span>
+            )
+          }
+        </div>
+
+        {
+          (player.realName || age !== null) && (
+            <p class="mt-4 text-(--color-text-dim)">
+              {player.realName && <span class="text-(--color-text)">{player.realName}</span>}
+              {player.realName && age !== null && ' · '}
+              {age !== null && <span class="tabular-nums">{age}</span>}
+            </p>
+          )
+        }
+      </div>
+
       {
-        roles.map((r) => {
-          const a = roleAccent(r);
-          return (
-            <span
-              class="px-2.5 py-1 rounded-sm border font-semibold bg-(--color-bg)/60 backdrop-blur-sm"
-              style={`color:${a};border-color:${a};`}
-            >
-              {t.roles[r as Role] ?? r}
-            </span>
-          );
-        })
+        /* Role-signature chess piece, framed by concentric rings. Decorative:
+          the role is already announced by the badges above. */
       }
-      {
-        hasCountry && (
-          <span class="flex items-center gap-1.5 text-(--color-text-dim) ml-1 normal-case">
-            <CountryFlag code={player.countryCode} name={countryName} size="md" />
-            <span class="text-sm">{countryName}</span>
-          </span>
-        )
-      }
+      <div class="player-banner__sig" style={`color:${accent};`}>
+        <span class="player-banner__ring" aria-hidden="true"></span>
+        <span class="player-banner__ring player-banner__ring--2" aria-hidden="true"></span>
+        <div class="player-banner__piece">
+          <ChessPiece piece={signaturePiece} sway width={120} />
+        </div>
+        <span class="player-banner__sig-label">{t.playerPage.signature} · {signaturePiece}</span>
+      </div>
     </div>
-
-    {
-      (player.realName || age !== null) && (
-        <p class="mt-4 text-(--color-text-dim)">
-          {player.realName && <span class="text-(--color-text)">{player.realName}</span>}
-          {player.realName && age !== null && ' · '}
-          {age !== null && <span class="tabular-nums">{age}</span>}
-        </p>
-      )
-    }
   </div>
 </section>
 
@@ -225,28 +222,71 @@ const avatarAlt = t.player.avatarAlt(
 </article>
 
 <style>
-  /* :global because the img is emitted by <Image>, outside this
-     component's style scope; .player-banner anchors the selector. */
-  .player-banner :global(.player-banner__art) {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 18%;
-    z-index: -1;
-  }
-  /* The ink wash needs to sit between art and scrim; both are absolutely
-     positioned siblings, so let DOM order stack them (art, wash, scrim). */
-  .player-banner__scrim {
+  /* Role-tinted field: a soft radial glow toward the piece side plus a linear
+     role wash. The role color arrives on --role (set inline per player). */
+  .player-banner__field {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(
-      to top,
-      rgba(11, 11, 15, 0.94) 0%,
-      rgba(11, 11, 15, 0.62) 45%,
-      rgba(11, 11, 15, 0.38) 100%
-    );
+    z-index: -2;
+    background:
+      radial-gradient(
+        120% 130% at 88% 22%,
+        color-mix(in oklab, var(--role) 26%, transparent),
+        transparent 60%
+      ),
+      linear-gradient(
+        100deg,
+        var(--color-surface) 28%,
+        color-mix(in oklab, var(--role) 9%, var(--color-surface)) 100%
+      );
+  }
+  /* Animated diagonal hatch, masked to the right (piece) side so it never
+     crowds the nameplate. The child .naj-hatch carries the shared sweep loop
+     (frozen under reduced motion by motion.css). */
+  .player-banner__bars {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0.5;
+    -webkit-mask-image: linear-gradient(90deg, transparent 26%, #000 92%);
+    mask-image: linear-gradient(90deg, transparent 26%, #000 92%);
+  }
+
+  /* Signature piece centered in two concentric, role-tinted rings. */
+  .player-banner__sig {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 190px;
+    padding: 1.25rem;
+  }
+  .player-banner__ring {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 1px solid color-mix(in oklab, var(--role) 32%, transparent);
+    pointer-events: none;
+  }
+  .player-banner__ring--2 {
+    width: 204px;
+    height: 204px;
+    border-color: color-mix(in oklab, var(--role) 16%, transparent);
+  }
+  .player-banner__piece {
+    position: relative;
+    z-index: 1;
+  }
+  .player-banner__sig-label {
+    position: absolute;
+    bottom: 0.25rem;
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, var(--role) 60%, var(--color-text-dim));
   }
 </style>

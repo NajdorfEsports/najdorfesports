@@ -462,6 +462,7 @@ export const zhCN: Strings = {
   playerPage: {
     backToRoster: '返回名单',
     heroPool: '英雄池',
+    signature: '招牌', // DRAFT PENDING RIRI NATIVE REVIEW
     links: '链接',
     realName: '本名',
     // DRAFT PENDING RIRI NATIVE REVIEW (the seven stats strings below)
