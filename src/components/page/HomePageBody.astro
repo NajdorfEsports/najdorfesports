@@ -402,7 +402,7 @@ const nextFilm = nextMatch
 
   <div class="grid gap-6 md:grid-cols-2 mt-6">
     {
-      newsPosts.map((post) => (
+      newsPosts.map((post, i) => (
         <a
           href={pathFor(locale, `/news/${post.data.slug}/`)}
           class="surface-hover block rounded-md group"
@@ -414,6 +414,7 @@ const nextFilm = nextMatch
             tone={post.data.tone}
             variant="card"
             locale={locale}
+            importance={i === 0 ? 5 : 3}
           />
           {post.data.description && (
             <p class="text-sm text-(--color-text-dim) mt-3 line-clamp-2 px-1">

@@ -4,15 +4,16 @@
  *   - `variant="hero"`, full-width article hero block on /news/<slug>/
  *   - `variant="card"`, compact thumb at the top of each card on /news/
  *
- * The "image" is rendered from the post metadata + a bishop motif rather
- * than from a static asset, so adding a new post doesn't require running
- * a generator script or committing a binary. Tone (primary / secondary /
- * split) drives the gradient + accent color; eyebrow is the small
- * uppercase chip above the title.
+ * The "image" is rendered from the post metadata + a chess-piece motif
+ * (chosen by importance tier, Pawn .. King) rather than from a static
+ * asset, so adding a new post doesn't require running a generator script
+ * or committing a binary. Tone (primary / secondary / split) drives the
+ * gradient + accent color; eyebrow is the small uppercase chip above the
+ * title.
  */
 import { formatDate } from '../../i18n/format';
 import { DEFAULT_LOCALE, type Locale } from '../../i18n';
-import BishopMark from '../ui/BishopMark.astro';
+import { HEADS, PEDESTAL, PIECE_ORDER } from '../../lib/pieces';
 
 interface Props {
   title: string;
@@ -21,6 +22,9 @@ interface Props {
   tone?: 'primary' | 'secondary' | 'split';
   variant?: 'hero' | 'card';
   locale?: Locale;
+  /** Importance tier 0 (Pawn) .. 5 (King). Selects the backdrop chess piece
+   *  so each cover signals its rank through the piece, not a loud badge. */
+  importance?: number;
 }
 
 const {
@@ -30,9 +34,11 @@ const {
   tone = 'primary',
   variant = 'hero',
   locale = DEFAULT_LOCALE,
+  importance = 2,
 } = Astro.props;
 
 const isHero = variant === 'hero';
+const piece = PIECE_ORDER[Math.max(0, Math.min(PIECE_ORDER.length - 1, importance))];
 // The cover title is a real heading, not decorative text. On an article page
 // (hero) it is the page's single h1; in the index grid (card) each title is an
 // h2 under that page's "From the team" h1. Tailwind preflight zeroes heading
@@ -55,6 +61,8 @@ const dateLabel = formatDate(date, locale, {
     aria-hidden="true"
     style="--hatch-ink: color-mix(in oklab, var(--cover-accent, var(--color-accent)) 14%, transparent);"
   ></span>
+  {/* Slow ambient sheen. Decorative; freezes to a faint still under reduced motion. */}
+  <span class="naj-sheen" aria-hidden="true"></span>
   {
     /* Top accent rule, gives the cover a defined "card top" edge so the
       cover never reads as empty space, even when the bishop watermark
@@ -63,11 +71,21 @@ const dateLabel = formatDate(date, locale, {
   <span class="news-cover__rule" aria-hidden="true"></span>
 
   {
-    /* Bishop motif, larger + more opaque than the previous pass so the
-      cover always carries clear visual weight, even at card sizes. */
+    /* Backdrop piece, chosen by importance tier (Pawn .. King). Faint
+      linework anchored bottom-right so the cover always carries visual
+      weight and signals the post's rank, even at card sizes. */
   }
-  <span class="news-cover__bishop" aria-hidden="true">
-    <BishopMark strokeWidth={1.4} />
+  <span class="news-cover__piece" aria-hidden="true">
+    <svg
+      viewBox="0 0 64 96"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.4"
+      stroke-linejoin="round"
+      stroke-linecap="round"
+    >
+      <g set:html={HEADS[piece] + PEDESTAL} />
+    </svg>
   </span>
 
   {
@@ -178,18 +196,18 @@ const dateLabel = formatDate(date, locale, {
      wrapping span is auto-height, which is why the mark used to render at 0x0
      and the covers looked empty. So the height lives on the span (a real % of
      the card, which has a definite aspect-ratio height) and the svg fills it. */
-  .news-cover__bishop {
+  .news-cover__piece {
     position: absolute;
     color: var(--cover-accent, var(--color-accent));
     pointer-events: none;
   }
-  .news-cover__bishop :global(svg) {
+  .news-cover__piece svg {
     display: block;
     width: auto;
     height: 100%;
   }
   /* Hero (article page): large, faint linework anchored bottom-right. */
-  .news-cover--hero .news-cover__bishop {
+  .news-cover--hero .news-cover__piece {
     height: 200%;
     right: -2%;
     bottom: -55%;
@@ -197,7 +215,7 @@ const dateLabel = formatDate(date, locale, {
   }
   /* Card (index thumbnail): tall and brighter, pulled into frame so the mark
      actually fills the body of the thumbnail instead of reading as empty. */
-  .news-cover--card .news-cover__bishop {
+  .news-cover--card .news-cover__piece {
     height: 150%;
     right: -3%;
     bottom: -26%;
