@@ -1,117 +1,745 @@
 ---
+/**
+ * "Next Match" countdown card (premium variant, ported from the design
+ * handoff). Deep-navy surface with a chessboard wash, cobalt accent system,
+ * matchup, a live four-unit countdown whose glow pulse speeds up near
+ * kickoff, the match date with two timezones (ICT + CST), and a Watch Live
+ * button.
+ *
+ * Stack adaptations from the raw handoff file:
+ *   - The inline <script> is a processed module (src/scripts/next-match.ts);
+ *     the site CSP has no script-src 'unsafe-inline'.
+ *   - The Google Fonts <link> is gone: Montserrat / Saira Condensed / Barlow
+ *     are self-hosted (see @font-face in global.css), same privacy posture as
+ *     Anton/Inter.
+ *   - The match is NOT hardcoded. Everything derives from one MatchEntry: the
+ *     ISO `date` is the single source of truth, so the countdown, the date
+ *     line, and BOTH timezone clocks (computed here at build via Intl) can
+ *     never drift apart. Edit the match in src/data/matches.manual.json.
+ *   - The date/time and matchup render server-side, so the card is fully
+ *     meaningful with JS off (no-JS doctrine); the script only keeps the
+ *     digits ticking and animates the pulse.
+ *   - The Najdorf mark reuses the brand dark-surface bishop; the opponent
+ *     logo resolves by name through the astro:assets pipeline
+ *     (src/data/teams.json), falling back to the dashed placeholder slot.
+ */
+import { Image } from 'astro:assets';
 import type { MatchEntry } from '../../data/site';
+import { owcs, site } from '../../data/site';
 import { getLocale, useT } from '../../i18n';
-import { translateTournament } from '../../i18n/format';
+import { teamImagesByName } from '../../lib/assetImages';
+import bishopDark from '../../assets/branding/bishop-logo-dark.png';
 
 interface Props {
   match?: MatchEntry;
+  /** Short context chip (top-right). Defaults to the current OWCS stage. */
+  tag?: string;
 }
-const { match } = Astro.props;
+const { match, tag } = Astro.props;
 
 const locale = getLocale(Astro);
 const t = useT(locale);
 
-const countdownLabels = [
-  { key: 'days', label: t.nextMatch.days },
-  { key: 'hours', label: t.nextMatch.hours },
-  { key: 'min', label: t.nextMatch.min },
-  { key: 'sec', label: t.nextMatch.sec },
-];
+// Timezones are IANA names. ICT = Indochina (Thailand, UTC+7); CST here means
+// China Standard Time (UTC+8), NOT US Central.
+const tzPrimary = { zone: 'Asia/Bangkok', abbr: 'ICT' } as const;
+const tzSecondary = { zone: 'Asia/Shanghai', abbr: 'CST' } as const;
 
-const tournament = match ? translateTournament(match.tournament, locale) : '';
+const pad = (n: number): string => String(Math.max(0, n)).padStart(2, '0');
+
+// Build-time snapshot of the countdown so the four digits paint a meaningful
+// value before (and without) JS. The client module re-syncs to the exact
+// remaining time on load and ticks from there.
+function snapshot(target: Date): { days: string; hours: string; mins: string; secs: string } {
+  const sec = Math.floor(Math.max(0, target.getTime() - Date.now()) / 1000);
+  return {
+    days: pad(Math.floor(sec / 86400)),
+    hours: pad(Math.floor((sec % 86400) / 3600)),
+    mins: pad(Math.floor((sec % 3600) / 60)),
+    secs: pad(sec % 60),
+  };
+}
+
+// Date + dual-timezone strings, all derived from the one UTC instant. Built
+// with the page locale so zh surfaces localize the weekday/month while en
+// keeps the design's "WED, JUN 18 · 2026" look. Times are forced to 24h.
+function fmtTime(target: Date, zone: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: zone,
+  }).format(target);
+}
+function fmtDate(target: Date, zone: string): string {
+  // CJK reads year-month-day with 年/月/日 markers; hand-assembling the
+  // English "WED, JUN 18 · 2026" template there drops those markers and looks
+  // broken. Let Intl produce the natural localized date for zh, and keep the
+  // design's exact look for Latin locales.
+  if (locale.startsWith('zh')) {
+    return new Intl.DateTimeFormat(locale, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'short',
+      timeZone: zone,
+    }).format(target);
+  }
+  const parts = new Intl.DateTimeFormat(locale, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: zone,
+  }).formatToParts(target);
+  const g = (type: string): string => parts.find((p) => p.type === type)?.value ?? '';
+  return `${g('weekday')}, ${g('month')} ${g('day')} · ${g('year')}`.toUpperCase();
+}
+
+const data = match
+  ? (() => {
+      const target = new Date(match.date);
+      const oppLogo = teamImagesByName[match.opponent];
+      return {
+        target,
+        opponent: match.opponent,
+        format: match.format,
+        // The card always shows a Watch Live control; fall back to the OWCS
+        // channel if a specific stream URL isn't on the match yet.
+        watchUrl: match.streamUrl ?? 'https://www.twitch.tv/owcs',
+        chip: tag ?? owcs.stage,
+        oppLogo,
+        snap: snapshot(target),
+        dateLine: fmtDate(target, tzPrimary.zone),
+        ictTime: fmtTime(target, tzPrimary.zone),
+        cstTime: fmtTime(target, tzSecondary.zone),
+      };
+    })()
+  : null;
 ---
 
 {
-  match ? (
-    <section
-      class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 sm:p-8"
-      aria-label="Next match countdown"
-    >
-      <p class="text-xs uppercase tracking-wider text-[var(--color-accent-2)]">
-        {t.nextMatch.eyebrow(tournament)}
-      </p>
-      <p class="font-display text-3xl sm:text-4xl mt-2 tracking-wide">
-        {t.nextMatch.vs(match.opponent)}
-      </p>
+  data ? (
+    <section class="nm-card" aria-label={t.nextMatch.eyebrowEmpty}>
+      <div class="nm-toprule" />
 
-      <div class="mt-5 grid grid-cols-4 gap-3 max-w-md" data-countdown data-target={match.date}>
-        {countdownLabels.map((u, i) => (
-          <div class="bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-sm py-3 text-center">
-            <p class="font-display text-2xl sm:text-3xl tabular-nums" data-slot={i}>
-              --
-            </p>
-            <p class="text-[0.6rem] uppercase tracking-widest text-[var(--color-text-dim)] mt-1">
-              {u.label}
-            </p>
-          </div>
-        ))}
+      <div class="nm-header">
+        <div class="nm-eyebrow">
+          <span class="nm-diamond" />
+          <span class="nm-eyebrow-text">{t.nextMatch.eyebrowEmpty}</span>
+        </div>
+        <span class="nm-tag">{data.chip}</span>
       </div>
 
-      {match.streamUrl && (
-        <p class="mt-4 text-sm">
-          <a
-            href={match.streamUrl}
-            target="_blank"
-            rel="noopener"
-            class="link-arrow has-glyph text-[var(--color-accent-2)] hover:text-[var(--color-accent)] uppercase tracking-wider"
-          >
-            <span>{t.nextMatch.watchLive}</span>
-          </a>
-        </p>
-      )}
+      <div class="nm-matchup">
+        <div class="nm-team">
+          <Image class="nm-mark" src={bishopDark} alt={site.name} width={126} height={125} />
+          <span class="nm-team-name">{site.shortName}</span>
+        </div>
+        <div class="nm-vs">
+          <span class="nm-vs-big">VS</span>
+          <span class="nm-vs-small">{data.format}</span>
+        </div>
+        <div class="nm-team">
+          {data.oppLogo ? (
+            <Image class="nm-oppslot-img" src={data.oppLogo} alt={data.opponent} width={124} />
+          ) : (
+            <div class="nm-oppslot">
+              OPP
+              <br />
+              LOGO
+            </div>
+          )}
+          <span class="nm-team-name">{data.opponent}</span>
+        </div>
+      </div>
+
+      <div class="nm-divider" />
+
+      <div
+        class="nm-countdown"
+        role="timer"
+        aria-live="off"
+        data-nm-countdown
+        data-nm-target={data.target.toISOString()}
+      >
+        <div class="nm-glowring" />
+        <div class="nm-unit">
+          <div class="nm-panel">
+            <div class="nm-digit" data-nm="days">
+              {data.snap.days}
+            </div>
+          </div>
+          <div class="nm-unit-label">{t.nextMatch.days}</div>
+        </div>
+        <div class="nm-unit">
+          <div class="nm-panel">
+            <div class="nm-digit" data-nm="hours">
+              {data.snap.hours}
+            </div>
+          </div>
+          <div class="nm-unit-label">{t.nextMatch.hours}</div>
+        </div>
+        <div class="nm-unit">
+          <div class="nm-panel">
+            <div class="nm-digit" data-nm="mins">
+              {data.snap.mins}
+            </div>
+          </div>
+          <div class="nm-unit-label">{t.nextMatch.min}</div>
+        </div>
+        <div class="nm-unit nm-unit--accent">
+          <div class="nm-panel nm-panel--accent">
+            <div class="nm-sweep" />
+            <div class="nm-digit" data-nm="secs">
+              {data.snap.secs}
+            </div>
+          </div>
+          <div class="nm-unit-label">{t.nextMatch.sec}</div>
+        </div>
+      </div>
+
+      <div class="nm-footer">
+        <div>
+          <div class="nm-date">{data.dateLine}</div>
+          <div class="nm-tz">
+            <span>
+              {data.ictTime} <span class="nm-tz-abbr">{tzPrimary.abbr}</span>
+            </span>
+            <span class="nm-slash">/</span>
+            <span>
+              {data.cstTime} <span class="nm-tz-abbr">{tzSecondary.abbr}</span>
+            </span>
+          </div>
+        </div>
+        <a class="nm-cta" href={data.watchUrl} target="_blank" rel="noopener">
+          <span class="nm-cta-play">▶</span> {t.nextMatch.watchLive}
+        </a>
+      </div>
+
+      <span class="nm-bracket nm-bracket--tr" />
+      <span class="nm-bracket nm-bracket--bl" />
     </section>
   ) : (
-    <section
-      class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md p-6 sm:p-8"
-      aria-label="Next match"
-    >
-      <p class="text-xs uppercase tracking-wider text-[var(--color-accent-2)]">
-        {t.nextMatch.eyebrowEmpty}
-      </p>
-      <p class="font-display text-2xl sm:text-3xl mt-2 tracking-wide">
-        {t.nextMatch.placeholderHeadline}
-      </p>
-      <p class="text-[var(--color-text-dim)] text-sm mt-2">{t.nextMatch.placeholderBody}</p>
+    <section class="nm-card nm-card--empty" aria-label={t.nextMatch.eyebrowEmpty}>
+      <div class="nm-toprule" />
+      <div class="nm-header">
+        <div class="nm-eyebrow">
+          <span class="nm-diamond" />
+          <span class="nm-eyebrow-text">{t.nextMatch.eyebrowEmpty}</span>
+        </div>
+      </div>
+      <div class="nm-empty">
+        <p class="nm-empty-headline">{t.nextMatch.placeholderHeadline}</p>
+        <p class="nm-empty-body">{t.nextMatch.placeholderBody}</p>
+      </div>
+      <span class="nm-bracket nm-bracket--tr" />
     </section>
   )
 }
 
-<script>
-  // Countdown tick, processed module (CSP: no inline JS). Runs once per
-  // full page load; the interval dies with the document on navigation.
-  function init(): void {
-    const root = document.querySelector('[data-countdown]');
-    if (!root) return;
-    const target = new Date(root.getAttribute('data-target') ?? '').getTime();
-    // Bail on an unparseable date so the tick loop never spins on NaN
-    // (mirrors the guard in LiveHero.astro).
-    if (Number.isNaN(target)) return;
-    const slots = root.querySelectorAll('[data-slot]');
-    const pad = (n: number): string => String(Math.max(0, n)).padStart(2, '0');
-    let intervalId: ReturnType<typeof setInterval> | null = null;
+<style>
+  /* Brand tokens, scoped to the card so the --nm-* names never leak globally.
+     Cobalt #215BFF and electric #4F7BFF match --color-accent / --color-accent-2;
+     navy/ink are the card's own dark surface. Fonts: Montserrat (display),
+     Saira Condensed (numerals/labels), Barlow (body), all self-hosted. */
+  .nm-card {
+    --nm-cobalt: #215bff;
+    --nm-electric: #4f7bff;
+    --nm-white: #ffffff;
+    --nm-muted: #9fb0d9;
+    --nm-dim: #7d8cb5;
+    --nm-faint: #5e688f;
 
-    const tick = (): void => {
-      const diff = target - Date.now();
-      if (diff <= 0) {
-        slots.forEach((s) => (s.textContent = '00'));
-        if (intervalId !== null) {
-          clearInterval(intervalId);
-          intervalId = null;
-        }
-        return;
-      }
-      const days = Math.floor(diff / 86400000);
-      const hours = Math.floor((diff % 86400000) / 3600000);
-      const mins = Math.floor((diff % 3600000) / 60000);
-      const secs = Math.floor((diff % 60000) / 1000);
-      slots[0].textContent = String(days);
-      slots[1].textContent = pad(hours);
-      slots[2].textContent = pad(mins);
-      slots[3].textContent = pad(secs);
-    };
-    tick();
-    intervalId = setInterval(tick, 1000);
+    position: relative;
+    width: 100%;
+    font-family: Barlow, system-ui, sans-serif;
+    background: linear-gradient(165deg, #0d1838 0%, #080d1f 60%, #060911 100%);
+    overflow: hidden;
+    box-shadow:
+      0 40px 90px -20px rgba(0, 0, 0, 0.7),
+      0 0 0 1px rgba(99, 134, 255, 0.12);
+    clip-path: polygon(
+      22px 0,
+      100% 0,
+      100% calc(100% - 22px),
+      calc(100% - 22px) 100%,
+      0 100%,
+      0 22px
+    );
+  }
+  .nm-card * {
+    box-sizing: border-box;
   }
 
-  init();
+  /* chessboard texture wash */
+  .nm-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(
+        45deg,
+        rgba(99, 134, 255, 0.05) 25%,
+        transparent 25%,
+        transparent 75%,
+        rgba(99, 134, 255, 0.05) 75%
+      ),
+      linear-gradient(
+        45deg,
+        rgba(99, 134, 255, 0.05) 25%,
+        transparent 25%,
+        transparent 75%,
+        rgba(99, 134, 255, 0.05) 75%
+      );
+    background-size: 60px 60px;
+    background-position:
+      0 0,
+      30px 30px;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  /* ambient glow */
+  .nm-card::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 54%;
+    width: 560px;
+    height: 360px;
+    background: radial-gradient(circle, rgba(33, 91, 255, 0.2), transparent 65%);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .nm-toprule {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--nm-cobalt) 20%,
+      var(--nm-electric) 50%,
+      var(--nm-cobalt) 80%,
+      transparent
+    );
+  }
+
+  .nm-header {
+    position: relative;
+    padding: 30px 40px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nm-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .nm-diamond {
+    width: 7px;
+    height: 7px;
+    background: var(--nm-electric);
+    box-shadow: 0 0 10px var(--nm-electric);
+    transform: rotate(45deg);
+  }
+  .nm-eyebrow-text {
+    font-family: 'Saira Condensed';
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--nm-muted);
+  }
+  .nm-tag {
+    font-family: 'Saira Condensed';
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #cdd8f5;
+    border: 1px solid rgba(143, 169, 255, 0.35);
+    padding: 6px 12px;
+    clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+  }
+
+  .nm-matchup {
+    position: relative;
+    margin-top: 26px;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 26px;
+  }
+  .nm-team {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 200px;
+  }
+  .nm-mark {
+    height: 62px;
+    width: auto;
+    filter: drop-shadow(0 8px 18px rgba(33, 91, 255, 0.4));
+  }
+  .nm-team-name {
+    font-family: Montserrat;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--nm-white);
+    text-align: center;
+  }
+  .nm-oppslot-img {
+    height: 62px;
+    width: 62px;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 18px rgba(33, 91, 255, 0.4));
+  }
+  .nm-oppslot {
+    height: 62px;
+    width: 62px;
+    border: 1.5px dashed rgba(143, 169, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Saira Condensed';
+    font-weight: 600;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--nm-dim);
+    text-align: center;
+    line-height: 1.2;
+  }
+  .nm-vs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .nm-vs-big {
+    font-family: Montserrat;
+    font-weight: 900;
+    font-size: 26px;
+    color: var(--nm-electric);
+    line-height: 1;
+    text-shadow: 0 0 18px rgba(79, 123, 255, 0.6);
+  }
+  .nm-vs-small {
+    font-family: 'Saira Condensed';
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--nm-faint);
+  }
+
+  .nm-divider {
+    position: relative;
+    margin: 24px 40px 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(143, 169, 255, 0.22), transparent);
+  }
+
+  .nm-countdown {
+    position: relative;
+    margin-top: 26px;
+    padding: 0 36px;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 14px;
+  }
+  .nm-glowring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 420px;
+    height: 160px;
+    background: radial-gradient(ellipse, rgba(33, 91, 255, 0.28), transparent 70%);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    animation: nmGlow var(--nm-pulse, 2.4s) ease-in-out infinite;
+  }
+  .nm-unit {
+    position: relative;
+    flex: 1;
+    text-align: center;
+  }
+  .nm-panel {
+    position: relative;
+    background: linear-gradient(180deg, rgba(20, 34, 78, 0.7), rgba(8, 13, 30, 0.7));
+    border: 1px solid rgba(99, 134, 255, 0.18);
+    padding: 18px 0 14px;
+    overflow: hidden;
+    clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+  }
+  .nm-panel::before {
+    /* glossy top highlight */
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent);
+  }
+  .nm-panel--accent {
+    background: linear-gradient(180deg, rgba(33, 91, 255, 0.32), rgba(12, 21, 53, 0.7));
+    border: 1px solid rgba(99, 134, 255, 0.5);
+    box-shadow: 0 0 24px rgba(33, 91, 255, 0.25);
+  }
+  .nm-sweep {
+    /* light sweep on the seconds panel */
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50px;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.16), transparent);
+    animation: nmSweep var(--nm-pulse, 2.4s) linear infinite;
+  }
+  .nm-digit {
+    position: relative;
+    font-family: 'Saira Condensed';
+    font-weight: 800;
+    font-size: 64px;
+    line-height: 0.9;
+    color: var(--nm-white);
+    font-variant-numeric: tabular-nums;
+    animation: nmPulse var(--nm-pulse, 2.4s) ease-in-out infinite;
+  }
+  .nm-unit-label {
+    font-family: 'Saira Condensed';
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--nm-dim);
+    margin-top: 9px;
+  }
+  .nm-unit--accent .nm-unit-label {
+    color: var(--nm-muted);
+  }
+
+  .nm-footer {
+    position: relative;
+    margin-top: 30px;
+    background: #05070f;
+    border-top: 1px solid rgba(99, 134, 255, 0.12);
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .nm-date {
+    font-family: 'Saira Condensed';
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 2px;
+    color: var(--nm-white);
+  }
+  .nm-tz {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Saira Condensed';
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-top: 5px;
+  }
+  .nm-tz > span {
+    color: var(--nm-muted);
+  }
+  .nm-tz .nm-tz-abbr {
+    color: var(--nm-faint);
+  }
+  .nm-tz .nm-slash {
+    color: #2a3a6e;
+  }
+  .nm-cta {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Saira Condensed';
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--nm-white);
+    background: var(--nm-cobalt);
+    padding: 14px 26px;
+    clip-path: polygon(
+      11px 0,
+      100% 0,
+      100% calc(100% - 11px),
+      calc(100% - 11px) 100%,
+      0 100%,
+      0 11px
+    );
+    box-shadow: 0 8px 22px rgba(33, 91, 255, 0.4);
+    transition: filter 0.15s ease;
+  }
+  .nm-cta:hover {
+    filter: brightness(1.12);
+  }
+  .nm-cta-play {
+    font-size: 11px;
+  }
+
+  .nm-bracket {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+  }
+  .nm-bracket--tr {
+    top: 14px;
+    right: 14px;
+    border-right: 2px solid var(--nm-cobalt);
+    border-top: 2px solid var(--nm-cobalt);
+  }
+  .nm-bracket--bl {
+    bottom: 78px;
+    left: 14px;
+    border-left: 2px solid var(--nm-cobalt);
+    border-bottom: 2px solid var(--nm-cobalt);
+  }
+
+  /* Empty state: same shell, placeholder copy, no countdown. */
+  .nm-card--empty {
+    box-shadow:
+      0 24px 60px -24px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(99, 134, 255, 0.12);
+  }
+  .nm-empty {
+    position: relative;
+    padding: 18px 40px 40px;
+  }
+  .nm-empty-headline {
+    font-family: Montserrat;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: 0.5px;
+    color: var(--nm-white);
+    margin: 8px 0 0;
+  }
+  .nm-empty-body {
+    font-family: Barlow, system-ui, sans-serif;
+    font-size: 14px;
+    color: var(--nm-muted);
+    margin: 10px 0 0;
+    max-width: 46ch;
+  }
+
+  @keyframes nmGlow {
+    0%,
+    100% {
+      opacity: 0.5;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+      opacity: 0.95;
+      transform: translate(-50%, -50%) scale(1.08);
+    }
+  }
+  @keyframes nmPulse {
+    0%,
+    100% {
+      text-shadow: 0 0 18px rgba(79, 123, 255, 0.28);
+    }
+    50% {
+      text-shadow:
+        0 0 34px rgba(79, 123, 255, 0.85),
+        0 0 66px rgba(33, 91, 255, 0.45);
+    }
+  }
+  @keyframes nmSweep {
+    0% {
+      transform: translateX(-130%);
+    }
+    100% {
+      transform: translateX(130%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nm-glowring,
+    .nm-digit,
+    .nm-sweep {
+      animation: none !important;
+    }
+  }
+
+  /* ---- Mobile ---- */
+  @media (max-width: 560px) {
+    .nm-card {
+      clip-path: polygon(
+        16px 0,
+        100% 0,
+        100% calc(100% - 16px),
+        calc(100% - 16px) 100%,
+        0 100%,
+        0 16px
+      );
+    }
+    .nm-header {
+      padding: 24px 22px 0;
+    }
+    .nm-matchup {
+      padding: 0 18px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .nm-team {
+      width: 120px;
+    }
+    .nm-mark,
+    .nm-oppslot-img,
+    .nm-oppslot {
+      height: 46px;
+    }
+    .nm-oppslot-img,
+    .nm-oppslot {
+      width: 46px;
+    }
+    .nm-team-name {
+      font-size: 15px;
+    }
+    .nm-countdown {
+      padding: 0 16px;
+      gap: 8px;
+    }
+    .nm-digit {
+      font-size: 42px;
+    }
+    .nm-divider {
+      margin: 20px 22px 0;
+    }
+    .nm-footer {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 18px 22px;
+    }
+    .nm-cta {
+      width: 100%;
+      justify-content: center;
+    }
+    .nm-bracket--bl {
+      bottom: auto;
+    }
+  }
+</style>
+
+<script>
+  import '../../scripts/next-match';
 </script>

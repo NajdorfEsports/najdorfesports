@@ -15,7 +15,7 @@ test.describe('home page', () => {
 
   test('countdown, when present, shows numeric slots', async ({ page }) => {
     await page.goto('/');
-    const countdown = page.locator('[data-countdown]');
+    const countdown = page.locator('[data-nm-countdown]');
     if ((await countdown.count()) === 0) {
       test.info().annotations.push({ type: 'note', description: 'no upcoming fixture today' });
       return;
@@ -23,7 +23,7 @@ test.describe('home page', () => {
     const liveHeroVisible = await page.locator('[data-hero-live]').isVisible();
     if (liveHeroVisible) return; // live mode replaces the countdown surface
     await expect(countdown).toBeVisible();
-    const firstSlot = countdown.locator('[data-slot]').first();
+    const firstSlot = countdown.locator('[data-nm]').first();
     await expect(firstSlot).toHaveText(/^\d+$/);
   });
 

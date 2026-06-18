@@ -1,14 +1,15 @@
 import type { ImageMetadata } from 'astro';
 import heroSlugs from '../data/heroes.json';
 import mapSlugs from '../data/maps.json';
+import teamSlugs from '../data/teams.json';
 
 /**
  * Dynamic astro:assets lookups for images that are referenced by NAME from
- * data (signatureHeroes[], mapScores[].map, coach backdrops). The committed
- * name-to-slug JSON maps come from the Liquipedia fetchers; the globs pick
- * up whatever files exist under src/assets at build time, so a fetcher run
- * that adds a new image needs zero code changes (restart `astro dev`
- * locally; CI builds always see fresh files).
+ * data (signatureHeroes[], mapScores[].map, coach backdrops, opponent
+ * logos). The committed name-to-slug JSON maps come from the Liquipedia
+ * fetchers; the globs pick up whatever files exist under src/assets at build
+ * time, so a fetcher run that adds a new image needs zero code changes
+ * (restart `astro dev` locally; CI builds always see fresh files).
  *
  * Everything here is fail-soft: a JSON entry whose file vanished (or a
  * file with no JSON entry) resolves to undefined and the caller renders
@@ -21,6 +22,12 @@ const heroGlob = import.meta.glob<{ default: ImageMetadata }>('/src/assets/heroe
   eager: true,
 });
 const mapGlob = import.meta.glob<{ default: ImageMetadata }>('/src/assets/maps/*.webp', {
+  eager: true,
+});
+// Team logos are committed as the unaltered Liquipedia source PNGs (kept
+// lossless to respect the CC BY-SA / trademark "don't alter" terms; see
+// src/assets/teams/CREDITS.md). astro:assets re-encodes them for delivery.
+const teamGlob = import.meta.glob<{ default: ImageMetadata }>('/src/assets/teams/*.png', {
   eager: true,
 });
 
@@ -38,6 +45,7 @@ function indexBySlug(
 /** slug -> optimizable image, straight from the filesystem glob. */
 export const heroImagesBySlug: Record<string, ImageMetadata> = indexBySlug(heroGlob);
 export const mapImagesBySlug: Record<string, ImageMetadata> = indexBySlug(mapGlob);
+export const teamImagesBySlug: Record<string, ImageMetadata> = indexBySlug(teamGlob);
 
 /**
  * Display name -> image via a name-to-slug map and a slug-to-image record.
@@ -74,4 +82,9 @@ export const heroImagesByName: Record<string, ImageMetadata> = joinByName(
 export const mapImagesByName: Record<string, ImageMetadata> = joinByName(
   mapSlugs as Record<string, string>,
   mapImagesBySlug,
+);
+/** Opponent display name -> logo (drops entries whose file is missing). */
+export const teamImagesByName: Record<string, ImageMetadata> = joinByName(
+  teamSlugs as Record<string, string>,
+  teamImagesBySlug,
 );
