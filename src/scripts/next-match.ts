@@ -70,6 +70,52 @@ function init(): void {
 
   tick();
   intervalId = setInterval(tick, 1000);
+
+  // "Your timezone" picker (progressive enhancement). The server-rendered
+  // ICT/CST line is the no-JS fallback; here we preselect the visitor's own
+  // zone (adding it to the list if absent) and convert the single UTC kickoff
+  // into it, re-rendering on change. Zone-only: the countdown itself is the
+  // same remaining time everywhere.
+  const tzSelect = document.querySelector<HTMLSelectElement>('[data-nm-tz-select]');
+  const tzOut = document.querySelector<HTMLElement>('[data-nm-tz-out]');
+  if (tzSelect && tzOut) {
+    const localeAttr = root.getAttribute('data-nm-locale') || undefined;
+    const kickoff = new Date(target);
+    const local = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (local && !Array.from(tzSelect.options).some((o) => o.value === local)) {
+      const opt = document.createElement('option');
+      opt.value = local;
+      opt.textContent = local.split('/').pop()?.replace(/_/g, ' ') ?? local;
+      tzSelect.insertBefore(opt, tzSelect.firstChild);
+    }
+    if (local) tzSelect.value = local;
+    const renderTz = (): void => {
+      const zone = tzSelect.value;
+      try {
+        const time = new Intl.DateTimeFormat(localeAttr, {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+          timeZone: zone,
+        }).format(kickoff);
+        const date = new Intl.DateTimeFormat(localeAttr, {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          timeZone: zone,
+        }).format(kickoff);
+        const tzName =
+          new Intl.DateTimeFormat(localeAttr, { timeZoneName: 'short', timeZone: zone })
+            .formatToParts(kickoff)
+            .find((p) => p.type === 'timeZoneName')?.value ?? '';
+        tzOut.textContent = `${time} · ${date} ${tzName}`.trim();
+      } catch {
+        tzOut.textContent = '';
+      }
+    };
+    renderTz();
+    tzSelect.addEventListener('change', renderTz);
+  }
 }
 
 init();

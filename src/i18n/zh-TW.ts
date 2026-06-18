@@ -371,6 +371,7 @@ export const zhTW: Strings = {
     hours: '時',
     min: '分',
     sec: '秒',
+    yourTimezone: '你的時區', // DRAFT PENDING RIRI NATIVE REVIEW
   },
 
   match: {

@@ -371,6 +371,7 @@ export const zhCN: Strings = {
     hours: '时',
     min: '分',
     sec: '秒',
+    yourTimezone: '你的时区', // DRAFT PENDING RIRI NATIVE REVIEW
   },
 
   match: {

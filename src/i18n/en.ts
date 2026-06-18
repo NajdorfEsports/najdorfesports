@@ -407,6 +407,7 @@ export const en = {
     hours: 'Hours',
     min: 'Min',
     sec: 'Sec',
+    yourTimezone: 'Your timezone',
   },
 
   /** Per-match card on /matches and recent-results items. */
