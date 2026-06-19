@@ -472,6 +472,8 @@ export const zhTW: Strings = {
     backToRoster: '返回名單',
     heroPool: '英雄池',
     signature: '招牌', // DRAFT PENDING RIRI NATIVE REVIEW
+    bioHeading: '簡介', // DRAFT PENDING RIRI NATIVE REVIEW
+    bioPlaceholder: '完整簡介即將推出。', // DRAFT PENDING RIRI NATIVE REVIEW
     links: '連結',
     realName: '本名',
     // DRAFT PENDING RIRI NATIVE REVIEW (the seven stats strings below)

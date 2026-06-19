@@ -48,6 +48,12 @@ export const RosterEntrySchema = z
       .optional(),
     realName: z.string().optional(),
     birthDate: isoDate.optional(),
+    /** Optional player bio + the BCP-47 language it is written in (e.g. 'en',
+     *  'ko', 'zh-Hant'). The player page marks the block up with that lang
+     *  regardless of the site locale. Owner-supplied; left empty until real
+     *  bios land. */
+    bio: z.string().optional(),
+    bioLang: z.string().optional(),
     photo: z.string().optional(),
     signatureHeroes: z.array(z.string().min(1)).optional(),
     twitter: z.url().optional(),

@@ -177,7 +177,27 @@ const signaturePiece: PieceName = ROLE_PIECE[player.role] ?? 'Bishop';
     )
   }
 
-  {/* Per-player bio slot is rendered in Phase 4 (bio + bioLang). */}
+  {
+    /* Per-player bio. Written in the player's own language (bioLang), so the
+      block carries that lang regardless of the site locale. Owner-supplied:
+      a placeholder shows until a real bio lands. */
+  }
+  <section class="mt-12">
+    <h2 class="text-[0.7rem] uppercase tracking-[0.25em] text-(--color-accent-2)">
+      {t.playerPage.bioHeading}
+    </h2>
+    {
+      player.bio ? (
+        <p lang={player.bioLang} class="mt-4 max-w-prose leading-relaxed text-(--color-text)">
+          {player.bio}
+        </p>
+      ) : (
+        <p class="mt-4 max-w-prose leading-relaxed text-(--color-text-dim)">
+          {t.playerPage.bioPlaceholder}
+        </p>
+      )
+    }
+  </section>
 
   {
     links.length > 0 && (

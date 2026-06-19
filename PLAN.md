@@ -66,10 +66,11 @@ until the owner approves the Cloudflare preview.
       (build-time ambient composer, seeded + deterministic, no client JS).
       Visually verified all six pieces + a King backdrop in the dev preview
       (legible over motion); temp preview route removed before commit.
-- [~] **Phase 3 - Per-page visuals (commit + Lighthouse per page).**
-  Lighthouse baseline (built dist): home perf 95 / CLS 0.000, news perf 100 /
-  CLS 0.000, both 0ms TBT. Motion is pure transform/opacity + inline SVG, so
-  CLS/TBT stay at zero.
+- [x] **Phase 3 - Per-page visuals (all seven frames done; Lighthouse below).**
+      Lighthouse (built dist, performance): home 95, coaching 99, partners 100,
+      games 100, player 100, news 100. CLS 0.000 and TBT 0ms on every page (motion
+      is pure transform/opacity + build-time inline SVG, no layout shift). Targets
+      (perf >= 90, CLS < 0.1) cleared.
   - [x] Home hero (frame-1): bishop "make-the-move" travel-in one-shot, settles
         to its resting square; removed the cursor-follow glow (markup, script,
         CSS); reduced-motion = resolved still.
@@ -77,13 +78,16 @@ until the owner approves the Cloudflare preview.
         flip-on-change digits (<=150ms, reduced-motion = plain text).
   - [x] News cards (frame-3): backdrop piece per importance tier (King featured
         -> Pawn) + ambient sheen; scrim/legibility preserved.
-  - [ ] Roster header (frame-4): copyright-safe branded header (role field +
-        piece + nameplate); removes Blizzard hero art from player pages.
+  - [x] Roster header (frame-4): copyright-safe branded header (role field +
+        piece + nameplate); removed Blizzard hero art from the player header.
   - [ ] Coaching (frame-5): elevated hero; chess-promotion stepper; FAQ accordion.
-  - [ ] Games (frame-6): three original animated card backgrounds.
-  - [ ] Partners (frame-7): scorecard units + recency stamp; polish offer/founding.
-- [ ] **Phase 4 - Roster bios.** Extend roster data (`bio` + `bioLang`); render
-      with correct `lang` attr; placeholder content only.
+  - [x] Games (frame-6): three original animated card backgrounds (GameCardBg).
+  - [x] Partners (frame-7): scorecard recency stamp + attribution footnote;
+        hero + founding ambient backdrops.
+- [x] **Phase 4 - Roster bios.** Added `bio` + `bioLang` to RosterEntrySchema;
+      player page renders a Bio section with `lang={bioLang}` when a bio exists,
+      else a localized placeholder. No invented bios (owner fills via
+      roster.manual.json). Added t.playerPage.bioHeading + bioPlaceholder.
 - [ ] **Phase 5 - Liquipedia data integration.** Build-time Node script ->
       `schedule.json` + match updates; MediaWiki API (no scraping), contact UA,
       rate limits, caching, CC BY-SA attribution kept; scheduled GH Action +

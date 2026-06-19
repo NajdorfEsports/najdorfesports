@@ -538,6 +538,8 @@ export const en = {
     heroPool: 'Hero pool',
     /** Label under the branded header's role-signature chess piece. */
     signature: 'Signature',
+    bioHeading: 'Bio',
+    bioPlaceholder: 'A full bio is on the way.',
     links: 'Links',
     realName: 'Real name',
     /** Derived team-stats panel. The note is the honesty rule made visible:
