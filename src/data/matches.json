@@ -278,14 +278,36 @@
     ]
   },
   {
-    "id": "liquipedia-owcs-pacific-2026-stage-2-3-202606181400",
-    "date": "2026-06-18T14:00:00.000Z",
+    "id": "liquipedia-owcs-pacific-2026-stage-2-3-202606181430",
+    "date": "2026-06-18T14:30:00.000Z",
     "opponent": "MENG GONG 3",
     "tournament": "OWCS Pacific 2026 · Stage 2",
     "format": "BO5",
     "streamUrl": "https://twitch.tv/ow_esports_th",
     "liquipediaUrl": "https://liquipedia.net/overwatch/Overwatch_Champions_Series/2026/Asia/Stage_2/Pacific/Regular_Season",
-    "result": "tbd"
+    "result": "win",
+    "mapScores": [
+      {
+        "map": "Ilios",
+        "ourScore": 2,
+        "theirScore": 0
+      },
+      {
+        "map": "Runasapi",
+        "ourScore": 1,
+        "theirScore": 0
+      },
+      {
+        "map": "King's Row",
+        "ourScore": 2,
+        "theirScore": 3
+      },
+      {
+        "map": "Suravasa",
+        "ourScore": 3,
+        "theirScore": 1
+      }
+    ]
   },
   {
     "id": "liquipedia-owcs-pacific-2026-stage-2-4-202606251230",
