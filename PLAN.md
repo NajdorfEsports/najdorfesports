@@ -104,9 +104,17 @@ until the owner approves the Cloudflare preview.
       already trigger the Pages git-integration deploy. (3) The Jun 18 vs
       Meng Gong 3 result populates on the next fetch run (or a manual
       workflow_dispatch); not hand-entered, to avoid fabricating a score.
-- [ ] **Phase 6 - Partners live stats.** Extend job to refresh scorecard from
-      Twitch/YouTube/SOOP/X (env placeholders); recency stamp; OWCS attribution.
-      Keep static numbers if no creds.
+- [x] **Phase 6 - Partners live stats (kept current numbers, per the brief's
+      no-creds fallback).** The scorecard's broadcast peak viewership already
+      comes from `matches.broadcastPeakViewers` (the OWCS broadcast peak),
+      refreshed by the now-8h Liquipedia job (Phase 5); the OWCS attribution +
+      recency stamp landed in Phase 3 frame-7. The figures are real and
+      provenanced. Dedicated external live-stats wiring (Twitch / YouTube /
+      SOOP peak, X impressions) is DEFERRED: it needs owner credentials and
+      cannot be built or tested here, and the brief says to leave the current
+      numbers and note it when creds are unavailable. A safe pattern already
+      exists for when the owner is ready (scripts/fetch-social-stats.mjs +
+      social-stats.manual.json, fail-soft, secrets optional). Flagged for owner.
 
 ## Out of scope / untouched
 
