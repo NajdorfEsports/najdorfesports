@@ -3,11 +3,14 @@ name: Refresh Liquipedia data
 on:
   workflow_dispatch: {}
   schedule:
-    # Once a week, Monday 09:07 UTC. Pacific stages typically play on
-    # weekends, so Monday morning UTC catches the freshest results without
-    # burning Actions minutes on hourly polling. Trigger from the Actions
-    # tab if a roster move or mid-week match needs to be picked up sooner.
-    - cron: '7 9 * * 1'
+    # Every ~8 hours (00:07, 08:07, 16:07 UTC) during the season so opponents,
+    # times, and results refresh without manual edits. The auto-commit below
+    # pushes to main, and Cloudflare Pages' git integration redeploys on that
+    # push, so no separate deploy hook is needed. Still Liquipedia-friendly:
+    # the fetcher enforces 1 parse / 30s, so a run is a few dozen calls, far
+    # under the cap. To cut Actions usage back to the old weekly cadence,
+    # restore: '7 9 * * 1'. workflow_dispatch covers ad-hoc mid-day refreshes.
+    - cron: '7 */8 * * *'
 
 permissions:
   contents: write

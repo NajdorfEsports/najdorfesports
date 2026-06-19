@@ -74,13 +74,14 @@ until the owner approves the Cloudflare preview.
   - [x] Home hero (frame-1): bishop "make-the-move" travel-in one-shot, settles
         to its resting square; removed the cursor-follow glow (markup, script,
         CSS); reduced-motion = resolved still.
-  - [ ] Next-match (frame-2): keep aesthetic; timezone selector (Intl, IANA);
-        flip-on-change digits (<=150ms, reduced-motion = plain text).
+  - [x] Next-match (frame-2): "Your timezone" picker (Intl, IANA, preselects the
+        visitor zone; ICT/CST stays the no-JS fallback); flip tightened to 140ms.
   - [x] News cards (frame-3): backdrop piece per importance tier (King featured
         -> Pawn) + ambient sheen; scrim/legibility preserved.
   - [x] Roster header (frame-4): copyright-safe branded header (role field +
         piece + nameplate); removed Blizzard hero art from the player header.
-  - [ ] Coaching (frame-5): elevated hero; chess-promotion stepper; FAQ accordion.
+  - [x] Coaching (frame-5): elevated hero (+ ambient backdrop), chess-promotion
+        stepper, FAQ height+opacity reveal (::details-content + interpolate-size).
   - [x] Games (frame-6): three original animated card backgrounds (GameCardBg).
   - [x] Partners (frame-7): scorecard recency stamp + attribution footnote;
         hero + founding ambient backdrops.
@@ -88,10 +89,21 @@ until the owner approves the Cloudflare preview.
       player page renders a Bio section with `lang={bioLang}` when a bio exists,
       else a localized placeholder. No invented bios (owner fills via
       roster.manual.json). Added t.playerPage.bioHeading + bioPlaceholder.
-- [ ] **Phase 5 - Liquipedia data integration.** Build-time Node script ->
-      `schedule.json` + match updates; MediaWiki API (no scraping), contact UA,
-      rate limits, caching, CC BY-SA attribution kept; scheduled GH Action +
-      Cloudflare deploy hook (env placeholders). Graceful fallback to existing data.
+- [x] **Phase 5 - Liquipedia data integration.** The repo ALREADY ships the
+      whole pipeline: `scripts/fetch-liquipedia.mjs` pulls matches (opponent /
+      time / scores / map-by-map) from the exact Stage 2 Pacific source via the
+      MediaWiki `action=parse` API (NO scraping), with a real contact UA
+      (`owner@najdorfesports.gg`, not a placeholder), gzip, 1-parse/30s, and
+      fail-soft fallback; CC BY-SA attribution is on footer/matches/roster.
+      Change made: bumped `update-matches.yml` from weekly to every ~8h so
+      schedule/results refresh automatically; the auto-commit pushes to main
+      and Cloudflare Pages' git integration redeploys on that push.
+      Deviations (flagged for owner): (1) NO `schedule.json` - `matches.json`
+      already IS the schedule and is the validated single source of truth;
+      a second file would fragment it. (2) NO deploy hook needed - commits
+      already trigger the Pages git-integration deploy. (3) The Jun 18 vs
+      Meng Gong 3 result populates on the next fetch run (or a manual
+      workflow_dispatch); not hand-entered, to avoid fabricating a score.
 - [ ] **Phase 6 - Partners live stats.** Extend job to refresh scorecard from
       Twitch/YouTube/SOOP/X (env placeholders); recency stamp; OWCS attribution.
       Keep static numbers if no creds.
