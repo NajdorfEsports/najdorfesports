@@ -1,5 +1,11 @@
-import { describe, it, expect } from 'vitest';
-import { parseData, validateArray, RosterEntrySchema, MatchEntrySchema } from './schemas';
+import { describe, it, expect, vi } from 'vitest';
+import {
+  parseData,
+  validateArray,
+  validateMerged,
+  RosterEntrySchema,
+  MatchEntrySchema,
+} from './schemas';
 
 const goodRoster = [{ handle: 'X', role: 'Tank', country: 'South Korea' }];
 const goodMatch = {
@@ -54,5 +60,44 @@ describe('validateArray', () => {
     expect(() =>
       validateArray(RosterEntrySchema, [{ handle: 'X', role: 'Bad', country: 'K' }], 'roster'),
     ).toThrow();
+  });
+});
+
+describe('validateMerged', () => {
+  it('drops a stale, partial manual-only orphan instead of throwing', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    // An override keyed to a now-changed match id (the Liquipedia time shifted):
+    // it has no matching auto row and is only a partial record on its own.
+    const merged = [goodMatch, { id: 'stale', opponent: 'Z' }];
+    const out = validateMerged(
+      MatchEntrySchema,
+      merged,
+      new Set([goodMatch.id]),
+      'id',
+      'matches (merged)',
+    );
+    expect(out).toHaveLength(1);
+    expect(out[0].id).toBe(goodMatch.id);
+    expect(warn).toHaveBeenCalledOnce();
+    warn.mockRestore();
+  });
+
+  it('keeps a complete manual-only entry (a fixture Liquipedia lacks)', () => {
+    const manualOnly = { ...goodMatch, id: 'manual-1' };
+    const out = validateMerged(
+      MatchEntrySchema,
+      [goodMatch, manualOnly],
+      new Set([goodMatch.id]),
+      'id',
+      'matches (merged)',
+    );
+    expect(out.map((m) => m.id)).toEqual([goodMatch.id, 'manual-1']);
+  });
+
+  it('still throws LOUDLY when an auto-anchored row is malformed', () => {
+    const badAuto = { ...goodMatch, result: 'nope' };
+    expect(() =>
+      validateMerged(MatchEntrySchema, [badAuto], new Set([badAuto.id]), 'id', 'matches (merged)'),
+    ).toThrow(/matches \(merged\)[\s\S]*result/);
   });
 });

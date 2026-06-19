@@ -12,6 +12,7 @@ import { mergeByKey } from './site';
 import {
   parseData,
   validateArray,
+  validateMerged,
   RosterEntrySchema,
   MatchEntrySchema,
   AchievementSchema,
@@ -36,7 +37,11 @@ export function loadRoster(): RosterEntry[] {
 export function loadMatches(): MatchEntry[] {
   const { auto, manual } = parseData(MatchEntrySchema, matchesAuto, matchesManual, 'matches');
   const merged = mergeByKey(auto, manual as MatchEntry[], 'id');
-  return validateArray(MatchEntrySchema, merged, 'matches (merged)');
+  // Match ids embed the Liquipedia start time, so a refixtured match orphans its
+  // manual override. validateMerged drops such a stale, partial orphan with a
+  // warning instead of failing the build; real auto-data corruption still throws.
+  const autoIds = new Set(auto.map((m) => m.id));
+  return validateMerged(MatchEntrySchema, merged, autoIds, 'id', 'matches (merged)');
 }
 
 export function loadAchievements(): Achievement[] {
@@ -47,5 +52,8 @@ export function loadAchievements(): Achievement[] {
     'achievements',
   );
   const merged = mergeByKey(auto, manual as Achievement[], 'id');
-  return validateArray(AchievementSchema, merged, 'achievements (merged)');
+  // Achievement ids embed the event date, so they carry the same orphan risk as
+  // matches; tolerate a stale manual-only orphan the same way.
+  const autoIds = new Set(auto.map((a) => a.id));
+  return validateMerged(AchievementSchema, merged, autoIds, 'id', 'achievements (merged)');
 }

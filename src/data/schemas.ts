@@ -193,3 +193,58 @@ export function validateArray<T>(schema: z.ZodType<T>, data: unknown, label: str
   if (!res.success) throw formatDataError(label, res.error);
   return res.data;
 }
+
+/**
+ * Re-validate a merged array, but tolerate ORPHANED manual-only entries.
+ *
+ * Match and achievement ids embed the Liquipedia start time (the fetcher keys
+ * each match on `...-<YYYYMMDDHHMM>`). When Liquipedia refines a fixture time,
+ * the auto id changes and a manual override keyed to the OLD id loses its
+ * anchor: `mergeByKey` then appends that partial override as a standalone row,
+ * which cannot satisfy the full schema on its own (no date/format/result). That
+ * is a stale override, not data corruption, so it is DROPPED with a warning
+ * rather than failing the whole build (and, via the pre-commit hook, the weekly
+ * Liquipedia auto-commit). The override re-attaches on its own the next time the
+ * manual id is resynced to the current match.
+ *
+ * Auto-anchored rows (key present in `autoKeys`, i.e. auto-only OR auto+manual)
+ * still fail LOUDLY: a malformed Liquipedia fetch, or a manual override that
+ * pushes a genuine row invalid, must never ship silently.
+ */
+export function validateMerged<T>(
+  schema: z.ZodType<T>,
+  merged: ReadonlyArray<unknown>,
+  autoKeys: ReadonlySet<unknown>,
+  idKey: string,
+  label: string,
+): T[] {
+  const keyOf = (entry: unknown): unknown =>
+    entry && typeof entry === 'object' ? (entry as Record<string, unknown>)[idKey] : undefined;
+
+  const anchored: unknown[] = [];
+  const orphans: unknown[] = [];
+  for (const entry of merged) {
+    (autoKeys.has(keyOf(entry)) ? anchored : orphans).push(entry);
+  }
+
+  // Anchored rows keep the strict contract: any failure here is real and loud.
+  const out = validateArray(schema, anchored, label);
+
+  // Manual-only rows are kept only if they stand alone as a complete record.
+  // A complete one is a deliberate manual addition (a fixture Liquipedia lacks);
+  // an incomplete one is a stale override that lost its anchor, so drop it.
+  for (const orphan of orphans) {
+    const res = schema.safeParse(orphan);
+    if (res.success) {
+      out.push(res.data);
+    } else {
+      console.warn(
+        `[data] ${label}: dropping orphaned manual-only entry ${JSON.stringify(keyOf(orphan))} ` +
+          '(no matching auto row, likely a Liquipedia id/time change). It does not satisfy the ' +
+          'full schema on its own:',
+        res.error.issues,
+      );
+    }
+  }
+  return out;
+}
