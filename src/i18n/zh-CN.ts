@@ -20,6 +20,7 @@ export const zhCN: Strings = {
     coaching: '教练课程',
     games: '游戏',
     about: '关于',
+    careers: '招募', // DRAFT PENDING RIRI NATIVE REVIEW
   },
   footer: {
     site: '网站',

@@ -14,6 +14,7 @@ export const en = {
     coaching: 'Coaching',
     games: 'Games',
     about: 'About',
+    careers: 'Careers',
   },
   footer: {
     site: 'Site',

@@ -51,6 +51,10 @@ export function primaryNav(locale: Locale, t: Strings): Array<{ href: string; la
     { href: pathFor(locale, '/coaching/'), label: t.nav.coaching },
     { href: pathFor(locale, '/games/'), label: t.nav.games },
     { href: pathFor(locale, '/about/'), label: t.nav.about },
+    // Careers is an English-only page (no zh routes), so the link is NOT run
+    // through pathFor: every locale points at the canonical /careers/, the same
+    // cross-locale convention the footer uses for Privacy / Terms.
+    { href: '/careers/', label: t.nav.careers },
   ];
 }
 

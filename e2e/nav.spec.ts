@@ -8,6 +8,7 @@ const PAGES = [
   { path: '/news/', match: /\/news\/$/ },
   { path: '/coaching/', match: /\/coaching\/$/ },
   { path: '/about/', match: /\/about\/$/ },
+  { path: '/careers/', match: /\/careers\/$/ },
 ];
 
 test.describe('primary navigation', () => {

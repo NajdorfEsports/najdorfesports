@@ -21,6 +21,7 @@ export const zhTW: Strings = {
     coaching: '教練課程',
     games: '遊戲',
     about: '關於',
+    careers: '招募', // DRAFT PENDING RIRI NATIVE REVIEW
   },
   footer: {
     site: '網站',

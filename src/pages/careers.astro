@@ -1,0 +1,166 @@
+---
+/**
+ * /careers - open roles + applications.
+ *
+ * English-only page (localized={false}), same as /privacy, /terms, /shop: its
+ * copy is not in the i18n dictionaries and the zh routes don't exist, so we must
+ * not emit hreflang alternates that 404.
+ *
+ * EVERYTHING role-related lives in src/data/careers.ts. Adding or removing a
+ * role is a one-file edit there (append an object with isOpen: true); this page
+ * and the shared Zoho form need no changes. The page just maps over openRoles().
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Badge from '../components/ui/Badge.astro';
+import PieceBackdrop from '../components/brand/PieceBackdrop.astro';
+import { site } from '../data/site';
+import { openRoles, ZOHO_FORM_URL } from '../data/careers';
+
+const roles = openRoles();
+---
+
+<BaseLayout
+  title="Careers"
+  description={`Open roles at ${site.name}. We're a competitive Overwatch team in OWCS Asia Pacific.`}
+  localized={false}
+>
+  {/* Hero: board texture + ambient backdrop, same chrome as About / Coaching. */}
+  <section class="relative isolate overflow-hidden border-b border-(--color-border)">
+    <div class="texture-board" aria-hidden="true"></div>
+    <PieceBackdrop piece="Knight" seed="careers" hatch={false} />
+    <div class="relative mx-auto max-w-(--max-content) px-4 sm:px-6 pt-12 pb-10">
+      <p class="eyebrow">Careers</p>
+      <h1 class="font-display text-(length:--text-h1) mt-2 tracking-wide leading-none">
+        Join Najdorf Esports
+      </h1>
+      <p class="text-lg text-(--color-text) mt-4 leading-relaxed max-w-2xl">
+        We're a competitive Overwatch team in OWCS Asia Pacific. When we open roles, we post them
+        here.
+      </p>
+    </div>
+  </section>
+
+  {/* Open roles. Each card expands (native <details>, zero JS for the toggle). */}
+  <section class="mx-auto max-w-(--max-content) px-4 sm:px-6 py-12">
+    <h2 class="font-display text-(length:--text-h2) tracking-wide">Open roles</h2>
+
+    <ul class="mt-6 max-w-3xl space-y-4" role="list">
+      {
+        roles.map((role) => (
+          <li>
+            <details
+              id={role.id}
+              class="career-card scroll-mt-24 surface-hover overflow-hidden rounded-lg border border-(--color-border) bg-(--color-surface)"
+            >
+              <summary class="career-card__summary flex cursor-pointer list-none flex-col gap-4 p-5 sm:flex-row sm:items-start sm:justify-between sm:p-6">
+                <div class="min-w-0">
+                  <h3 class="font-display text-xl tracking-wide sm:text-2xl">{role.title}</h3>
+                  <div class="mt-2 flex flex-wrap items-center gap-2">
+                    <Badge tone="neutral">{role.department}</Badge>
+                    <Badge tone="gold">{role.type}</Badge>
+                    <span class="inline-flex items-center gap-1 text-xs text-(--color-text-dim)">
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <circle cx="12" cy="10" r="2.5" />
+                      </svg>
+                      {role.location}
+                    </span>
+                  </div>
+                  <p class="mt-3 max-w-prose text-sm leading-relaxed text-(--color-text-dim)">
+                    {role.description}
+                  </p>
+                </div>
+
+                <span class="career-card__apply inline-flex shrink-0 items-center gap-1.5 self-start text-sm font-semibold uppercase tracking-wider text-(--color-accent-2)">
+                  Apply
+                  <svg
+                    class="career-card__chev"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                  >
+                    <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </summary>
+
+              <div class="career-card__body border-t border-(--color-border) px-5 pb-6 pt-5 sm:px-6">
+                <p class="text-sm text-(--color-text-dim)">
+                  Apply for <span class="text-(--color-text)">{role.title}</span> below.
+                </p>
+                <p class="mt-2 text-sm">
+                  <a
+                    href={ZOHO_FORM_URL}
+                    target="_blank"
+                    rel="noopener"
+                    class="link-arrow font-semibold text-(--color-accent-2) underline underline-offset-4 hover:text-(--color-accent)"
+                  >
+                    Open the application form
+                  </a>
+                </p>
+              </div>
+            </details>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  {/* General interest: always visible, regardless of open roles. */}
+  <section class="mx-auto max-w-(--max-content) px-4 sm:px-6 pb-16">
+    <div
+      class="max-w-3xl rounded-r-md border-l-4 border-(--color-accent) bg-(--color-surface) px-5 py-5"
+    >
+      <h2 class="font-display text-xl tracking-wide">Don't see a fit?</h2>
+      <p class="mt-2 text-(--color-text-dim) leading-relaxed">
+        Send a general introduction to{' '}
+        <Fragment set:html={'<!--email_off-->'} /><a
+          href={`mailto:${site.contactEmail}`}
+          class="text-(--color-accent-2) underline underline-offset-4 hover:text-(--color-accent)"
+          >{site.contactEmail}</a
+        ><Fragment set:html={'<!--/email_off-->'} /> and tell us what you'd bring to the org.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Native <details> card chrome. Zero JS for the toggle (same pattern as the
+     coaching FAQ); the chevron rotates when the card is open. */
+  .career-card__summary::-webkit-details-marker {
+    display: none;
+  }
+  .career-card__chev {
+    transition: transform 0.25s var(--ease-standard);
+  }
+  .career-card[open] .career-card__chev {
+    transform: rotate(180deg);
+  }
+  /* The open card is the focus of attention: lift the border to accent so it
+     reads as active without relying on the hover lift. */
+  .career-card[open] {
+    border-color: var(--color-accent-2);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .career-card__chev {
+      transition: none;
+    }
+  }
+</style>
