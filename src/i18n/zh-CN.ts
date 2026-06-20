@@ -671,6 +671,7 @@ export const zhCN: Strings = {
         evolutions: '进化',
         ready: '可进化！',
         none: '尚无',
+        active: '进行中', // DRAFT PENDING RIRI NATIVE REVIEW
       },
       levelUpHeading: '升级',
       levelUpSub: '择一',

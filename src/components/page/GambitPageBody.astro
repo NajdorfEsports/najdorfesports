@@ -469,12 +469,56 @@ const l10n = {
     flex: 1;
     color: var(--color-text);
   }
-  .gg-stats :global(.gg-stat-evos) {
+  /* Titled section (weapons / perks / evolutions): a header then per-line items. */
+  .gg-stats :global(.gg-stat-sec) {
     border-top: 1px solid var(--color-border);
     padding-top: 0.4rem;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.2rem;
+  }
+  .gg-stats :global(.gg-stat-head) {
+    margin-bottom: 0.1rem;
+    font-weight: 700;
+    color: var(--color-text-dim);
+    text-transform: uppercase;
+    font-size: 0.6875rem;
+    letter-spacing: 0.05em;
+  }
+  /* "In progress" / "Maxed" divider inside the perks section. */
+  .gg-stats :global(.gg-stat-sub) {
+    margin-top: 0.15rem;
+    font-weight: 600;
+    color: var(--color-text-dim);
+    opacity: 0.7;
+    text-transform: uppercase;
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+  }
+  .gg-stats :global(.gg-stat-item) {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-left: 0.25rem;
+  }
+  .gg-stats :global(.gg-item-name) {
+    color: var(--color-text);
+  }
+  .gg-stats :global(.gg-item-meta) {
+    color: var(--color-text-dim);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  /* A maxed weapon/perk: gold meta so a full stack is obvious. */
+  .gg-stats :global(.gg-stat-item-max .gg-item-meta) {
+    color: #f5c451;
+    font-weight: 700;
+  }
+  .gg-stats :global(.gg-stat-note) {
+    color: var(--color-text-dim);
+    opacity: 0.8;
+    font-style: italic;
   }
   .gg-stats :global(.gg-stat-evo) {
     font-size: 0.75rem;

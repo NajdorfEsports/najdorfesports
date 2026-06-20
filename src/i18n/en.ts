@@ -748,6 +748,7 @@ export const en = {
         evolutions: 'Evolutions',
         ready: 'Ready!',
         none: 'None yet',
+        active: 'In progress',
       },
       levelUpHeading: 'Level up',
       levelUpSub: 'Choose one',

@@ -57,6 +57,7 @@ import { STORAGE_KEY, deserialize, emptyState, serialize } from '../lib/gambit/s
 import { applyCard, offerChoices } from '../lib/gambit/systems/progression';
 import { resolveAoe } from '../lib/gambit/systems/weapon';
 import type { OfferCard, StoredState, World } from '../lib/gambit/types';
+import { UPGRADE_BY_ID } from '../lib/gambit/upgrades';
 import { WEAPONS } from '../lib/gambit/weapons';
 import { createWorld, runResult, step } from '../lib/gambit/world';
 
@@ -80,6 +81,7 @@ interface L10n {
     evolutions: string;
     ready: string;
     none: string;
+    active: string;
   };
 }
 
@@ -745,6 +747,45 @@ async function init(): Promise<void> {
     row.append(k, v);
     return row;
   }
+  // A titled block; callers append item rows and sub-labels under it.
+  function statSection(title: string): HTMLElement {
+    const sec = document.createElement('div');
+    sec.className = 'gg-stat-sec';
+    const head = document.createElement('div');
+    head.className = 'gg-stat-head';
+    head.textContent = title;
+    sec.appendChild(head);
+    return sec;
+  }
+  // One "name .... value" row on its own line; maxed rows are flagged so a
+  // full weapon/perk reads at a glance.
+  function statItem(name: string, value: string, maxed: boolean): HTMLElement {
+    const row = document.createElement('div');
+    row.className = maxed ? 'gg-stat-item gg-stat-item-max' : 'gg-stat-item';
+    const n = document.createElement('span');
+    n.className = 'gg-item-name';
+    n.textContent = name;
+    const v = document.createElement('span');
+    v.className = 'gg-item-meta';
+    v.textContent = value;
+    row.append(n, v);
+    return row;
+  }
+  function statSub(label: string): HTMLElement {
+    const d = document.createElement('div');
+    d.className = 'gg-stat-sub';
+    d.textContent = label;
+    return d;
+  }
+  function statNote(text: string): HTMLElement {
+    const d = document.createElement('div');
+    d.className = 'gg-stat-note';
+    d.textContent = text;
+    return d;
+  }
+  // Pause stat sheet: a section per facet (run, weapons, perks, evolutions),
+  // every item on its own line, and maxed perks split from the ones still
+  // climbing. Built to be read or pasted whole, not scanned as one blob.
   function renderStats(): void {
     if (!statsBox || !game.world) return;
     const w = game.world;
@@ -753,27 +794,53 @@ async function init(): Promise<void> {
     const pname = (id: string): string => l10n.upgrades[id]?.name ?? id;
     statsBox.replaceChildren();
 
+    // Run summary: the only genuinely one-line facet.
     statsBox.appendChild(
       statLine(
         s.time,
         `${formatClock(Math.floor(w.time.elapsedS))}    ${s.level} ${w.player.level}`,
       ),
     );
-    statsBox.appendChild(
-      statLine(s.weapons, w.player.weapons.map((x) => `${wname(x.id)} Lv${x.level}`).join(', ')),
-    );
-    const passives = Object.entries(game.taken)
-      .filter(([, n]) => n > 0)
-      .map(([id, n]) => `${pname(id)} x${n}`);
-    statsBox.appendChild(statLine(s.upgrades, passives.length ? passives.join(', ') : s.none));
 
-    // Evolutions: recipe + progress, or "Ready!" when both prerequisites are met.
-    const evoWrap = document.createElement('div');
-    evoWrap.className = 'gg-stat-evos';
-    const head = document.createElement('div');
-    head.className = 'gg-stat-key';
-    head.textContent = s.evolutions;
-    evoWrap.appendChild(head);
+    // Weapons: one per line as Lv n/max. A maxed base weapon is half of an
+    // evolution, so the /max is the number that matters.
+    const weaponSec = statSection(s.weapons);
+    for (const wp of w.player.weapons) {
+      const max = WEAPONS[wp.id]?.maxLevel ?? wp.level;
+      weaponSec.appendChild(
+        statItem(wname(wp.id), `Lv ${Math.min(wp.level, max)}/${max}`, wp.level >= max),
+      );
+    }
+    statsBox.appendChild(weaponSec);
+
+    // Perks: each on its own line, with the ones still climbing kept separate
+    // from the ones already maxed out.
+    const perks = Object.entries(game.taken)
+      .filter(([, n]) => n > 0)
+      .map(([id, n]) => {
+        const max = UPGRADE_BY_ID[id]?.maxStacks ?? n;
+        return { name: pname(id), n, max, maxed: n >= max };
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+    const perkSec = statSection(s.upgrades);
+    if (perks.length === 0) {
+      perkSec.appendChild(statNote(s.none));
+    } else {
+      const climbing = perks.filter((p) => !p.maxed);
+      const maxed = perks.filter((p) => p.maxed);
+      if (climbing.length) {
+        perkSec.appendChild(statSub(s.active));
+        for (const p of climbing) perkSec.appendChild(statItem(p.name, `x${p.n}/${p.max}`, false));
+      }
+      if (maxed.length) {
+        perkSec.appendChild(statSub(l10n.maxed));
+        for (const p of maxed) perkSec.appendChild(statItem(p.name, `x${p.n}/${p.max}`, true));
+      }
+    }
+    statsBox.appendChild(perkSec);
+
+    // Evolutions: each recipe with live progress, or "Ready!"/done.
+    const evoSec = statSection(s.evolutions);
     for (const e of EVOLUTIONS) {
       const owned = w.player.weapons.find((x) => x.id === e.baseWeaponId);
       const def = WEAPONS[e.baseWeaponId];
@@ -793,9 +860,9 @@ async function init(): Promise<void> {
         : ready
           ? `${evoName}: ${s.ready}`
           : `${evoName}: ${recipe}`;
-      evoWrap.appendChild(line);
+      evoSec.appendChild(line);
     }
-    statsBox.appendChild(evoWrap);
+    statsBox.appendChild(evoSec);
   }
 
   // --- Run lifecycle ---

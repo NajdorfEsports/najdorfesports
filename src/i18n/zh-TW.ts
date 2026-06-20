@@ -671,6 +671,7 @@ export const zhTW: Strings = {
         evolutions: '進化',
         ready: '可進化！',
         none: '尚無',
+        active: '進行中', // DRAFT PENDING RIRI NATIVE REVIEW
       },
       levelUpHeading: '升級',
       levelUpSub: '擇一',
