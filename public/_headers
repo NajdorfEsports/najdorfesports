@@ -23,7 +23,7 @@
   # style-src, and the Cal embed injects runtime styles. Style injection
   # without script injection is low-impact on a static site with no inline
   # handlers.
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://app.cal.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://app.cal.com; frame-src https://player.twitch.tv https://www.youtube-nocookie.com https://app.cal.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://app.cal.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://app.cal.com; frame-src https://player.twitch.tv https://www.youtube-nocookie.com https://app.cal.com https://forms.zohopublic.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests
   X-XSS-Protection: 0
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Resource-Policy: same-site

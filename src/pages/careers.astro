@@ -12,11 +12,18 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Badge from '../components/ui/Badge.astro';
+import Button from '../components/ui/Button.astro';
 import PieceBackdrop from '../components/brand/PieceBackdrop.astro';
 import { site } from '../data/site';
+import { channels } from '../data/channels';
 import { openRoles, ZOHO_FORM_URL } from '../data/careers';
 
 const roles = openRoles();
+
+// Empty-state fallbacks: the org's X + Discord (dormant url 'TODO' entries are
+// skipped). Sourced from the single channels registry so URLs never drift.
+const x = channels.find((c) => c.platform === 'x' && c.url !== 'TODO');
+const discord = channels.find((c) => c.platform === 'discord' && c.url !== 'TODO');
 ---
 
 <BaseLayout
@@ -44,82 +51,117 @@ const roles = openRoles();
   <section class="mx-auto max-w-(--max-content) px-4 sm:px-6 py-12">
     <h2 class="font-display text-(length:--text-h2) tracking-wide">Open roles</h2>
 
-    <ul class="mt-6 max-w-3xl space-y-4" role="list">
-      {
-        roles.map((role) => (
-          <li>
-            <details
-              id={role.id}
-              class="career-card scroll-mt-24 surface-hover overflow-hidden rounded-lg border border-(--color-border) bg-(--color-surface)"
-            >
-              <summary class="career-card__summary flex cursor-pointer list-none flex-col gap-4 p-5 sm:flex-row sm:items-start sm:justify-between sm:p-6">
-                <div class="min-w-0">
-                  <h3 class="font-display text-xl tracking-wide sm:text-2xl">{role.title}</h3>
-                  <div class="mt-2 flex flex-wrap items-center gap-2">
-                    <Badge tone="neutral">{role.department}</Badge>
-                    <Badge tone="gold">{role.type}</Badge>
-                    <span class="inline-flex items-center gap-1 text-xs text-(--color-text-dim)">
-                      <svg
-                        width="13"
-                        height="13"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        aria-hidden="true"
-                      >
-                        <path
-                          d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                        <circle cx="12" cy="10" r="2.5" />
-                      </svg>
-                      {role.location}
-                    </span>
+    {
+      roles.length === 0 && (
+        <div class="mt-6 max-w-3xl rounded-lg border border-(--color-border) bg-(--color-surface) px-5 py-8 sm:px-6">
+          <p class="text-(--color-text)">
+            No open positions right now. Follow us on social or check back later.
+          </p>
+          <div class="mt-4 flex flex-wrap gap-3">
+            {x && (
+              <Button href={x.url} external variant="secondary">
+                Follow on X
+              </Button>
+            )}
+            {discord && (
+              <Button href={discord.url} external variant="secondary">
+                Join the Discord
+              </Button>
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    {
+      roles.length > 0 && (
+        <ul class="mt-6 max-w-3xl space-y-4" role="list">
+          {roles.map((role) => (
+            <li>
+              <details
+                id={role.id}
+                class="career-card scroll-mt-24 surface-hover overflow-hidden rounded-lg border border-(--color-border) bg-(--color-surface)"
+              >
+                <summary class="career-card__summary flex cursor-pointer list-none flex-col gap-4 p-5 sm:flex-row sm:items-start sm:justify-between sm:p-6">
+                  <div class="min-w-0">
+                    <h3 class="font-display text-xl tracking-wide sm:text-2xl">{role.title}</h3>
+                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                      <Badge tone="neutral">{role.department}</Badge>
+                      <Badge tone="gold">{role.type}</Badge>
+                      <span class="inline-flex items-center gap-1 text-xs text-(--color-text-dim)">
+                        <svg
+                          width="13"
+                          height="13"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                          <circle cx="12" cy="10" r="2.5" />
+                        </svg>
+                        {role.location}
+                      </span>
+                    </div>
+                    <p class="mt-3 max-w-prose text-sm leading-relaxed text-(--color-text-dim)">
+                      {role.description}
+                    </p>
                   </div>
-                  <p class="mt-3 max-w-prose text-sm leading-relaxed text-(--color-text-dim)">
-                    {role.description}
+
+                  <span class="career-card__apply inline-flex shrink-0 items-center gap-1.5 self-start text-sm font-semibold uppercase tracking-wider text-(--color-accent-2)">
+                    Apply
+                    <svg
+                      class="career-card__chev"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      aria-hidden="true"
+                    >
+                      <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                </summary>
+
+                <div class="career-card__body border-t border-(--color-border) px-5 pb-6 pt-5 sm:px-6">
+                  {/* The iframe carries NO src until its card is first opened (see
+                   the script below): the form, and any Zoho cookies, load only
+                   on a deliberate click. The Zoho origin is allowlisted in
+                   public/_headers (frame-src). */}
+                  <div class="career-form">
+                    <iframe
+                      data-src={ZOHO_FORM_URL}
+                      title={`Application form: ${role.title}`}
+                      loading="lazy"
+                      class="career-form__iframe"
+                    />
+                  </div>
+                  <p class="mt-3 text-xs text-(--color-text-dim)">
+                    Form not loading?{' '}
+                    <a
+                      href={ZOHO_FORM_URL}
+                      target="_blank"
+                      rel="noopener"
+                      class="text-(--color-accent-2) underline underline-offset-4 hover:text-(--color-accent)"
+                    >
+                      Open it in a new tab
+                    </a>
+                    .
                   </p>
                 </div>
-
-                <span class="career-card__apply inline-flex shrink-0 items-center gap-1.5 self-start text-sm font-semibold uppercase tracking-wider text-(--color-accent-2)">
-                  Apply
-                  <svg
-                    class="career-card__chev"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    aria-hidden="true"
-                  >
-                    <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                </span>
-              </summary>
-
-              <div class="career-card__body border-t border-(--color-border) px-5 pb-6 pt-5 sm:px-6">
-                <p class="text-sm text-(--color-text-dim)">
-                  Apply for <span class="text-(--color-text)">{role.title}</span> below.
-                </p>
-                <p class="mt-2 text-sm">
-                  <a
-                    href={ZOHO_FORM_URL}
-                    target="_blank"
-                    rel="noopener"
-                    class="link-arrow font-semibold text-(--color-accent-2) underline underline-offset-4 hover:text-(--color-accent)"
-                  >
-                    Open the application form
-                  </a>
-                </p>
-              </div>
-            </details>
-          </li>
-        ))
-      }
-    </ul>
+              </details>
+            </li>
+          ))}
+        </ul>
+      )
+    }
   </section>
 
   {/* General interest: always visible, regardless of open roles. */}
@@ -140,11 +182,43 @@ const roles = openRoles();
   </section>
 </BaseLayout>
 
+<script>
+  // Lazy-load the Zoho application form. Each card's iframe carries no src until
+  // the card is first opened, so the form (and any Zoho cookies) never load at
+  // page load: the request fires only on a deliberate click. Processed module,
+  // bundled by Astro into /_astro/*.js so the CSP needs no 'unsafe-inline'
+  // (mirrors the Twitch / YouTube facades). The form origin is allowlisted in
+  // public/_headers (frame-src). With JS off the iframe stays blank and the
+  // "Open it in a new tab" link below it is the application path.
+  const cards = document.querySelectorAll('details.career-card');
+  cards.forEach((card) => {
+    card.addEventListener('toggle', () => {
+      if (!(card instanceof HTMLDetailsElement) || !card.open) return;
+      const iframe = card.querySelector('iframe[data-src]');
+      if (!(iframe instanceof HTMLIFrameElement)) return;
+      const src = iframe.getAttribute('data-src');
+      if (!src) return;
+      iframe.src = src;
+      iframe.removeAttribute('data-src');
+    });
+  });
+</script>
+
 <style>
   /* Native <details> card chrome. Zero JS for the toggle (same pattern as the
      coaching FAQ); the chevron rotates when the card is open. */
   .career-card__summary::-webkit-details-marker {
     display: none;
+  }
+
+  /* Embedded application form: responsive width, fixed height per spec. */
+  .career-form__iframe {
+    display: block;
+    width: 100%;
+    height: 600px;
+    border: 0;
+    border-radius: 0.375rem;
+    background: var(--color-bg);
   }
   .career-card__chev {
     transition: transform 0.25s var(--ease-standard);
