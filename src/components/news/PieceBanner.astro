@@ -46,24 +46,44 @@ const d = NEWS_PIECE_PATHS[piece];
   }
 
   /* Scripting enabled: start the outline hidden so the draw-on has somewhere
-     to draw FROM. The large constant exceeds any piece's path length, so the
-     path is fully retracted regardless of its true length; the script then
-     swaps in the exact length measured with getTotalLength(). With scripting
-     OFF this rule never applies, so the path stays fully drawn (no-JS safe). */
+     to draw FROM. `--draw-len` is the path length the script measures with
+     getTotalLength() and sets on the svg; until it lands, the 9999 fallback
+     (larger than any piece's length) keeps the path fully retracted. With
+     scripting OFF this whole block never applies, so the path stays fully
+     drawn (no-JS safe). */
   @media (scripting: enabled) {
     .piece-banner__path {
-      stroke-dasharray: 9999;
-      stroke-dashoffset: 9999;
+      stroke-dasharray: var(--draw-len, 9999);
+      stroke-dashoffset: var(--draw-len, 9999);
+    }
+    /* The draw-on loops: ~1.4s to stroke the piece in, a beat held complete,
+       then it restarts. The whole cycle is 3s, so each piece redraws every
+       three seconds. The script adds `is-drawing` only while the banner is in
+       view, so off-screen banners don't animate. */
+    .piece-banner.is-drawing .piece-banner__path {
+      animation: piece-draw 3s cubic-bezier(0.16, 1, 0.3, 1) infinite;
     }
   }
 
-  /* Reduced motion: show the completed outline immediately, no draw-on. The
-     !important beats the inline styles the script writes. */
+  @keyframes piece-draw {
+    0% {
+      stroke-dashoffset: var(--draw-len, 9999);
+    }
+    46% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* Reduced motion: show the completed outline immediately, no draw-on and no
+     loop. The !important beats the inline custom property the script writes. */
   @media (prefers-reduced-motion: reduce) {
     .piece-banner__path {
       stroke-dasharray: none !important;
       stroke-dashoffset: 0 !important;
-      transition: none !important;
+      animation: none !important;
     }
   }
 </style>
