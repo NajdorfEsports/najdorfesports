@@ -1,0 +1,407 @@
+---
+/**
+ * HeroFlow: the flowing full-bleed hero backdrop.
+ *
+ * A single cohesive motion field reproduced from the approved
+ * `Najdorf_Hero_Flow.html` reference: ribbons of cobalt light drifting edge to
+ * edge over a silky animated gradient, a barely-there chessboard the light
+ * flows across, and soft drifting canvas motes. No foreground object, no
+ * cursor reaction, no WebGL/video/library: pure CSS + SVG + one small canvas
+ * script (src/scripts/hero-flow.ts).
+ *
+ * It renders ONLY the background layers plus a legibility scrim and is fully
+ * content-agnostic. Drop it in as the BACKMOST layer of a positioned hero
+ * section; the page's existing hero copy stays as a later sibling (with its
+ * own `relative`/stacking) so it paints instantly on top and stays legible.
+ *
+ * The component owns its own responsive + reduced-motion behaviour:
+ *  - prefers-reduced-motion freezes every layer to a composed static still and
+ *    the canvas paints one frame with no rAF loop.
+ *  - On narrow viewports it simplifies automatically (fewer ribbons, no board,
+ *    lighter gradient); the canvas mote count scales with area on its own.
+ *  - It is absolutely positioned, so it adds zero layout and cannot shift the
+ *    hero (no CLS).
+ *
+ * Props let each page keep its text legible and tune the intensity:
+ *  - variant:  'primary' (field + board + ribbons + motes) | 'minimal' (field only)
+ *  - scrim:    which side the legibility wash is weighted to, or 'none'
+ *  - scrimIntensity: 0..1, how strong that wash is
+ *  - intensity: 0..1, overall strength of the moving colour layers
+ */
+interface Props {
+  variant?: 'primary' | 'minimal';
+  scrim?: 'left' | 'right' | 'center' | 'none';
+  scrimIntensity?: number;
+  intensity?: number;
+  class?: string;
+}
+
+const {
+  variant = 'primary',
+  scrim = 'left',
+  scrimIntensity = 0.82,
+  intensity = 1,
+  class: className,
+} = Astro.props;
+
+// Clamp the tunables so a stray prop can never invert a gradient or blow out
+// the wash. `--scrim-i` is consumed as a percentage via calc(* 1%).
+const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
+const scrimPct = (clamp01(scrimIntensity) * 100).toFixed(1);
+const flowIntensity = clamp01(intensity).toFixed(3);
+---
+
+<div
+  class:list={['flow-frame', className]}
+  data-variant={variant}
+  data-scrim={scrim}
+  aria-hidden="true"
+  style={`--scrim-i:${scrimPct}; --flow-intensity:${flowIntensity};`}
+>
+  {/* Animated aurora gradient: four blurred cobalt blobs drifting on long, offset loops. */}
+  <div class="flow-field">
+    <span class="blob b3"></span><span class="blob b1"></span>
+    <span class="blob b2"></span><span class="blob b4"></span>
+  </div>
+
+  {/* Barely-there chessboard the light flows across (primary only). */}
+  <div class="flow-chess"></div>
+
+  {
+    /* Flowing ribbons. viewBox 0 0 100 100, preserveAspectRatio="xMidYMid slice"
+     so each fills any aspect; the wrapping .ribbon carries the blur + drift. */
+  }
+  <div class="flow-ribbons">
+    <div class="ribbon r1">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+        <defs
+          ><linearGradient id="naj-rg1" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#215BFF" stop-opacity="0"></stop>
+            <stop offset="0.45" stop-color="#215BFF" stop-opacity=".7"></stop>
+            <stop offset="0.7" stop-color="#6B8DFF" stop-opacity=".55"></stop>
+            <stop offset="1" stop-color="#6B8DFF" stop-opacity="0"></stop>
+          </linearGradient></defs
+        >
+        <path
+          class="ribbon-band"
+          fill="url(#naj-rg1)"
+          d="M -20 52 C 15 32 40 58 66 40 C 86 26 106 38 122 28 L 122 52 C 106 64 86 50 66 68 C 40 90 15 62 -20 80 Z"
+        ></path>
+      </svg>
+    </div>
+
+    <div class="ribbon r2">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+        <defs
+          ><linearGradient id="naj-rg2" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#6B8DFF" stop-opacity="0"></stop>
+            <stop offset="0.4" stop-color="#215BFF" stop-opacity=".85"></stop>
+            <stop offset="0.78" stop-color="#83A6FF" stop-opacity=".6"></stop>
+            <stop offset="1" stop-color="#83A6FF" stop-opacity="0"></stop>
+          </linearGradient></defs
+        >
+        <path
+          class="ribbon-band"
+          fill="url(#naj-rg2)"
+          d="M -20 44 C 20 62 46 30 72 48 C 92 62 110 44 122 52 L 122 66 C 110 60 92 78 72 62 C 46 42 20 76 -20 58 Z"
+        ></path>
+      </svg>
+    </div>
+
+    {/* r3 = thin bright highlight; its leading edge carries a faint warm flame-nod stop. */}
+    <div class="ribbon r3">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+        <defs
+          ><linearGradient id="naj-rg3" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#FF8A4C" stop-opacity="0"></stop>
+            <stop offset="0.18" stop-color="#FF8A4C" stop-opacity=".22"></stop>
+            <stop offset="0.42" stop-color="#6B8DFF" stop-opacity=".85"></stop>
+            <stop offset="0.75" stop-color="#BCDCFF" stop-opacity=".7"></stop>
+            <stop offset="1" stop-color="#BCDCFF" stop-opacity="0"></stop>
+          </linearGradient></defs
+        >
+        <path
+          class="ribbon-band"
+          fill="url(#naj-rg3)"
+          d="M -20 50 C 22 38 52 62 82 46 C 102 35 114 49 122 44 L 122 49 C 114 56 102 43 82 55 C 52 73 22 45 -20 57 Z"
+        ></path>
+      </svg>
+    </div>
+  </div>
+
+  {/* Soft drifting light motes (canvas, JS). */}
+  <canvas class="motes"></canvas>
+
+  {/* Legibility scrim, weighted to the configured side. */}
+  <div class="flow-scrim"></div>
+</div>
+
+<style>
+  /* Backmost layer of a positioned hero. Absolute so it adds no layout and
+     cannot cause CLS; pointer-events:none so it never intercepts clicks meant
+     for the hero copy that sits above it. */
+  .flow-frame {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--color-bg);
+    pointer-events: none;
+  }
+
+  /* ---- Aurora gradient field ---------------------------------------------- */
+  .flow-field {
+    position: absolute;
+    inset: -12%;
+    z-index: 0;
+    opacity: calc(0.95 * var(--flow-intensity, 1));
+    filter: saturate(118%);
+  }
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(64px);
+    mix-blend-mode: screen;
+    will-change: transform;
+  }
+  .b1 {
+    width: 58%;
+    height: 78%;
+    left: -6%;
+    top: -14%;
+    background: radial-gradient(circle at 50% 50%, #215bff 0%, rgba(33, 91, 255, 0) 68%);
+    opacity: 0.78;
+    animation: blob-drift-1 27s ease-in-out infinite alternate;
+  }
+  .b2 {
+    width: 64%;
+    height: 70%;
+    right: -10%;
+    top: -6%;
+    background: radial-gradient(circle at 50% 50%, #6b8dff 0%, rgba(107, 141, 255, 0) 66%);
+    opacity: 0.6;
+    animation: blob-drift-2 33s ease-in-out infinite alternate;
+  }
+  .b3 {
+    width: 70%;
+    height: 86%;
+    left: 8%;
+    bottom: -28%;
+    background: radial-gradient(circle at 50% 50%, #1b46c8 0%, rgba(27, 70, 200, 0) 70%);
+    opacity: 0.66;
+    animation: blob-drift-3 39s ease-in-out infinite alternate;
+  }
+  .b4 {
+    width: 40%;
+    height: 52%;
+    right: 4%;
+    bottom: -10%;
+    background: radial-gradient(circle at 50% 50%, #83a6ff 0%, rgba(131, 166, 255, 0) 64%);
+    opacity: 0.5;
+    animation: blob-drift-4 23s ease-in-out infinite alternate;
+  }
+
+  @keyframes blob-drift-1 {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(8%, 6%, 0) scale(1.12);
+    }
+  }
+  @keyframes blob-drift-2 {
+    from {
+      transform: translate3d(0, 0, 0) scale(1.05);
+    }
+    to {
+      transform: translate3d(-9%, 8%, 0) scale(0.95);
+    }
+  }
+  @keyframes blob-drift-3 {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(6%, -7%, 0) scale(1.1);
+    }
+  }
+  @keyframes blob-drift-4 {
+    from {
+      transform: translate3d(0, 0, 0) scale(0.95);
+    }
+    to {
+      transform: translate3d(-7%, -5%, 0) scale(1.15);
+    }
+  }
+
+  /* ---- Barely-there chessboard the light flows across --------------------- */
+  .flow-chess {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    opacity: 0.04;
+    mix-blend-mode: overlay;
+    background-image:
+      linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%),
+      linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%);
+    background-size: 84px 84px;
+    background-position:
+      0 0,
+      42px 42px;
+  }
+
+  /* ---- Flowing ribbons ----------------------------------------------------- */
+  .flow-ribbons {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    opacity: calc(var(--flow-intensity, 1));
+  }
+  .ribbon {
+    position: absolute;
+    inset: -14%;
+    mix-blend-mode: screen;
+    will-change: transform;
+  }
+  .ribbon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .r1 {
+    filter: blur(11px);
+    opacity: 0.8;
+    animation: ribbon-drift-1 31s ease-in-out infinite alternate;
+  }
+  .r2 {
+    filter: blur(8px);
+    opacity: 0.72;
+    animation: ribbon-drift-2 37s ease-in-out infinite alternate;
+  }
+  .r3 {
+    filter: blur(5px);
+    opacity: 0.85;
+    animation: ribbon-drift-3 25s ease-in-out infinite alternate;
+  }
+
+  @keyframes ribbon-drift-1 {
+    from {
+      transform: translate3d(-3%, 1%, 0) scale(1.02);
+    }
+    to {
+      transform: translate3d(4%, -2%, 0) scale(1.06);
+    }
+  }
+  @keyframes ribbon-drift-2 {
+    from {
+      transform: translate3d(3%, -1%, 0) scale(1.05);
+    }
+    to {
+      transform: translate3d(-4%, 2%, 0) scale(1);
+    }
+  }
+  @keyframes ribbon-drift-3 {
+    from {
+      transform: translate3d(-2%, 2%, 0) scale(1);
+    }
+    to {
+      transform: translate3d(5%, -1%, 0) scale(1.04);
+    }
+  }
+
+  /* ---- Canvas motes -------------------------------------------------------- */
+  .motes {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* ---- Legibility scrim ---------------------------------------------------- */
+  .flow-scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    /* The scrim colour is the page background at `--scrim-i` opacity, so it
+       reads as a clean darkening wash rather than a tint. */
+    --scrim-c: color-mix(in srgb, var(--color-bg) calc(var(--scrim-i, 82) * 1%), transparent);
+  }
+  .flow-frame[data-scrim='left'] .flow-scrim {
+    background: linear-gradient(
+      to right,
+      var(--scrim-c) 0%,
+      color-mix(in srgb, var(--color-bg) calc(var(--scrim-i, 82) * 0.55%), transparent) 30%,
+      transparent 64%
+    );
+  }
+  .flow-frame[data-scrim='right'] .flow-scrim {
+    background: linear-gradient(
+      to left,
+      var(--scrim-c) 0%,
+      color-mix(in srgb, var(--color-bg) calc(var(--scrim-i, 82) * 0.55%), transparent) 30%,
+      transparent 64%
+    );
+  }
+  .flow-frame[data-scrim='center'] .flow-scrim {
+    background: radial-gradient(
+      120% 120% at 50% 60%,
+      transparent 38%,
+      color-mix(in srgb, var(--color-bg) calc(var(--scrim-i, 82) * 0.7%), transparent) 100%
+    );
+  }
+  .flow-frame[data-scrim='none'] .flow-scrim {
+    display: none;
+  }
+  /* A faint floor under every variant keeps copy that runs to the bottom edge
+     legible without darkening the whole field. */
+  .flow-scrim::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent 55%,
+      color-mix(in srgb, var(--color-bg) 45%, transparent) 100%
+    );
+  }
+
+  /* ---- Minimal variant: the aurora field alone ---------------------------- */
+  .flow-frame[data-variant='minimal'] .flow-chess,
+  .flow-frame[data-variant='minimal'] .flow-ribbons,
+  .flow-frame[data-variant='minimal'] .motes {
+    display: none;
+  }
+
+  /* ---- Mobile simplification ---------------------------------------------- */
+  @media (max-width: 640px) {
+    /* Fewer ribbons and no board; the canvas already scales its mote count
+       down with the smaller area. */
+    .flow-chess,
+    .r3 {
+      display: none;
+    }
+    /* Lighter gradient: smaller blur radius and a touch less presence. */
+    .blob {
+      filter: blur(46px);
+    }
+    .flow-field {
+      opacity: calc(0.82 * var(--flow-intensity, 1));
+    }
+  }
+
+  /* ---- Reduced motion: freeze to a composed static still ------------------- */
+  @media (prefers-reduced-motion: reduce) {
+    .blob,
+    .ribbon {
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+  import { initHeroFlow } from '../../scripts/hero-flow';
+  initHeroFlow();
+</script>

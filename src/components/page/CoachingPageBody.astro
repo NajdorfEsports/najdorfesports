@@ -16,7 +16,7 @@ import CoachCard from '../coaching/CoachCard.astro';
 import CoachFilters from '../coaching/CoachFilters.astro';
 import BookingFlow from '../coaching/BookingFlow.astro';
 import PromotionStepper from '../coaching/PromotionStepper.astro';
-import PieceBackdrop from '../brand/PieceBackdrop.astro';
+import HeroFlow from '../brand/HeroFlow.astro';
 import { COACHES, COACHING_DISCORD_INVITE } from '../../data/coaching';
 import { site } from '../../data/site';
 import { getLocale, useT } from '../../i18n';
@@ -45,14 +45,13 @@ const faqs = [
 
 <article>
   {
-    /* Hero: board texture + ambient backdrop, copy on the left and the chess
+    /* Hero: the flowing brand backdrop, copy on the left and the chess
      promotion stepper on the right (level up your play). */
   }
   <section class="relative isolate overflow-hidden border-b border-(--color-border)">
-    <div class="texture-board" aria-hidden="true"></div>
-    <PieceBackdrop piece="Queen" seed="coaching" hatch={false} />
+    <HeroFlow scrim="left" scrimIntensity={0.78} intensity={0.85} />
     <div
-      class="relative mx-auto grid max-w-(--max-content) gap-8 px-4 sm:px-6 pt-12 pb-10 lg:grid-cols-[1.4fr_1fr] lg:items-center"
+      class="relative z-10 mx-auto grid max-w-(--max-content) gap-8 px-4 sm:px-6 pt-12 pb-10 lg:grid-cols-[1.4fr_1fr] lg:items-center"
     >
       <div>
         <p class="eyebrow">{c.hero.eyebrow}</p>

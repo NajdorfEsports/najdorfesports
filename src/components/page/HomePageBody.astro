@@ -25,6 +25,7 @@ import SponsorsRow from '../team/SponsorsRow.astro';
 import CommunityCTA from '../team/CommunityCTA.astro';
 import Button from '../ui/Button.astro';
 import BishopMark from '../ui/BishopMark.astro';
+import HeroFlow from '../brand/HeroFlow.astro';
 import SectionHeader from '../ui/SectionHeader.astro';
 import NewsCover from '../news/NewsCover.astro';
 import { getCollection } from 'astro:content';
@@ -113,36 +114,27 @@ const nextFilm = nextMatch
   class="relative overflow-hidden isolate border-b border-(--color-border)"
 >
   {
-    /* Ambient motion layer (decorative): a drifting accent glow and a sparse
-       particle field. Sits below the texture grid and content. The particles
-       are added by src/scripts/hero-ambient.ts and disabled under reduced
-       motion; with JS off this is just the static glow. */
+    /* The flowing brand backdrop (src/components/brand/HeroFlow.astro): the
+       animated gradient field, chessboard, drifting ribbons, and canvas motes,
+       left-weighted scrim for legibility. Backmost layer; the copy below sits
+       on top and paints instantly. Reduced motion freezes it to a still. */
   }
-  <div class="hero-ambient" aria-hidden="true">
-    <div class="hero-glow"></div>
-    <div class="hero-particles" data-hero-particles></div>
-  </div>
-  <div class="texture-board" aria-hidden="true"></div>
+  <HeroFlow scrim="left" intensity={1} />
   {
     /* The architectural bishop: oversized, faint linework, deliberately
       cropped by the section edge. On load it "makes the move", sliding into
       its resting square once (hero-bishop-move); reduced motion shows it
       already in place. Hidden from narrow viewports where it would crowd the
-      wordmark. */
+      wordmark. Kept on top of the flow as the org's brand mark. */
   }
   <div
-    class="hero-bishop-move absolute -right-16 -bottom-40 hidden md:block text-(--color-accent) opacity-[0.07]"
+    class="hero-bishop-move absolute -right-16 -bottom-40 z-[1] hidden md:block text-(--color-accent) opacity-[0.07]"
     aria-hidden="true"
   >
     <BishopMark width={420} height={630} strokeWidth={1.2} />
   </div>
-  <div
-    class="absolute inset-0 bg-gradient-to-b from-(--color-surface) to-(--color-bg) opacity-60 -z-10"
-    aria-hidden="true"
-  >
-  </div>
 
-  <div class="relative mx-auto max-w-(--max-content) px-4 sm:px-6 pt-14 sm:pt-24 pb-12">
+  <div class="relative z-10 mx-auto max-w-(--max-content) px-4 sm:px-6 pt-14 sm:pt-24 pb-12">
     <p class="hero-fade-in section-header__move-like" aria-hidden="true" style="--delay:0ms">
       {moveLabel(0)}
     </p>
@@ -458,7 +450,3 @@ const nextFilm = nextMatch
     color: color-mix(in oklab, var(--color-accent-2) 60%, var(--color-text-dim));
   }
 </style>
-
-<script>
-  import '../../scripts/hero-ambient.ts';
-</script>
