@@ -6,6 +6,7 @@ locale: 'zh-TW'
 description: '一篇短文，談談為什麼 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 這串棋步，是一支《鬥陣特攻》戰隊最合適的隊名。'
 eyebrow: '隨筆'
 tone: 'secondary'
+piece: 'knight'
 ---
 
 大多數電競戰隊的隊名，靠的多半是感覺。我們希望自己的隊名能代表某種具體的東西。

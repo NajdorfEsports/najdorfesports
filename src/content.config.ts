@@ -47,6 +47,15 @@ const news = defineCollection({
      */
     eyebrow: z.string().optional(),
     tone: z.enum(['primary', 'secondary', 'split']).default('primary'),
+    /**
+     * Importance ("severity") of the article, expressed as the chess piece
+     * drawn on in its banner: pawn (least important) .. king (an org-defining,
+     * direction-changing announcement). Drives PieceBanner.astro. Defaults to
+     * `pawn` so a new post never has to think about it; set it deliberately
+     * for anything that matters. Keep this in sync across an article's three
+     * locale files so every language shows the same piece.
+     */
+    piece: z.enum(['pawn', 'knight', 'bishop', 'rook', 'queen', 'king']).default('pawn'),
   }),
 });
 

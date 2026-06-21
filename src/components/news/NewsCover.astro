@@ -5,15 +5,17 @@
  *   - `variant="card"`, compact thumb at the top of each card on /news/
  *
  * The "image" is rendered from the post metadata + a chess-piece motif
- * (chosen by importance tier, Pawn .. King) rather than from a static
- * asset, so adding a new post doesn't require running a generator script
- * or committing a binary. Tone (primary / secondary / split) drives the
+ * (the article's `piece`, pawn .. king, which draws itself on via
+ * PieceBanner.astro) rather than from a static asset, so adding a new post
+ * doesn't require running a generator script or committing a binary. Tone
+ * (primary / secondary / split) drives the
  * gradient + accent color; eyebrow is the small uppercase chip above the
  * title.
  */
 import { formatDate } from '../../i18n/format';
 import { DEFAULT_LOCALE, type Locale } from '../../i18n';
-import { HEADS, PEDESTAL, PIECE_ORDER } from '../../lib/pieces';
+import { NEWS_PIECE_ORDER, type NewsPiece } from '../../lib/news-pieces';
+import PieceBanner from './PieceBanner.astro';
 
 interface Props {
   title: string;
@@ -22,8 +24,13 @@ interface Props {
   tone?: 'primary' | 'secondary' | 'split';
   variant?: 'hero' | 'card';
   locale?: Locale;
-  /** Importance tier 0 (Pawn) .. 5 (King). Selects the backdrop chess piece
-   *  so each cover signals its rank through the piece, not a loud badge. */
+  /** The chess piece drawn on in the banner, chosen by the article's
+   *  importance ("severity"): pawn (least) .. king (org-defining). Pass this
+   *  from the post's `piece` front-matter field. */
+  piece?: NewsPiece;
+  /** Legacy importance tier 0 (Pawn) .. 5 (King), used only when `piece` is
+   *  not supplied (e.g. the home-page news preview). Mapped onto a piece so
+   *  those covers keep working unchanged. */
   importance?: number;
 }
 
@@ -34,11 +41,13 @@ const {
   tone = 'primary',
   variant = 'hero',
   locale = DEFAULT_LOCALE,
+  piece,
   importance = 2,
 } = Astro.props;
 
 const isHero = variant === 'hero';
-const piece = PIECE_ORDER[Math.max(0, Math.min(PIECE_ORDER.length - 1, importance))];
+const resolvedPiece =
+  piece ?? NEWS_PIECE_ORDER[Math.max(0, Math.min(NEWS_PIECE_ORDER.length - 1, importance))];
 // The cover title is a real heading, not decorative text. On an article page
 // (hero) it is the page's single h1; in the index grid (card) each title is an
 // h2 under that page's "From the team" h1. Tailwind preflight zeroes heading
@@ -71,21 +80,13 @@ const dateLabel = formatDate(date, locale, {
   <span class="news-cover__rule" aria-hidden="true"></span>
 
   {
-    /* Backdrop piece, chosen by importance tier (Pawn .. King). Faint
-      linework anchored bottom-right so the cover always carries visual
-      weight and signals the post's rank, even at card sizes. */
+    /* Backdrop piece, the article's `piece` (pawn .. king). Faint linework
+      anchored bottom-right that draws itself on once in view, so the cover
+      always carries visual weight and signals the post's rank, even at card
+      sizes. */
   }
   <span class="news-cover__piece" aria-hidden="true">
-    <svg
-      viewBox="0 0 64 96"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.4"
-      stroke-linejoin="round"
-      stroke-linecap="round"
-    >
-      <g set:html={HEADS[piece] + PEDESTAL} />
-    </svg>
+    <PieceBanner piece={resolvedPiece} />
   </span>
 
   {

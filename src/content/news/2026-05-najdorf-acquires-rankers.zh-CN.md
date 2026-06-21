@@ -6,6 +6,7 @@ locale: 'zh-CN'
 description: 'Najdorf Esports 是一支全新成立的太平洋赛区《守望先锋》战队。第二阶段名单集结了多位来自 Rankers 第一阶段阵容的选手，并加入了新签下的成员。'
 eyebrow: '公告'
 tone: 'primary'
+piece: 'queen'
 ---
 
 **Najdorf Esports 是一支全新成立的太平洋赛区《守望先锋》战队。** 在 OWCS Pacific 第二阶段前，我们收购了 Rankers 的阵容。我们的[首发阵容](/zh-CN/roster/)即将出战，队中既有来自 Rankers 第一阶段的熟悉面孔，也加入了新签下的选手。

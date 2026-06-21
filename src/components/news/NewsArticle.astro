@@ -7,7 +7,6 @@
 import NewsCover from './NewsCover.astro';
 import { render, type CollectionEntry } from 'astro:content';
 import { pathFor, useT, type Locale } from '../../i18n';
-import { seedFrom } from '../../lib/pieces';
 
 interface Props {
   post: CollectionEntry<'news'>;
@@ -17,10 +16,6 @@ interface Props {
 const { post, locale } = Astro.props;
 const t = useT(locale);
 const { Content } = await render(post);
-
-// Each article's hero carries a stable piece identity (Bishop .. King),
-// derived from its slug so the same story always shows the same piece.
-const importance = 2 + (seedFrom(post.data.slug) % 4);
 ---
 
 <article class="mx-auto max-w-3xl px-4 sm:px-6 pt-12 pb-16">
@@ -31,7 +26,7 @@ const importance = 2 + (seedFrom(post.data.slug) % 4);
     tone={post.data.tone}
     variant="hero"
     locale={locale}
-    importance={importance}
+    piece={post.data.piece}
   />
 
   <div class="prose mt-10">

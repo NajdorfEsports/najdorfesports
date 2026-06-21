@@ -6,6 +6,7 @@ locale: 'zh-TW'
 description: 'Najdorf Esports 是一支全新成立的太平洋賽區《鬥陣特攻》戰隊。第二階段名單集結了多位來自 Rankers 第一階段陣容的選手，並加入了新簽下的成員。'
 eyebrow: '公告'
 tone: 'primary'
+piece: 'queen'
 ---
 
 **Najdorf Esports 是一支全新成立的太平洋賽區《鬥陣特攻》戰隊。** 在 OWCS Pacific 第二階段前，我們收購了 Rankers 的陣容。我們的[首發陣容](/zh-TW/roster/)即將出戰，隊中既有來自 Rankers 第一階段的熟悉面孔，也加入了新簽下的選手。

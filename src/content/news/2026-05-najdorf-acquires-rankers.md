@@ -6,6 +6,7 @@ locale: 'en'
 description: 'Najdorf Esports is a new Pacific-region Overwatch organization. The Stage 2 roster brings together several players from the Rankers Stage 1 lineup alongside new signings.'
 eyebrow: 'Announcement'
 tone: 'primary'
+piece: 'queen'
 ---
 
 **Najdorf Esports is a new Overwatch organization in the Pacific region.** Ahead of OWCS Pacific Stage 2 we acquired the Rankers roster. Our [first lineup](/roster/) heads into the stage with familiar faces from the Rankers Stage 1 squad, joined by new signings.

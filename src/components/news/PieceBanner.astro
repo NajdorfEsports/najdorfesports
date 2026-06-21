@@ -1,0 +1,74 @@
+---
+/**
+ * The animated news-banner chess piece. Renders the approved single-path
+ * outline for `piece` and draws it on once, the first time it scrolls into
+ * view (see `src/scripts/piece-banner.ts`).
+ *
+ * Placement and size are owned by the parent banner (`.news-cover__piece`
+ * in NewsCover.astro): this component only contributes the artwork, the
+ * stroke styling, and the draw-on. The piece is a decorative backdrop, so
+ * it is `aria-hidden` and outline-only (never inked solid).
+ *
+ * No-JS doctrine: the path renders FULLY DRAWN by default. Only when
+ * scripting is enabled (gated on `@media (scripting: enabled)`) does it
+ * start hidden, so a blocked or absent script can never strand the outline
+ * invisible. Reduced motion freezes it to the completed outline.
+ */
+import { NEWS_PIECE_PATHS, type NewsPiece } from '../../lib/news-pieces';
+
+interface Props {
+  piece?: NewsPiece;
+}
+
+const { piece = 'pawn' } = Astro.props;
+const d = NEWS_PIECE_PATHS[piece];
+---
+
+<svg
+  class="piece-banner"
+  data-piece-banner
+  viewBox="0 0 64 96"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.4"
+  stroke-linejoin="round"
+  stroke-linecap="round"
+  aria-hidden="true"
+>
+  <path class="piece-banner__path" d={d}></path>
+</svg>
+
+<style>
+  .piece-banner {
+    display: block;
+    width: auto;
+    height: 100%;
+  }
+
+  /* Scripting enabled: start the outline hidden so the draw-on has somewhere
+     to draw FROM. The large constant exceeds any piece's path length, so the
+     path is fully retracted regardless of its true length; the script then
+     swaps in the exact length measured with getTotalLength(). With scripting
+     OFF this rule never applies, so the path stays fully drawn (no-JS safe). */
+  @media (scripting: enabled) {
+    .piece-banner__path {
+      stroke-dasharray: 9999;
+      stroke-dashoffset: 9999;
+    }
+  }
+
+  /* Reduced motion: show the completed outline immediately, no draw-on. The
+     !important beats the inline styles the script writes. */
+  @media (prefers-reduced-motion: reduce) {
+    .piece-banner__path {
+      stroke-dasharray: none !important;
+      stroke-dashoffset: 0 !important;
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  import { initPieceBanners } from '../../scripts/piece-banner';
+  initPieceBanners();
+</script>
