@@ -310,14 +310,36 @@
     ]
   },
   {
-    "id": "liquipedia-owcs-pacific-2026-stage-2-4-202606251230",
-    "date": "2026-06-25T12:30:00.000Z",
+    "id": "liquipedia-owcs-pacific-2026-stage-2-4-202606251240",
+    "date": "2026-06-25T12:40:00.000Z",
     "opponent": "ELMT",
     "tournament": "OWCS Pacific 2026 · Stage 2",
     "format": "BO5",
     "streamUrl": "https://twitch.tv/ow_esports_th",
     "liquipediaUrl": "https://liquipedia.net/overwatch/Overwatch_Champions_Series/2026/Asia/Stage_2/Pacific/Regular_Season",
-    "result": "tbd"
+    "result": "win",
+    "mapScores": [
+      {
+        "map": "Oasis",
+        "ourScore": 1,
+        "theirScore": 2
+      },
+      {
+        "map": "Suravasa",
+        "ourScore": 3,
+        "theirScore": 2
+      },
+      {
+        "map": "Circuit Royal",
+        "ourScore": 4,
+        "theirScore": 3
+      },
+      {
+        "map": "Runasapi",
+        "ourScore": 1,
+        "theirScore": 0
+      }
+    ]
   },
   {
     "id": "liquipedia-owcs-pacific-2026-stage-2-5-202607021400",
